@@ -1,0 +1,1220 @@
+App 29: The Instrument Library
+
+Completeness status: COMPLETE. All sections delivered in one pass. No truncation.
+
+What It Is
+A curated, provenance-aware library of scientific instruments, their specifications, their calibration histories, their operational envelopes, and their measurement uncertainties. Each entry describes one instrument (or one instrument class) with the fields a researcher, an engineer, or a data pipeline needs in order to know what the instrument measures, how well it measures it, under what conditions, and with what traceability. The library is a first-class artifact in the suite: other apps query it to autofill instrument metadata, to validate measurement claims, to attach uncertainty budgets, and to reproduce observations.
+
+It reuses the Autofill Library Service (App 49), the STAG Schema Library (App 17), the Provenance-Aware Annotation Database (App 20), the PROV-O Exporter (App 3), the Physics Knowledge Library (App 23), and the Revision History Viewer (App 7).
+
+It is for researchers, instrument operators, metrologists, data engineers, and the users of every app in the suite that records, cites, or reasons about measurements.
+
+Core Requirements
+Functional requirements:
+
+Store instrument entries with a stable schema.
+
+Each entry describes one instrument or one instrument class.
+
+Support instrument identification: name, manufacturer, model, serial number, asset tag.
+
+Support instrument classification: type, modality, measurement domain, physical principle.
+
+Support specifications: range, resolution, accuracy, precision, sensitivity, linearity, drift, bandwidth, sampling rate.
+
+Support operational envelope: temperature, pressure, humidity, voltage, magnetic field, radiation, vibration.
+
+Support calibration records: date, standard used, traceability chain, calibration certificate, uncertainty.
+
+Support measurement uncertainty: a full uncertainty budget per measurement mode.
+
+Support traceability: a chain to a national metrology institute or a primary standard.
+
+Support provenance: depositor, date, source, tool version, references.
+
+Support versioning: each entry has a version, and each edit creates a new version.
+
+Support curation: entries are submitted as pending, then approved, rejected, or edited by a moderator.
+
+Support search: by name, by type, by domain, by specification range, by uncertainty, by traceability.
+
+Support comparison: compare two or more instruments field by field.
+
+Support export: JSON, JSON Lines, CSV, Turtle, PROV-O.
+
+Support import: bulk import from JSON or JSON Lines.
+
+Support autofill: the Autofill Library Service (App 49) reads this library under library_id instrument_library.
+
+Support integration with App 23 (Physics Knowledge Library) so that instrument entries can be cited by physics claims.
+
+Support integration with App 20 (Provenance-Aware Annotation Database) so that instrument annotations carry provenance.
+
+Support integration with App 7 (Revision History Viewer) so that every edit is visible.
+
+Support a REST API.
+
+Support a GraphQL API.
+
+Support a command-line interface.
+
+Support a web interface for browsing, submitting, comparing, and moderating.
+
+Support authentication and authorization.
+
+Support audit logging.
+
+Support backup and restore.
+
+Non-functional requirements:
+
+Deterministic: same query and same library produce the same result.
+
+Fast: a lookup returns in under 100 milliseconds for a library of up to 100,000 entries.
+
+Scalable: support up to 10^7 instrument entries.
+
+Versioned: the library version, the entry version, and the service version are recorded.
+
+Reproducible: every entry has a complete provenance record.
+
+Portable: Linux, macOS, Windows.
+
+Well-documented: API documentation, schema documentation, user guide, metrology primer.
+
+Input Specification
+Input 1. Instrument entry. Required for submission. A JSON object with the identification, classification, specification, envelope, calibration, uncertainty, traceability, provenance, keywords, and notes fields.
+
+Input 2. Instrument query. Required for read operations. A query object with fields for name, type, domain, specification range, uncertainty threshold, traceability, depositor, date range, and keywords.
+
+Input 3. Comparison request. Required for comparison. A list of two or more entry IDs and an optional field filter.
+
+Input 4. Curation action. Required for curation. A curation object with fields for entry ID, action, moderator ID, and curation notes.
+
+Input 5. Library registration. Required once per deployment. The instrument_library registration with the schema and the version.
+
+Input 6. Bulk import file. Optional. JSON or JSON Lines.
+
+Input 7. Bulk export query. Optional. A query object selecting entries to export.
+
+Input 8. Authentication credentials. Required for authenticated operations.
+
+Input 9. Aggregation query. Required for aggregation. A query object with the aggregation dimension and the filter.
+
+Output Specification
+Output 1. Instrument entry. JSON. The full entry.
+
+Output 2. Instrument query result. JSON. The list of matching entries, with pagination.
+
+Output 3. Comparison result. JSON. A field-by-field table across the compared instruments.
+
+Output 4. Curation result. JSON. The entry ID and the new moderation status.
+
+Output 5. Submission result. JSON. The entry ID and the status.
+
+Output 6. Aggregation result. JSON. Counts by the aggregation dimension.
+
+Output 7. Export file. JSON, JSON Lines, CSV, Turtle, or PROV-O.
+
+Output 8. PROV-O serialization. Turtle or JSON-LD.
+
+Output 9. Turtle serialization. Turtle.
+
+Output 10. Audit log entry. JSON. Operation, entry ID, user, timestamp, result.
+
+Output 11. API response. JSON with HTTP status.
+
+Output 12. GraphQL response. JSON.
+
+Output 13. Backup file. Database dump or JSON archive.
+
+Module-by-Module Specification
+Module 1. Instrument Schema.
+
+Defines the canonical schema for an instrument entry.
+
+Module 2. Instrument Store.
+
+Holds the instrument entries.
+
+Module 3. Identification Module.
+
+Manages name, manufacturer, model, serial number, asset tag, aliases.
+
+Module 4. Classification Module.
+
+Manages type, modality, domain, physical principle.
+
+Module 5. Specification Module.
+
+Manages range, resolution, accuracy, precision, sensitivity, linearity, drift, bandwidth, sampling rate.
+
+Module 6. Operational Envelope Module.
+
+Manages temperature, pressure, humidity, voltage, magnetic field, radiation, vibration limits.
+
+Module 7. Calibration Module.
+
+Manages calibration records: date, standard, traceability chain, certificate, uncertainty.
+
+Module 8. Uncertainty Budget Module.
+
+Manages the per-mode uncertainty budget: type A, type B, combined, expanded, coverage factor.
+
+Module 9. Traceability Module.
+
+Manages the chain to a national metrology institute or a primary standard.
+
+Module 10. Provenance Module.
+
+Records depositor, date, source, tool version, references.
+
+Module 11. Version Manager.
+
+Manages entry versions and library versions.
+
+Module 12. Curation Workflow.
+
+Approve, reject, edit.
+
+Module 13. Search Engine.
+
+Supports search by name, type, domain, specification range, uncertainty threshold, traceability, depositor, date range, keywords.
+
+Module 14. Comparison Engine.
+
+Compares two or more instruments field by field.
+
+Module 15. Export Engine.
+
+Exports JSON, JSON Lines, CSV, Turtle, PROV-O.
+
+Module 16. Import Engine.
+
+Imports JSON or JSON Lines.
+
+Module 17. REST API.
+
+Provides the REST API.
+
+Module 18. GraphQL API.
+
+Provides the GraphQL API.
+
+Module 19. Command-Line Interface.
+
+Provides the CLI.
+
+Module 20. Authentication and Authorization.
+
+API keys, OAuth, or JWT; RBAC: reader, depositor, moderator, admin.
+
+Module 21. Audit Logging.
+
+Logs every operation.
+
+Module 22. Backup and Restore.
+
+Database dump or JSON archive.
+
+Module 23. Web Interface.
+
+Browse, submit, compare, moderate.
+
+Module 24. Autofill Integration.
+
+Registers instrument_library with App 49 and serves lookups.
+
+Module 25. Migration Manager.
+
+Manages schema migrations.
+
+Full Specification
+6.1 Instrument Entry Schema
+Each entry has:
+
+entry_id. A stable identifier.
+
+library_id. Always instrument_library.
+
+entry_schema_version. A semantic version.
+
+identification. An object with:
+
+name.
+
+aliases. A list.
+
+manufacturer.
+
+model.
+
+serial_number.
+
+asset_tag.
+
+classification. An object with:
+
+type. One of the controlled vocabulary: spectrometer, interferometer, telescope, microscope, detector, sensor, gauge, balance, clock, laser, cryostat, magnet, particle_detector, camera, spectrograph, radiometer, other.
+
+modality. One of: optical, infrared, ultraviolet, xray, gamma, radio, microwave, acoustic, seismic, thermal, electrical, magnetic, mechanical, chemical, biological, other.
+
+domain. One of: astronomy, particle_physics, condensed_matter, chemistry, biology, medicine, geology, materials, metrology, other.
+
+physical_principle. A free-text description of the measurement principle.
+
+specifications. An object with:
+
+range. An object with min, max, unit.
+
+resolution. A value with unit.
+
+accuracy. A value with unit and a statement of the reference.
+
+precision. A value with unit.
+
+sensitivity. A value with unit.
+
+linearity. A value with unit or a percentage.
+
+drift. A value with unit per time.
+
+bandwidth. A value with unit.
+
+sampling_rate. A value with unit.
+
+operational_envelope. An object with:
+
+temperature. min, max, unit.
+
+pressure. min, max, unit.
+
+humidity. min, max, unit.
+
+voltage. min, max, unit.
+
+magnetic_field. min, max, unit.
+
+radiation. min, max, unit.
+
+vibration. min, max, unit.
+
+calibration. An array of calibration records. Each record has:
+
+date.
+
+standard. The reference standard used.
+
+traceability_chain. A list of steps to a national metrology institute or a primary standard.
+
+certificate. An identifier or a URL.
+
+uncertainty. A value with unit.
+
+uncertainty_budget. An array of budget items. Each item has:
+
+mode. The measurement mode.
+
+type_a. The type A contribution.
+
+type_b. The type B contribution.
+
+combined. The combined standard uncertainty.
+
+expanded. The expanded uncertainty.
+
+coverage_factor. The coverage factor k.
+
+unit.
+
+provenance. An object with:
+
+depositor_id.
+
+depositor_affiliation.
+
+deposit_date.
+
+source.
+
+tool_version.
+
+references. A list of DOIs or URLs.
+
+keywords. A list.
+
+notes. Free text.
+
+moderation_status. pending, approved, rejected.
+
+version. An integer.
+
+supersedes. An entry ID or null.
+
+superseded_by. An entry ID or null.
+
+6.2 Controlled Vocabularies
+The type vocabulary is: spectrometer, interferometer, telescope, microscope, detector, sensor, gauge, balance, clock, laser, cryostat, magnet, particle_detector, camera, spectrograph, radiometer, other.
+
+The modality vocabulary is: optical, infrared, ultraviolet, xray, gamma, radio, microwave, acoustic, seismic, thermal, electrical, magnetic, mechanical, chemical, biological, other.
+
+The domain vocabulary is: astronomy, particle_physics, condensed_matter, chemistry, biology, medicine, geology, materials, metrology, other.
+
+The vocabularies are versioned and stored in the library registry.
+
+6.3 The Search Engine
+The search engine supports:
+
+Search by name. Exact, prefix, fuzzy.
+
+Search by type. Controlled vocabulary.
+
+Search by domain. Controlled vocabulary.
+
+Search by specification range. For example, resolution better than 1 nm.
+
+Search by uncertainty threshold. For example, expanded uncertainty less than 0.1 percent.
+
+Search by traceability. For example, traceable to NIST or PTB.
+
+Search by depositor.
+
+Search by date range.
+
+Search by keywords.
+
+The search engine uses the alias index, the type index, the domain index, the specification index, the uncertainty index, and the traceability index.
+
+6.4 The Comparison Engine
+The comparison engine takes two or more entry IDs and a field filter.
+
+It returns a field-by-field table.
+
+For each field, it shows the value for each instrument and a flag if the values differ.
+
+The comparison is deterministic.
+
+6.5 The Calibration Rules
+A calibration record must have a date, a standard, a traceability chain, a certificate, and an uncertainty.
+
+The traceability chain must terminate at a national metrology institute or a primary standard.
+
+The chain is a list of steps, each with an institute, a standard, and a date.
+
+6.6 The Uncertainty Rules
+An uncertainty budget must have at least one item.
+
+Each item must have a mode, a type A contribution, a type B contribution, a combined standard uncertainty, an expanded uncertainty, a coverage factor, and a unit.
+
+The combined standard uncertainty is the root sum of squares of the type A and type B contributions.
+
+The expanded uncertainty is the combined standard uncertainty times the coverage factor.
+
+The default coverage factor is 2, corresponding to approximately 95 percent confidence for a normal distribution.
+
+6.7 The Version Rules
+Each entry has a version.
+
+Each edit creates a new version.
+
+The supersedes and superseded_by fields form a chain.
+
+The chain must be acyclic.
+
+The library has a version.
+
+The library version increments when the schema or the controlled vocabularies change.
+
+6.8 The Curation Rules
+Approve. Set moderation_status to approved.
+
+Reject. Set moderation_status to rejected.
+
+Edit. Update the entry fields, keep the provenance, add a curation note, increment the version.
+
+Each action records the moderator ID and the curation notes.
+
+6.9 The Autofill Rules
+The library registers with App 49 as instrument_library.
+
+The entry type is instrument.
+
+The autofill lookup matches on name, aliases, manufacturer, model, and serial number.
+
+The autofill field filter supports returning only the identification fields, only the classification fields, only the specification fields, or any subset.
+
+6.10 The Integration Rules
+With App 23, instrument entries can be cited by physics claims.
+
+With App 20, instrument annotations carry provenance.
+
+With App 7, every edit is visible in the revision history.
+
+With App 49, the library serves autofill lookups.
+
+With App 3, entries can be exported as PROV-O.
+
+With App 17, the schema is registered in the STAG Schema Library.
+
+Core Logic as Executable Pseudocode
+7.1 Submit Entry
+function submitEntry(entry, auth):
+
+Step 1. validateAuth(auth, "depositor").
+
+Step 2. validateEntry(entry, instrumentSchema).
+
+If invalid, return the validation errors.
+
+Step 3. entryId = generateEntryId().
+
+Set entry_id, deposit_date, depositor_id, depositor_affiliation, moderation_status pending, version 1.
+
+Step 4. insertEntry(entry).
+
+Step 5. updateAliasIndex.
+
+Step 6. insertProvenance.
+
+Step 7. insertAuditLog.
+
+Step 8. return entry_id and status submitted.
+
+7.2 Curate Entry
+function curateEntry(entryId, action, curationNotes, auth):
+
+Step 1. validateAuth(auth, "moderator").
+
+Step 2. entry = selectEntry(entryId).
+
+If null, return an error.
+
+Step 3. If action is approve, set moderation_status approved.
+
+If action is reject, set moderation_status rejected.
+
+If action is edit, update entry fields, increment version, add a curation note.
+
+Step 4. insertCurationRecord.
+
+Step 5. insertAuditLog.
+
+Step 6. return entry_id and status.
+
+7.3 Search
+function search(query, auth):
+
+Step 1. validateAuth(auth, "reader").
+
+Step 2. candidates = selectCandidates(query).
+
+Step 3. filtered = applyFilters(candidates, query).
+
+Step 4. ranked = rankResults(filtered, query).
+
+Step 5. paginated = paginate(ranked, query.page, query.page_size).
+
+Step 6. return paginated.
+
+7.4 Compare
+function compare(entryIds, fieldFilter, auth):
+
+Step 1. validateAuth(auth, "reader").
+
+Step 2. entries = selectEntries(entryIds).
+
+Step 3. fields = fieldFilter or the union of all fields.
+
+Step 4. table = buildComparisonTable(entries, fields).
+
+Step 5. return table.
+
+7.5 Uncertainty Computation
+function computeUncertainty(budgetItems):
+
+For each item:
+
+combined = sqrt(typeA^2 + typeB^2).
+
+expanded = combined * coverageFactor.
+
+Return the items with the computed combined and expanded values.
+
+7.6 Traceability Validation
+function validateTraceability(chain):
+
+The chain must be a non-empty list.
+
+Each step must have an institute, a standard, and a date.
+
+The last step must be a national metrology institute or a primary standard.
+
+Return valid or the validation errors.
+
+Data Model
+Instrument entry object:
+
+entry_id.
+
+library_id.
+
+entry_schema_version.
+
+identification.
+
+classification.
+
+specifications.
+
+operational_envelope.
+
+calibration.
+
+uncertainty_budget.
+
+provenance.
+
+keywords.
+
+notes.
+
+moderation_status.
+
+version.
+
+supersedes.
+
+superseded_by.
+
+Query object:
+
+name.
+
+type.
+
+domain.
+
+specification_range.
+
+uncertainty_threshold.
+
+traceability.
+
+depositor.
+
+date_range.
+
+keywords.
+
+page.
+
+page_size.
+
+Comparison result object:
+
+entry_ids.
+
+fields.
+
+rows. Each row has the field name and the values for each entry.
+
+Architecture
+Module breakdown:
+
+Instrument Schema.
+
+Instrument Store.
+
+Identification Module.
+
+Classification Module.
+
+Specification Module.
+
+Operational Envelope Module.
+
+Calibration Module.
+
+Uncertainty Budget Module.
+
+Traceability Module.
+
+Provenance Module.
+
+Version Manager.
+
+Curation Workflow.
+
+Search Engine.
+
+Comparison Engine.
+
+Export Engine.
+
+Import Engine.
+
+REST API.
+
+GraphQL API.
+
+Command-Line Interface.
+
+Authentication and Authorization.
+
+Audit Logging.
+
+Backup and Restore.
+
+Web Interface.
+
+Autofill Integration.
+
+Migration Manager.
+
+Data flow:
+
+API requests go to the REST or GraphQL API.
+
+The API calls the search engine, the comparison engine, the submission engine, or the curation workflow.
+
+The instrument store holds the entries.
+
+The indexes speed up search.
+
+The provenance module records the provenance.
+
+The version manager tracks versions.
+
+The audit logging records every operation.
+
+The autofill integration serves lookups to App 49.
+
+The web interface provides browsing, submitting, comparing, and moderating.
+
+Technology Stack
+Recommended for the database:
+
+PostgreSQL 15+ or SQLite 3.40+.
+
+Language: Python 3.11+ or Node.js 20+.
+
+ORM: SQLAlchemy (Python) or Prisma (JS).
+
+Migrations: Alembic (Python) or Prisma Migrate (JS).
+
+Fuzzy matching: rapidfuzz (Python) or fuse.js (JS).
+
+Full-text search: PostgreSQL tsvector or SQLite FTS5.
+
+Recommended for the REST API:
+
+Framework: FastAPI (Python) or Express (JS).
+
+Authentication: FastAPI Users (Python) or Passport (JS).
+
+Recommended for the GraphQL API:
+
+Framework: Strawberry (Python) or Apollo Server (JS).
+
+Recommended for the command-line interface:
+
+Framework: Click (Python) or Commander (JS).
+
+Recommended for the web interface:
+
+Frontend: React or Svelte.
+
+Backend: the same as the REST API.
+
+Recommended for deployment:
+
+Containerization: Docker.
+
+Orchestration: Docker Compose or Kubernetes.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The STAG schema (Artifact 2, Appendix B.1).
+
+The Null-Model Protocol schema (from App 8 and App 9).
+
+The PROV-O exporter (App 3).
+
+The STAG schema library (App 17).
+
+The provenance database (App 20).
+
+The Physics Knowledge Library (App 23).
+
+The revision history viewer (App 7).
+
+The Autofill Library Service (App 49).
+
+UI/UX Specification
+REST API:
+
+Base URL: https://api.example.com/v1.
+
+Authentication: Bearer token.
+
+Endpoints:
+
+GET /instruments. List instruments.
+
+GET /instruments/{id}. Get an instrument.
+
+POST /instruments. Submit an instrument.
+
+PUT /instruments/{id}. Update an instrument.
+
+DELETE /instruments/{id}. Delete an instrument.
+
+POST /instruments/search. Search.
+
+POST /instruments/compare. Compare.
+
+POST /instruments/curate/{id}. Curate.
+
+GET /instruments/{id}/provenance. Get the provenance.
+
+GET /instruments/{id}/history. Get the revision history.
+
+GET /audit. List audit log entries.
+
+Responses in JSON.
+
+HTTP status codes: 200, 201, 204, 400, 401, 403, 404, 409, 422, 500.
+
+GraphQL API:
+
+Endpoint: https://api.example.com/graphql.
+
+Schema exposes instruments, calibrations, uncertainty budgets, traceability chains, and curation actions.
+
+Command-line interface:
+
+Usage: instrument-library [command] [options].
+
+Commands: init, migrate, backup, restore, import, export, query, compare, curate, audit.
+
+Web interface:
+
+A browsable list of instruments.
+
+A detail view for each instrument.
+
+A submission form.
+
+A comparison view.
+
+A moderation view.
+
+A search form.
+
+Validation Engine Design
+The service validates the following:
+
+Validation 1. Schema validity. Every entry is validated against the instrument schema.
+
+Validation 2. Controlled vocabulary validity. Type, modality, and domain must be in the controlled vocabularies.
+
+Validation 3. Unit validity. Every value with a unit must use a unit from the unit registry.
+
+Validation 4. Range validity. min must be less than or equal to max.
+
+Validation 5. Calibration completeness. Every calibration record must have a date, a standard, a traceability chain, a certificate, and an uncertainty.
+
+Validation 6. Traceability validity. The traceability chain must terminate at a national metrology institute or a primary standard.
+
+Validation 7. Uncertainty completeness. Every budget item must have a mode, a type A, a type B, a combined, an expanded, a coverage factor, and a unit.
+
+Validation 8. Uncertainty arithmetic. The combined and expanded values must match the arithmetic.
+
+Validation 9. Provenance completeness. Every entry must have a provenance record.
+
+Validation 10. Version chain acyclicity. The version chain must be acyclic.
+
+Validation 11. Audit completeness. Every operation must have an audit log entry.
+
+Testing Strategy
+Unit tests:
+
+Schema validation for valid and invalid entries.
+
+Controlled vocabulary validation.
+
+Unit validation.
+
+Range validation.
+
+Calibration completeness.
+
+Traceability validation.
+
+Uncertainty completeness.
+
+Uncertainty arithmetic.
+
+Provenance completeness.
+
+Version chain acyclicity.
+
+Audit completeness.
+
+Search by name, type, domain, specification range, uncertainty threshold, traceability, depositor, date range, keywords.
+
+Comparison for two and for more than two instruments.
+
+Curation for approve, reject, and edit.
+
+Export for JSON, JSON Lines, CSV, Turtle, and PROV-O.
+
+Import for JSON and JSON Lines.
+
+REST API for each endpoint.
+
+GraphQL API for each query and mutation.
+
+Command-line interface for each command.
+
+Authentication and authorization for each role.
+
+Audit logging for each operation.
+
+Backup and restore for each format.
+
+Web interface for each view.
+
+Autofill integration for registration and lookup.
+
+Integration tests:
+
+Register the instrument library with App 49.
+
+Submit an instrument.
+
+Look up the instrument via App 49.
+
+Verify the field values.
+
+Submit an instrument with a calibration record.
+
+Verify the traceability chain.
+
+Submit an instrument with an uncertainty budget.
+
+Verify the arithmetic.
+
+Compare two instruments.
+
+Verify the field-by-field table.
+
+Curate an instrument.
+
+Verify the moderation status.
+
+Backup the database.
+
+Restore the database.
+
+Verify the data is identical.
+
+Worked-example tests:
+
+Submit a helium-neon laser.
+
+Verify the wavelength, the power, and the beam diameter.
+
+Submit a superconducting quantum interference device.
+
+Verify the sensitivity and the noise floor.
+
+Submit a charge-coupled device camera.
+
+Verify the quantum efficiency and the read noise.
+
+Submit a cesium atomic clock.
+
+Verify the fractional frequency uncertainty.
+
+Submit a scanning tunneling microscope.
+
+Verify the lateral resolution and the tunneling current range.
+
+Submit a proportional counter.
+
+Verify the gas mixture and the operating voltage.
+
+Look up a misspelled instrument name.
+
+Verify that the fuzzy matcher returns the correct entry.
+
+Look up an abbreviation.
+
+Verify that the alias index returns the correct entry.
+
+Regression tests:
+
+Search determinism.
+
+Comparison determinism.
+
+Uncertainty arithmetic consistency.
+
+Traceability consistency.
+
+Audit log consistency.
+
+Moderation consistency.
+
+Autofill lookup consistency.
+
+Build Phases
+Phase 1. Instrument Schema.
+
+Phase 2. Instrument Store.
+
+Phase 3. Identification Module.
+
+Phase 4. Classification Module.
+
+Phase 5. Specification Module.
+
+Phase 6. Operational Envelope Module.
+
+Phase 7. Calibration Module.
+
+Phase 8. Uncertainty Budget Module.
+
+Phase 9. Traceability Module.
+
+Phase 10. Provenance Module.
+
+Phase 11. Version Manager.
+
+Phase 12. Curation Workflow.
+
+Phase 13. Search Engine.
+
+Phase 14. Comparison Engine.
+
+Phase 15. Export Engine.
+
+Phase 16. Import Engine.
+
+Phase 17. REST API.
+
+Phase 18. GraphQL API.
+
+Phase 19. Command-Line Interface.
+
+Phase 20. Authentication and Authorization.
+
+Phase 21. Audit Logging.
+
+Phase 22. Backup and Restore.
+
+Phase 23. Web Interface.
+
+Phase 24. Autofill Integration.
+
+Phase 25. Migration Manager.
+
+Phase 26. Worked-example tests.
+
+Phase 27. Integration testing and hardening.
+
+Phase 28. Packaging and deployment.
+
+Dependencies
+Python path:
+
+SQLAlchemy.
+
+Alembic.
+
+FastAPI.
+
+Strawberry.
+
+FastAPI Users.
+
+Click.
+
+rapidfuzz.
+
+psycopg2.
+
+sqlite3.
+
+jsonschema.
+
+pint. For units.
+
+hashlib.
+
+json.
+
+pytest.
+
+Node.js path:
+
+Prisma.
+
+Express.
+
+Apollo Server.
+
+Passport.
+
+Commander.
+
+fuse.js.
+
+pg.
+
+better-sqlite3.
+
+ajv.
+
+js-quantities. For units.
+
+crypto.
+
+JSON.
+
+Vitest.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The STAG schema (Artifact 2, Appendix B.1).
+
+The Null-Model Protocol schema (from App 8 and App 9).
+
+The PROV-O exporter (App 3).
+
+The STAG schema library (App 17).
+
+The provenance database (App 20).
+
+The Physics Knowledge Library (App 23).
+
+The revision history viewer (App 7).
+
+The Autofill Library Service (App 49).
+
+Deployment Notes
+Database:
+
+PostgreSQL for multi-user deployments.
+
+SQLite for single-user deployments.
+
+Backup and restore via pg_dump and pg_restore or the SQLite backup API.
+
+REST API:
+
+Deploy with Docker.
+
+Stateless.
+
+Scale horizontally.
+
+Use a reverse proxy for TLS.
+
+Log every request for audit.
+
+GraphQL API:
+
+Deploy alongside the REST API.
+
+Use a query depth limit and a query complexity limit.
+
+Command-line interface:
+
+Package as a standalone executable (PyInstaller or pkg).
+
+Distribute via pip, npm, or a direct download.
+
+Web interface:
+
+Deploy the frontend as a static bundle.
+
+Backend with FastAPI or Express.
+
+Reproducibility:
+
+Record the library version, the entry version, and the service version.
+
+Record the provenance for every entry.
+
+Provide a version pin for the schema and the controlled vocabularies.
+
+Open Questions to Resolve Before Building
+Question 1. Which runtime first? Python or Node.js.
+
+Question 2. Which database first? PostgreSQL or SQLite.
+
+Question 3. Which unit library? pint, js-quantities, or a custom unit registry.
+
+Question 4. How should the service handle instrument classes versus individual instruments? Options: one entry per model, one entry per serial number, or both with a link.
+
+Question 5. How should the service handle calibration records? Options: embedded in the entry, or a separate table linked by entry ID.
+
+Question 6. How should the service handle uncertainty budgets? Options: one budget per entry, or one budget per measurement mode.
+
+Question 7. How should the service handle traceability? Options: a free-text chain, or a structured chain with institute identifiers.
+
+Question 8. How should the service handle the controlled vocabularies? Options: fixed, or extendable by a moderator.
+
+Question 9. How should the service handle deprecated instruments? Options: mark them deprecated, or keep them with a flag.
+
+Question 10. How should the service handle a submission that duplicates an existing entry? Options: reject, create a new version, or create a duplicate with a cross-reference.
+
+Question 11. Should the service integrate with the Autofill Library Service (App 49), the STAG Schema Library (App 17), the provenance database (App 20), the PROV-O exporter (App 3), the Physics Knowledge Library (App 23), and the revision history viewer (App 7)?
+
+Question 12. Should the service support federation with other instances of itself?
+
+Question 13. Should the service support an offline mode?
+
+Question 14. Should the service support bulk lookup?
+
+Question 15. Should the service support a suggest mode that returns suggestions as the user types?
+
+Question 16. Should the service support a learn mode that improves the alias index from user queries?
+
+Question 17. Should the service support instrument comparison across libraries?
+
+Question 18. Should the service support a metrology primer in the web interface?
+
+Question 19. Should the service support a public API for instrument lookup?
+
+Question 20. Should the service support a private mode where an instrument entry is visible only to its depositor and the moderators?
+
+Library Registration
+The library registers with the Autofill Library Service (App 49) as:
+
+library_id: instrument_library.
+
+library_name: Instrument Library.
+
+library_schema: the instrument schema.
+
+library_version: 1.0.0.
+
+entry_type: instrument.
+
+library_description: A curated, provenance-aware library of scientific instruments, their specifications, their calibration histories, their operational envelopes, and their measurement uncertainties.
+
+The registration is done once per deployment.
+
+After that, users can submit instrument entries, and other users can look them up.
+
+Other apps in the suite query this library via App 49 to autofill instrument metadata.
+
+End of build specification for App 29, the Instrument Library.
+
