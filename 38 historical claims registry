@@ -1,0 +1,1599 @@
+Build Specification — App 38: The Historical Claim Registry
+Completeness status: COMPLETE. All sections delivered in one pass. No truncation. Formatted for copy-paste. Long lists are broken into short lines.
+
+1. What It Is
+A provenance-aware, versioned registry of historical claims. A historical claim is a statement about the past: an event, a cause, a period, a person, a process, or a trend. The Historical Claim Registry records each claim with its description, its period, its region, the evidence for it, the evidence against it, its contested status, its revisions, and its provenance.
+
+It reuses:
+
+the Physics Knowledge Library (App 23)
+
+the STAG Annotation Editor (App 1)
+
+the STAG Schema Library (App 17)
+
+the Provenance-Aware Annotation Database (App 20)
+
+the PROV-O Exporter (App 3)
+
+the Revision History Viewer (App 7)
+
+the Numerical Verification Tool (App 22)
+
+the Autofill Library Service (App 49)
+
+It is for historians, history teachers, students, archivists, and anyone who wants to know what is claimed about the past and how it is supported.
+
+2. Core Requirements
+Functional requirements:
+
+Accept deposits of historical claims from users.
+
+Store each claim with its description, its period, its region, and its provenance.
+
+Record the evidence for the claim: sources, documents, artefacts, testimony, data.
+
+Record the evidence against the claim: contrary sources, reinterpretations, refutations.
+
+Record the contested status: uncontested, contested, disputed, refuted, or uncertain.
+
+Record the revisions: how the claim has changed over time, and why.
+
+Record the historians or schools associated with each position.
+
+Record the strength of the evidence: strong, moderate, weak, or not_assessed.
+
+Record the primary sources and the secondary sources separately.
+
+Record the key dates and the key figures.
+
+Enforce provenance completeness.
+
+Enforce versioning.
+
+Enforce supersession acyclicity.
+
+Support querying by claim ID, description, period, region, contested status, historian, deposit date, and keywords.
+
+Support full-text search of the claim description, the evidence, and the notes.
+
+Support aggregation queries: count by period, by region, by contested status, by year, by historian.
+
+Support exporting a claim as JSON, PROV-O, and Turtle.
+
+Support importing a claim from JSON.
+
+Support bulk import and bulk export.
+
+Support a REST API for CRUD operations.
+
+Support a GraphQL API for flexible queries.
+
+Support a command-line interface for administration.
+
+Support authentication and authorization.
+
+Support audit logging.
+
+Support backup and restore.
+
+Support a web interface.
+
+Support moderation.
+
+Support linking a claim to a STAG annotation if the claim involves a scale-transition or inter-theoretic relation.
+
+Support linking a claim to a Physics Knowledge Library work if the claim is described in a deposited work.
+
+Support the claim map: a visualisation of claims by period and by region.
+
+Support the claim timeline: a visualisation of the claims and their revisions over time.
+
+Support the contested claim view: a visualisation of the evidence for and against a contested claim.
+
+Non-functional requirements:
+
+Deterministic.
+
+Fast: query a typical claim in under 100 milliseconds.
+
+Scalable: support up to 10^6 claims.
+
+Versioned: the registry records the STAG schema version, the historical claim schema version, and the registry version.
+
+Reproducible.
+
+Portable.
+
+Well-documented.
+
+3. Input Specification
+Input 1. Historical claim deposit. Required. A deposit object conforming to the historical claim schema.
+
+Input 2. Files. Optional. Sources, documents, or images.
+
+Input 3. Provenance record. Required.
+
+Input 4. STAG annotation. Optional.
+
+Input 5. Work reference. Optional.
+
+Input 6. Query.
+
+Input 7. Aggregation query.
+
+Input 8. Authentication credentials.
+
+Input 9. Bulk import file.
+
+Input 10. Bulk export query.
+
+4. Output Specification
+Output 1. Historical claim record. JSON.
+
+Output 2. PROV-O serialization.
+
+Output 3. Turtle serialization.
+
+Output 4. Query result. JSON.
+
+Output 5. Aggregation result. JSON.
+
+Output 6. Full-text search result. JSON.
+
+Output 7. Claim map. JSON or a rendered map.
+
+Output 8. Claim timeline. JSON or a rendered timeline.
+
+Output 9. Contested claim view. JSON or a rendered view.
+
+Output 10. Related claims. JSON.
+
+Output 11. Bulk export file.
+
+Output 12. Audit log entry. JSON.
+
+Output 13. API response. JSON.
+
+Output 14. GraphQL response. JSON.
+
+Output 15. Backup file.
+
+5. Module-by-Module Specification
+Module 1. Historical Claim Schema.
+
+Defines the structure of a historical claim deposit.
+
+Module 2. Database Schema.
+
+The tables and indexes.
+
+Module 3. Claim Loader.
+
+Reads and validates a historical claim deposit.
+
+Module 4. Claim Writer.
+
+Writes a historical claim deposit to the database.
+
+Module 5. Claim Reader.
+
+Reads a historical claim deposit from the database.
+
+Module 6. Claim Updater.
+
+Updates a historical claim deposit.
+
+Module 7. Claim Deleter.
+
+Deletes a historical claim deposit.
+
+Module 8. Query Engine.
+
+Executes queries.
+
+Module 9. Full-Text Search Engine.
+
+Executes full-text search.
+
+Module 10. Aggregation Engine.
+
+Executes aggregation queries.
+
+Module 11. Exporter.
+
+Exports a claim as JSON, PROV-O, and Turtle.
+
+Module 12. Importer.
+
+Imports a claim from JSON.
+
+Module 13. Bulk Import and Export.
+
+Bulk operations.
+
+Module 14. REST API.
+
+HTTP endpoints.
+
+Module 15. GraphQL API.
+
+GraphQL endpoint.
+
+Module 16. Command-Line Interface.
+
+Administration commands.
+
+Module 17. Authentication and Authorization.
+
+Access control.
+
+Module 18. Audit Logging.
+
+Logs operations.
+
+Module 19. Backup and Restore.
+
+Database backup and restore.
+
+Module 20. Web Interface.
+
+Depositing, browsing, querying.
+
+Module 21. Moderation Workflow.
+
+Moderation of claims.
+
+Module 22. Claim Map.
+
+Visualises claims by period and by region.
+
+Module 23. Claim Timeline.
+
+Visualises the claims and their revisions over time.
+
+Module 24. Contested Claim View.
+
+Visualises the evidence for and against a contested claim.
+
+Module 25. Related-Claim Finder.
+
+Finds claims related to a given one.
+
+Module 26. Migration Manager.
+
+Database migrations.
+
+6. Full Historical Claim Specification
+6.1 Historical Claim Schema
+The historical claim schema defines the structure of a historical claim deposit.
+
+It has the following fields:
+
+claim_id. A string. Required.
+
+claim_name. A string. Required.
+
+claim_description. A string. Required.
+
+period. An object. Required. It contains start_date and end_date.
+
+region. An array of strings. Required.
+
+subjects. An array of strings. Required.
+
+claim_type. An enum. Required. The values are event, cause, process, trend, attribution, interpretation, other.
+
+contested_status. An enum. Required. The values are uncontested, contested, disputed, refuted, uncertain.
+
+evidence_for. An array of evidence objects. Required.
+
+evidence_against. An array of evidence objects. Optional.
+
+revisions. An array of revision objects. Optional.
+
+historians. An array of historian objects. Optional.
+
+key_dates. An array of date objects. Optional.
+
+key_figures. An array of figure objects. Optional.
+
+related_claims. An array of claim relations. Optional.
+
+evidence_strength. An enum. Required. The values are strong, moderate, weak, not_assessed.
+
+provenance. An object. Required.
+
+stag_annotation. An object. Optional.
+
+work_reference. A string. Optional.
+
+keywords. An array of strings. Optional.
+
+notes. A string. Optional.
+
+moderation_status. An enum. The values are pending, approved, rejected.
+
+version. An integer.
+
+supersedes. A string. Optional.
+
+superseded_by. A string. Optional.
+
+Each evidence object has:
+
+evidence_id. A string.
+
+evidence_type. An enum. The values are primary_source, secondary_source, artefact, testimony, data, other.
+
+source_reference. A string.
+
+source_summary. A string.
+
+source_date. A string in ISO8601 format. Optional.
+
+reliability. An enum. The values are high, medium, low, unknown.
+
+notes. A string. Optional.
+
+Each revision object has:
+
+revision_id. A string.
+
+revision_date. A string in ISO8601 format.
+
+revision_description. A string.
+
+previous_position. A string.
+
+new_position. A string.
+
+historian_id. A string. Optional.
+
+notes. A string. Optional.
+
+Each historian object has:
+
+historian_id. A string.
+
+historian_name. A string.
+
+historian_position. An enum. The values are supports, opposes, neutral, uncertain.
+
+historian_school. A string. Optional.
+
+Each date object has:
+
+date_id. A string.
+
+date_value. A string in ISO8601 format.
+
+date_description. A string.
+
+reliability. An enum. The values are high, medium, low, unknown.
+
+Each figure object has:
+
+figure_id. A string.
+
+figure_name. A string.
+
+figure_role. An enum. The values are participant, source, historian, other.
+
+figure_description. A string.
+
+Each claim relation has:
+
+relation_id. A string.
+
+related_claim_id. A string.
+
+relation_type. An enum. The values are same_period, same_region, cause, consequence, related, independent.
+
+relation_note. A string. Optional.
+
+6.2 Database Schema
+The database has the following tables.
+
+historical_claim. Holds the historical claim records.
+
+Its fields are:
+
+claim_id
+
+claim_name
+
+claim_description
+
+period
+
+region
+
+subjects
+
+claim_type
+
+contested_status
+
+evidence_strength
+
+provenance
+
+keywords
+
+notes
+
+moderation_status
+
+version
+
+supersedes
+
+superseded_by
+
+created_at
+
+updated_at
+
+evidence. Holds the evidence records.
+
+Its fields are:
+
+evidence_id
+
+claim_id
+
+evidence_type
+
+evidence_category
+
+source_reference
+
+source_summary
+
+source_date
+
+reliability
+
+notes
+
+created_at
+
+revision. Holds the revision records.
+
+Its fields are:
+
+revision_id
+
+claim_id
+
+revision_date
+
+revision_description
+
+previous_position
+
+new_position
+
+historian_id
+
+notes
+
+created_at
+
+historian. Holds the historian records.
+
+Its fields are:
+
+historian_id
+
+claim_id
+
+historian_name
+
+historian_position
+
+historian_school
+
+created_at
+
+key_date. Holds the key date records.
+
+Its fields are:
+
+date_id
+
+claim_id
+
+date_value
+
+date_description
+
+reliability
+
+created_at
+
+key_figure. Holds the key figure records.
+
+Its fields are:
+
+figure_id
+
+claim_id
+
+figure_name
+
+figure_role
+
+figure_description
+
+created_at
+
+claim_relation. Holds the claim relations.
+
+Its fields are:
+
+relation_id
+
+claim_id
+
+related_claim_id
+
+relation_type
+
+relation_note
+
+created_at
+
+stag_link. Holds the STAG links.
+
+Its fields are:
+
+link_id
+
+claim_id
+
+annotation_id
+
+created_at
+
+work_link. Holds the work links.
+
+Its fields are:
+
+link_id
+
+claim_id
+
+work_id
+
+created_at
+
+provenance. Holds the provenance records.
+
+Its fields are:
+
+provenance_id
+
+claim_id
+
+depositor_id
+
+depositor_affiliation
+
+timestamp
+
+source
+
+tool_version
+
+operation
+
+created_at
+
+audit_log. Holds the audit log entries.
+
+Its fields are:
+
+audit_id
+
+operation
+
+record_type
+
+record_id
+
+depositor_id
+
+timestamp
+
+result
+
+details
+
+created_at
+
+moderation. Holds the moderation records.
+
+Its fields are:
+
+moderation_id
+
+claim_id
+
+moderator_id
+
+moderation_status
+
+moderation_date
+
+moderation_notes
+
+created_at
+
+6.3 Referential Integrity
+Every evidence.claim_id must exist in historical_claim.
+
+Every revision.claim_id must exist in historical_claim.
+
+Every historian.claim_id must exist in historical_claim.
+
+Every key_date.claim_id must exist in historical_claim.
+
+Every key_figure.claim_id must exist in historical_claim.
+
+Every claim_relation.claim_id and claim_relation.related_claim_id must exist in historical_claim.
+
+Every stag_link.claim_id must exist in historical_claim.
+
+Every work_link.claim_id must exist in historical_claim.
+
+Every provenance.claim_id must exist in historical_claim.
+
+Every moderation.claim_id must exist in historical_claim.
+
+The version chain must be acyclic.
+
+The claim relation must be symmetric where appropriate.
+
+6.4 Indexes
+The database has indexes on:
+
+historical_claim.claim_id
+
+historical_claim.claim_name
+
+historical_claim.period
+
+historical_claim.region
+
+historical_claim.subjects
+
+historical_claim.claim_type
+
+historical_claim.contested_status
+
+historical_claim.evidence_strength
+
+historical_claim.moderation_status
+
+historical_claim.keywords
+
+evidence.claim_id
+
+evidence.evidence_type
+
+evidence.evidence_category
+
+revision.claim_id
+
+historian.claim_id
+
+key_date.claim_id
+
+key_figure.claim_id
+
+claim_relation.claim_id
+
+claim_relation.related_claim_id
+
+stag_link.claim_id
+
+work_link.claim_id
+
+provenance.claim_id
+
+provenance.depositor_id
+
+audit_log.operation
+
+audit_log.record_id
+
+moderation.claim_id
+
+moderation.moderation_status
+
+Full-text search indexes on the claim description, the evidence, and the notes.
+
+7. Core Logic as Executable Pseudocode
+7.1 Create Historical Claim
+function createHistoricalClaim(claim, files, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Validate the claim against the schema. If invalid, return an error with the details.
+
+Step 3. If the STAG annotation is present, validate it.
+
+Step 4. If the work reference is present, look it up. If null, flag it as unresolved.
+
+Step 5. Generate a claim ID. Set the fields: version 1, moderation_status pending, deposit_date now, depositor_id from auth, depositor_affiliation from auth, provenance from provenance.
+
+Step 6. Insert the historical claim.
+
+Step 7. Insert the evidence records, the revision records, the historians, the key dates, the key figures, and the claim relations.
+
+Step 8. Insert the STAG link and the work link if present.
+
+Step 9. Insert the provenance.
+
+Step 10. Insert the moderation record.
+
+Step 11. Insert the audit log entry.
+
+Step 12. Return the claim_id and the status created.
+
+7.2 Read Historical Claim
+function readHistoricalClaim(claimId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the claim. If null, return an error.
+
+Step 3. Read the evidence, the revisions, the historians, the key dates, the key figures, the relations, the links, the provenance, and the moderation.
+
+Step 4. Reconstruct the deposit.
+
+Step 5. Insert the audit log entry.
+
+Step 6. Return the deposit.
+
+7.3 Update Historical Claim
+function updateHistoricalClaim(claimId, claim, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Read the existing claim. If null, return an error.
+
+Step 3. Validate the new claim.
+
+Step 4. Increment the version. Update the supersedes and superseded_by fields.
+
+Step 5. Insert a provenance record with operation update.
+
+Step 6. Insert an audit log entry.
+
+Step 7. Return the claim_id, the version, and the status updated.
+
+7.4 Delete Historical Claim
+function deleteHistoricalClaim(claimId, provenance, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Read the existing claim. If null, return an error.
+
+Step 3. If soft delete, mark as deleted. Otherwise, remove.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the claim_id and the status deleted.
+
+7.5 Query Historical Claims
+function queryHistoricalClaims(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the query.
+
+Step 3. Read the matching claims.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the claims, the count, and the pagination.
+
+7.6 Aggregate Historical Claims
+function aggregateHistoricalClaims(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the aggregation.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the results.
+
+7.7 Full-Text Search
+function fullTextSearch(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the search.
+
+Step 3. Read the matching claims.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the claims and the count.
+
+7.8 Export Historical Claim
+function exportHistoricalClaim(claimId, format, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the deposit.
+
+Step 3. If json, output the deposit. If provo, export to PROV-O. If turtle, serialize to Turtle.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the output and the format.
+
+7.9 Bulk Import
+function bulkImport(file, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Parse the file.
+
+Step 3. For each claim, call createHistoricalClaim.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the results and the count.
+
+7.10 Bulk Export
+function bulkExport(query, format, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the matching claims.
+
+Step 3. If json, output the list. If jsonl, output one line per claim. If provo, export each one.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the output and the count.
+
+7.11 Moderate Historical Claim
+function moderateHistoricalClaim(claimId, moderationStatus, moderationNotes, auth):
+
+Step 1. validateAuth(auth, "moderator"). If not authorized, return an error.
+
+Step 2. Read the existing claim. If null, return an error.
+
+Step 3. Update the moderation status. Insert a moderation record.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the claim_id and the status.
+
+7.12 Claim Map
+function claimMap(auth, options):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read all claims.
+
+Step 3. Build the map with periods as axes and regions as positions.
+
+Step 4. Return the map.
+
+7.13 Claim Timeline
+function claimTimeline(claimId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the claim. If null, return an error.
+
+Step 3. Read the revisions.
+
+Step 4. Build the timeline with the revisions over time.
+
+Step 5. Return the timeline.
+
+7.14 Contested Claim View
+function contestedClaimView(claimId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the claim. If null, return an error.
+
+Step 3. Read the evidence for and the evidence against.
+
+Step 4. Build the view with the evidence on both sides.
+
+Step 5. Return the view.
+
+7.15 Find Related Claims
+function findRelatedClaims(claimId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the claim. If null, return an error.
+
+Step 3. Find claims with the same period, the same region, or a causal relation.
+
+Step 4. Return the related claims.
+
+7.16 Audit Log
+function auditLog(query, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Build and execute the query.
+
+Step 3. Return the results.
+
+7.17 Backup
+function backup(auth, options):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. If sql, dump as SQL. If json, dump as JSON.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the output and the format.
+
+7.18 Restore
+function restore(file, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Load the database from the file.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the status restored.
+
+8. Data Model
+The registry's internal state is the set of tables. The API's internal state is a request object and a response object.
+
+Request object:
+
+operation
+
+resource
+
+record_id
+
+record_json
+
+query
+
+auth
+
+Response object:
+
+status
+
+result
+
+error
+
+audit_id
+
+9. Architecture
+Module breakdown:
+
+Historical Claim Schema.
+
+Database Schema.
+
+Claim Loader.
+
+Claim Writer.
+
+Claim Reader.
+
+Claim Updater.
+
+Claim Deleter.
+
+Query Engine.
+
+Full-Text Search Engine.
+
+Aggregation Engine.
+
+Exporter.
+
+Importer.
+
+Bulk Import and Export.
+
+REST API.
+
+GraphQL API.
+
+Command-Line Interface.
+
+Authentication and Authorization.
+
+Audit Logging.
+
+Backup and Restore.
+
+Web Interface.
+
+Moderation Workflow.
+
+Claim Map.
+
+Claim Timeline.
+
+Contested Claim View.
+
+Related-Claim Finder.
+
+Migration Manager.
+
+Data flow:
+
+API requests go to the REST or GraphQL API.
+
+The API calls the claim loader, writer, reader, updater, deleter, query engine, search engine, aggregation engine, exporter, or importer.
+
+The database schema stores the data.
+
+The audit logging records every operation.
+
+The authentication and authorization check access.
+
+The moderation workflow handles moderation.
+
+The claim map, the claim timeline, and the contested claim view visualise.
+
+The related-claim finder finds relations.
+
+The backup and restore handle backup.
+
+The web interface provides depositing, browsing, and querying.
+
+10. Technology Stack
+Recommended for the database:
+
+Database: PostgreSQL 15+ or SQLite 3.40+.
+
+Language: Python 3.11+ or Node.js 20+.
+
+ORM: SQLAlchemy or Prisma.
+
+Migrations: Alembic or Prisma Migrate.
+
+Full-text search: PostgreSQL tsvector or SQLite FTS5.
+
+Recommended for the REST API:
+
+Framework: FastAPI or Express.
+
+Authentication: FastAPI Users or Passport.
+
+Recommended for the GraphQL API:
+
+Framework: Strawberry or Apollo Server.
+
+Recommended for the command-line interface:
+
+Framework: Click or Commander.
+
+Recommended for the web interface:
+
+Frontend: React or Svelte.
+
+Backend: the same as the REST API.
+
+Recommended for deployment:
+
+Containerization: Docker.
+
+Orchestration: Docker Compose or Kubernetes.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The STAG schema (Artifact 2, Appendix B.1).
+
+The PROV-O exporter (App 3).
+
+The STAG schema library (App 17).
+
+The provenance database (App 20).
+
+The revision history viewer (App 7).
+
+The STAG Annotation Editor (App 1).
+
+The Physics Knowledge Library (App 23).
+
+The Numerical Verification Tool (App 22).
+
+The Autofill Library Service (App 49).
+
+11. UI/UX Specification
+REST API:
+
+Base URL: https://api.example.com/v1.
+
+Authentication: Bearer token.
+
+Endpoints:
+
+GET /claims.
+
+GET /claims/{id}.
+
+POST /claims.
+
+PUT /claims/{id}.
+
+DELETE /claims/{id}.
+
+GET /claims/{id}/provo.
+
+GET /claims/{id}/turtle.
+
+GET /claims/{id}/evidence-for.
+
+GET /claims/{id}/evidence-against.
+
+GET /claims/{id}/revisions.
+
+GET /claims/{id}/historians.
+
+GET /claims/{id}/key-dates.
+
+GET /claims/{id}/key-figures.
+
+GET /claims/{id}/related.
+
+GET /claims/{id}/contested-view.
+
+GET /claims/{id}/timeline.
+
+GET /claims/{id}/stag.
+
+GET /claims/{id}/work.
+
+GET /claims/by-period/{period}.
+
+GET /claims/by-region/{region}.
+
+GET /claims/by-subject/{subject}.
+
+GET /claims/by-status/{status}.
+
+POST /query.
+
+POST /aggregate.
+
+POST /search.
+
+GET /map.
+
+POST /bulk/import.
+
+POST /bulk/export.
+
+POST /moderate/{id}.
+
+GET /audit.
+
+Responses in JSON.
+
+HTTP status codes: 200, 201, 204, 400, 401, 403, 404, 409, 422, 500.
+
+GraphQL API:
+
+Endpoint: https://api.example.com/graphql.
+
+Schema exposes the entities and their relationships.
+
+Command-line interface:
+
+Usage: historical-claim-registry [command] [options].
+
+Commands: init, migrate, backup, restore, import, export, query, aggregate, moderate, audit.
+
+Web interface:
+
+A browsable list of claims.
+
+A deposit form.
+
+A search box.
+
+A filter panel.
+
+An aggregation view.
+
+A claim map.
+
+A claim timeline.
+
+A contested claim view.
+
+A detail view for each claim.
+
+A moderation view.
+
+12. Validation Engine Design
+The registry validates the following.
+
+Validation 1. Claim validity. Every claim is validated against the schema.
+
+Validation 2. STAG annotation validity.
+
+Validation 3. Referential integrity.
+
+Validation 4. Version chain acyclicity.
+
+Validation 5. Work resolution.
+
+Validation 6. Provenance completeness.
+
+Validation 7. Audit completeness.
+
+Validation 8. Moderation completeness.
+
+Validation 9. Period consistency. The period must be consistent with the key dates.
+
+Validation 10. Evidence consistency. The evidence strength must be consistent with the evidence list.
+
+Validation 11. Historian consistency. The historian positions must be consistent with the revisions.
+
+13. Testing Strategy
+Unit tests:
+
+Historical Claim Schema for valid and invalid claims.
+
+Database Schema for each table and index.
+
+Claim Loader.
+
+Claim Writer.
+
+Claim Reader.
+
+Claim Updater.
+
+Claim Deleter.
+
+Query Engine.
+
+Full-Text Search Engine.
+
+Aggregation Engine.
+
+Exporter.
+
+Importer.
+
+Bulk Import and Export.
+
+REST API.
+
+GraphQL API.
+
+Command-Line Interface.
+
+Authentication and Authorization.
+
+Audit Logging.
+
+Backup and Restore.
+
+Web Interface.
+
+Moderation Workflow.
+
+Claim Map.
+
+Claim Timeline.
+
+Contested Claim View.
+
+Related-Claim Finder.
+
+Migration Manager.
+
+Integration tests:
+
+Create a claim. Read it back.
+
+Update a claim.
+
+Delete a claim.
+
+Query by each field.
+
+Aggregate by each dimension.
+
+Search by full text.
+
+Export as JSON, PROV-O, and Turtle.
+
+Bulk import and export.
+
+Backup and restore.
+
+Moderate a claim.
+
+Generate the claim map.
+
+Generate the claim timeline.
+
+Generate the contested claim view.
+
+Worked-example tests:
+
+Deposit the claim that the Battle of Hastings took place in 1066.
+
+Deposit the claim that the Black Death was caused by Yersinia pestis.
+
+Deposit the claim that Christopher Columbus discovered America in 1492.
+
+Deposit the claim that the Industrial Revolution began in Britain in the eighteenth century.
+
+Deposit the claim that the Bronze Age collapse had multiple causes.
+
+Deposit the claim that the Vikings reached North America before Columbus.
+
+Deposit the claim that the Library of Alexandria was destroyed in a single event.
+
+Deposit the claim that the Great Fire of London started in a bakery on Pudding Lane.
+
+Deposit the claim that the Roman Empire fell in 476 AD.
+
+Deposit the claim that the Chernobyl disaster was caused by a flawed reactor design.
+
+Regression tests:
+
+Claim determinism.
+
+Query consistency.
+
+Aggregation consistency.
+
+Audit log consistency.
+
+Moderation consistency.
+
+Period consistency.
+
+Evidence consistency.
+
+Historian consistency.
+
+14. Build Phases
+Phase 1. Historical Claim Schema.
+
+Phase 2. Database Schema.
+
+Phase 3. Claim Loader.
+
+Phase 4. Claim Writer.
+
+Phase 5. Claim Reader.
+
+Phase 6. Claim Updater.
+
+Phase 7. Claim Deleter.
+
+Phase 8. Query Engine.
+
+Phase 9. Full-Text Search Engine.
+
+Phase 10. Aggregation Engine.
+
+Phase 11. Exporter.
+
+Phase 12. Importer.
+
+Phase 13. Bulk Import and Export.
+
+Phase 14. REST API.
+
+Phase 15. GraphQL API.
+
+Phase 16. Command-Line Interface.
+
+Phase 17. Authentication and Authorization.
+
+Phase 18. Audit Logging.
+
+Phase 19. Backup and Restore.
+
+Phase 20. Web Interface.
+
+Phase 21. Moderation Workflow.
+
+Phase 22. Claim Map.
+
+Phase 23. Claim Timeline.
+
+Phase 24. Contested Claim View.
+
+Phase 25. Related-Claim Finder.
+
+Phase 26. Migration Manager.
+
+Phase 27. Worked-example tests.
+
+Phase 28. Integration testing and hardening.
+
+Phase 29. Packaging and deployment.
+
+15. Dependencies
+Python path:
+
+SQLAlchemy.
+
+Alembic.
+
+FastAPI.
+
+Strawberry.
+
+FastAPI Users.
+
+Click.
+
+psycopg2.
+
+sqlite3.
+
+jsonschema.
+
+hashlib.
+
+json.
+
+pytest.
+
+Node.js path:
+
+Prisma.
+
+Express.
+
+Apollo Server.
+
+Passport.
+
+Commander.
+
+pg.
+
+better-sqlite3.
+
+ajv.
+
+crypto.
+
+JSON.
+
+Vitest.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The STAG schema (Artifact 2, Appendix B.1).
+
+The PROV-O exporter (App 3).
+
+The STAG schema library (App 17).
+
+The provenance database (App 20).
+
+The revision history viewer (App 7).
+
+The STAG Annotation Editor (App 1).
+
+The Physics Knowledge Library (App 23).
+
+The Numerical Verification Tool (App 22).
+
+The Autofill Library Service (App 49).
+
+16. Deployment Notes
+Database:
+
+PostgreSQL for multi-user deployments.
+
+SQLite for single-user deployments.
+
+Backup and restore via pg_dump and pg_restore or the SQLite backup API.
+
+REST API:
+
+Deploy with Docker. Stateless. Scale horizontally.
+
+Use a reverse proxy for TLS.
+
+Log every request for audit.
+
+GraphQL API:
+
+Deploy alongside the REST API.
+
+Use a query depth limit and a query complexity limit.
+
+Command-line interface:
+
+Package as a standalone executable.
+
+Distribute via pip, npm, or a direct download.
+
+Web interface:
+
+Deploy the frontend as a static bundle.
+
+Backend with FastAPI or Express.
+
+Reproducibility:
+
+Record the STAG schema version, the historical claim schema version, and the registry version.
+
+Record the provenance for every deposit.
+
+Provide a version pin for the schemas and codebook.
+
+17. Open Questions to Resolve Before Building
+Question 1. Which runtime first? Python or Node.js.
+
+Question 2. Which database first? PostgreSQL or SQLite.
+
+Question 3. How should the registry handle the period? A fixed set of periods, or an open set.
+
+Question 4. How should the registry handle the region? A fixed taxonomy, or an open set.
+
+Question 5. How should the registry handle the claim type? A fixed set of seven values, or an open set.
+
+Question 6. How should the registry handle the contested status? A fixed set of five values, or an open set.
+
+Question 7. How should the registry handle the evidence strength? A fixed set of four values, or a continuous scale.
+
+Question 8. How should the registry handle the evidence type? A fixed set, or an open set.
+
+Question 9. How should the registry handle the reliability? A fixed set of four values, or an open set.
+
+Question 10. How should the registry handle the relation between claims? Manual entry, or automatic detection.
+
+Question 11. How should the registry handle the moderation workflow? Pending until approved, auto-approved, or require a moderator.
+
+Question 12. How should the registry handle the STAG annotation? Required, optional, or optional depending on the claim type.
+
+Question 13. How should the registry handle the work reference? Required, optional, or optional depending on the subject.
+
+Question 14. How should the registry handle the claim map? A scatter plot, a heat map, or both.
+
+Question 15. How should the registry handle the claim timeline? A line plot, a Gantt chart, or both.
+
+Question 16. How should the registry handle the contested claim view? A two-column comparison, a network graph, or both.
+
+Question 17. Should the registry integrate with the STAG schema library (App 17), the provenance database (App 20), the revision history viewer (App 7), the STAG Annotation Editor (App 1), and the Physics Knowledge Library (App 23)?
+
+Question 18. Should the registry support federation with other instances of itself?
+
+Question 19. How should the registry handle the deposit of a claim that is already in the registry? Reject, create a new version, or create a separate record with a cross-reference.
+
+Question 20. Should the registry support autofill via App 49? If so, which library does it register?
+
+Question 21. Should the registry support a revision history function that shows how a claim has changed over time?
+
+Question 22. Should the registry support a debate mode that shows the arguments for and against a contested claim side by side?
+
+End of build specification for App 38, the Historical Claim Registry.
