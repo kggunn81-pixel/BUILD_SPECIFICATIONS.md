@@ -1,0 +1,1456 @@
+Build Specification — App 34: The Cross-Subject Link Explorer
+Completeness status: COMPLETE. All sections delivered in one pass. No truncation. Formatted for copy-paste. Long lists are broken into short lines.
+
+1. What It Is
+A tool that takes a concept in one subject and shows how it appears in other subjects. The same concept can appear under different names in different fields, or under the same name with different meanings. The Cross-Subject Link Explorer records each concept with its subject of origin, the other subjects it appears in, the type of link between them, and the evidence. It is a map of how knowledge connects across the subjects we teach separately.
+
+It reuses:
+
+the STAG Schema Library (App 17)
+
+the STAG Graph Viewer (App 5)
+
+the Provenance-Aware Annotation Database (App 20)
+
+the PROV-O Exporter (App 3)
+
+the Revision History Viewer (App 7)
+
+the Method Tracker (App 32)
+
+the Learning Provenance System (App 33)
+
+the Autofill Library Service (App 49)
+
+It is for teachers, students, curriculum designers, and anyone who wants to see the connections between subjects.
+
+2. Core Requirements
+Functional requirements:
+
+Accept deposits of cross-subject links from users.
+
+Store each link with the concept, the source subject, the target subject, the link type, and the provenance.
+
+Record the concept name in each subject.
+
+Record the link description: how the concept appears in the target subject.
+
+Record the link type: same concept, analogous concept, prerequisite, special case, generalisation, or other.
+
+Record the evidence: the sources that support the link.
+
+Record the direction: the link may be symmetric or asymmetric.
+
+Record the strength of the link: strong, moderate, weak.
+
+Record the age range at which the link is typically taught.
+
+Enforce provenance completeness.
+
+Enforce versioning.
+
+Enforce supersession acyclicity.
+
+Support querying by link ID, concept, source subject, target subject, link type, strength, depositor, deposit date, and keywords.
+
+Support full-text search of the concept description, the link description, and the notes.
+
+Support aggregation queries: count by source subject, by target subject, by link type, by strength, by year, by depositor.
+
+Support exporting a link as JSON, PROV-O, and Turtle.
+
+Support importing a link from JSON.
+
+Support bulk import and bulk export.
+
+Support a REST API for CRUD operations.
+
+Support a GraphQL API for flexible queries.
+
+Support a command-line interface for administration.
+
+Support authentication and authorization.
+
+Support audit logging.
+
+Support backup and restore.
+
+Support a web interface.
+
+Support moderation.
+
+Support linking a cross-subject link to a Method Tracker record if the concept is a method.
+
+Support linking a cross-subject link to a Learning Provenance System record if the concept is a learned concept.
+
+Support the cross-subject graph: a visualisation of the concepts as nodes and the links as edges, grouped by subject.
+
+Support the subject map: a visualisation of the subjects as regions and the links as bridges between them.
+
+Support the concept journey: a visualisation of how a single concept appears across subjects.
+
+Support the link strength view: a visualisation of the strong and weak links between subjects.
+
+Non-functional requirements:
+
+Deterministic.
+
+Fast: query a typical link in under 100 milliseconds.
+
+Scalable: support up to 10^6 links.
+
+Versioned: the explorer records the STAG schema version, the cross-subject link schema version, and the explorer version.
+
+Reproducible.
+
+Portable.
+
+Well-documented.
+
+3. Input Specification
+Input 1. Cross-subject link deposit. Required. A deposit object conforming to the cross-subject link schema.
+
+Input 2. Files. Optional. Textbooks, papers, or teaching material.
+
+Input 3. Provenance record. Required.
+
+Input 4. Method reference. Optional. A reference to a Method Tracker record.
+
+Input 5. Learning record reference. Optional. A reference to a Learning Provenance System record.
+
+Input 6. Query.
+
+Input 7. Aggregation query.
+
+Input 8. Authentication credentials.
+
+Input 9. Bulk import file.
+
+Input 10. Bulk export query.
+
+4. Output Specification
+Output 1. Cross-subject link record. JSON.
+
+Output 2. PROV-O serialization.
+
+Output 3. Turtle serialization.
+
+Output 4. Query result. JSON.
+
+Output 5. Aggregation result. JSON.
+
+Output 6. Full-text search result. JSON.
+
+Output 7. Cross-subject graph. JSON or a rendered graph.
+
+Output 8. Subject map. JSON or a rendered map.
+
+Output 9. Concept journey. JSON or a rendered journey.
+
+Output 10. Link strength view. JSON or a rendered view.
+
+Output 11. Related links. JSON.
+
+Output 12. Bulk export file.
+
+Output 13. Audit log entry. JSON.
+
+Output 14. API response. JSON.
+
+Output 15. GraphQL response. JSON.
+
+Output 16. Backup file.
+
+5. Module-by-Module Specification
+Module 1. Cross-Subject Link Schema.
+
+Defines the structure of a cross-subject link deposit.
+
+Module 2. Database Schema.
+
+The tables and indexes.
+
+Module 3. Link Loader.
+
+Reads and validates a cross-subject link deposit.
+
+Module 4. Link Writer.
+
+Writes a cross-subject link deposit to the database.
+
+Module 5. Link Reader.
+
+Reads a cross-subject link deposit from the database.
+
+Module 6. Link Updater.
+
+Updates a cross-subject link deposit.
+
+Module 7. Link Deleter.
+
+Deletes a cross-subject link deposit.
+
+Module 8. Query Engine.
+
+Executes queries.
+
+Module 9. Full-Text Search Engine.
+
+Executes full-text search.
+
+Module 10. Aggregation Engine.
+
+Executes aggregation queries.
+
+Module 11. Exporter.
+
+Exports a cross-subject link as JSON, PROV-O, and Turtle.
+
+Module 12. Importer.
+
+Imports a cross-subject link from JSON.
+
+Module 13. Bulk Import and Export.
+
+Bulk operations.
+
+Module 14. REST API.
+
+HTTP endpoints.
+
+Module 15. GraphQL API.
+
+GraphQL endpoint.
+
+Module 16. Command-Line Interface.
+
+Administration commands.
+
+Module 17. Authentication and Authorization.
+
+Access control.
+
+Module 18. Audit Logging.
+
+Logs operations.
+
+Module 19. Backup and Restore.
+
+Database backup and restore.
+
+Module 20. Web Interface.
+
+Depositing, browsing, querying.
+
+Module 21. Moderation Workflow.
+
+Moderation of cross-subject links.
+
+Module 22. Cross-Subject Graph.
+
+Visualises the concepts as nodes and the links as edges, grouped by subject.
+
+Module 23. Subject Map.
+
+Visualises the subjects as regions and the links as bridges.
+
+Module 24. Concept Journey.
+
+Visualises how a single concept appears across subjects.
+
+Module 25. Link Strength View.
+
+Visualises the strong and weak links between subjects.
+
+Module 26. Related-Link Finder.
+
+Finds cross-subject links related to a given one.
+
+Module 27. Migration Manager.
+
+Database migrations.
+
+6. Full Cross-Subject Link Specification
+6.1 Cross-Subject Link Schema
+The cross-subject link schema defines the structure of a cross-subject link deposit.
+
+It has the following fields:
+
+link_id. A string. Required.
+
+concept_name. A string. Required.
+
+concept_description. A string. Required.
+
+source_subject. A string. Required.
+
+target_subject. A string. Required.
+
+source_concept_name. A string. Required.
+
+target_concept_name. A string. Required.
+
+link_type. An enum. Required. The values are same_concept, analogous_concept, prerequisite, special_case, generalisation, other.
+
+link_description. A string. Required.
+
+link_direction. An enum. Required. The values are symmetric, source_to_target, target_to_source.
+
+link_strength. An enum. Required. The values are strong, moderate, weak.
+
+evidence. An array of evidence objects. Required.
+
+age_range. An object. Optional. It contains min_age and max_age.
+
+related_links. An array of link relations. Optional.
+
+method_reference. A string. Optional.
+
+learning_record_reference. A string. Optional.
+
+provenance. An object. Required.
+
+keywords. An array of strings. Optional.
+
+notes. A string. Optional.
+
+moderation_status. An enum. The values are pending, approved, rejected.
+
+version. An integer.
+
+supersedes. A string. Optional.
+
+superseded_by. A string. Optional.
+
+Each evidence object has:
+
+evidence_id. A string.
+
+source_reference. A string.
+
+source_summary. A string.
+
+evidence_type. An enum. The values are textbook, paper, lecture, curriculum, observation, other.
+
+notes. A string. Optional.
+
+Each link relation has:
+
+relation_id. A string.
+
+related_link_id. A string.
+
+relation_type. An enum. The values are same_concept, builds_on, related, alternative, independent.
+
+relation_note. A string. Optional.
+
+6.2 Database Schema
+The database has the following tables.
+
+cross_subject_link. Holds the cross-subject link records.
+
+Its fields are:
+
+link_id
+
+concept_name
+
+concept_description
+
+source_subject
+
+target_subject
+
+source_concept_name
+
+target_concept_name
+
+link_type
+
+link_description
+
+link_direction
+
+link_strength
+
+age_range
+
+method_reference
+
+learning_record_reference
+
+provenance
+
+keywords
+
+notes
+
+moderation_status
+
+version
+
+supersedes
+
+superseded_by
+
+created_at
+
+updated_at
+
+evidence. Holds the evidence records.
+
+Its fields are:
+
+evidence_id
+
+link_id
+
+source_reference
+
+source_summary
+
+evidence_type
+
+notes
+
+created_at
+
+link_relation. Holds the link relations.
+
+Its fields are:
+
+relation_id
+
+link_id
+
+related_link_id
+
+relation_type
+
+relation_note
+
+created_at
+
+method_link. Holds the method links.
+
+Its fields are:
+
+link_id
+
+link_id_ref
+
+method_id
+
+created_at
+
+learning_link. Holds the learning links.
+
+Its fields are:
+
+link_id
+
+link_id_ref
+
+learning_id
+
+created_at
+
+provenance. Holds the provenance records.
+
+Its fields are:
+
+provenance_id
+
+link_id
+
+depositor_id
+
+depositor_affiliation
+
+timestamp
+
+source
+
+tool_version
+
+operation
+
+created_at
+
+audit_log. Holds the audit log entries.
+
+Its fields are:
+
+audit_id
+
+operation
+
+record_type
+
+record_id
+
+depositor_id
+
+timestamp
+
+result
+
+details
+
+created_at
+
+moderation. Holds the moderation records.
+
+Its fields are:
+
+moderation_id
+
+link_id
+
+moderator_id
+
+moderation_status
+
+moderation_date
+
+moderation_notes
+
+created_at
+
+6.3 Referential Integrity
+Every evidence.link_id must exist in cross_subject_link.
+
+Every link_relation.link_id and link_relation.related_link_id must exist in cross_subject_link.
+
+Every method_link.link_id_ref must exist in cross_subject_link.
+
+Every learning_link.link_id_ref must exist in cross_subject_link.
+
+Every provenance.link_id must exist in cross_subject_link.
+
+Every moderation.link_id must exist in cross_subject_link.
+
+The version chain must be acyclic.
+
+The link relation must be symmetric where appropriate.
+
+6.4 Indexes
+The database has indexes on:
+
+cross_subject_link.link_id
+
+cross_subject_link.concept_name
+
+cross_subject_link.source_subject
+
+cross_subject_link.target_subject
+
+cross_subject_link.link_type
+
+cross_subject_link.link_strength
+
+cross_subject_link.depositor_id
+
+cross_subject_link.moderation_status
+
+cross_subject_link.keywords
+
+evidence.link_id
+
+link_relation.link_id
+
+link_relation.related_link_id
+
+method_link.link_id_ref
+
+learning_link.link_id_ref
+
+provenance.link_id
+
+provenance.depositor_id
+
+audit_log.operation
+
+audit_log.record_id
+
+moderation.link_id
+
+moderation.moderation_status
+
+Full-text search indexes on the concept description, the link description, and the notes.
+
+7. Core Logic as Executable Pseudocode
+7.1 Create Cross-Subject Link
+function createCrossSubjectLink(link, files, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Validate the link against the schema. If invalid, return an error with the details.
+
+Step 3. If the method reference is present, look it up. If null, flag it as unresolved.
+
+Step 4. If the learning record reference is present, look it up. If null, flag it as unresolved.
+
+Step 5. Generate a link ID. Set the fields: version 1, moderation_status pending, deposit_date now, depositor_id from auth, depositor_affiliation from auth, provenance from provenance.
+
+Step 6. Insert the cross-subject link.
+
+Step 7. Insert the evidence records and the link relations.
+
+Step 8. Insert the method link and the learning link if present.
+
+Step 9. Insert the provenance.
+
+Step 10. Insert the moderation record.
+
+Step 11. Insert the audit log entry.
+
+Step 12. Return the link_id and the status created.
+
+7.2 Read Cross-Subject Link
+function readCrossSubjectLink(linkId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the link. If null, return an error.
+
+Step 3. Read the evidence, the link relations, the method link, the learning link, the provenance, and the moderation.
+
+Step 4. Reconstruct the deposit.
+
+Step 5. Insert the audit log entry.
+
+Step 6. Return the deposit.
+
+7.3 Update Cross-Subject Link
+function updateCrossSubjectLink(linkId, link, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Read the existing link. If null, return an error.
+
+Step 3. Validate the new link.
+
+Step 4. Increment the version. Update the supersedes and superseded_by fields.
+
+Step 5. Insert a provenance record with operation update.
+
+Step 6. Insert an audit log entry.
+
+Step 7. Return the link_id, the version, and the status updated.
+
+7.4 Delete Cross-Subject Link
+function deleteCrossSubjectLink(linkId, provenance, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Read the existing link. If null, return an error.
+
+Step 3. If soft delete, mark as deleted. Otherwise, remove.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the link_id and the status deleted.
+
+7.5 Query Cross-Subject Links
+function queryCrossSubjectLinks(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the query.
+
+Step 3. Read the matching links.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the links, the count, and the pagination.
+
+7.6 Aggregate Cross-Subject Links
+function aggregateCrossSubjectLinks(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the aggregation.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the results.
+
+7.7 Full-Text Search
+function fullTextSearch(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the search.
+
+Step 3. Read the matching links.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the links and the count.
+
+7.8 Export Cross-Subject Link
+function exportCrossSubjectLink(linkId, format, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the deposit.
+
+Step 3. If json, output the deposit. If provo, export to PROV-O. If turtle, serialize to Turtle.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the output and the format.
+
+7.9 Bulk Import
+function bulkImport(file, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Parse the file.
+
+Step 3. For each link, call createCrossSubjectLink.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the results and the count.
+
+7.10 Bulk Export
+function bulkExport(query, format, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the matching links.
+
+Step 3. If json, output the list. If jsonl, output one line per link. If provo, export each one.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the output and the count.
+
+7.11 Moderate Cross-Subject Link
+function moderateCrossSubjectLink(linkId, moderationStatus, moderationNotes, auth):
+
+Step 1. validateAuth(auth, "moderator"). If not authorized, return an error.
+
+Step 2. Read the existing link. If null, return an error.
+
+Step 3. Update the moderation status. Insert a moderation record.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the link_id and the status.
+
+7.12 Cross-Subject Graph
+function crossSubjectGraph(auth, options):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read all cross-subject links.
+
+Step 3. Build the graph with concepts as nodes and links as edges, grouped by subject.
+
+Step 4. Return the graph.
+
+7.13 Subject Map
+function subjectMap(auth, options):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read all cross-subject links.
+
+Step 3. Build the map with subjects as regions and links as bridges.
+
+Step 4. Return the map.
+
+7.14 Concept Journey
+function conceptJourney(conceptName, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read all cross-subject links for the concept.
+
+Step 3. Build the journey with the concept's appearance in each subject.
+
+Step 4. Return the journey.
+
+7.15 Link Strength View
+function linkStrengthView(sourceSubject, targetSubject, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read all cross-subject links between the two subjects.
+
+Step 3. Build the view with the strong, moderate, and weak links.
+
+Step 4. Return the view.
+
+7.16 Find Related Links
+function findRelatedLinks(linkId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the link. If null, return an error.
+
+Step 3. Find links with the same concept, the same source subject, or the same target subject.
+
+Step 4. Return the related links.
+
+7.17 Audit Log
+function auditLog(query, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Build and execute the query.
+
+Step 3. Return the results.
+
+7.18 Backup
+function backup(auth, options):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. If sql, dump as SQL. If json, dump as JSON.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the output and the format.
+
+7.19 Restore
+function restore(file, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Load the database from the file.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the status restored.
+
+8. Data Model
+The explorer's internal state is the set of tables. The API's internal state is a request object and a response object.
+
+Request object:
+
+operation
+
+resource
+
+record_id
+
+record_json
+
+query
+
+auth
+
+Response object:
+
+status
+
+result
+
+error
+
+audit_id
+
+9. Architecture
+Module breakdown:
+
+Cross-Subject Link Schema.
+
+Database Schema.
+
+Link Loader.
+
+Link Writer.
+
+Link Reader.
+
+Link Updater.
+
+Link Deleter.
+
+Query Engine.
+
+Full-Text Search Engine.
+
+Aggregation Engine.
+
+Exporter.
+
+Importer.
+
+Bulk Import and Export.
+
+REST API.
+
+GraphQL API.
+
+Command-Line Interface.
+
+Authentication and Authorization.
+
+Audit Logging.
+
+Backup and Restore.
+
+Web Interface.
+
+Moderation Workflow.
+
+Cross-Subject Graph.
+
+Subject Map.
+
+Concept Journey.
+
+Link Strength View.
+
+Related-Link Finder.
+
+Migration Manager.
+
+Data flow:
+
+API requests go to the REST or GraphQL API.
+
+The API calls the link loader, writer, reader, updater, deleter, query engine, search engine, aggregation engine, exporter, or importer.
+
+The database schema stores the data.
+
+The audit logging records every operation.
+
+The authentication and authorization check access.
+
+The moderation workflow handles moderation.
+
+The cross-subject graph, the subject map, the concept journey, and the link strength view visualise.
+
+The related-link finder finds relations.
+
+The backup and restore handle backup.
+
+The web interface provides depositing, browsing, and querying.
+
+10. Technology Stack
+Recommended for the database:
+
+Database: PostgreSQL 15+ or SQLite 3.40+.
+
+Language: Python 3.11+ or Node.js 20+.
+
+ORM: SQLAlchemy or Prisma.
+
+Migrations: Alembic or Prisma Migrate.
+
+Full-text search: PostgreSQL tsvector or SQLite FTS5.
+
+Recommended for the REST API:
+
+Framework: FastAPI or Express.
+
+Authentication: FastAPI Users or Passport.
+
+Recommended for the GraphQL API:
+
+Framework: Strawberry or Apollo Server.
+
+Recommended for the command-line interface:
+
+Framework: Click or Commander.
+
+Recommended for the web interface:
+
+Frontend: React or Svelte.
+
+Backend: the same as the REST API.
+
+Recommended for deployment:
+
+Containerization: Docker.
+
+Orchestration: Docker Compose or Kubernetes.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The STAG schema (Artifact 2, Appendix B.1).
+
+The PROV-O exporter (App 3).
+
+The STAG schema library (App 17).
+
+The provenance database (App 20).
+
+The revision history viewer (App 7).
+
+The STAG Graph Viewer (App 5).
+
+The Method Tracker (App 32).
+
+The Learning Provenance System (App 33).
+
+The Autofill Library Service (App 49).
+
+11. UI/UX Specification
+REST API:
+
+Base URL: https://api.example.com/v1.
+
+Authentication: Bearer token.
+
+Endpoints:
+
+GET /links.
+
+GET /links/{id}.
+
+POST /links.
+
+PUT /links/{id}.
+
+DELETE /links/{id}.
+
+GET /links/{id}/provo.
+
+GET /links/{id}/turtle.
+
+GET /links/{id}/evidence.
+
+GET /links/{id}/related.
+
+GET /links/{id}/method.
+
+GET /links/{id}/learning-record.
+
+GET /links/by-concept/{concept_name}.
+
+GET /links/by-source-subject/{subject}.
+
+GET /links/by-target-subject/{subject}.
+
+GET /concepts/{concept_name}/journey.
+
+GET /subjects/map.
+
+GET /subjects/{source}/links-to/{target}.
+
+POST /query.
+
+POST /aggregate.
+
+POST /search.
+
+POST /bulk/import.
+
+POST /bulk/export.
+
+POST /moderate/{id}.
+
+GET /audit.
+
+Responses in JSON.
+
+HTTP status codes: 200, 201, 204, 400, 401, 403, 404, 409, 422, 500.
+
+GraphQL API:
+
+Endpoint: https://api.example.com/graphql.
+
+Schema exposes the entities and their relationships.
+
+Command-line interface:
+
+Usage: cross-subject-link-explorer [command] [options].
+
+Commands: init, migrate, backup, restore, import, export, query, aggregate, moderate, audit.
+
+Web interface:
+
+A browsable list of cross-subject links.
+
+A deposit form.
+
+A search box.
+
+A filter panel.
+
+An aggregation view.
+
+A cross-subject graph.
+
+A subject map.
+
+A concept journey.
+
+A link strength view.
+
+A detail view for each link.
+
+A moderation view.
+
+12. Validation Engine Design
+The explorer validates the following.
+
+Validation 1. Link validity. Every link is validated against the schema.
+
+Validation 2. Referential integrity.
+
+Validation 3. Version chain acyclicity.
+
+Validation 4. Method resolution.
+
+Validation 5. Learning record resolution.
+
+Validation 6. Provenance completeness.
+
+Validation 7. Audit completeness.
+
+Validation 8. Moderation completeness.
+
+Validation 9. Direction consistency. The link direction must be consistent with the link type.
+
+Validation 10. Strength consistency. The link strength must be consistent with the evidence.
+
+13. Testing Strategy
+Unit tests:
+
+Cross-Subject Link Schema for valid and invalid links.
+
+Database Schema for each table and index.
+
+Link Loader.
+
+Link Writer.
+
+Link Reader.
+
+Link Updater.
+
+Link Deleter.
+
+Query Engine.
+
+Full-Text Search Engine.
+
+Aggregation Engine.
+
+Exporter.
+
+Importer.
+
+Bulk Import and Export.
+
+REST API.
+
+GraphQL API.
+
+Command-Line Interface.
+
+Authentication and Authorization.
+
+Audit Logging.
+
+Backup and Restore.
+
+Web Interface.
+
+Moderation Workflow.
+
+Cross-Subject Graph.
+
+Subject Map.
+
+Concept Journey.
+
+Link Strength View.
+
+Related-Link Finder.
+
+Migration Manager.
+
+Integration tests:
+
+Create a link. Read it back.
+
+Update a link.
+
+Delete a link.
+
+Query by each field.
+
+Aggregate by each dimension.
+
+Search by full text.
+
+Export as JSON, PROV-O, and Turtle.
+
+Bulk import and export.
+
+Backup and restore.
+
+Moderate a link.
+
+Generate the cross-subject graph.
+
+Generate the subject map.
+
+Generate the concept journey.
+
+Generate the link strength view.
+
+Worked-example tests:
+
+Deposit the link for the concept of energy between physics and biology.
+
+Deposit the link for the concept of equilibrium between physics and economics.
+
+Deposit the link for the concept of feedback between biology and engineering.
+
+Deposit the link for the concept of a network between mathematics, biology, and sociology.
+
+Deposit the link for the concept of entropy between physics and information theory.
+
+Deposit the link for the concept of a wave between physics and music.
+
+Deposit the link for the concept of selection between biology and economics.
+
+Deposit the link for the concept of a set between mathematics and linguistics.
+
+Regression tests:
+
+Link determinism.
+
+Query consistency.
+
+Aggregation consistency.
+
+Audit log consistency.
+
+Moderation consistency.
+
+Direction consistency.
+
+Strength consistency.
+
+14. Build Phases
+Phase 1. Cross-Subject Link Schema.
+
+Phase 2. Database Schema.
+
+Phase 3. Link Loader.
+
+Phase 4. Link Writer.
+
+Phase 5. Link Reader.
+
+Phase 6. Link Updater.
+
+Phase 7. Link Deleter.
+
+Phase 8. Query Engine.
+
+Phase 9. Full-Text Search Engine.
+
+Phase 10. Aggregation Engine.
+
+Phase 11. Exporter.
+
+Phase 12. Importer.
+
+Phase 13. Bulk Import and Export.
+
+Phase 14. REST API.
+
+Phase 15. GraphQL API.
+
+Phase 16. Command-Line Interface.
+
+Phase 17. Authentication and Authorization.
+
+Phase 18. Audit Logging.
+
+Phase 19. Backup and Restore.
+
+Phase 20. Web Interface.
+
+Phase 21. Moderation Workflow.
+
+Phase 22. Cross-Subject Graph.
+
+Phase 23. Subject Map.
+
+Phase 24. Concept Journey.
+
+Phase 25. Link Strength View.
+
+Phase 26. Related-Link Finder.
+
+Phase 27. Migration Manager.
+
+Phase 28. Worked-example tests.
+
+Phase 29. Integration testing and hardening.
+
+Phase 30. Packaging and deployment.
+
+15. Dependencies
+Python path:
+
+SQLAlchemy.
+
+Alembic.
+
+FastAPI.
+
+Strawberry.
+
+FastAPI Users.
+
+Click.
+
+psycopg2.
+
+sqlite3.
+
+jsonschema.
+
+hashlib.
+
+json.
+
+pytest.
+
+Node.js path:
+
+Prisma.
+
+Express.
+
+Apollo Server.
+
+Passport.
+
+Commander.
+
+pg.
+
+better-sqlite3.
+
+ajv.
+
+crypto.
+
+JSON.
+
+Vitest.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The STAG schema (Artifact 2, Appendix B.1).
+
+The PROV-O exporter (App 3).
+
+The STAG schema library (App 17).
+
+The provenance database (App 20).
+
+The revision history viewer (App 7).
+
+The STAG Graph Viewer (App 5).
+
+The Method Tracker (App 32).
+
+The Learning Provenance System (App 33).
+
+The Autofill Library Service (App 49).
+
+16. Deployment Notes
+Database:
+
+PostgreSQL for multi-user deployments.
+
+SQLite for single-user deployments.
+
+Backup and restore via pg_dump and pg_restore or the SQLite backup API.
+
+REST API:
+
+Deploy with Docker. Stateless. Scale horizontally.
+
+Use a reverse proxy for TLS.
+
+Log every request for audit.
+
+GraphQL API:
+
+Deploy alongside the REST API.
+
+Use a query depth limit and a query complexity limit.
+
+Command-line interface:
+
+Package as a standalone executable.
+
+Distribute via pip, npm, or a direct download.
+
+Web interface:
+
+Deploy the frontend as a static bundle.
+
+Backend with FastAPI or Express.
+
+Reproducibility:
+
+Record the STAG schema version, the cross-subject link schema version, and the explorer version.
+
+Record the provenance for every deposit.
+
+Provide a version pin for the schemas and codebook.
+
+17. Open Questions to Resolve Before Building
+Question 1. Which runtime first? Python or Node.js.
+
+Question 2. Which database first? PostgreSQL or SQLite.
+
+Question 3. How should the explorer handle the subject? A fixed taxonomy, or an open set.
+
+Question 4. How should the explorer handle the link type? A fixed set, or an open set.
+
+Question 5. How should the explorer handle the link strength? A fixed set of three values, or a continuous scale.
+
+Question 6. How should the explorer handle the direction? A fixed set of three values, or an open set.
+
+Question 7. How should the explorer handle the evidence? A fixed schema, or an open schema.
+
+Question 8. How should the explorer handle the relation between links? Manual entry, or automatic detection.
+
+Question 9. How should the explorer handle the moderation workflow? Pending until approved, auto-approved, or require a moderator.
+
+Question 10. How should the explorer handle the method reference? Required, optional, or optional depending on the link type.
+
+Question 11. How should the explorer handle the learning record reference? Required, optional, or optional depending on the link type.
+
+Question 12. How should the explorer handle the cross-subject graph? A network graph, a bipartite graph, or both.
+
+Question 13. How should the explorer handle the subject map? A chord diagram, a bridge diagram, or both.
+
+Question 14. How should the explorer handle the concept journey? A linear journey, a tree of appearances, or both.
+
+Question 15. How should the explorer handle the link strength view? A heat map, a matrix, or both.
+
+Question 16. Should the explorer integrate with the STAG schema library (App 17), the provenance database (App 20), the revision history viewer (App 7), the STAG Graph Viewer (App 5), the Method Tracker (App 32), and the Learning Provenance System (App 33)?
+
+Question 17. Should the explorer support federation with other instances of itself?
+
+Question 18. How should the explorer handle the deposit of a link that is already in the explorer? Reject, create a new version, or create a separate record with a cross-reference.
+
+Question 19. Should the explorer support autofill via App 49? If so, which library does it register?
+
+Question 20. Should the explorer support a curriculum view that suggests which cross-subject links to teach together?
+
+End of build specification for App 34, the Cross-Subject Link Explorer.
