@@ -1,0 +1,1476 @@
+
+repeat
+The Anomaly Register
+Completeness status: COMPLETE. All sections delivered in one pass. No truncation. Formatted for copy-paste into another conversation window. No tables, no boxes.
+
+What It Is
+A provenance-aware, versioned database of scientific anomalies. An anomaly is a result, measurement, observation, or claim that does not fit the standard model of a field, or that disagrees with an accepted result, or that should not exist given what is known. The Anomaly Register records each anomaly with its claim, its evidence, its status, its history, and its relations to other anomalies and to the standard model. It reuses the STAG schema library (App 17), the Null-Model Protocol library (App 18), the provenance database (App 20), the PROV-O exporter (App 3), the numerical verification tool (App 22), and the revision history viewer (App 7). It is for researchers, review authors, journal editors, funding agencies, and anyone who wants to know what does not fit.
+
+Core Requirements
+Functional requirements:
+
+Accept deposits of anomalies from users.
+
+Store each anomaly with its claim, its evidence, its status, and its provenance.
+
+Record the standard model or accepted result that the anomaly contradicts.
+
+Record the field, the subfield, and the characteristic scale of the anomaly.
+
+Record the anomaly type: measurement disagreement, unexplained observation, theoretical tension, statistical outlier, replication failure, or other.
+
+Record the anomaly status: proposed, under investigation, contested, resolved, superseded, or withdrawn.
+
+Record the evidence for the anomaly: the original paper, the data, the analysis, the statistical result.
+
+Record the evidence against the anomaly: any subsequent work that explains it away.
+
+Record the relation between anomalies: which anomalies are related, which are the same anomaly under different names, which are independent.
+
+Record the relation between the anomaly and the standard model: does the anomaly require a modification, an extension, or a replacement?
+
+Enforce provenance completeness: every deposit has a depositor, a date, a source, and a tool version.
+
+Enforce versioning: every deposit has a version, and updates create new versions.
+
+Enforce supersession acyclicity.
+
+Support querying by anomaly ID, field, subfield, scale, anomaly type, status, depositor, deposit date, keywords, and relation to the standard model.
+
+Support full-text search of the anomaly description, the evidence, and the notes.
+
+Support aggregation queries: count by field, by status, by anomaly type, by year, by depositor, by relation to the standard model.
+
+Support exporting an anomaly as JSON, PROV-O, and Turtle.
+
+Support importing an anomaly from JSON.
+
+Support bulk import and bulk export.
+
+Support a REST API for CRUD operations.
+
+Support a GraphQL API for flexible queries.
+
+Support a command-line interface for administration.
+
+Support authentication and authorization.
+
+Support audit logging.
+
+Support backup and restore.
+
+Support a web interface for depositing, browsing, and querying.
+
+Support moderation: anomalies can be marked as pending, approved, or rejected.
+
+Support linking an anomaly to a STAG annotation in the Physics Knowledge Library (App 23).
+
+Support linking an anomaly to a Null-Model Protocol result.
+
+Support linking an anomaly to a numerical verification result.
+
+Support the anomaly lifecycle: the tool tracks the status of each anomaly over time.
+
+Support the anomaly map: a visualisation of anomalies by field, by scale, and by relation to the standard model.
+
+Non-functional requirements:
+
+Deterministic: same inputs produce same outputs.
+
+Fast: query a typical anomaly in under 100 milliseconds; aggregate over 10,000 anomalies in under one second.
+
+Scalable: support up to 10^6 anomalies.
+
+Versioned: the register records the STAG schema version, the Null-Model Protocol schema version, the anomaly schema version, and the register version.
+
+Reproducible: the register records the provenance for every deposit.
+
+Portable: works on Linux, macOS, and Windows.
+
+Well-documented: API documentation, anomaly schema documentation, and user guide.
+
+Input Specification
+Input 1. Anomaly deposit. Required for create and update operations. A deposit object conforming to the anomaly schema.
+
+Input 2. Evidence files. Optional. One or more files (PDF, LaTeX, plain text, structured data) supporting the anomaly.
+
+Input 3. Provenance record. Required for create and update operations. The depositor ID, the timestamp, the source, and the tool version.
+
+Input 4. STAG annotation. Optional. A STAG record describing the anomaly as a scale-transition claim.
+
+Input 5. Null-Model Protocol result. Optional. A Null-Model Protocol result testing the anomaly as a statistical gap claim.
+
+Input 6. Numerical verification result. Optional. A numerical verification result checking the reported numbers.
+
+Input 7. Query. Required for read operations. A query object with fields for anomaly ID, field, subfield, scale, anomaly type, status, depositor, deposit date, keywords, and relation to the standard model.
+
+Input 8. Aggregation query. Required for aggregation operations. A query object with fields for the aggregation dimension and the filter.
+
+Input 9. Authentication credentials. Required for authenticated operations.
+
+Input 10. Bulk import file. Optional. A file containing multiple anomalies in JSON or JSON Lines format.
+
+Input 11. Bulk export query. Optional. A query object selecting the anomalies to export.
+
+Output Specification
+Output 1. Anomaly record. JSON. The anomaly as stored, including its claim, evidence, status, and provenance.
+
+Output 2. PROV-O serialization. Turtle or JSON-LD. The anomaly mapped to PROV-O.
+
+Output 3. Turtle serialization. Turtle. The anomaly as an RDF graph.
+
+Output 4. Query result. JSON. The list of anomalies matching the query, with pagination.
+
+Output 5. Aggregation result. JSON. The counts by the aggregation dimension.
+
+Output 6. Full-text search result. JSON. The list of anomalies matching the search query.
+
+Output 7. Anomaly map. JSON or a rendered graph. The anomalies by field, by scale, and by relation to the standard model.
+
+Output 8. Anomaly lifecycle timeline. JSON or a rendered timeline. The status of an anomaly over time.
+
+Output 9. Related anomalies. JSON. The anomalies related to a given anomaly.
+
+Output 10. Bulk export file. JSON or JSON Lines. The anomalies matching the bulk export query.
+
+Output 11. Audit log entry. JSON. The operation, the anomaly ID, the depositor, the timestamp, and the result.
+
+Output 12. API response. JSON. The result of the API operation, with HTTP status.
+
+Output 13. GraphQL response. JSON. The result of the GraphQL query.
+
+Output 14. Backup file. A database dump or a JSON archive.
+
+Module-by-Module Specification
+Module 1: Anomaly Schema
+The anomaly schema defines the structure of an anomaly deposit. It has the following fields:
+
+anomaly_id (string, required)
+
+title (string, required)
+
+description (string, required)
+
+field (string, required)
+
+subfield (string, optional)
+
+scale (string, optional)
+
+anomaly_type (enum: measurement_disagreement, unexplained_observation, theoretical_tension, statistical_outlier, replication_failure, other)
+
+standard_model_reference (string, required)
+
+relation_to_standard_model (enum: modification, extension, replacement, unknown)
+
+anomaly_status (enum: proposed, under_investigation, contested, resolved, superseded, withdrawn)
+
+evidence_for (array of evidence objects)
+
+evidence_against (array of evidence objects)
+
+related_anomalies (array of anomaly_ids)
+
+stag_annotation (object, optional)
+
+null_model_result (object, optional)
+
+numerical_verification_result (object, optional)
+
+deposit_date (ISO8601, required)
+
+depositor_id (string, required)
+
+depositor_affiliation (string, optional)
+
+provenance (object: source, tool_version, notes)
+
+keywords (array of strings, optional)
+
+notes (string, optional)
+
+moderation_status (enum: pending, approved, rejected; default pending)
+
+version (integer; default 1)
+
+supersedes (string, optional)
+
+superseded_by (string, optional)
+
+Module 2: Database Schema
+The database has the following tables:
+
+anomaly. Holds the anomaly records. Fields: anomaly_id (primary key), title, description, field, subfield, scale, anomaly_type, standard_model_reference, relation_to_standard_model, anomaly_status, deposit_date, depositor_id, depositor_affiliation, provenance, keywords, notes, moderation_status, version, supersedes, superseded_by, created_at, updated_at.
+
+evidence. Holds the evidence records. Fields: evidence_id (primary key), anomaly_id (foreign key to anomaly), evidence_type (for, against), source_reference, source_summary, data_reference, analysis_reference, statistical_result, created_at.
+
+related_anomaly. Holds the related-anomaly records. Fields: relation_id (primary key), anomaly_id (foreign key to anomaly), related_anomaly_id (foreign key to anomaly), relation_type (same_anomaly, related, independent), relation_note, created_at.
+
+stag_link. Holds the STAG links. Fields: link_id (primary key), anomaly_id (foreign key to anomaly), annotation_id, created_at.
+
+null_model_link. Holds the Null-Model Protocol links. Fields: link_id (primary key), anomaly_id (foreign key to anomaly), result_id, created_at.
+
+verification_link. Holds the numerical verification links. Fields: link_id (primary key), anomaly_id (foreign key to anomaly), verification_id, created_at.
+
+lifecycle. Holds the lifecycle records. Fields: lifecycle_id (primary key), anomaly_id (foreign key to anomaly), status, status_date, status_reason, depositor_id, created_at.
+
+provenance. Holds the provenance records. Fields: provenance_id (primary key), anomaly_id (foreign key to anomaly), depositor_id, depositor_affiliation, timestamp, source, tool_version, operation (create, update, delete), created_at.
+
+audit_log. Holds the audit log entries. Fields: audit_id (primary key), operation, record_type, record_id, depositor_id, timestamp, result, details, created_at.
+
+moderation. Holds the moderation records. Fields: moderation_id (primary key), anomaly_id (foreign key to anomaly), moderator_id, moderation_status, moderation_date, moderation_notes, created_at.
+
+Module 3: Anomaly Loader
+Reads an anomaly deposit from a JSON file or an API request. Validates it against the anomaly schema. Validates any STAG annotation against the STAG schema. Validates any Null-Model Protocol result against the Null-Model Protocol schema. Rejects malformed deposits with an error.
+
+Module 4: Anomaly Writer
+Writes an anomaly deposit to the database. Inserts into the anomaly, evidence, related_anomaly, stag_link, null_model_link, verification_link, lifecycle, provenance, and moderation tables. Enforces referential integrity.
+
+Module 5: Anomaly Reader
+Reads an anomaly deposit from the database. Joins the tables to reconstruct the full deposit. Returns the deposit as JSON.
+
+Module 6: Anomaly Updater
+Updates an anomaly deposit. Creates a new version. Inserts a new provenance record. Updates the anomaly table. If the status changes, inserts a new lifecycle record.
+
+Module 7: Anomaly Deleter
+Deletes an anomaly deposit. Marks it as deleted (soft delete) or removes it (hard delete, based on configuration). Inserts an audit log entry.
+
+Module 8: Query Engine
+Executes queries against the database. Supports queries by anomaly ID, field, subfield, scale, anomaly type, status, depositor, deposit date, keywords, and relation to the standard model. Supports pagination.
+
+Module 9: Full-Text Search Engine
+Executes full-text search against the description, the evidence, and the notes. Uses the database's full-text search capabilities.
+
+Module 10: Aggregation Engine
+Executes aggregation queries. Supports counts by field, by status, by anomaly type, by year, by depositor, and by relation to the standard model.
+
+Module 11: Exporter
+Exports an anomaly as JSON, PROV-O, and Turtle. Uses the PROV-O exporter (App 3) for the PROV-O and Turtle formats.
+
+Module 12: Importer
+Imports an anomaly from JSON. Uses the anomaly loader and the anomaly writer.
+
+Module 13: Bulk Import and Export
+Imports multiple anomalies from a JSON or JSON Lines file. Exports multiple anomalies to a JSON or JSON Lines file.
+
+Module 14: REST API
+Provides the REST API. Endpoints:
+
+GET /anomalies. List anomalies with pagination and filters.
+
+GET /anomalies/{id}. Get an anomaly by ID.
+
+POST /anomalies. Create an anomaly.
+
+PUT /anomalies/{id}. Update an anomaly.
+
+DELETE /anomalies/{id}. Delete an anomaly.
+
+GET /anomalies/{id}/provo. Get an anomaly as PROV-O.
+
+GET /anomalies/{id}/turtle. Get an anomaly as Turtle.
+
+GET /anomalies/{id}/related. Get the anomalies related to this one.
+
+GET /anomalies/{id}/lifecycle. Get the lifecycle of this anomaly.
+
+GET /anomalies/{id}/evidence. Get the evidence for and against this anomaly.
+
+GET /anomalies/{id}/stag. Get the STAG annotation linked to this anomaly.
+
+GET /anomalies/{id}/null-model. Get the Null-Model Protocol result linked to this anomaly.
+
+GET /anomalies/{id}/verification. Get the numerical verification result linked to this anomaly.
+
+POST /query. Execute a query.
+
+POST /aggregate. Execute an aggregation query.
+
+POST /search. Execute a full-text search.
+
+GET /map. Get the anomaly map.
+
+POST /bulk/import. Bulk import anomalies.
+
+POST /bulk/export. Bulk export anomalies.
+
+POST /moderate/{id}. Moderate an anomaly (approve or reject).
+
+GET /audit. List audit log entries.
+
+Module 15: GraphQL API
+Provides the GraphQL API. The schema exposes the same entities as the REST API, with the ability to traverse the relationships between them (anomaly to evidence, anomaly to related anomalies, anomaly to STAG annotation, anomaly to Null-Model Protocol result, anomaly to lifecycle).
+
+Module 16: Command-Line Interface
+Provides the command-line interface for administration:
+
+db init. Initialize the database.
+
+db migrate. Run migrations.
+
+db backup. Backup the database.
+
+db restore. Restore the database.
+
+db import. Import anomalies.
+
+db export. Export anomalies.
+
+db query. Execute a query.
+
+db aggregate. Execute an aggregation query.
+
+db moderate. Moderate an anomaly.
+
+db audit. List audit log entries.
+
+Module 17: Authentication and Authorization
+Provides authentication (API keys, OAuth, or JWT) and authorization (role-based access control: reader, depositor, moderator, admin).
+
+Module 18: Audit Logging
+Logs every operation (create, update, delete, query, moderate) with the depositor, the timestamp, the result, and the details.
+
+Module 19: Backup and Restore
+Provides backup and restore. Backup produces a database dump or a JSON archive. Restore loads the backup.
+
+Module 20: Web Interface
+Provides a web interface for depositing, browsing, and querying. Displays anomalies, their evidence, their related anomalies, their STAG annotations, their Null-Model Protocol results, and their lifecycle. Provides a search box, a filter panel, an aggregation view, an anomaly map, and a deposit form.
+
+Module 21: Moderation Workflow
+Provides a moderation workflow. Anomalies are created with moderation_status = pending. A moderator can approve or reject an anomaly. The moderation status is recorded in the moderation table.
+
+Module 22: Lifecycle Tracker
+Tracks the status of each anomaly over time. Each time the status changes, a new lifecycle record is inserted. The lifecycle timeline shows the status of an anomaly at each point in time.
+
+Module 23: Anomaly Map
+Produces a visualisation of anomalies by field, by scale, and by relation to the standard model. Fields are axes, scales are positions, and anomalies are points. The map shows where the anomalies cluster and where they are isolated.
+
+Module 24: Related-Anomaly Finder
+Finds anomalies that are related to a given anomaly. Uses the related_anomaly table and the STAG node identity rule to find anomalies that are the same anomaly under different names, anomalies that are related, and anomalies that are independent.
+
+Module 25: Migration Manager
+Manages database migrations. Each anomaly schema version has a migration script. Migrations are applied in order.
+
+Full Anomaly Specification
+6.1 Anomaly Record
+The anomaly table holds the anomaly records. Each anomaly record has:
+
+anomaly_id (string, primary key)
+
+title (string)
+
+description (string)
+
+field (string)
+
+subfield (string or null)
+
+scale (string or null)
+
+anomaly_type (measurement_disagreement, unexplained_observation, theoretical_tension, statistical_outlier, replication_failure, other)
+
+standard_model_reference (string)
+
+relation_to_standard_model (modification, extension, replacement, unknown)
+
+anomaly_status (proposed, under_investigation, contested, resolved, superseded, withdrawn)
+
+deposit_date (ISO8601)
+
+depositor_id (string)
+
+depositor_affiliation (string or null)
+
+provenance (JSON: source, tool_version, notes)
+
+keywords (array of strings or null)
+
+notes (string or null)
+
+moderation_status (pending, approved, rejected)
+
+version (integer)
+
+supersedes (string or null)
+
+superseded_by (string or null)
+
+created_at (ISO8601)
+
+updated_at (ISO8601)
+
+6.2 Evidence Record
+The evidence table holds the evidence records. Each evidence record has:
+
+evidence_id (string, primary key)
+
+anomaly_id (string, foreign key to anomaly)
+
+evidence_type (for, against)
+
+source_reference (string)
+
+source_summary (string)
+
+data_reference (string or null)
+
+analysis_reference (string or null)
+
+statistical_result (string or null)
+
+created_at (ISO8601)
+
+6.3 Related-Anomaly Record
+The related_anomaly table holds the related-anomaly records. Each related-anomaly record has:
+
+relation_id (string, primary key)
+
+anomaly_id (string, foreign key to anomaly)
+
+related_anomaly_id (string, foreign key to anomaly)
+
+relation_type (same_anomaly, related, independent)
+
+relation_note (string or null)
+
+created_at (ISO8601)
+
+6.4 STAG Link Record
+The stag_link table holds the STAG links. Each STAG link record has:
+
+link_id (string, primary key)
+
+anomaly_id (string, foreign key to anomaly)
+
+annotation_id (string)
+
+created_at (ISO8601)
+
+6.5 Null-Model Link Record
+The null_model_link table holds the Null-Model Protocol links. Each Null-Model link record has:
+
+link_id (string, primary key)
+
+anomaly_id (string, foreign key to anomaly)
+
+result_id (string)
+
+created_at (ISO8601)
+
+6.6 Verification Link Record
+The verification_link table holds the numerical verification links. Each verification link record has:
+
+link_id (string, primary key)
+
+anomaly_id (string, foreign key to anomaly)
+
+verification_id (string)
+
+created_at (ISO8601)
+
+6.7 Lifecycle Record
+The lifecycle table holds the lifecycle records. Each lifecycle record has:
+
+lifecycle_id (string, primary key)
+
+anomaly_id (string, foreign key to anomaly)
+
+status (proposed, under_investigation, contested, resolved, superseded, withdrawn)
+
+status_date (ISO8601)
+
+status_reason (string or null)
+
+depositor_id (string)
+
+created_at (ISO8601)
+
+6.8 Provenance Record
+The provenance table holds the provenance records. Each provenance record has:
+
+provenance_id (string, primary key)
+
+anomaly_id (string, foreign key to anomaly)
+
+depositor_id (string)
+
+depositor_affiliation (string or null)
+
+timestamp (ISO8601)
+
+source (string)
+
+tool_version (string)
+
+operation (create, update, delete)
+
+created_at (ISO8601)
+
+6.9 Audit Log Record
+The audit_log table holds the audit log entries. Each audit log entry has:
+
+audit_id (string, primary key)
+
+operation (create, update, delete, query, moderate)
+
+record_type (anomaly, evidence, related_anomaly, lifecycle)
+
+record_id (string)
+
+depositor_id (string)
+
+timestamp (ISO8601)
+
+result (success, failure)
+
+details (JSON)
+
+created_at (ISO8601)
+
+6.10 Moderation Record
+The moderation table holds the moderation records. Each moderation record has:
+
+moderation_id (string, primary key)
+
+anomaly_id (string, foreign key to anomaly)
+
+moderator_id (string)
+
+moderation_status (pending, approved, rejected)
+
+moderation_date (ISO8601)
+
+moderation_notes (string or null)
+
+created_at (ISO8601)
+
+6.11 Referential Integrity
+The database enforces the following referential integrity constraints:
+
+Every evidence.anomaly_id must exist in anomaly.
+
+Every related_anomaly.anomaly_id and related_anomaly.related_anomaly_id must exist in anomaly.
+
+Every stag_link.anomaly_id must exist in anomaly.
+
+Every null_model_link.anomaly_id must exist in anomaly.
+
+Every verification_link.anomaly_id must exist in anomaly.
+
+Every lifecycle.anomaly_id must exist in anomaly.
+
+Every provenance.anomaly_id must exist in anomaly.
+
+Every moderation.anomaly_id must exist in anomaly.
+
+The version chain (supersedes and superseded_by) must be acyclic.
+
+The related-anomaly relation must be symmetric: if A is related to B, B must be related to A.
+
+6.12 Indexes
+The database has indexes on:
+
+anomaly.anomaly_id
+
+anomaly.title
+
+anomaly.field
+
+anomaly.subfield
+
+anomaly.scale
+
+anomaly.anomaly_type
+
+anomaly.anomaly_status
+
+anomaly.relation_to_standard_model
+
+anomaly.depositor_id
+
+anomaly.moderation_status
+
+anomaly.keywords
+
+evidence.anomaly_id
+
+evidence.evidence_type
+
+related_anomaly.anomaly_id
+
+related_anomaly.related_anomaly_id
+
+stag_link.anomaly_id
+
+null_model_link.anomaly_id
+
+verification_link.anomaly_id
+
+lifecycle.anomaly_id
+
+lifecycle.status
+
+provenance.anomaly_id
+
+provenance.depositor_id
+
+audit_log.operation
+
+audit_log.record_type
+
+audit_log.record_id
+
+moderation.anomaly_id
+
+moderation.moderation_status
+
+Full-text search indexes on the description, the evidence, and the notes.
+
+Core Logic as Executable Pseudocode
+7.1 Create Anomaly
+function createAnomaly(anomaly, evidenceFiles, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. validationResult = validateAnomaly(anomaly). If invalid, return {error: "invalid anomaly", details: validationResult.errors}.
+
+Step 3. if anomaly.stag_annotation is not null: result = validateSTAGRecord(anomaly.stag_annotation); if invalid, return {error: "invalid STAG annotation", details: result.errors}.
+
+Step 4. if anomaly.null_model_result is not null: validation = validateNullModelResult(anomaly.null_model_result); if invalid, return {error: "invalid Null-Model Protocol result", details: validation.errors}.
+
+Step 5. anomalyId = generateAnomalyId().
+
+anomaly.anomaly_id = anomalyId.
+
+anomaly.version = 1.
+
+anomaly.moderation_status = "pending".
+
+anomaly.deposit_date = now().
+
+anomaly.depositor_id = auth.depositor_id.
+
+anomaly.depositor_affiliation = auth.depositor_affiliation.
+
+anomaly.provenance = {source: provenance.source, tool_version: provenance.tool_version, notes: provenance.notes}.
+
+Step 6. insertAnomaly(anomaly).
+
+Step 7. for evidence in anomaly.evidence_for: insertEvidence(anomalyId, "for", evidence).
+
+for evidence in anomaly.evidence_against: insertEvidence(anomalyId, "against", evidence).
+
+Step 8. for relatedId in anomaly.related_anomalies: insertRelatedAnomaly(anomalyId, relatedId, "related", null).
+
+Step 9. if anomaly.stag_annotation is not null: insertSTAGLink(anomalyId, anomaly.stag_annotation.annotation_id).
+
+Step 10. if anomaly.null_model_result is not null: insertNullModelLink(anomalyId, anomaly.null_model_result.result_id).
+
+Step 11. if anomaly.numerical_verification_result is not null: insertVerificationLink(anomalyId, anomaly.numerical_verification_result.verification_id).
+
+Step 12. insertLifecycle(anomalyId, "proposed", now(), null, auth.depositor_id).
+
+Step 13. insertProvenance(anomalyId, auth.depositor_id, auth.depositor_affiliation, provenance.source, provenance.tool_version, "create").
+
+Step 14. insertModeration(anomalyId, null, "pending", null, null).
+
+Step 15. insertAuditLog("create", "anomaly", anomalyId, auth.depositor_id, "success", {anomaly: anomaly}).
+
+Step 16. return {anomaly_id: anomalyId, status: "created"}.
+
+7.2 Read Anomaly
+function readAnomaly(anomalyId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. anomaly = selectAnomaly(anomalyId).
+
+if anomaly is null: return {error: "not found"}.
+
+Step 3. evidence = selectEvidence(anomalyId).
+
+relatedAnomalies = selectRelatedAnomalies(anomalyId).
+
+stagLink = selectSTAGLink(anomalyId).
+
+nullModelLink = selectNullModelLink(anomalyId).
+
+verificationLink = selectVerificationLink(anomalyId).
+
+lifecycle = selectLifecycle(anomalyId).
+
+provenance = selectProvenance(anomalyId).
+
+moderation = selectModeration(anomalyId).
+
+Step 4. deposit = reconstructAnomaly(anomaly, evidence, relatedAnomalies, stagLink, nullModelLink, verificationLink, lifecycle, provenance, moderation).
+
+Step 5. insertAuditLog("read", "anomaly", anomalyId, auth.depositor_id, "success", null).
+
+Step 6. return {deposit: deposit}.
+
+7.3 Update Anomaly
+function updateAnomaly(anomalyId, anomaly, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. existing = selectAnomaly(anomalyId).
+
+if existing is null: return {error: "not found"}.
+
+Step 3. validationResult = validateAnomaly(anomaly). If invalid, return {error: "invalid anomaly", details: validationResult.errors}.
+
+Step 4. newVersion = existing.version + 1.
+
+updateAnomaly(anomalyId, {version: newVersion, supersedes: existing.version, superseded_by: null}).
+
+Step 5. if anomaly.anomaly_status != existing.anomaly_status: insertLifecycle(anomalyId, anomaly.anomaly_status, now(), anomaly.status_reason, auth.depositor_id).
+
+Step 6. insertProvenance(anomalyId, auth.depositor_id, auth.depositor_affiliation, provenance.source, provenance.tool_version, "update").
+
+Step 7. insertAuditLog("update", "anomaly", anomalyId, auth.depositor_id, "success", {anomaly: anomaly}).
+
+Step 8. return {anomaly_id: anomalyId, version: newVersion, status: "updated"}.
+
+7.4 Delete Anomaly
+function deleteAnomaly(anomalyId, provenance, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. existing = selectAnomaly(anomalyId).
+
+if existing is null: return {error: "not found"}.
+
+Step 3. if config.softDelete: updateAnomaly(anomalyId, {deleted_at: now()}).
+
+else: deleteAnomaly(anomalyId).
+
+Step 4. insertAuditLog("delete", "anomaly", anomalyId, auth.depositor_id, "success", null).
+
+Step 5. return {anomaly_id: anomalyId, status: "deleted"}.
+
+7.5 Query Anomalies
+function queryAnomalies(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. sql = buildQuerySQL(query).
+
+Step 3. results = executeSQL(sql).
+
+Step 4. anomalies = results.map(row => selectAnomaly(row.anomaly_id)).
+
+Step 5. insertAuditLog("query", "anomaly", null, auth.depositor_id, "success", {query: query}).
+
+Step 6. return {anomalies: anomalies, count: anomalies.length, pagination: {offset: query.offset, limit: query.limit}}.
+
+7.6 Aggregate Anomalies
+function aggregateAnomalies(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. sql = buildAggregateSQL(query).
+
+Step 3. results = executeSQL(sql).
+
+Step 4. insertAuditLog("aggregate", "anomaly", null, auth.depositor_id, "success", {query: query}).
+
+Step 5. return {results: results}.
+
+7.7 Full-Text Search
+function fullTextSearch(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. sql = buildFullTextSQL(query).
+
+Step 3. results = executeSQL(sql).
+
+Step 4. anomalies = results.map(row => selectAnomaly(row.anomaly_id)).
+
+Step 5. insertAuditLog("search", "anomaly", null, auth.depositor_id, "success", {query: query}).
+
+Step 6. return {anomalies: anomalies, count: anomalies.length}.
+
+7.8 Export Anomaly
+function exportAnomaly(anomalyId, format, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. deposit = readAnomaly(anomalyId, auth).deposit.
+
+Step 3. if format == "json": output = deposit.
+
+else if format == "provo": output = exportToPROVO(deposit).output.
+
+else if format == "turtle": output = serializeToTurtle(deposit).
+
+Step 4. insertAuditLog("export", "anomaly", anomalyId, auth.depositor_id, "success", {format: format}).
+
+Step 5. return {output: output, format: format}.
+
+7.9 Bulk Import
+function bulkImport(file, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. anomalies = parseBulkFile(file).
+
+Step 3. results = [].
+
+for anomaly in anomalies:
+
+result = createAnomaly(anomaly, anomaly.evidence_files, provenance, auth).
+
+results.push(result).
+
+Step 4. insertAuditLog("bulk_import", "anomaly", null, auth.depositor_id, "success", {count: anomalies.length}).
+
+Step 5. return {results: results, count: results.length}.
+
+7.10 Bulk Export
+function bulkExport(query, format, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. anomalies = queryAnomalies(query, auth).anomalies.
+
+Step 3. if format == "json": output = anomalies.
+
+else if format == "jsonl": output = anomalies.map(a => JSON.stringify(a)).join("\n").
+
+else if format == "provo": output = anomalies.map(a => exportToPROVO(a).output).join("\n").
+
+Step 4. insertAuditLog("bulk_export", "anomaly", null, auth.depositor_id, "success", {count: anomalies.length}).
+
+Step 5. return {output: output, count: anomalies.length}.
+
+7.11 Moderate Anomaly
+function moderateAnomaly(anomalyId, moderationStatus, moderationNotes, auth):
+
+Step 1. validateAuth(auth, "moderator"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. existing = selectAnomaly(anomalyId).
+
+if existing is null: return {error: "not found"}.
+
+Step 3. updateAnomaly(anomalyId, {moderation_status: moderationStatus}).
+
+insertModeration(anomalyId, auth.depositor_id, moderationStatus, moderationNotes, now()).
+
+Step 4. insertAuditLog("moderate", "anomaly", anomalyId, auth.depositor_id, "success", {status: moderationStatus, notes: moderationNotes}).
+
+Step 5. return {anomaly_id: anomalyId, status: moderationStatus}.
+
+7.12 Find Related Anomalies
+function findRelatedAnomalies(anomalyId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. anomaly = selectAnomaly(anomalyId).
+
+if anomaly is null: return {error: "not found"}.
+
+Step 3. related = selectRelatedAnomalies(anomalyId).
+
+Step 4. sameAnomalyCandidates = [].
+
+for otherAnomaly in selectAllAnomalies():
+
+if otherAnomaly.anomaly_id == anomalyId: continue.
+
+if otherAnomaly.field == anomaly.field and otherAnomaly.anomaly_type == anomaly.anomaly_type:
+
+if similarDescription(otherAnomaly.description, anomaly.description):
+
+sameAnomalyCandidates.push(otherAnomaly).
+
+Step 5. return {related: related, same_anomaly_candidates: sameAnomalyCandidates}.
+
+7.13 Anomaly Map
+function anomalyMap(auth, options):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. anomalies = selectAllAnomalies().
+
+Step 3. map = {fields: [], scales: [], points: []}.
+
+for anomaly in anomalies:
+
+if anomaly.field not in map.fields: map.fields.push(anomaly.field).
+
+if anomaly.scale not in map.scales: map.scales.push(anomaly.scale).
+
+map.points.push({anomaly_id: anomaly.anomaly_id, field: anomaly.field, scale: anomaly.scale, status: anomaly.anomaly_status, relation: anomaly.relation_to_standard_model}).
+
+Step 4. return {map: map}.
+
+7.14 Audit Log
+function auditLog(query, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. sql = buildAuditSQL(query).
+
+Step 3. results = executeSQL(sql).
+
+Step 4. return {results: results}.
+
+7.15 Backup
+function backup(auth, options):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. if options.format == "sql": output = dumpDatabaseSQL().
+
+else if options.format == "json": output = dumpDatabaseJSON().
+
+Step 3. insertAuditLog("backup", "database", null, auth.depositor_id, "success", {format: options.format}).
+
+Step 4. return {output: output, format: options.format}.
+
+7.16 Restore
+function restore(file, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. loadDatabase(file).
+
+Step 3. insertAuditLog("restore", "database", null, auth.depositor_id, "success", {file: file}).
+
+Step 4. return {status: "restored"}.
+
+Data Model / JSON Schema for Internal State
+The register's internal state is the set of tables. The API's internal state is a request object and a response object.
+
+Request object:
+
+operation (create, read, update, delete, query, aggregate, search, export, import, moderate, backup, restore)
+
+resource (anomaly, evidence, related_anomaly, lifecycle, database)
+
+record_id (string or null)
+
+record_json (JSON or null)
+
+query (JSON or null)
+
+auth (object: depositor_id, api_key, role)
+
+Response object:
+
+status (success, failure)
+
+result (JSON or null)
+
+error (string or null)
+
+audit_id (string)
+
+Architecture
+Module breakdown:
+
+Anomaly Schema. The anomaly schema.
+
+Database Schema. The tables and indexes.
+
+Anomaly Loader. Reads and validates anomalies.
+
+Anomaly Writer. Writes anomalies.
+
+Anomaly Reader. Reads anomalies.
+
+Anomaly Updater. Updates anomalies.
+
+Anomaly Deleter. Deletes anomalies.
+
+Query Engine. Executes queries.
+
+Full-Text Search Engine. Executes full-text search.
+
+Aggregation Engine. Executes aggregation queries.
+
+Exporter. Exports anomalies.
+
+Importer. Imports anomalies.
+
+Bulk Import and Export. Bulk operations.
+
+REST API. HTTP endpoints.
+
+GraphQL API. GraphQL endpoint.
+
+Command-Line Interface. Administration.
+
+Authentication and Authorization. Access control.
+
+Audit Logging. Logs operations.
+
+Backup and Restore. Database backup and restore.
+
+Web Interface. Depositing, browsing, querying.
+
+Moderation Workflow. Moderation of anomalies.
+
+Lifecycle Tracker. Tracks the status of each anomaly.
+
+Anomaly Map. Visualises anomalies.
+
+Related-Anomaly Finder. Finds related anomalies.
+
+Migration Manager. Database migrations.
+
+Data flow:
+
+API requests go to the REST or GraphQL API. The API calls the anomaly loader, writer, reader, updater, deleter, query engine, search engine, aggregation engine, exporter, or importer. The database schema stores the data. The audit logging records every operation. The authentication and authorization check access. The moderation workflow handles moderation. The lifecycle tracker tracks status. The anomaly map visualises. The related-anomaly finder finds relations. The backup and restore handle backup. The web interface provides depositing, browsing, and querying.
+
+Technology Stack
+Recommended for the database:
+
+Database: PostgreSQL 15+ or SQLite 3.40+.
+
+Language: Python 3.11+ or Node.js 20+.
+
+ORM: SQLAlchemy (Python) or Prisma (JS).
+
+Migrations: Alembic (Python) or Prisma Migrate (JS).
+
+Full-text search: PostgreSQL tsvector or SQLite FTS5.
+
+Recommended for the REST API:
+
+Framework: FastAPI (Python) or Express (JS).
+
+Authentication: FastAPI Users (Python) or Passport (JS).
+
+Recommended for the GraphQL API:
+
+Framework: Strawberry (Python) or Apollo Server (JS).
+
+Recommended for the command-line interface:
+
+Framework: Click (Python) or Commander (JS).
+
+Recommended for the web interface:
+
+Frontend: React or Svelte.
+
+Backend: the same as the REST API.
+
+Recommended for deployment:
+
+Containerization: Docker.
+
+Orchestration: Docker Compose or Kubernetes.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The STAG schema (Artifact 2, Appendix B.1).
+
+The Null-Model Protocol schema (from App 8 and App 9).
+
+The PROV-O exporter (App 3).
+
+The STAG schema library (App 17).
+
+The Null-Model Protocol library (App 18).
+
+The provenance database (App 20).
+
+The numerical verification tool (App 22).
+
+The revision history viewer (App 7).
+
+The Physics Knowledge Library (App 23).
+
+UI/UX Specification
+REST API:
+
+Base URL: https://api.example.com/v1.
+
+Authentication: Bearer token in the Authorization header.
+
+Endpoints as in Module 14.
+
+Responses in JSON.
+
+HTTP status codes: 200 for success, 201 for created, 204 for deleted, 400 for bad request, 401 for unauthorized, 403 for forbidden, 404 for not found, 409 for conflict, 422 for unprocessable entity, 500 for internal server error.
+
+GraphQL API:
+
+Endpoint: https://api.example.com/graphql.
+
+Schema exposes the entities and their relationships.
+
+Queries and mutations for CRUD operations.
+
+Command-line interface:
+
+Usage: anomaly-register [command] [options].
+
+Commands: init, migrate, backup, restore, import, export, query, aggregate, moderate, audit.
+
+Web interface:
+
+A browsable list of anomalies.
+
+A deposit form for adding a new anomaly.
+
+A search box for full-text search.
+
+A filter panel for querying by field, subfield, scale, anomaly type, status, depositor, and relation to the standard model.
+
+An aggregation view for counts.
+
+An anomaly map for visualisation.
+
+A lifecycle timeline for each anomaly.
+
+A detail view for each anomaly, showing the evidence, the related anomalies, the STAG annotation, the Null-Model Protocol result, and the provenance.
+
+A moderation view for moderators.
+
+Validation Engine Design
+The register validates the following:
+
+Validation 1. Anomaly validity. Every anomaly is validated against the anomaly schema before it is stored.
+
+Validation 2. STAG annotation validity. Every STAG annotation is validated against the STAG schema and the thirty-two semantic rules.
+
+Validation 3. Null-Model Protocol result validity. Every Null-Model Protocol result is validated against the Null-Model Protocol schema.
+
+Validation 4. Numerical verification result validity. Every numerical verification result is validated against the verification schema.
+
+Validation 5. Referential integrity. Every foreign key reference must resolve to an existing record.
+
+Validation 6. Version chain acyclicity. The version chain must be acyclic.
+
+Validation 7. Related-anomaly symmetry. The related-anomaly relation must be symmetric.
+
+Validation 8. Provenance completeness. Every anomaly must have a provenance record.
+
+Validation 9. Audit completeness. Every operation must have an audit log entry.
+
+Validation 10. Moderation completeness. Every anomaly must have a moderation record.
+
+Validation 11. Lifecycle completeness. Every anomaly must have at least one lifecycle record.
+
+Testing Strategy
+Unit tests:
+
+Anomaly Schema for valid and invalid anomalies.
+
+Database Schema for each table and index.
+
+Anomaly Loader for valid and invalid anomalies.
+
+Anomaly Writer for each table.
+
+Anomaly Reader for each anomaly type.
+
+Anomaly Updater for versioning and lifecycle.
+
+Anomaly Deleter for soft and hard deletes.
+
+Query Engine for each query field.
+
+Full-Text Search Engine for each search term.
+
+Aggregation Engine for each aggregation dimension.
+
+Exporter for each format (JSON, PROV-O, Turtle).
+
+Importer for each format.
+
+Bulk Import and Export for each format.
+
+REST API for each endpoint.
+
+GraphQL API for each query and mutation.
+
+Command-Line Interface for each command.
+
+Authentication and Authorization for each role.
+
+Audit Logging for each operation.
+
+Backup and Restore for each format.
+
+Web Interface for each view.
+
+Moderation Workflow for each moderation status.
+
+Lifecycle Tracker for each status change.
+
+Anomaly Map for the map structure.
+
+Related-Anomaly Finder for each relation type.
+
+Migration Manager for each migration.
+
+Integration tests:
+
+Create an anomaly via the REST API. Read it back. Verify the anomaly is complete.
+
+Create an anomaly via the GraphQL API. Read it back. Verify the anomaly is complete.
+
+Update an anomaly. Verify the version chain and the lifecycle.
+
+Delete an anomaly. Verify the audit log.
+
+Query anomalies by each field. Verify the results.
+
+Aggregate anomalies by each dimension. Verify the counts.
+
+Search anomalies by full-text search. Verify the results.
+
+Export an anomaly as JSON, PROV-O, and Turtle. Verify the output.
+
+Bulk import anomalies. Verify the anomalies are stored.
+
+Bulk export anomalies. Verify the output.
+
+Backup the database. Restore the database. Verify the data is identical.
+
+Moderate an anomaly. Verify the moderation status.
+
+Find related anomalies. Verify the relations.
+
+Generate the anomaly map. Verify the map.
+
+Worked-example tests:
+
+Deposit the muon g-2 anomaly. Verify the deposit is stored and retrievable.
+
+Deposit the S8 tension anomaly. Verify the deposit is stored and retrievable.
+
+Deposit the OPERA faster-than-light neutrino anomaly. Verify the deposit is stored, and verify that its lifecycle shows it was resolved.
+
+Deposit the proton radius puzzle. Verify the deposit is stored.
+
+Deposit the Hubble tension. Verify the deposit is stored.
+
+Regression tests:
+
+Anomaly determinism.
+
+Query consistency.
+
+Aggregation consistency.
+
+Audit log consistency.
+
+Moderation consistency.
+
+Lifecycle consistency.
+
+Related-anomaly symmetry.
+
+Build Phases
+Phase 1. Anomaly Schema. Define the anomaly schema.
+
+Phase 2. Database Schema. Create the tables and indexes.
+
+Phase 3. Anomaly Loader. Read and validate anomalies.
+
+Phase 4. Anomaly Writer. Write anomalies.
+
+Phase 5. Anomaly Reader. Read anomalies.
+
+Phase 6. Anomaly Updater. Update anomalies.
+
+Phase 7. Anomaly Deleter. Delete anomalies.
+
+Phase 8. Query Engine. Execute queries.
+
+Phase 9. Full-Text Search Engine. Execute full-text search.
+
+Phase 10. Aggregation Engine. Execute aggregation queries.
+
+Phase 11. Exporter. Export anomalies.
+
+Phase 12. Importer. Import anomalies.
+
+Phase 13. Bulk Import and Export. Bulk operations.
+
+Phase 14. REST API. HTTP endpoints.
+
+Phase 15. GraphQL API. GraphQL endpoint.
+
+Phase 16. Command-Line Interface. Administration.
+
+Phase 17. Authentication and Authorization. Access control.
+
+Phase 18. Audit Logging. Log operations.
+
+Phase 19. Backup and Restore. Database backup and restore.
+
+Phase 20. Web Interface. Depositing, browsing, querying.
+
+Phase 21. Moderation Workflow. Moderation of anomalies.
+
+Phase 22. Lifecycle Tracker. Tracks the status of each anomaly.
+
+Phase 23. Anomaly Map. Visualises anomalies.
+
+Phase 24. Related-Anomaly Finder. Finds related anomalies.
+
+Phase 25. Migration Manager. Database migrations.
+
+Phase 26. Worked-example tests.
+
+Phase 27. Integration testing and hardening.
+
+Phase 28. Packaging and deployment.
+
+Dependencies
+Python path:
+
+SQLAlchemy (ORM).
+
+Alembic (migrations).
+
+FastAPI (REST API).
+
+Strawberry (GraphQL API).
+
+FastAPI Users (authentication).
+
+Click (command-line).
+
+psycopg2 (PostgreSQL driver).
+
+sqlite3 (SQLite driver, standard library).
+
+jsonschema (schema validation).
+
+hashlib (hash computation, standard library).
+
+json (JSON handling, standard library).
+
+pytest (testing).
+
+Node.js path:
+
+Prisma (ORM and migrations).
+
+Express (REST API).
+
+Apollo Server (GraphQL API).
+
+Passport (authentication).
+
+Commander (command-line).
+
+pg (PostgreSQL driver).
+
+better-sqlite3 (SQLite driver).
+
+ajv (schema validation).
+
+crypto (hash computation, standard library).
+
+JSON (standard library).
+
+Vitest (testing).
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The STAG schema (Artifact 2, Appendix B.1).
+
+The Null-Model Protocol schema (from App 8 and App 9).
+
+The PROV-O exporter (App 3).
+
+The STAG schema library (App 17).
+
+The Null-Model Protocol library (App 18).
+
+The provenance database (App 20).
+
+The numerical verification tool (App 22).
+
+The revision history viewer (App 7).
+
+The Physics Knowledge Library (App 23).
+
+Deployment Notes
+Database:
+
+PostgreSQL for multi-user deployments.
+
+SQLite for single-user deployments.
+
+Backup and restore via pg_dump and pg_restore (PostgreSQL) or the SQLite backup API.
+
+REST API:
+
+Deploy with Docker. Stateless. Scale horizontally.
+
+Use a reverse proxy for TLS.
+
+Log every request for audit.
+
+GraphQL API:
+
+Deploy alongside the REST API.
+
+Use a query depth limit and a query complexity limit to prevent abuse.
+
+Command-line interface:
+
+Package as a standalone executable (PyInstaller or pkg).
+
+Distribute via pip, npm, or a direct download.
+
+Web interface:
+
+Deploy the frontend as a static bundle.
+
+Backend with FastAPI or Express.
+
+Reproducibility:
+
+Record the STAG schema version, the Null-Model Protocol schema version, the anomaly schema version, and the register version.
+
+Record the provenance for every deposit.
+
+Provide a version pin for the schemas and codebook.
+
+Open Questions to Resolve Before Building
+Question 1. Which runtime first? Python or Node.js. Decision affects the ORM, the API framework, and the packaging.
+
+Question 2. Which database first? PostgreSQL or SQLite. Decision affects the full-text search implementation and the deployment model.
+
+Question 3. How should the register handle the anomaly type? Options: a fixed set, or an open set. Decision needed.
+
+Question 4. How should the register handle the anomaly status? Options: a fixed set, or an open set. Decision needed.
+
+Question 5. How should the register handle the relation to the standard model? Options: a fixed set, or an open set. Decision needed.
+
+Question 6. How should the register handle the related-anomaly relation? Options: manual entry, or automatic detection based on the STAG node identity rule. Decision needed.
+
+Question 7. How should the register handle the moderation workflow? Options: anomalies are pending until approved, anomalies are auto-approved, or anomalies require a moderator. Decision needed.
+
+Question 8. How should the register handle the STAG annotation? Options: required for every anomaly, optional for every anomaly, or optional depending on the anomaly type. Decision needed.
+
+Question 9. How should the register handle the Null-Model Protocol result? Options: required for every anomaly, optional for every anomaly, or optional depending on the anomaly type. Decision needed.
+
+Question 10. How should the register handle the anomaly map? Options: a scatter plot of field versus scale, a network graph of related anomalies, or both. Decision needed.
+
+Question 11. Should the register integrate with the STAG schema library (App 17), the Null-Model Protocol library (App 18), the provenance database (App 20), the numerical verification tool (App 22), the revision history viewer (App 7), and the Physics Knowledge Library (App 23)? Decision needed: shared schema registry, or independent.
+
+Question 12. Should the register support federation with other instances of itself? Decision needed.
+
+Question 13. Should the register support versioning of the anomaly schema? Decision needed.
+
+Question 14. How should the register handle the deposit of an anomaly that is already in the register? Options: reject the deposit, create a new version, or create a separate record with a cross-reference. Decision needed.
+
+Question 15. Should the register support bulk deposit via a folder upload? Decision needed.
+
+End of build specification for New App 1, the Anomaly Register.
