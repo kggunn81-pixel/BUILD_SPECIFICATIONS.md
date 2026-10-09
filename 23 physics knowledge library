@@ -1,0 +1,1344 @@
+Build Specification — App 23: Physics Knowledge Library
+Completeness status: COMPLETE. All sections delivered in one pass. No truncation. Formatted for copy-paste into another conversation window. No tables, no boxes.
+
+What It Is
+A provenance-aware, versioned repository of non-fiction works. The STAG annotation layer and the Null-Model Protocol statistical layer are built in. Users deposit works. The repository stores the works, the annotations, the statistical results, and the provenance. It reuses the STAG schema library (App 17), the Null-Model Protocol library (App 18), the PROV-O exporter (App 3), the provenance database (App 20), and the combined workbench (App 14). It is a sibling of the STAG and Null-Model infrastructure, not a replacement. It is for researchers, labs, consortia, and anyone depositing non-fiction works.
+
+Core Requirements
+Functional requirements:
+
+Accept deposits of non-fiction works from users.
+
+Store the works, their metadata, their provenance, and their files.
+
+Provide the STAG annotation layer: each work can be annotated with STAG records.
+
+Provide the Null-Model Protocol statistical layer: each work can be linked to Null-Model Protocol results.
+
+Validate every deposit against the deposit schema.
+
+Validate every STAG annotation against the STAG schema (Artifact 2, Appendix B.1) and the thirty-two semantic rules.
+
+Validate every Null-Model Protocol result against the Null-Model Protocol schema (from App 8 and App 9).
+
+Enforce provenance completeness: every deposit has a depositor, a date, a source, and a tool version.
+
+Enforce versioning: every deposit has a version, and updates create new versions.
+
+Enforce supersession acyclicity.
+
+Support querying by work ID, title, authors, date, publisher, identifiers, work type, language, license, depositor, deposit date, keywords, STAG label, STAG anchoring status, Null-Model Protocol exceedance probability, and flag.
+
+Support full-text search of the abstract, the keywords, the notes, and the STAG evidence fields.
+
+Support aggregation queries: count by work type, by language, by year, by depositor, by STAG label, by anchoring status.
+
+Support exporting a work as JSON, PROV-O, and Turtle.
+
+Support importing a work from JSON.
+
+Support bulk import and bulk export.
+
+Support a REST API for CRUD operations.
+
+Support a GraphQL API for flexible queries.
+
+Support a command-line interface for administration.
+
+Support authentication and authorization.
+
+Support audit logging.
+
+Support backup and restore.
+
+Support a web interface for depositing, browsing, and querying.
+
+Support moderation: deposits can be marked as pending, approved, or rejected.
+
+Support licensing: each work has a license.
+
+Support citation: each work has a citation.
+
+Support export to common formats: BibTeX, RIS, CSL-JSON.
+
+Non-functional requirements:
+
+Deterministic: same inputs produce same outputs.
+
+Fast: query a typical work in under 100 milliseconds; aggregate over 10,000 works in under one second.
+
+Scalable: support up to 10^6 works.
+
+Versioned: the library records the STAG schema version, the Null-Model Protocol schema version, the deposit schema version, and the library version.
+
+Reproducible: the library records the provenance for every deposit.
+
+Portable: works on Linux, macOS, and Windows.
+
+Well-documented: API documentation, deposit schema documentation, and user guide.
+
+Input Specification
+Input 1. Work deposit. Required for create and update operations. A deposit object conforming to the deposit schema.
+
+Input 2. Files. Required for create operations. One or more files (PDF, LaTeX, plain text, structured data).
+
+Input 3. Provenance record. Required for create and update operations. The depositor ID, the timestamp, the source, and the tool version.
+
+Input 4. STAG annotations. Optional. One or more STAG records.
+
+Input 5. Null-Model Protocol results. Optional. One or more Null-Model Protocol results.
+
+Input 6. Query. Required for read operations. A query object with fields for work ID, title, authors, date, publisher, identifiers, work type, language, license, depositor, deposit date, keywords, STAG label, STAG anchoring status, Null-Model Protocol exceedance probability, and flag.
+
+Input 7. Aggregation query. Required for aggregation operations. A query object with fields for the aggregation dimension and the filter.
+
+Input 8. Authentication credentials. Required for authenticated operations.
+
+Input 9. Bulk import file. Optional. A file containing multiple deposits in JSON or JSON Lines format.
+
+Input 10. Bulk export query. Optional. A query object selecting the works to export.
+
+Output Specification
+Output 1. Work record. JSON. The work as stored, including metadata, provenance, STAG annotations, and Null-Model Protocol results.
+
+Output 2. PROV-O serialization. Turtle or JSON-LD. The work mapped to PROV-O.
+
+Output 3. Turtle serialization. Turtle. The work as an RDF graph.
+
+Output 4. Citation. BibTeX, RIS, or CSL-JSON. The citation for the work.
+
+Output 5. Query result. JSON. The list of works matching the query, with pagination.
+
+Output 6. Aggregation result. JSON. The counts by the aggregation dimension.
+
+Output 7. Full-text search result. JSON. The list of works matching the search query.
+
+Output 8. Bulk export file. JSON or JSON Lines. The works matching the bulk export query.
+
+Output 9. Audit log entry. JSON. The operation, the work ID, the depositor, the timestamp, and the result.
+
+Output 10. API response. JSON. The result of the API operation, with HTTP status.
+
+Output 11. GraphQL response. JSON. The result of the GraphQL query.
+
+Output 12. Backup file. A database dump or a JSON archive.
+
+Module-by-Module Specification
+Module 1: Deposit Schema
+The deposit schema defines the structure of a work deposit. It has the following fields:
+
+work_id (string, required)
+
+title (string, required)
+
+authors (array of strings, required)
+
+date (ISO8601, required)
+
+publisher (string, optional)
+
+identifiers (object: DOI, ISBN, arXiv ID, other)
+
+work_type (book, paper, preprint, report, dataset, other)
+
+language (string)
+
+license (string)
+
+deposit_date (ISO8601, required)
+
+depositor_id (string, required)
+
+depositor_affiliation (string, optional)
+
+provenance (object: source, tool_version, notes)
+
+stag_annotations (array of STAG records, optional)
+
+null_model_results (array of Null-Model Protocol results, optional)
+
+files (array of file objects: path, hash, size, format)
+
+abstract (string, optional)
+
+keywords (array of strings, optional)
+
+notes (string, optional)
+
+moderation_status (pending, approved, rejected; default pending)
+
+version (integer; default 1)
+
+supersedes (string, optional)
+
+superseded_by (string, optional)
+
+citation (string, optional)
+
+Module 2: Database Schema
+The database has the following tables:
+
+work. Holds the work records. Fields: work_id (primary key), title, authors, date, publisher, identifiers, work_type, language, license, deposit_date, depositor_id, depositor_affiliation, provenance, abstract, keywords, notes, moderation_status, version, supersedes, superseded_by, citation, created_at, updated_at.
+
+file. Holds the file records. Fields: file_id (primary key), work_id (foreign key to work), path, hash, size, format, created_at.
+
+stag_annotation. Holds the STAG annotation records. Fields: annotation_id (primary key), work_id (foreign key to work), record_json, derived_display_label, evidential_anchoring_status, not_determinable_flag, provisional_flag, threshold_sensitive_flag, regime_not_determinable, identity_partition_sensitive, created_at, updated_at.
+
+null_model_result. Holds the Null-Model Protocol results. Fields: result_id (primary key), work_id (foreign key to work), result_json, observed_statistic, exceedance_probability, monte_carlo_uncertainty, empty_w_fraction, point_mass_at_zero, tail_definition, N, created_at, updated_at.
+
+provenance. Holds the provenance records. Fields: provenance_id (primary key), work_id (foreign key to work), depositor_id, depositor_affiliation, timestamp, source, tool_version, operation (create, update, delete), created_at.
+
+audit_log. Holds the audit log entries. Fields: audit_id (primary key), operation, record_type, record_id, depositor_id, timestamp, result, details, created_at.
+
+moderation. Holds the moderation records. Fields: moderation_id (primary key), work_id (foreign key to work), moderator_id, moderation_status, moderation_date, moderation_notes, created_at.
+
+Module 3: Deposit Loader
+Reads a work deposit from a JSON file or an API request. Validates it against the deposit schema. Validates any STAG annotations against the STAG schema. Validates any Null-Model Protocol results against the Null-Model Protocol schema. Rejects malformed deposits with an error.
+
+Module 4: Deposit Writer
+Writes a work deposit to the database. Inserts into the work, file, stag_annotation, null_model_result, provenance, and moderation tables. Enforces referential integrity.
+
+Module 5: Deposit Reader
+Reads a work deposit from the database. Joins the tables to reconstruct the full deposit. Returns the deposit as JSON.
+
+Module 6: Deposit Updater
+Updates a work deposit. Creates a new version. Inserts a new provenance record. Updates the work table.
+
+Module 7: Deposit Deleter
+Deletes a work deposit. Marks it as deleted (soft delete) or removes it (hard delete, based on configuration). Inserts an audit log entry.
+
+Module 8: Query Engine
+Executes queries against the database. Supports queries by work ID, title, authors, date, publisher, identifiers, work type, language, license, depositor, deposit date, keywords, STAG label, STAG anchoring status, Null-Model Protocol exceedance probability, and flag. Supports pagination.
+
+Module 9: Full-Text Search Engine
+Executes full-text search against the abstract, the keywords, the notes, and the STAG evidence fields. Uses the database's full-text search capabilities (PostgreSQL tsvector, SQLite FTS5, or a dedicated search engine).
+
+Module 10: Aggregation Engine
+Executes aggregation queries. Supports counts by work type, language, year, depositor, STAG label, and anchoring status.
+
+Module 11: Exporter
+Exports a work as JSON, PROV-O, and Turtle. Uses the PROV-O exporter (App 3) for the PROV-O and Turtle formats. Exports the citation as BibTeX, RIS, or CSL-JSON.
+
+Module 12: Importer
+Imports a work from JSON. Uses the deposit loader and the deposit writer.
+
+Module 13: Bulk Import and Export
+Imports multiple works from a JSON or JSON Lines file. Exports multiple works to a JSON or JSON Lines file.
+
+Module 14: REST API
+Provides the REST API. Endpoints:
+
+GET /works. List works with pagination and filters.
+
+GET /works/{id}. Get a work by ID.
+
+POST /works. Create a work.
+
+PUT /works/{id}. Update a work.
+
+DELETE /works/{id}. Delete a work.
+
+GET /works/{id}/provo. Get a work as PROV-O.
+
+GET /works/{id}/turtle. Get a work as Turtle.
+
+GET /works/{id}/citation. Get a work's citation in BibTeX, RIS, or CSL-JSON.
+
+GET /works/{id}/stag. Get a work's STAG annotations.
+
+GET /works/{id}/null-model. Get a work's Null-Model Protocol results.
+
+POST /query. Execute a query.
+
+POST /aggregate. Execute an aggregation query.
+
+POST /search. Execute a full-text search.
+
+POST /bulk/import. Bulk import works.
+
+POST /bulk/export. Bulk export works.
+
+POST /moderate/{id}. Moderate a work (approve or reject).
+
+GET /audit. List audit log entries.
+
+Module 15: GraphQL API
+Provides the GraphQL API. The schema exposes the same entities as the REST API, with the ability to traverse the relationships between them (work to STAG annotations, work to Null-Model Protocol results, work to files, work to provenance).
+
+Module 16: Command-Line Interface
+Provides the command-line interface for administration:
+
+db init. Initialize the database.
+
+db migrate. Run migrations.
+
+db backup. Backup the database.
+
+db restore. Restore the database.
+
+db import. Import works.
+
+db export. Export works.
+
+db query. Execute a query.
+
+db aggregate. Execute an aggregation query.
+
+db moderate. Moderate a work.
+
+db audit. List audit log entries.
+
+Module 17: Authentication and Authorization
+Provides authentication (API keys, OAuth, or JWT) and authorization (role-based access control: reader, depositor, moderator, admin).
+
+Module 18: Audit Logging
+Logs every operation (create, update, delete, query, moderate) with the depositor, the timestamp, the result, and the details.
+
+Module 19: Backup and Restore
+Provides backup and restore. Backup produces a database dump or a JSON archive. Restore loads the backup.
+
+Module 20: Web Interface
+Provides a web interface for depositing, browsing, and querying. Displays works, their STAG annotations, and their Null-Model Protocol results. Provides a search box, a filter panel, an aggregation view, and a deposit form.
+
+Module 21: Moderation Workflow
+Provides a moderation workflow. Deposits are created with moderation_status = pending. A moderator can approve or reject a deposit. The moderation status is recorded in the moderation table.
+
+Module 22: Citation Generator
+Generates a citation for a work in BibTeX, RIS, or CSL-JSON. Uses the work's metadata (title, authors, date, publisher, identifiers, license).
+
+Module 23: Migration Manager
+Manages database migrations. Each deposit schema version has a migration script. Migrations are applied in order.
+
+Full Deposit Specification
+6.1 Work Record
+The work table holds the work records. Each work record has:
+
+work_id (string, primary key)
+
+title (string)
+
+authors (array of strings)
+
+date (ISO8601)
+
+publisher (string or null)
+
+identifiers (JSON: DOI, ISBN, arXiv ID, other)
+
+work_type (book, paper, preprint, report, dataset, other)
+
+language (string or null)
+
+license (string or null)
+
+deposit_date (ISO8601)
+
+depositor_id (string)
+
+depositor_affiliation (string or null)
+
+provenance (JSON: source, tool_version, notes)
+
+abstract (string or null)
+
+keywords (array of strings or null)
+
+notes (string or null)
+
+moderation_status (pending, approved, rejected)
+
+version (integer)
+
+supersedes (string or null)
+
+superseded_by (string or null)
+
+citation (string or null)
+
+created_at (ISO8601)
+
+updated_at (ISO8601)
+
+6.2 File Record
+The file table holds the file records. Each file record has:
+
+file_id (string, primary key)
+
+work_id (string, foreign key to work)
+
+path (string)
+
+hash (string, SHA-256)
+
+size (integer)
+
+format (pdf, latex, text, json, other)
+
+created_at (ISO8601)
+
+6.3 STAG Annotation Record
+The stag_annotation table holds the STAG annotation records. Each STAG annotation record has:
+
+annotation_id (string, primary key)
+
+work_id (string, foreign key to work)
+
+record_json (JSON, the full STAG record)
+
+derived_display_label (string)
+
+evidential_anchoring_status (string)
+
+not_determinable_flag (boolean)
+
+provisional_flag (boolean)
+
+threshold_sensitive_flag (boolean)
+
+regime_not_determinable (boolean)
+
+identity_partition_sensitive (boolean)
+
+created_at (ISO8601)
+
+updated_at (ISO8601)
+
+6.4 Null-Model Protocol Result Record
+The null_model_result table holds the Null-Model Protocol results. Each result record has:
+
+result_id (string, primary key)
+
+work_id (string, foreign key to work)
+
+result_json (JSON, the full result)
+
+observed_statistic (number or null)
+
+exceedance_probability (number)
+
+monte_carlo_uncertainty (number)
+
+empty_w_fraction (number)
+
+point_mass_at_zero (number)
+
+tail_definition (>=, >)
+
+N (integer)
+
+created_at (ISO8601)
+
+updated_at (ISO8601)
+
+6.5 Provenance Record
+The provenance table holds the provenance records. Each provenance record has:
+
+provenance_id (string, primary key)
+
+work_id (string, foreign key to work)
+
+depositor_id (string)
+
+depositor_affiliation (string or null)
+
+timestamp (ISO8601)
+
+source (string)
+
+tool_version (string)
+
+operation (create, update, delete)
+
+created_at (ISO8601)
+
+6.6 Audit Log Record
+The audit_log table holds the audit log entries. Each audit log entry has:
+
+audit_id (string, primary key)
+
+operation (create, update, delete, query, moderate)
+
+record_type (work, file, stag_annotation, null_model_result)
+
+record_id (string)
+
+depositor_id (string)
+
+timestamp (ISO8601)
+
+result (success, failure)
+
+details (JSON)
+
+created_at (ISO8601)
+
+6.7 Moderation Record
+The moderation table holds the moderation records. Each moderation record has:
+
+moderation_id (string, primary key)
+
+work_id (string, foreign key to work)
+
+moderator_id (string)
+
+moderation_status (pending, approved, rejected)
+
+moderation_date (ISO8601)
+
+moderation_notes (string or null)
+
+created_at (ISO8601)
+
+6.8 Referential Integrity
+The database enforces the following referential integrity constraints:
+
+Every file.work_id must exist in work.
+
+Every stag_annotation.work_id must exist in work.
+
+Every null_model_result.work_id must exist in work.
+
+Every provenance.work_id must exist in work.
+
+Every moderation.work_id must exist in work.
+
+The version chain (supersedes and superseded_by) must be acyclic.
+
+6.9 Indexes
+The database has indexes on:
+
+work.work_id
+
+work.title
+
+work.authors
+
+work.date
+
+work.work_type
+
+work.language
+
+work.license
+
+work.depositor_id
+
+work.moderation_status
+
+work.keywords
+
+file.work_id
+
+stag_annotation.work_id
+
+stag_annotation.derived_display_label
+
+stag_annotation.evidential_anchoring_status
+
+null_model_result.work_id
+
+null_model_result.exceedance_probability
+
+provenance.work_id
+
+provenance.depositor_id
+
+audit_log.operation
+
+audit_log.record_type
+
+audit_log.record_id
+
+moderation.work_id
+
+moderation.moderation_status
+
+Full-text search indexes on the abstract, the keywords, the notes, and the STAG evidence fields.
+
+Core Logic as Executable Pseudocode
+7.1 Create Deposit
+function createDeposit(deposit, files, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. validationResult = validateDeposit(deposit). If invalid, return {error: "invalid deposit", details: validationResult.errors}.
+
+Step 3. if deposit.stag_annotations is not null:
+
+for annotation in deposit.stag_annotations:
+
+result = validateSTAGRecord(annotation). If invalid, return {error: "invalid STAG annotation", details: result.errors}.
+
+Step 4. if deposit.null_model_results is not null:
+
+for result in deposit.null_model_results:
+
+validation = validateNullModelResult(result). If invalid, return {error: "invalid Null-Model Protocol result", details: validation.errors}.
+
+Step 5. workId = generateWorkId().
+
+deposit.work_id = workId.
+
+deposit.version = 1.
+
+deposit.moderation_status = "pending".
+
+deposit.deposit_date = now().
+
+deposit.depositor_id = auth.depositor_id.
+
+deposit.depositor_affiliation = auth.depositor_affiliation.
+
+deposit.provenance = {source: provenance.source, tool_version: provenance.tool_version, notes: provenance.notes}.
+
+Step 6. insertWork(deposit).
+
+Step 7. for file in files: fileHash = sha256(file); insertFile(workId, file.path, fileHash, file.size, file.format).
+
+Step 8. if deposit.stag_annotations is not null: for annotation in deposit.stag_annotations: insertSTAGAnnotation(workId, annotation).
+
+Step 9. if deposit.null_model_results is not null: for result in deposit.null_model_results: insertNullModelResult(workId, result).
+
+Step 10. insertProvenance(workId, auth.depositor_id, auth.depositor_affiliation, provenance.source, provenance.tool_version, "create").
+
+Step 11. insertModeration(workId, null, "pending", null, null).
+
+Step 12. insertAuditLog("create", "work", workId, auth.depositor_id, "success", {deposit: deposit}).
+
+Step 13. return {work_id: workId, status: "created"}.
+
+7.2 Read Deposit
+function readDeposit(workId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. work = selectWork(workId).
+
+if work is null: return {error: "not found"}.
+
+Step 3. files = selectFiles(workId).
+
+stagAnnotations = selectSTAGAnnotations(workId).
+
+nullModelResults = selectNullModelResults(workId).
+
+provenance = selectProvenance(workId).
+
+moderation = selectModeration(workId).
+
+Step 4. deposit = reconstructDeposit(work, files, stagAnnotations, nullModelResults, provenance, moderation).
+
+Step 5. insertAuditLog("read", "work", workId, auth.depositor_id, "success", null).
+
+Step 6. return {deposit: deposit}.
+
+7.3 Update Deposit
+function updateDeposit(workId, deposit, files, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. existing = selectWork(workId).
+
+if existing is null: return {error: "not found"}.
+
+Step 3. validationResult = validateDeposit(deposit). If invalid, return {error: "invalid deposit", details: validationResult.errors}.
+
+Step 4. newVersion = existing.version + 1.
+
+updateWork(workId, {version: newVersion, supersedes: existing.version, superseded_by: null}).
+
+Step 5. insertProvenance(workId, auth.depositor_id, auth.depositor_affiliation, provenance.source, provenance.tool_version, "update").
+
+Step 6. if files is not null: deleteFiles(workId); for file in files: fileHash = sha256(file); insertFile(workId, file.path, fileHash, file.size, file.format).
+
+Step 7. if deposit.stag_annotations is not null: deleteSTAGAnnotations(workId); for annotation in deposit.stag_annotations: insertSTAGAnnotation(workId, annotation).
+
+Step 8. if deposit.null_model_results is not null: deleteNullModelResults(workId); for result in deposit.null_model_results: insertNullModelResult(workId, result).
+
+Step 9. insertAuditLog("update", "work", workId, auth.depositor_id, "success", {deposit: deposit}).
+
+Step 10. return {work_id: workId, version: newVersion, status: "updated"}.
+
+7.4 Delete Deposit
+function deleteDeposit(workId, provenance, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. existing = selectWork(workId).
+
+if existing is null: return {error: "not found"}.
+
+Step 3. if config.softDelete: updateWork(workId, {deleted_at: now()}).
+
+else: deleteWork(workId).
+
+Step 4. insertAuditLog("delete", "work", workId, auth.depositor_id, "success", null).
+
+Step 5. return {work_id: workId, status: "deleted"}.
+
+7.5 Query Deposits
+function queryDeposits(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. sql = buildQuerySQL(query).
+
+Step 3. results = executeSQL(sql).
+
+Step 4. works = results.map(row => selectWork(row.work_id)).
+
+Step 5. insertAuditLog("query", "work", null, auth.depositor_id, "success", {query: query}).
+
+Step 6. return {works: works, count: works.length, pagination: {offset: query.offset, limit: query.limit}}.
+
+7.6 Aggregate Deposits
+function aggregateDeposits(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. sql = buildAggregateSQL(query).
+
+Step 3. results = executeSQL(sql).
+
+Step 4. insertAuditLog("aggregate", "work", null, auth.depositor_id, "success", {query: query}).
+
+Step 5. return {results: results}.
+
+7.7 Full-Text Search
+function fullTextSearch(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. sql = buildFullTextSQL(query).
+
+Step 3. results = executeSQL(sql).
+
+Step 4. works = results.map(row => selectWork(row.work_id)).
+
+Step 5. insertAuditLog("search", "work", null, auth.depositor_id, "success", {query: query}).
+
+Step 6. return {works: works, count: works.length}.
+
+7.8 Export Deposit
+function exportDeposit(workId, format, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. deposit = readDeposit(workId, auth).deposit.
+
+Step 3. if format == "json": output = deposit.
+
+else if format == "provo": output = exportToPROVO(deposit).output.
+
+else if format == "turtle": output = serializeToTurtle(deposit).
+
+else if format == "bibtex": output = generateBibTeX(deposit).
+
+else if format == "ris": output = generateRIS(deposit).
+
+else if format == "csl-json": output = generateCSLJSON(deposit).
+
+Step 4. insertAuditLog("export", "work", workId, auth.depositor_id, "success", {format: format}).
+
+Step 5. return {output: output, format: format}.
+
+7.9 Bulk Import
+function bulkImport(file, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. deposits = parseBulkFile(file).
+
+Step 3. results = [].
+
+for deposit in deposits:
+
+result = createDeposit(deposit, deposit.files, provenance, auth).
+
+results.push(result).
+
+Step 4. insertAuditLog("bulk_import", "work", null, auth.depositor_id, "success", {count: deposits.length}).
+
+Step 5. return {results: results, count: results.length}.
+
+7.10 Bulk Export
+function bulkExport(query, format, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. works = queryDeposits(query, auth).works.
+
+Step 3. if format == "json": output = works.
+
+else if format == "jsonl": output = works.map(w => JSON.stringify(w)).join("\n").
+
+else if format == "provo": output = works.map(w => exportToPROVO(w).output).join("\n").
+
+Step 4. insertAuditLog("bulk_export", "work", null, auth.depositor_id, "success", {count: works.length}).
+
+Step 5. return {output: output, count: works.length}.
+
+7.11 Moderate Deposit
+function moderateDeposit(workId, moderationStatus, moderationNotes, auth):
+
+Step 1. validateAuth(auth, "moderator"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. existing = selectWork(workId).
+
+if existing is null: return {error: "not found"}.
+
+Step 3. updateWork(workId, {moderation_status: moderationStatus}).
+
+insertModeration(workId, auth.depositor_id, moderationStatus, moderationNotes, now()).
+
+Step 4. insertAuditLog("moderate", "work", workId, auth.depositor_id, "success", {status: moderationStatus, notes: moderationNotes}).
+
+Step 5. return {work_id: workId, status: moderationStatus}.
+
+7.12 Audit Log
+function auditLog(query, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. sql = buildAuditSQL(query).
+
+Step 3. results = executeSQL(sql).
+
+Step 4. return {results: results}.
+
+7.13 Backup
+function backup(auth, options):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. if options.format == "sql": output = dumpDatabaseSQL().
+
+else if options.format == "json": output = dumpDatabaseJSON().
+
+Step 3. insertAuditLog("backup", "database", null, auth.depositor_id, "success", {format: options.format}).
+
+Step 4. return {output: output, format: options.format}.
+
+7.14 Restore
+function restore(file, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. loadDatabase(file).
+
+Step 3. insertAuditLog("restore", "database", null, auth.depositor_id, "success", {file: file}).
+
+Step 4. return {status: "restored"}.
+
+7.15 Citation Generation
+function generateBibTeX(deposit):
+
+return "@" + deposit.work_type + "{" + deposit.work_id + ",\n" + " title = {" + deposit.title + "},\n" + " author = {" + join(deposit.authors, " and ") + "},\n" + " year = {" + year(deposit.date) + "},\n" + " publisher = {" + deposit.publisher + "},\n" + " doi = {" + deposit.identifiers.DOI + "}\n" + "}".
+
+The RIS and CSL-JSON generators follow the same pattern.
+
+Data Model / JSON Schema for Internal State
+The library's internal state is the set of tables. The API's internal state is a request object and a response object.
+
+Request object:
+
+operation (create, read, update, delete, query, aggregate, search, export, import, moderate, backup, restore)
+
+resource (work, file, stag_annotation, null_model_result, database)
+
+record_id (string or null)
+
+record_json (JSON or null)
+
+query (JSON or null)
+
+auth (object: depositor_id, api_key, role)
+
+Response object:
+
+status (success, failure)
+
+result (JSON or null)
+
+error (string or null)
+
+audit_id (string)
+
+Architecture
+Module breakdown:
+
+Deposit Schema. The deposit schema.
+
+Database Schema. The tables and indexes.
+
+Deposit Loader. Reads and validates deposits.
+
+Deposit Writer. Writes deposits.
+
+Deposit Reader. Reads deposits.
+
+Deposit Updater. Updates deposits.
+
+Deposit Deleter. Deletes deposits.
+
+Query Engine. Executes queries.
+
+Full-Text Search Engine. Executes full-text search.
+
+Aggregation Engine. Executes aggregation queries.
+
+Exporter. Exports deposits.
+
+Importer. Imports deposits.
+
+Bulk Import and Export. Bulk operations.
+
+REST API. HTTP endpoints.
+
+GraphQL API. GraphQL endpoint.
+
+Command-Line Interface. Administration.
+
+Authentication and Authorization. Access control.
+
+Audit Logging. Logs operations.
+
+Backup and Restore. Database backup and restore.
+
+Web Interface. Depositing, browsing, querying.
+
+Moderation Workflow. Moderation of deposits.
+
+Citation Generator. Generates citations.
+
+Migration Manager. Database migrations.
+
+Data flow:
+
+API requests go to the REST or GraphQL API. The API calls the deposit loader, writer, reader, updater, deleter, query engine, search engine, aggregation engine, exporter, or importer. The database schema stores the data. The audit logging records every operation. The authentication and authorization check access. The moderation workflow handles moderation. The citation generator produces citations. The backup and restore handle backup. The web interface provides depositing, browsing, and querying.
+
+Technology Stack
+Recommended for the database:
+
+Database: PostgreSQL 15+ (preferred for full-text search and JSON support) or SQLite 3.40+ (for single-user deployments).
+
+Language: Python 3.11+ or Node.js 20+.
+
+ORM: SQLAlchemy (Python) or Prisma (JS).
+
+Migrations: Alembic (Python) or Prisma Migrate (JS).
+
+Full-text search: PostgreSQL tsvector (preferred) or SQLite FTS5.
+
+Recommended for the REST API:
+
+Framework: FastAPI (Python) or Express (JS).
+
+Authentication: FastAPI Users (Python) or Passport (JS).
+
+Recommended for the GraphQL API:
+
+Framework: Strawberry (Python) or Apollo Server (JS).
+
+Recommended for the command-line interface:
+
+Framework: Click (Python) or Commander (JS).
+
+Recommended for the web interface:
+
+Frontend: React or Svelte.
+
+Backend: the same as the REST API.
+
+Recommended for deployment:
+
+Containerization: Docker.
+
+Orchestration: Docker Compose (single-node) or Kubernetes (multi-node).
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The STAG schema (Artifact 2, Appendix B.1).
+
+The STAG codebook (Artifact 2, Appendices A.1 through A.11).
+
+The Null-Model Protocol schema (from App 8 and App 9).
+
+The PROV-O exporter (App 3).
+
+The STAG schema library (App 17).
+
+The Null-Model Protocol library (App 18).
+
+The provenance database (App 20).
+
+The combined workbench (App 14).
+
+UI/UX Specification
+REST API:
+
+Base URL: https://api.example.com/v1.
+
+Authentication: Bearer token in the Authorization header.
+
+Endpoints as in Module 14.
+
+Responses in JSON.
+
+HTTP status codes: 200 for success, 201 for created, 204 for deleted, 400 for bad request, 401 for unauthorized, 403 for forbidden, 404 for not found, 409 for conflict, 422 for unprocessable entity, 500 for internal server error.
+
+GraphQL API:
+
+Endpoint: https://api.example.com/graphql.
+
+Schema exposes the entities and their relationships.
+
+Queries and mutations for CRUD operations.
+
+Command-line interface:
+
+Usage: physics-library [command] [options].
+
+Commands: init, migrate, backup, restore, import, export, query, aggregate, moderate, audit.
+
+Web interface:
+
+A browsable list of works.
+
+A deposit form for adding a new work.
+
+A search box for full-text search.
+
+A filter panel for querying by work type, language, year, depositor, STAG label, and anchoring status.
+
+An aggregation view for counts.
+
+A detail view for each work, showing the metadata, the STAG annotations, the Null-Model Protocol results, the files, and the provenance.
+
+A moderation view for moderators.
+
+A citation view for generating citations.
+
+Validation Engine Design
+The library validates the following:
+
+Validation 1. Deposit validity. Every deposit is validated against the deposit schema before it is stored.
+
+Validation 2. STAG annotation validity. Every STAG annotation is validated against the STAG schema and the thirty-two semantic rules.
+
+Validation 3. Null-Model Protocol result validity. Every Null-Model Protocol result is validated against the Null-Model Protocol schema.
+
+Validation 4. Referential integrity. Every foreign key reference must resolve to an existing record.
+
+Validation 5. Version chain acyclicity. The version chain (supersedes and superseded_by) must be acyclic.
+
+Validation 6. Provenance completeness. Every deposit must have a provenance record.
+
+Validation 7. Audit completeness. Every operation must have an audit log entry.
+
+Validation 8. Moderation completeness. Every deposit must have a moderation record.
+
+Validation 9. File hash integrity. Every file's hash must match the stored hash.
+
+Testing Strategy
+Unit tests:
+
+Deposit Schema for valid and invalid deposits.
+
+Database Schema for each table and index.
+
+Deposit Loader for valid and invalid deposits.
+
+Deposit Writer for each table.
+
+Deposit Reader for each deposit type.
+
+Deposit Updater for versioning.
+
+Deposit Deleter for soft and hard deletes.
+
+Query Engine for each query field.
+
+Full-Text Search Engine for each search term.
+
+Aggregation Engine for each aggregation dimension.
+
+Exporter for each format (JSON, PROV-O, Turtle, BibTeX, RIS, CSL-JSON).
+
+Importer for each format.
+
+Bulk Import and Export for each format.
+
+REST API for each endpoint.
+
+GraphQL API for each query and mutation.
+
+Command-Line Interface for each command.
+
+Authentication and Authorization for each role.
+
+Audit Logging for each operation.
+
+Backup and Restore for each format.
+
+Web Interface for each view.
+
+Moderation Workflow for each moderation status.
+
+Citation Generator for each format.
+
+Migration Manager for each migration.
+
+Integration tests:
+
+Create a deposit via the REST API. Read it back. Verify the deposit is complete.
+
+Create a deposit via the GraphQL API. Read it back. Verify the deposit is complete.
+
+Update a deposit. Verify the version chain.
+
+Delete a deposit. Verify the audit log.
+
+Query deposits by each field. Verify the results.
+
+Aggregate deposits by each dimension. Verify the counts.
+
+Search deposits by full-text search. Verify the results.
+
+Export a deposit as JSON, PROV-O, Turtle, BibTeX, RIS, and CSL-JSON. Verify the output.
+
+Bulk import deposits. Verify the deposits are stored.
+
+Bulk export deposits. Verify the output.
+
+Backup the database. Restore the database. Verify the data is identical.
+
+Moderate a deposit. Verify the moderation status.
+
+Worked-example tests:
+
+Deposit the STAG worked examples (Artifact 1, Section 11). Verify the deposits are stored and retrievable.
+
+Deposit the Null-Model Protocol worked examples (Section 11). Verify the deposits are stored and retrievable.
+
+Deposit a physics textbook. Verify the metadata, the citation, and the provenance.
+
+Deposit a physics paper with a DOI. Verify the DOI is recorded and the citation is generated.
+
+Regression tests:
+
+Deposit determinism.
+
+Query consistency.
+
+Aggregation consistency.
+
+Audit log consistency.
+
+Moderation consistency.
+
+Build Phases
+Phase 1. Deposit Schema. Define the deposit schema.
+
+Phase 2. Database Schema. Create the tables and indexes.
+
+Phase 3. Deposit Loader. Read and validate deposits.
+
+Phase 4. Deposit Writer. Write deposits.
+
+Phase 5. Deposit Reader. Read deposits.
+
+Phase 6. Deposit Updater. Update deposits.
+
+Phase 7. Deposit Deleter. Delete deposits.
+
+Phase 8. Query Engine. Execute queries.
+
+Phase 9. Full-Text Search Engine. Execute full-text search.
+
+Phase 10. Aggregation Engine. Execute aggregation queries.
+
+Phase 11. Exporter. Export deposits.
+
+Phase 12. Importer. Import deposits.
+
+Phase 13. Bulk Import and Export. Bulk operations.
+
+Phase 14. REST API. HTTP endpoints.
+
+Phase 15. GraphQL API. GraphQL endpoint.
+
+Phase 16. Command-Line Interface. Administration.
+
+Phase 17. Authentication and Authorization. Access control.
+
+Phase 18. Audit Logging. Log operations.
+
+Phase 19. Backup and Restore. Database backup and restore.
+
+Phase 20. Web Interface. Depositing, browsing, querying.
+
+Phase 21. Moderation Workflow. Moderation of deposits.
+
+Phase 22. Citation Generator. Generates citations.
+
+Phase 23. Migration Manager. Database migrations.
+
+Phase 24. Worked-example tests.
+
+Phase 25. Integration testing and hardening.
+
+Phase 26. Packaging and deployment.
+
+Dependencies
+Python path:
+
+SQLAlchemy (ORM).
+
+Alembic (migrations).
+
+FastAPI (REST API).
+
+Strawberry (GraphQL API).
+
+FastAPI Users (authentication).
+
+Click (command-line).
+
+psycopg2 (PostgreSQL driver).
+
+sqlite3 (SQLite driver, standard library).
+
+jsonschema (schema validation).
+
+hashlib (hash computation, standard library).
+
+json (JSON handling, standard library).
+
+bibtexparser (BibTeX generation).
+
+pytest (testing).
+
+Node.js path:
+
+Prisma (ORM and migrations).
+
+Express (REST API).
+
+Apollo Server (GraphQL API).
+
+Passport (authentication).
+
+Commander (command-line).
+
+pg (PostgreSQL driver).
+
+better-sqlite3 (SQLite driver).
+
+ajv (schema validation).
+
+crypto (hash computation, standard library).
+
+JSON (standard library).
+
+citation-js (citation generation).
+
+Vitest (testing).
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The STAG schema (Artifact 2, Appendix B.1).
+
+The STAG codebook (Artifact 2, Appendices A.1 through A.11).
+
+The Null-Model Protocol schema (from App 8 and App 9).
+
+The PROV-O exporter (App 3).
+
+The STAG schema library (App 17).
+
+The Null-Model Protocol library (App 18).
+
+The provenance database (App 20).
+
+The combined workbench (App 14).
+
+Deployment Notes
+Database:
+
+PostgreSQL for multi-user deployments.
+
+SQLite for single-user deployments.
+
+Backup and restore via pg_dump and pg_restore (PostgreSQL) or the SQLite backup API.
+
+REST API:
+
+Deploy with Docker. Stateless. Scale horizontally.
+
+Use a reverse proxy for TLS.
+
+Log every request for audit.
+
+GraphQL API:
+
+Deploy alongside the REST API.
+
+Use a query depth limit and a query complexity limit to prevent abuse.
+
+Command-line interface:
+
+Package as a standalone executable (PyInstaller or pkg).
+
+Distribute via pip, npm, or a direct download.
+
+Web interface:
+
+Deploy the frontend as a static bundle.
+
+Backend with FastAPI or Express.
+
+Reproducibility:
+
+Record the STAG schema version, the Null-Model Protocol schema version, the deposit schema version, and the library version.
+
+Record the provenance for every deposit.
+
+Provide a version pin for the schemas and codebook.
+
+Open Questions to Resolve Before Building
+Question 1. Which runtime first? Python or Node.js. Decision affects the ORM, the API framework, and the packaging.
+
+Question 2. Which database first? PostgreSQL or SQLite. Decision affects the full-text search implementation and the deployment model.
+
+Question 3. How should the library handle the file storage? Options: store files in the database, store them on the filesystem with references in the database, or store them in object storage. Decision needed.
+
+Question 4. How should the library handle large files? Options: chunk them, store them externally, or limit the file size. Decision needed.
+
+Question 5. How should the library handle the moderation workflow? Options: deposits are pending until approved, deposits are auto-approved, or deposits require a moderator. Decision needed.
+
+Question 6. How should the library handle the STAG annotations? Options: required for every deposit, optional for every deposit, or optional depending on the work type. Decision needed.
+
+Question 7. How should the library handle the Null-Model Protocol results? Options: required for every deposit, optional for every deposit, or optional depending on the work type. Decision needed.
+
+Question 8. How should the library handle the citation formats? Options: BibTeX, RIS, CSL-JSON, or all three. Decision needed.
+
+Question 9. How should the library handle the license? Options: free text, or a fixed set of licenses (CC-BY, CC-BY-SA, CC0, MIT, other). Decision needed.
+
+Question 10. How should the library handle the not_determinable flag propagation? The STAG specification specifies that not_determinable propagates from the entailment basis to the intervention classification to the cross-domain counterfactual dependence. Decision needed: does the library check the propagation automatically, or trust the record?
+
+Question 11. Should the library integrate with the STAG schema library (App 17), the Null-Model Protocol library (App 18), the provenance database (App 20), and the combined workbench (App 14)? Decision needed: shared schema registry, or independent.
+
+Question 12. Should the library support federation with other instances of itself? Decision needed.
+
+Question 13. Should the library support versioning of the deposit schema? Decision needed.
+
+Question 14. How should the library handle the deposit of a work that is already in the library? Options: reject the deposit, create a new version, or create a separate record with a cross-reference. Decision needed.
+
+Question 15. Should the library support bulk deposit via a folder upload? Decision needed.
+
+End of build specification for App 23.
