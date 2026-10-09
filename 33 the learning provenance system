@@ -1,0 +1,1608 @@
+Build Specification — App 33: The Learning Provenance System
+Completeness status: COMPLETE. All sections delivered in one pass. No truncation. Formatted for copy-paste. Long lists are broken into short lines.
+
+1. What It Is
+A structured record of what a student has learned, how they learned it, and how it connects to what they learned before. Each entry states the concept, the evidence of understanding, the prior concepts it builds on, and the related concepts. The Learning Provenance System is a provenance-aware graph of a student's knowledge, where each node is a concept and each edge is a relation: prerequisite, builds-on, related, or applied-in. It records not just what a student knows, but how each piece of knowledge connects to the others and what evidence supports it.
+
+It reuses:
+
+the STAG Annotation Editor (App 1)
+
+the STAG Schema Library (App 17)
+
+the Provenance-Aware Annotation Database (App 20)
+
+the Revision History Viewer (App 7)
+
+the Method Tracker (App 32)
+
+the STAG Graph Viewer (App 5)
+
+the Autofill Library Service (App 49)
+
+It is for students, teachers, tutors, learning scientists, and anyone who wants to track understanding rather than grades.
+
+2. Core Requirements
+Functional requirements:
+
+Accept deposits of learning records from users.
+
+Store each learning record with the concept, the evidence of understanding, and the provenance.
+
+Record the evidence of understanding: the assessment, the demonstration, the application, the explanation.
+
+Record the prior concepts: the concepts that must be learned before this one.
+
+Record the related concepts: the concepts that are connected but not prerequisites.
+
+Record the applied-in contexts: where the concept has been used.
+
+Record the date learned and the date last reviewed.
+
+Record the proficiency level for each concept.
+
+Record the source of learning: the course, the book, the lecture, the video, the project, the experiment.
+
+Record the relation between concepts: which ones are prerequisites, which build on others, which are alternatives, which are special cases.
+
+Enforce provenance completeness.
+
+Enforce versioning.
+
+Enforce supersession acyclicity.
+
+Support querying by learning ID, concept, subject, proficiency level, student, date learned, date last reviewed, and keywords.
+
+Support full-text search of the concept description, the evidence, and the notes.
+
+Support aggregation queries: count by subject, by proficiency level, by student, by year, by source of learning.
+
+Support exporting a learning record as JSON, PROV-O, and Turtle.
+
+Support importing a learning record from JSON.
+
+Support bulk import and bulk export.
+
+Support a REST API for CRUD operations.
+
+Support a GraphQL API for flexible queries.
+
+Support a command-line interface for administration.
+
+Support authentication and authorization.
+
+Support audit logging.
+
+Support backup and restore.
+
+Support a web interface.
+
+Support moderation.
+
+Support linking a learning record to a Method Tracker record if the concept is a method.
+
+Support linking a learning record to a STAG annotation if the concept involves a scale-transition claim.
+
+Support linking a learning record to a Physics Knowledge Library work if the concept is described in a deposited work.
+
+Support the learning graph: a visualisation of the student's concepts and their relations.
+
+Support the learning timeline: a visualisation of when each concept was learned and reviewed.
+
+Support the knowledge gap view: a visualisation of the concepts that are missing or weak.
+
+Support the learning path view: a suggested sequence of concepts to learn next.
+
+Non-functional requirements:
+
+Deterministic.
+
+Fast: query a typical learning record in under 100 milliseconds.
+
+Scalable: support up to 10^6 learning records.
+
+Versioned: the system records the STAG schema version, the learning schema version, and the system version.
+
+Reproducible.
+
+Portable.
+
+Well-documented.
+
+3. Input Specification
+Input 1. Learning record deposit. Required. A deposit object conforming to the learning schema.
+
+Input 2. Files. Optional. Assessments, examples, notes, or project outputs.
+
+Input 3. Provenance record. Required.
+
+Input 4. Method reference. Optional. A reference to a Method Tracker record.
+
+Input 5. STAG annotation. Optional.
+
+Input 6. Work reference. Optional.
+
+Input 7. Query.
+
+Input 8. Aggregation query.
+
+Input 9. Authentication credentials.
+
+Input 10. Bulk import file.
+
+Input 11. Bulk export query.
+
+4. Output Specification
+Output 1. Learning record. JSON.
+
+Output 2. PROV-O serialization.
+
+Output 3. Turtle serialization.
+
+Output 4. Query result. JSON.
+
+Output 5. Aggregation result. JSON.
+
+Output 6. Full-text search result. JSON.
+
+Output 7. Learning graph. JSON or a rendered graph.
+
+Output 8. Learning timeline. JSON or a rendered timeline.
+
+Output 9. Knowledge gap view. JSON or a rendered view.
+
+Output 10. Learning path view. JSON or a rendered path.
+
+Output 11. Related concepts. JSON.
+
+Output 12. Bulk export file.
+
+Output 13. Audit log entry. JSON.
+
+Output 14. API response. JSON.
+
+Output 15. GraphQL response. JSON.
+
+Output 16. Backup file.
+
+5. Module-by-Module Specification
+Module 1. Learning Schema.
+
+Defines the structure of a learning record deposit.
+
+Module 2. Database Schema.
+
+The tables and indexes.
+
+Module 3. Learning Record Loader.
+
+Reads and validates a learning record.
+
+Module 4. Learning Record Writer.
+
+Writes a learning record to the database.
+
+Module 5. Learning Record Reader.
+
+Reads a learning record from the database.
+
+Module 6. Learning Record Updater.
+
+Updates a learning record.
+
+Module 7. Learning Record Deleter.
+
+Deletes a learning record.
+
+Module 8. Query Engine.
+
+Executes queries.
+
+Module 9. Full-Text Search Engine.
+
+Executes full-text search.
+
+Module 10. Aggregation Engine.
+
+Executes aggregation queries.
+
+Module 11. Exporter.
+
+Exports a learning record as JSON, PROV-O, and Turtle.
+
+Module 12. Importer.
+
+Imports a learning record from JSON.
+
+Module 13. Bulk Import and Export.
+
+Bulk operations.
+
+Module 14. REST API.
+
+HTTP endpoints.
+
+Module 15. GraphQL API.
+
+GraphQL endpoint.
+
+Module 16. Command-Line Interface.
+
+Administration commands.
+
+Module 17. Authentication and Authorization.
+
+Access control.
+
+Module 18. Audit Logging.
+
+Logs operations.
+
+Module 19. Backup and Restore.
+
+Database backup and restore.
+
+Module 20. Web Interface.
+
+Depositing, browsing, querying.
+
+Module 21. Moderation Workflow.
+
+Moderation of learning records.
+
+Module 22. Learning Graph.
+
+Visualises the student's concepts and their relations.
+
+Module 23. Learning Timeline.
+
+Visualises when each concept was learned and reviewed.
+
+Module 24. Knowledge Gap View.
+
+Visualises the concepts that are missing or weak.
+
+Module 25. Learning Path View.
+
+Suggests a sequence of concepts to learn next.
+
+Module 26. Related-Concept Finder.
+
+Finds concepts related to a given one.
+
+Module 27. Migration Manager.
+
+Database migrations.
+
+6. Full Learning Specification
+6.1 Learning Schema
+The learning schema defines the structure of a learning record deposit.
+
+It has the following fields:
+
+learning_id. A string. Required.
+
+concept_name. A string. Required.
+
+concept_description. A string. Required.
+
+subject. A string. Required.
+
+topic. A string. Required.
+
+evidence_of_understanding. An array of evidence objects. Required.
+
+prior_concepts. An array of concept relation objects. Optional.
+
+related_concepts. An array of concept relation objects. Optional.
+
+applied_in_contexts. An array of context objects. Optional.
+
+proficiency. An object. Required. It contains level and last_assessed.
+
+student_id. A string. Required.
+
+date_learned. A string in ISO8601 format. Required.
+
+date_last_reviewed. A string in ISO8601 format. Optional.
+
+source_of_learning. An array of source objects. Required.
+
+related_learning_records. An array of learning relations. Optional.
+
+method_reference. A string. Optional.
+
+provenance. An object. Required.
+
+stag_annotation. An object. Optional.
+
+work_reference. A string. Optional.
+
+keywords. An array of strings. Optional.
+
+notes. A string. Optional.
+
+moderation_status. An enum. The values are pending, approved, rejected.
+
+version. An integer.
+
+supersedes. A string. Optional.
+
+superseded_by. A string. Optional.
+
+Each evidence object has:
+
+evidence_id. A string.
+
+evidence_type. An enum. The values are assessment, demonstration, application, explanation, project, experiment, other.
+
+description. A string.
+
+date. A string in ISO8601 format.
+
+source_reference. A string. Optional.
+
+result. An enum. The values are correct, partial, incorrect, not_assessed.
+
+notes. A string. Optional.
+
+Each concept relation object has:
+
+relation_id. A string.
+
+related_concept_id. A string.
+
+related_concept_name. A string.
+
+relation_type. An enum. The values are prerequisite, builds_on, related, special_case, generalisation, alternative, independent.
+
+relation_note. A string. Optional.
+
+Each context object has:
+
+context_id. A string.
+
+context_name. A string.
+
+context_description. A string.
+
+date_applied. A string in ISO8601 format.
+
+Each source object has:
+
+source_id. A string.
+
+source_type. An enum. The values are course, book, lecture, video, project, experiment, conversation, self_study, other.
+
+source_reference. A string.
+
+source_description. A string.
+
+Each learning relation has:
+
+relation_id. A string.
+
+related_learning_id. A string.
+
+relation_type. An enum. The values are same_concept, prerequisite, applied, related, independent.
+
+relation_note. A string. Optional.
+
+The proficiency level has four values:
+
+novice.
+
+developing.
+
+proficient.
+
+advanced.
+
+6.2 Database Schema
+The database has the following tables.
+
+learning_record. Holds the learning records.
+
+Its fields are:
+
+learning_id
+
+concept_name
+
+concept_description
+
+subject
+
+topic
+
+proficiency
+
+student_id
+
+date_learned
+
+date_last_reviewed
+
+method_reference
+
+provenance
+
+keywords
+
+notes
+
+moderation_status
+
+version
+
+supersedes
+
+superseded_by
+
+created_at
+
+updated_at
+
+evidence. Holds the evidence records.
+
+Its fields are:
+
+evidence_id
+
+learning_id
+
+evidence_type
+
+description
+
+date
+
+source_reference
+
+result
+
+notes
+
+created_at
+
+concept_relation. Holds the concept relations.
+
+Its fields are:
+
+relation_id
+
+learning_id
+
+related_concept_id
+
+related_concept_name
+
+relation_type
+
+relation_note
+
+created_at
+
+context. Holds the context records.
+
+Its fields are:
+
+context_id
+
+learning_id
+
+context_name
+
+context_description
+
+date_applied
+
+created_at
+
+source. Holds the source records.
+
+Its fields are:
+
+source_id
+
+learning_id
+
+source_type
+
+source_reference
+
+source_description
+
+created_at
+
+learning_relation. Holds the learning relations.
+
+Its fields are:
+
+relation_id
+
+learning_id
+
+related_learning_id
+
+relation_type
+
+relation_note
+
+created_at
+
+method_link. Holds the method links.
+
+Its fields are:
+
+link_id
+
+learning_id
+
+method_id
+
+created_at
+
+stag_link. Holds the STAG links.
+
+Its fields are:
+
+link_id
+
+learning_id
+
+annotation_id
+
+created_at
+
+work_link. Holds the work links.
+
+Its fields are:
+
+link_id
+
+learning_id
+
+work_id
+
+created_at
+
+provenance. Holds the provenance records.
+
+Its fields are:
+
+provenance_id
+
+learning_id
+
+depositor_id
+
+depositor_affiliation
+
+timestamp
+
+source
+
+tool_version
+
+operation
+
+created_at
+
+audit_log. Holds the audit log entries.
+
+Its fields are:
+
+audit_id
+
+operation
+
+record_type
+
+record_id
+
+depositor_id
+
+timestamp
+
+result
+
+details
+
+created_at
+
+moderation. Holds the moderation records.
+
+Its fields are:
+
+moderation_id
+
+learning_id
+
+moderator_id
+
+moderation_status
+
+moderation_date
+
+moderation_notes
+
+created_at
+
+6.3 Referential Integrity
+Every evidence.learning_id must exist in learning_record.
+
+Every concept_relation.learning_id must exist in learning_record.
+
+Every context.learning_id must exist in learning_record.
+
+Every source.learning_id must exist in learning_record.
+
+Every learning_relation.learning_id and learning_relation.related_learning_id must exist in learning_record.
+
+Every method_link.learning_id must exist in learning_record.
+
+Every stag_link.learning_id must exist in learning_record.
+
+Every work_link.learning_id must exist in learning_record.
+
+Every provenance.learning_id must exist in learning_record.
+
+Every moderation.learning_id must exist in learning_record.
+
+The version chain must be acyclic.
+
+The learning relation must be symmetric where appropriate.
+
+6.4 Indexes
+The database has indexes on:
+
+learning_record.learning_id
+
+learning_record.concept_name
+
+learning_record.subject
+
+learning_record.topic
+
+learning_record.proficiency
+
+learning_record.student_id
+
+learning_record.date_learned
+
+learning_record.date_last_reviewed
+
+learning_record.moderation_status
+
+learning_record.keywords
+
+evidence.learning_id
+
+evidence.evidence_type
+
+concept_relation.learning_id
+
+concept_relation.related_concept_id
+
+context.learning_id
+
+source.learning_id
+
+source.source_type
+
+learning_relation.learning_id
+
+learning_relation.related_learning_id
+
+method_link.learning_id
+
+stag_link.learning_id
+
+work_link.learning_id
+
+provenance.learning_id
+
+provenance.depositor_id
+
+audit_log.operation
+
+audit_log.record_id
+
+moderation.learning_id
+
+moderation.moderation_status
+
+Full-text search indexes on the concept description, the evidence, and the notes.
+
+7. Core Logic as Executable Pseudocode
+7.1 Create Learning Record
+function createLearningRecord(learning, files, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Validate the learning record against the schema. If invalid, return an error with the details.
+
+Step 3. If the STAG annotation is present, validate it.
+
+Step 4. If the method reference is present, look it up. If null, flag it as unresolved.
+
+Step 5. If the work reference is present, look it up. If null, flag it as unresolved.
+
+Step 6. Generate a learning ID. Set the fields: version 1, moderation_status pending, deposit_date now, depositor_id from auth, depositor_affiliation from auth, provenance from provenance.
+
+Step 7. Insert the learning record.
+
+Step 8. Insert the evidence records, the concept relations, the contexts, the sources, and the learning relations.
+
+Step 9. Insert the method link, the STAG link, and the work link if present.
+
+Step 10. Insert the provenance.
+
+Step 11. Insert the moderation record.
+
+Step 12. Insert the audit log entry.
+
+Step 13. Return the learning_id and the status created.
+
+7.2 Read Learning Record
+function readLearningRecord(learningId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the learning record. If null, return an error.
+
+Step 3. Read the evidence, the concept relations, the contexts, the sources, the learning relations, the links, the provenance, and the moderation.
+
+Step 4. Reconstruct the deposit.
+
+Step 5. Insert the audit log entry.
+
+Step 6. Return the deposit.
+
+7.3 Update Learning Record
+function updateLearningRecord(learningId, learning, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Read the existing learning record. If null, return an error.
+
+Step 3. Validate the new learning record.
+
+Step 4. Increment the version. Update the supersedes and superseded_by fields.
+
+Step 5. Insert a provenance record with operation update.
+
+Step 6. Insert an audit log entry.
+
+Step 7. Return the learning_id, the version, and the status updated.
+
+7.4 Delete Learning Record
+function deleteLearningRecord(learningId, provenance, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Read the existing learning record. If null, return an error.
+
+Step 3. If soft delete, mark as deleted. Otherwise, remove.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the learning_id and the status deleted.
+
+7.5 Query Learning Records
+function queryLearningRecords(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the query.
+
+Step 3. Read the matching learning records.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the learning records, the count, and the pagination.
+
+7.6 Aggregate Learning Records
+function aggregateLearningRecords(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the aggregation.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the results.
+
+7.7 Full-Text Search
+function fullTextSearch(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the search.
+
+Step 3. Read the matching learning records.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the learning records and the count.
+
+7.8 Export Learning Record
+function exportLearningRecord(learningId, format, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the deposit.
+
+Step 3. If json, output the deposit. If provo, export to PROV-O. If turtle, serialize to Turtle.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the output and the format.
+
+7.9 Bulk Import
+function bulkImport(file, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Parse the file.
+
+Step 3. For each learning record, call createLearningRecord.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the results and the count.
+
+7.10 Bulk Export
+function bulkExport(query, format, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the matching learning records.
+
+Step 3. If json, output the list. If jsonl, output one line per learning record. If provo, export each one.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the output and the count.
+
+7.11 Moderate Learning Record
+function moderateLearningRecord(learningId, moderationStatus, moderationNotes, auth):
+
+Step 1. validateAuth(auth, "moderator"). If not authorized, return an error.
+
+Step 2. Read the existing learning record. If null, return an error.
+
+Step 3. Update the moderation status. Insert a moderation record.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the learning_id and the status.
+
+7.12 Learning Graph
+function learningGraph(studentId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read all learning records for the student.
+
+Step 3. Build the graph with concepts as nodes and relations as edges.
+
+Step 4. Return the graph.
+
+7.13 Learning Timeline
+function learningTimeline(studentId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read all learning records for the student.
+
+Step 3. Build the timeline with the date learned and the date last reviewed for each concept.
+
+Step 4. Return the timeline.
+
+7.14 Knowledge Gap View
+function knowledgeGapView(studentId, targetConcept, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read all learning records for the student.
+
+Step 3. Read the target concept and its prerequisites.
+
+Step 4. Find the concepts that are missing or weak.
+
+Step 5. Return the gaps.
+
+7.15 Learning Path View
+function learningPathView(studentId, targetConcept, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read all learning records for the student.
+
+Step 3. Read the target concept and its prerequisites.
+
+Step 4. Build the path from the student's current concepts to the target concept.
+
+Step 5. Return the path.
+
+7.16 Find Related Concepts
+function findRelatedConcepts(learningId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the learning record. If null, return an error.
+
+Step 3. Find concepts with the same subject, the same topic, or the same prerequisites.
+
+Step 4. Return the related concepts.
+
+7.17 Audit Log
+function auditLog(query, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Build and execute the query.
+
+Step 3. Return the results.
+
+7.18 Backup
+function backup(auth, options):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. If sql, dump as SQL. If json, dump as JSON.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the output and the format.
+
+7.19 Restore
+function restore(file, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Load the database from the file.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the status restored.
+
+8. Data Model
+The system's internal state is the set of tables. The API's internal state is a request object and a response object.
+
+Request object:
+
+operation
+
+resource
+
+record_id
+
+record_json
+
+query
+
+auth
+
+Response object:
+
+status
+
+result
+
+error
+
+audit_id
+
+9. Architecture
+Module breakdown:
+
+Learning Schema.
+
+Database Schema.
+
+Learning Record Loader.
+
+Learning Record Writer.
+
+Learning Record Reader.
+
+Learning Record Updater.
+
+Learning Record Deleter.
+
+Query Engine.
+
+Full-Text Search Engine.
+
+Aggregation Engine.
+
+Exporter.
+
+Importer.
+
+Bulk Import and Export.
+
+REST API.
+
+GraphQL API.
+
+Command-Line Interface.
+
+Authentication and Authorization.
+
+Audit Logging.
+
+Backup and Restore.
+
+Web Interface.
+
+Moderation Workflow.
+
+Learning Graph.
+
+Learning Timeline.
+
+Knowledge Gap View.
+
+Learning Path View.
+
+Related-Concept Finder.
+
+Migration Manager.
+
+Data flow:
+
+API requests go to the REST or GraphQL API.
+
+The API calls the learning record loader, writer, reader, updater, deleter, query engine, search engine, aggregation engine, exporter, or importer.
+
+The database schema stores the data.
+
+The audit logging records every operation.
+
+The authentication and authorization check access.
+
+The moderation workflow handles moderation.
+
+The learning graph, the learning timeline, the knowledge gap view, and the learning path view visualise.
+
+The related-concept finder finds relations.
+
+The backup and restore handle backup.
+
+The web interface provides depositing, browsing, and querying.
+
+10. Technology Stack
+Recommended for the database:
+
+Database: PostgreSQL 15+ or SQLite 3.40+.
+
+Language: Python 3.11+ or Node.js 20+.
+
+ORM: SQLAlchemy or Prisma.
+
+Migrations: Alembic or Prisma Migrate.
+
+Full-text search: PostgreSQL tsvector or SQLite FTS5.
+
+Recommended for the REST API:
+
+Framework: FastAPI or Express.
+
+Authentication: FastAPI Users or Passport.
+
+Recommended for the GraphQL API:
+
+Framework: Strawberry or Apollo Server.
+
+Recommended for the command-line interface:
+
+Framework: Click or Commander.
+
+Recommended for the web interface:
+
+Frontend: React or Svelte.
+
+Backend: the same as the REST API.
+
+Recommended for deployment:
+
+Containerization: Docker.
+
+Orchestration: Docker Compose or Kubernetes.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The STAG schema (Artifact 2, Appendix B.1).
+
+The PROV-O exporter (App 3).
+
+The STAG schema library (App 17).
+
+The provenance database (App 20).
+
+The revision history viewer (App 7).
+
+The Method Tracker (App 32).
+
+The STAG Graph Viewer (App 5).
+
+The Autofill Library Service (App 49).
+
+11. UI/UX Specification
+REST API:
+
+Base URL: https://api.example.com/v1.
+
+Authentication: Bearer token.
+
+Endpoints:
+
+GET /learning-records.
+
+GET /learning-records/{id}.
+
+POST /learning-records.
+
+PUT /learning-records/{id}.
+
+DELETE /learning-records/{id}.
+
+GET /learning-records/{id}/provo.
+
+GET /learning-records/{id}/turtle.
+
+GET /learning-records/{id}/evidence.
+
+GET /learning-records/{id}/concept-relations.
+
+GET /learning-records/{id}/contexts.
+
+GET /learning-records/{id}/sources.
+
+GET /learning-records/{id}/related.
+
+GET /learning-records/{id}/method.
+
+GET /learning-records/{id}/stag.
+
+GET /learning-records/{id}/work.
+
+GET /learning-records/by-subject/{subject}.
+
+GET /learning-records/by-student/{student_id}.
+
+GET /students/{student_id}/graph.
+
+GET /students/{student_id}/timeline.
+
+GET /students/{student_id}/knowledge-gaps/{target_concept}.
+
+GET /students/{student_id}/learning-path/{target_concept}.
+
+POST /query.
+
+POST /aggregate.
+
+POST /search.
+
+POST /bulk/import.
+
+POST /bulk/export.
+
+POST /moderate/{id}.
+
+GET /audit.
+
+Responses in JSON.
+
+HTTP status codes: 200, 201, 204, 400, 401, 403, 404, 409, 422, 500.
+
+GraphQL API:
+
+Endpoint: https://api.example.com/graphql.
+
+Schema exposes the entities and their relationships.
+
+Command-line interface:
+
+Usage: learning-provenance [command] [options].
+
+Commands: init, migrate, backup, restore, import, export, query, aggregate, moderate, audit.
+
+Web interface:
+
+A browsable list of learning records.
+
+A deposit form.
+
+A search box.
+
+A filter panel.
+
+An aggregation view.
+
+A learning graph.
+
+A learning timeline.
+
+A knowledge gap view.
+
+A learning path view.
+
+A detail view for each learning record.
+
+A moderation view.
+
+12. Validation Engine Design
+The system validates the following.
+
+Validation 1. Learning record validity. Every learning record is validated against the schema.
+
+Validation 2. STAG annotation validity.
+
+Validation 3. Referential integrity.
+
+Validation 4. Version chain acyclicity.
+
+Validation 5. Method resolution. Every method_reference must resolve or be flagged.
+
+Validation 6. Work resolution. Every work_reference must resolve or be flagged.
+
+Validation 7. Provenance completeness.
+
+Validation 8. Audit completeness.
+
+Validation 9. Moderation completeness.
+
+Validation 10. Proficiency consistency. The proficiency level must be consistent with the evidence.
+
+Validation 11. Date consistency. The date learned must be before the date last reviewed.
+
+Validation 12. Prerequisite consistency. The prerequisites must be learned before the concept.
+
+13. Testing Strategy
+Unit tests:
+
+Learning Schema for valid and invalid learning records.
+
+Database Schema for each table and index.
+
+Learning Record Loader.
+
+Learning Record Writer.
+
+Learning Record Reader.
+
+Learning Record Updater.
+
+Learning Record Deleter.
+
+Query Engine.
+
+Full-Text Search Engine.
+
+Aggregation Engine.
+
+Exporter.
+
+Importer.
+
+Bulk Import and Export.
+
+REST API.
+
+GraphQL API.
+
+Command-Line Interface.
+
+Authentication and Authorization.
+
+Audit Logging.
+
+Backup and Restore.
+
+Web Interface.
+
+Moderation Workflow.
+
+Learning Graph.
+
+Learning Timeline.
+
+Knowledge Gap View.
+
+Learning Path View.
+
+Related-Concept Finder.
+
+Migration Manager.
+
+Integration tests:
+
+Create a learning record. Read it back.
+
+Update a learning record.
+
+Delete a learning record.
+
+Query by each field.
+
+Aggregate by each dimension.
+
+Search by full text.
+
+Export as JSON, PROV-O, and Turtle.
+
+Bulk import and export.
+
+Backup and restore.
+
+Moderate a learning record.
+
+Generate the learning graph.
+
+Generate the learning timeline.
+
+Generate the knowledge gap view.
+
+Generate the learning path view.
+
+Worked-example tests:
+
+Deposit the learning record for Newton's second law.
+
+Deposit the learning record for the concept of entropy.
+
+Deposit the learning record for the concept of natural selection.
+
+Deposit the learning record for the concept of opportunity cost.
+
+Deposit the learning record for the concept of a derivative.
+
+Deposit the learning record for the concept of a chemical bond.
+
+Deposit the learning record for the concept of a proof by induction.
+
+Deposit the learning record for the concept of statistical significance.
+
+Regression tests:
+
+Learning record determinism.
+
+Query consistency.
+
+Aggregation consistency.
+
+Audit log consistency.
+
+Moderation consistency.
+
+Proficiency consistency.
+
+Date consistency.
+
+Prerequisite consistency.
+
+14. Build Phases
+Phase 1. Learning Schema.
+
+Phase 2. Database Schema.
+
+Phase 3. Learning Record Loader.
+
+Phase 4. Learning Record Writer.
+
+Phase 5. Learning Record Reader.
+
+Phase 6. Learning Record Updater.
+
+Phase 7. Learning Record Deleter.
+
+Phase 8. Query Engine.
+
+Phase 9. Full-Text Search Engine.
+
+Phase 10. Aggregation Engine.
+
+Phase 11. Exporter.
+
+Phase 12. Importer.
+
+Phase 13. Bulk Import and Export.
+
+Phase 14. REST API.
+
+Phase 15. GraphQL API.
+
+Phase 16. Command-Line Interface.
+
+Phase 17. Authentication and Authorization.
+
+Phase 18. Audit Logging.
+
+Phase 19. Backup and Restore.
+
+Phase 20. Web Interface.
+
+Phase 21. Moderation Workflow.
+
+Phase 22. Learning Graph.
+
+Phase 23. Learning Timeline.
+
+Phase 24. Knowledge Gap View.
+
+Phase 25. Learning Path View.
+
+Phase 26. Related-Concept Finder.
+
+Phase 27. Migration Manager.
+
+Phase 28. Worked-example tests.
+
+Phase 29. Integration testing and hardening.
+
+Phase 30. Packaging and deployment.
+
+15. Dependencies
+Python path:
+
+SQLAlchemy.
+
+Alembic.
+
+FastAPI.
+
+Strawberry.
+
+FastAPI Users.
+
+Click.
+
+psycopg2.
+
+sqlite3.
+
+jsonschema.
+
+hashlib.
+
+json.
+
+pytest.
+
+Node.js path:
+
+Prisma.
+
+Express.
+
+Apollo Server.
+
+Passport.
+
+Commander.
+
+pg.
+
+better-sqlite3.
+
+ajv.
+
+crypto.
+
+JSON.
+
+Vitest.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The STAG schema (Artifact 2, Appendix B.1).
+
+The PROV-O exporter (App 3).
+
+The STAG schema library (App 17).
+
+The provenance database (App 20).
+
+The revision history viewer (App 7).
+
+The Method Tracker (App 32).
+
+The STAG Graph Viewer (App 5).
+
+The Autofill Library Service (App 49).
+
+16. Deployment Notes
+Database:
+
+PostgreSQL for multi-user deployments.
+
+SQLite for single-user deployments.
+
+Backup and restore via pg_dump and pg_restore or the SQLite backup API.
+
+REST API:
+
+Deploy with Docker. Stateless. Scale horizontally.
+
+Use a reverse proxy for TLS.
+
+Log every request for audit.
+
+GraphQL API:
+
+Deploy alongside the REST API.
+
+Use a query depth limit and a query complexity limit.
+
+Command-line interface:
+
+Package as a standalone executable.
+
+Distribute via pip, npm, or a direct download.
+
+Web interface:
+
+Deploy the frontend as a static bundle.
+
+Backend with FastAPI or Express.
+
+Reproducibility:
+
+Record the STAG schema version, the learning schema version, and the system version.
+
+Record the provenance for every deposit.
+
+Provide a version pin for the schemas and codebook.
+
+17. Open Questions to Resolve Before Building
+Question 1. Which runtime first? Python or Node.js.
+
+Question 2. Which database first? PostgreSQL or SQLite.
+
+Question 3. How should the system handle the subject and topic? A fixed taxonomy, or an open set.
+
+Question 4. How should the system handle the proficiency level? A fixed set of four values, or a continuous scale.
+
+Question 5. How should the system handle the evidence type? A fixed set, or an open set.
+
+Question 6. How should the system handle the relation between concepts? Manual entry, or automatic detection.
+
+Question 7. How should the system handle the moderation workflow? Pending until approved, auto-approved, or require a moderator.
+
+Question 8. How should the system handle the STAG annotation? Required, optional, or optional depending on the concept type.
+
+Question 9. How should the system handle the method reference? Required, optional, or optional depending on the concept type.
+
+Question 10. How should the system handle the work reference? Required, optional, or optional depending on the subject.
+
+Question 11. How should the system handle the learning graph? A network graph, a tree, or both.
+
+Question 12. How should the system handle the learning timeline? A line plot, a Gantt chart, or both.
+
+Question 13. How should the system handle the knowledge gap view? A list, a heat map, or both.
+
+Question 14. How should the system handle the learning path view? A linear path, a tree of alternatives, or both.
+
+Question 15. Should the system integrate with the STAG schema library (App 17), the provenance database (App 20), the revision history viewer (App 7), the Method Tracker (App 32), and the STAG Graph Viewer (App 5)?
+
+Question 16. Should the system support federation with other instances of itself?
+
+Question 17. How should the system handle the deposit of a learning record that is already in the system? Reject, create a new version, or create a separate record with a cross-reference.
+
+Question 18. Should the system support autofill via App 49? If so, which library does it register?
+
+Question 19. Should the system support multiple students per learning record, or one student per record?
+
+Question 20. Should the system support a teacher view that shows all students' knowledge graphs?
+
+End of build specification for App 33, the Learning Provenance System.
