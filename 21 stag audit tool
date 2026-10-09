@@ -1,0 +1,784 @@
+Build Specification — App 21: STAG Audit Tool
+Completeness status: COMPLETE. All sections delivered in one pass. No truncation. Formatted for copy-paste into another conversation window. No tables, no boxes.
+
+What It Is
+An app or web service that implements the bounded checklist audit for STAG submissions. It runs the Section 13.7 and Appendix C checklist against a submitted document and returns pass, fail, or not_applicable per item. It takes in a document and the checklist, and puts out the per-item audit rows. It is for journals and review workflows.
+
+Core Requirements
+Functional requirements:
+
+Accept a submitted document. The document may be a manuscript, a STAG annotation record, a validation protocol, or a full submission package.
+
+Accept a checklist. The checklist is the Section 13.7 and Appendix C checklist from Artifact 1, or a custom checklist.
+
+Run the checklist against the submitted document.
+
+For each item in the checklist, determine the status: pass, fail, or not_applicable.
+
+For each item, record the reason for the status.
+
+For each item, record the evidence found in the document.
+
+Support the fourteen falsification conditions F1 through F14 from Artifact 1, Section 13.7.
+
+Support the validation workflow items from Artifact 1, Appendix C.
+
+Support the STAG reporting standard items from Artifact 1, Section 14.1.
+
+Support the user in providing additional context for items that require human judgment.
+
+Return a per-item audit report as a table.
+
+Return a summary report with counts by status.
+
+Return a machine-readable report (JSON) and a human-readable report (text).
+
+Support a web interface and a command-line interface.
+
+Support batch auditing of multiple submissions.
+
+Non-functional requirements:
+
+Deterministic: same inputs produce same outputs.
+
+No network dependency for the core validation logic (the web service is web-based).
+
+Fast: audit a typical submission in under ten seconds.
+
+Versioned: the tool records the STAG schema version and the tool version.
+
+Reproducible: the tool records the checklist version and the document hash.
+
+Input Specification
+Input 1. Submitted document. Required. A manuscript, a STAG annotation record, a validation protocol, or a full submission package. Formats: PDF, LaTeX, JSON, plain text.
+
+Input 2. Checklist. Required. The Section 13.7 and Appendix C checklist from Artifact 1, or a custom checklist.
+
+Input 3. STAG schema version. Optional. Defaults to the latest supported version.
+
+Input 4. Audit mode. Optional. Values: full (default), falsification_only, validation_only, reporting_only.
+
+Input 5. Human context file. Optional. A JSON file with the user's answers to items that require human judgment.
+
+Input 6. Output format. Optional. Values: json (default), text, both, table.
+
+Input 7. Submission identifier. Optional. A string identifying the submission.
+
+Input 8. Batch file. Optional. A file listing multiple submissions to audit.
+
+Output Specification
+Output 1. Per-item audit report. Table, JSON, or text. For each item in the checklist: the item ID, the item name, the status (pass, fail, not_applicable), the reason, and the evidence.
+
+Output 2. Summary report. Text or JSON. The counts by status, the number of items with human judgment required, and the overall assessment.
+
+Output 3. Falsification report. JSON. The status of each falsification condition F1 through F14.
+
+Output 4. Validation report. JSON. The status of each validation workflow item from Appendix C.
+
+Output 5. Reporting standard report. JSON. The status of each STAG reporting standard item from Section 14.1.
+
+Output 6. Human judgment items. JSON. The items that require human judgment, with the user's context.
+
+Output 7. Reproducibility record. JSON. The STAG schema version, the checklist version, the tool version, the submission identifier, and the document hash.
+
+Output 8. Batch report. JSON or text. The audit reports for multiple submissions.
+
+Module-by-Module Specification
+Module 1: Document Loader
+Reads the submitted document. Supports PDF, LaTeX, JSON, and plain text. Extracts the text for analysis. Extracts any structured metadata if present. Computes the document hash (SHA-256).
+
+Module 2: Checklist Loader
+Reads the checklist. Supports the Section 13.7 and Appendix C checklist from Artifact 1, and custom checklists. Validates the checklist structure. Provides the checklist items with their IDs, names, descriptions, and evaluation rules.
+
+Module 3: Falsification Condition Checker
+Checks the fourteen falsification conditions F1 through F14 from Artifact 1, Section 13.7. For each condition, the checker:
+
+Reads the condition's operational test.
+
+Searches the document for the required evidence.
+
+Determines the status: pass (the condition is not triggered), fail (the condition is triggered), or not_applicable (the condition cannot be evaluated because the required evidence is missing).
+
+Records the reason for the status.
+
+The fourteen conditions are:
+
+Condition F1. Node-identity agreement. STAG fails on this field if node-identity agreement fails under the governing rule of Section 13.3 after the single revision cycle permitted by Section 13.3.
+
+Condition F2. Regime-attribute agreement. STAG fails on this field if regime-attribute agreement fails under the governing rule of Section 13.3 after the revision cycle.
+
+Condition F3. Effective-description change agreement. STAG fails on this field if effective-description change agreement fails under the governing rule of Section 13.3 after the revision cycle.
+
+Condition F4. Scientific-value endpoint. STAG fails if, on the confirmatory set, STAG does not improve the pre-specified scientific-value primary endpoint of Section 13.6 relative to the information-matched control.
+
+Condition F5. Theory revision. STAG fails if the framework cannot represent theory revision without losing provenance.
+
+Condition F6. Display-label distinguishability. STAG fails if the summary display labels of Section 1.3 cannot be distinguished reliably under the frozen codebook.
+
+Condition F7. Threshold-provenance summary-label reproducibility. STAG fails on the threshold-provenance extension field if threshold-provenance summary labels cannot be reproduced at the pre-specified level.
+
+Condition F8. Core-tier field redundancy. A core-tier field is redundant if both of the following hold: (i) the field is predictable from the remaining core-tier fields with a held-out accuracy of at least 0.80, and (ii) dropping the field changes no derived label for at least 20 percent of cases.
+
+Condition F9. Legitimate-case accommodation. STAG fails if the framework cannot accommodate scientifically legitimate cases without forcing them into inappropriate categories.
+
+Condition F10. ΔDOF false-positive rate. STAG fails on the ΔDOF criterion if the upper 95 percent confidence bound on the ΔDOF false-positive rate over the non_obvious_equivalence control stratum exceeds 0.20.
+
+Condition F11. Intra-domain rate and partition adequacy. STAG fails on a given partition if the Intra_domain rate for that partition, computed over the confirmatory set, exceeds 0.60, and either the partition justification is judged inadequate or the independent audit finds the partition inappropriate.
+
+Condition F12. Synthetic ground-truth comparison. STAG fails if, on the synthetic ground-truth comparison, the rater's label disagrees with the known ground truth above the pre-registered tolerance, not attributable to the entailment basis or the scale-separation record.
+
+Condition F13. Entailment-basis agreement. STAG fails on the entailment basis if the field fails under the governing rule of Section 13.3 after the revision cycle.
+
+Condition F14. Reachability hypothesis. STAG's reachability hypothesis is falsified if the pre-registered search of Section 13.4 exhausts its candidate pool and finds no published physical system and fewer than K synthetic constructions satisfying the anchoring definition of Section 1.2, for all target domains searched.
+
+Module 4: Validation Workflow Checker
+Checks the validation workflow items from Artifact 1, Appendix C. The items are:
+
+Item C1. Freeze the codebook at a versioned identifier.
+
+Item C2. Run the ambiguity audit on eight to twelve cases across at least three domains, with expertise stratification on the entailment basis.
+
+Item C3. Revise the codebook once; re-freeze.
+
+Item C4. Pre-register the codebook, schema, sampling rule, power analysis, negative-control count and strata, and the information-matched control.
+
+Item C5. Run Phase 1a: twenty cases minimum, three raters minimum, one domain, core tier plus the two anchoring independence fields.
+
+Item C6. Compute agreement per Section 13.3 of the main paper. Apply the governing rule. Flag inconclusive fields. Report threshold sensitivity.
+
+Item C7. If at least four of the five core-tier fields pass, escalate to Phase 1b.
+
+Item C8. Validate node-set agreement before any transition annotation is scored.
+
+Item C9. Run the negative-control analysis with the two strata reported separately.
+
+Item C10. Run synthetic ground-truth validation on the entailment basis and the intra-domain precedence rule, and independent computational replication.
+
+Item C11. Run the reachability search as a separate pre-registered step, reporting the profile type of each candidate and the reason for any failure.
+
+Item C12. Validate the extension tier as a unit.
+
+Item C13. Run the independent empirical application.
+
+Item C14. Run the scientific-value test against the information-matched control, and report the adequacy of the matching.
+
+Item C15. Apply the falsification conditions of Section 13.7 of the main paper. Report all outcomes, including inconclusive and threshold-sensitive ones.
+
+Item C16. Deposit the codebook, schemas, protocol, scripts, and results.
+
+For each item, the checker determines the status: pass (the item is satisfied), fail (the item is not satisfied), or not_applicable (the item is not applicable).
+
+Module 5: Reporting Standard Checker
+Checks the STAG reporting standard items from Artifact 1, Section 14.1. The items are S1 through S24, as listed in App 15, Section 5, Module 5. For each item, the checker determines the status: pass, fail, or not_applicable.
+
+Module 6: Human Judgment Collector
+Identifies the items that require human judgment. These are items for which the checker cannot determine the status from the document alone. Examples:
+
+Condition F9 (legitimate-case accommodation) requires the annotator's written rationale and two independent raters' agreement.
+
+Condition F12 (synthetic ground-truth comparison) requires the rater's label and the known ground truth.
+
+Condition F4 (scientific-value endpoint) requires the primary endpoint measurement.
+
+The collector prompts the user to provide the required context, and records the user's answers in the human context file.
+
+Module 7: Checklist Runner
+Runs the checklist against the document. For each item, determines the status. Uses the falsification condition checker, the validation workflow checker, the reporting standard checker, and the human judgment collector.
+
+Module 8: Report Builder
+Assembles the per-item audit report, the summary report, the falsification report, the validation report, the reporting standard report, and the human judgment items report.
+
+Module 9: Table Formatter
+Formats the per-item audit report as a table. Columns: item ID, item name, status, reason, evidence.
+
+Module 10: Batch Runner
+Runs the checklist against multiple submissions. Collects the audit reports for each submission.
+
+Module 11: Reproducibility Recorder
+Records the STAG schema version, the checklist version, the tool version, the submission identifier, and the document hash.
+
+Module 12: Web Service Layer
+Wraps the tool in an HTTP endpoint. Accepts a POST with the document, the checklist, and the options. Returns the audit report. Uses HTTP status 200 for a complete audit, 422 for an audit with failures, 400 for malformed input.
+
+Module 13: Command-Line Interface
+Parses arguments. Invokes Modules 1 through 12. Prints the report to stdout.
+
+Full Checklist Specification
+6.1 Falsification Conditions
+The fourteen falsification conditions from Artifact 1, Section 13.7 are evaluated as follows.
+
+Condition F1. Node-identity agreement. The checker searches the document for the node-set agreement statistics. If the statistics are present and the outcome is fail under the governing rule of Section 13.3 after the revision cycle, the condition is triggered (fail). If the statistics are present and the outcome is pass or inconclusive, the condition is not triggered (pass). If the statistics are absent, the condition is not_applicable.
+
+Condition F2. Regime-attribute agreement. Same as F1, but for the regime attribute.
+
+Condition F3. Effective-description change agreement. Same as F1, but for the effective-description change field.
+
+Condition F4. Scientific-value endpoint. The checker searches the document for the primary endpoint measurement. If the treatment rate does not exceed the control rate at the pre-registered effect size and confidence interval, the condition is triggered (fail). If the treatment rate exceeds the control rate, the condition is not triggered (pass). If the measurement is absent, the condition is not_applicable.
+
+Condition F5. Theory revision. The checker searches the document for a case in which a published model has been superseded by a later model. If the revision cannot be recorded without overwriting an earlier annotation record, the condition is triggered (fail). If the revision can be recorded, the condition is not triggered (pass). If no such case is present, the condition is not_applicable.
+
+Condition F6. Display-label distinguishability. The checker searches the document for the pairwise distinction between each pair of display labels in the confirmatory set. If the outcome is fail for the label-as-a-unit analysis of Phase 2, the condition is triggered (fail). If the outcome is pass or inconclusive, the condition is not triggered (pass). If the analysis is absent, the condition is not_applicable.
+
+Condition F7. Threshold-provenance summary-label reproducibility. Same as F6, but for the threshold-provenance summary labels.
+
+Condition F8. Core-tier field redundancy. The checker searches the document for the held-out accuracy and the no-change fraction for each core-tier field. If the held-out accuracy is at least 0.80 and the no-change fraction is at least 0.20, the condition is triggered (fail). Otherwise, the condition is not triggered (pass). If the analysis is absent, the condition is not_applicable.
+
+Condition F9. Legitimate-case accommodation. The checker searches the document for cases in which the annotator has recorded that the framework's categories are a poor fit. The condition is triggered if the count of agreed accommodation failures is at least the pre-registered tolerance. If the count is below the tolerance, the condition is not triggered (pass). If the count is absent, the condition is not_applicable.
+
+Condition F10. ΔDOF false-positive rate. The checker searches the document for the ΔDOF false-positive rate over the non_obvious_equivalence control stratum. If the upper 95 percent confidence bound exceeds 0.20, the condition is triggered (fail). Otherwise, the condition is not triggered (pass). If the rate is absent, the condition is not_applicable.
+
+Condition F11. Intra-domain rate and partition adequacy. The checker searches the document for the Intra_domain rate for each partition. If the rate exceeds 0.60 and either the partition justification is judged inadequate or the independent audit finds the partition inappropriate, the condition is triggered (fail). Otherwise, the condition is not triggered (pass). If the rate is absent, the condition is not_applicable.
+
+Condition F12. Synthetic ground-truth comparison. The checker searches the document for the disagreement rate between the rater's label and the known ground truth. If the disagreement rate exceeds the pre-registered tolerance and is not attributable to the entailment basis or the scale-separation record, the condition is triggered (fail). Otherwise, the condition is not triggered (pass). If the disagreement rate is absent, the condition is not_applicable.
+
+Condition F13. Entailment-basis agreement. Same as F1, but for the entailment basis.
+
+Condition F14. Reachability hypothesis. The checker searches the document for the reachability search results. If the search exhausts its candidate pool and finds no published physical system and fewer than K synthetic constructions satisfying the anchoring definition, the condition is triggered (fail). Otherwise, the condition is not triggered (pass). If the search is absent, the condition is not_applicable.
+
+6.2 Validation Workflow Items
+The sixteen validation workflow items from Artifact 1, Appendix C are evaluated as follows.
+
+Item C1. Freeze the codebook at a versioned identifier. The checker searches the document for the codebook version. If present, pass. Otherwise, fail.
+
+Item C2. Run the ambiguity audit on eight to twelve cases across at least three domains. The checker searches the document for the ambiguity audit results. If present and the counts meet the requirement, pass. Otherwise, fail or not_applicable.
+
+Item C3. Revise the codebook once; re-freeze. The checker searches the document for the revision. If present, pass. Otherwise, fail or not_applicable.
+
+Item C4. Pre-register the codebook, schema, sampling rule, power analysis, negative-control count and strata, and the information-matched control. The checker searches the document for the pre-registration. If present and complete, pass. Otherwise, fail or not_applicable.
+
+Item C5. Run Phase 1a. The checker searches the document for the Phase 1a results. If present and the counts meet the requirement, pass. Otherwise, fail or not_applicable.
+
+Item C6. Compute agreement per Section 13.3. The checker searches the document for the agreement statistics. If present and the governing rule is applied, pass. Otherwise, fail or not_applicable.
+
+Item C7. Escalate to Phase 1b if at least four of the five core-tier fields pass. The checker searches the document for the escalation decision. If present and the counts meet the requirement, pass. Otherwise, fail or not_applicable.
+
+Item C8. Validate node-set agreement before any transition annotation is scored. The checker searches the document for the node-set agreement. If present and the order is correct, pass. Otherwise, fail or not_applicable.
+
+Item C9. Run the negative-control analysis with the two strata reported separately. The checker searches the document for the negative-control analysis. If present and the strata are separate, pass. Otherwise, fail or not_applicable.
+
+Item C10. Run synthetic ground-truth validation and independent computational replication. The checker searches the document for the results. If present, pass. Otherwise, fail or not_applicable.
+
+Item C11. Run the reachability search as a separate pre-registered step. The checker searches the document for the reachability search. If present, pass. Otherwise, fail or not_applicable.
+
+Item C12. Validate the extension tier as a unit. The checker searches the document for the extension tier validation. If present, pass. Otherwise, fail or not_applicable.
+
+Item C13. Run the independent empirical application. The checker searches the document for the independent application. If present, pass. Otherwise, fail or not_applicable.
+
+Item C14. Run the scientific-value test against the information-matched control. The checker searches the document for the scientific-value test. If present, pass. Otherwise, fail or not_applicable.
+
+Item C15. Apply the falsification conditions and report all outcomes. The checker searches the document for the falsification condition results. If present and complete, pass. Otherwise, fail or not_applicable.
+
+Item C16. Deposit the codebook, schemas, protocol, scripts, and results. The checker searches the document for the deposit. If present and complete, pass. Otherwise, fail or not_applicable.
+
+6.3 Reporting Standard Items
+The twenty-four reporting standard items from Artifact 1, Section 14.1 are evaluated as follows. The items are S1 through S24, as listed in App 15, Section 5, Module 5. For each item, the checker searches the document for the required field or reference. If present, pass. If absent and required, fail. If absent and required-when-applicable and not applicable, not_applicable.
+
+6.4 Human Judgment Items
+The items that require human judgment are:
+
+Condition F4 (scientific-value endpoint) requires the primary endpoint measurement.
+
+Condition F9 (legitimate-case accommodation) requires the annotator's written rationale and two independent raters' agreement.
+
+Condition F12 (synthetic ground-truth comparison) requires the rater's label and the known ground truth.
+
+For each of these items, the checker prompts the user to provide the required context. The user's answers are recorded in the human context file.
+
+Core Logic as Executable Pseudocode
+7.1 Main Flow
+function runAudit(document, checklist, options):
+
+Step 1. documentText = loadDocument(document, options).
+
+documentHash = sha256(document).
+
+Step 2. checklistItems = loadChecklist(checklist).
+
+Step 3. results = [].
+
+for item in checklistItems:
+
+result = evaluateItem(item, documentText, options).
+
+results.push(result).
+
+Step 4. humanJudgmentItems = results.filter(r => r.status == "human_judgment_required").
+
+Step 5. if humanJudgmentItems.length > 0 and options.humanContextFile != null:
+
+humanContext = loadHumanContext(options.humanContextFile).
+
+for item in humanJudgmentItems: item.status = evaluateWithContext(item, humanContext).
+
+Step 6. summary = buildSummary(results).
+
+Step 7. falsificationReport = buildFalsificationReport(results.filter(r => r.category == "falsification")).
+
+Step 8. validationReport = buildValidationReport(results.filter(r => r.category == "validation")).
+
+Step 9. reportingReport = buildReportingReport(results.filter(r => r.category == "reporting")).
+
+Step 10. table = formatTable(results).
+
+Step 11. reproducibility = buildReproducibilityRecord(options, documentHash, checklist.version, timestamp).
+
+Step 12. return {results, summary, falsificationReport, validationReport, reportingReport, table, humanJudgmentItems, reproducibility}.
+
+7.2 Evaluate Item
+function evaluateItem(item, documentText, options):
+
+if item.category == "falsification": return evaluateFalsification(item, documentText).
+
+else if item.category == "validation": return evaluateValidation(item, documentText).
+
+else if item.category == "reporting": return evaluateReporting(item, documentText).
+
+else if item.category == "human_judgment": return {status: "human_judgment_required", reason: "requires human context", evidence: null}.
+
+7.3 Evaluate Falsification
+function evaluateFalsification(item, documentText):
+
+evidence = searchDocument(documentText, item.patterns).
+
+if evidence == null: return {item_id: item.id, item_name: item.name, status: "not_applicable", reason: "required evidence not found", evidence: null}.
+
+status = item.evaluate(evidence).
+
+return {item_id: item.id, item_name: item.name, status: status, reason: item.reason, evidence: evidence}.
+
+7.4 Evaluate Validation
+function evaluateValidation(item, documentText):
+
+evidence = searchDocument(documentText, item.patterns).
+
+if evidence == null: return {item_id: item.id, item_name: item.name, status: "not_applicable", reason: "required evidence not found", evidence: null}.
+
+status = item.evaluate(evidence).
+
+return {item_id: item.id, item_name: item.name, status: status, reason: item.reason, evidence: evidence}.
+
+7.5 Evaluate Reporting
+function evaluateReporting(item, documentText):
+
+evidence = searchDocument(documentText, item.patterns).
+
+if evidence == null:
+
+if item.required_when_applicable: return {item_id: item.id, item_name: item.name, status: "not_applicable", reason: "not applicable", evidence: null}.
+
+return {item_id: item.id, item_name: item.name, status: "fail", reason: "required field not found", evidence: null}.
+
+return {item_id: item.id, item_name: item.name, status: "pass", reason: null, evidence: evidence}.
+
+7.6 Evaluate With Context
+function evaluateWithContext(item, humanContext):
+
+context = humanContext[item.id].
+
+if context == null: return item.
+
+status = item.evaluate(context).
+
+return {item_id: item.id, item_name: item.name, status: status, reason: item.reason, evidence: context}.
+
+7.7 Build Summary
+function buildSummary(results):
+
+passCount = count(r in results where r.status == "pass").
+
+failCount = count(r in results where r.status == "fail").
+
+notApplicableCount = count(r in results where r.status == "not_applicable").
+
+humanJudgmentCount = count(r in results where r.status == "human_judgment_required").
+
+return {pass_count: passCount, fail_count: failCount, not_applicable_count: notApplicableCount, human_judgment_count: humanJudgmentCount, total: results.length}.
+
+7.8 Format Table
+function formatTable(results):
+
+table = new Table().
+
+table.addHeader(["Item ID", "Item Name", "Status", "Reason", "Evidence"]).
+
+for r in results: table.addRow([r.item_id, r.item_name, r.status, r.reason, r.evidence]).
+
+return table.toString().
+
+7.9 Build Reproducibility Record
+function buildReproducibilityRecord(options, documentHash, checklistVersion, timestamp):
+
+return {stag_schema_version: options.stagSchemaVersion, checklist_version: checklistVersion, tool_version: options.toolVersion, submission_id: options.submissionId, document_hash: documentHash, timestamp: timestamp}.
+
+7.10 Batch Audit
+function runBatchAudit(batchFile, checklist, options):
+
+Step 1. submissions = loadBatchFile(batchFile).
+
+Step 2. reports = [].
+
+for submission in submissions:
+
+document = loadDocument(submission.path, options).
+
+report = runAudit(document, checklist, options).
+
+reports.push({submission_id: submission.id, report: report}).
+
+Step 3. return {reports: reports, count: reports.length}.
+
+Data Model / JSON Schema for Internal State
+The tool's internal state is a report object.
+
+Report object:
+
+results (array of item result objects)
+
+summary (object: pass_count, fail_count, not_applicable_count, human_judgment_count, total)
+
+falsification_report (array of item result objects)
+
+validation_report (array of item result objects)
+
+reporting_report (array of item result objects)
+
+table (string)
+
+human_judgment_items (array of item objects)
+
+reproducibility (object: stag_schema_version, checklist_version, tool_version, submission_id, document_hash, timestamp)
+
+Each item result object:
+
+item_id (string)
+
+item_name (string)
+
+status (pass, fail, not_applicable, human_judgment_required)
+
+reason (string or null)
+
+evidence (string or null)
+
+category (falsification, validation, reporting, human_judgment)
+
+Batch report object:
+
+reports (array of {submission_id, report})
+
+count (integer)
+
+Architecture
+Module breakdown:
+
+Document Loader. Reads and extracts text from the document.
+
+Checklist Loader. Reads and validates the checklist.
+
+Falsification Condition Checker. Checks F1 through F14.
+
+Validation Workflow Checker. Checks C1 through C16.
+
+Reporting Standard Checker. Checks S1 through S24.
+
+Human Judgment Collector. Identifies and prompts for human judgment items.
+
+Checklist Runner. Runs the checklist.
+
+Report Builder. Assembles the reports.
+
+Table Formatter. Formats the per-item report as a table.
+
+Batch Runner. Runs the audit on multiple submissions.
+
+Reproducibility Recorder. Records the versions, submission identifier, and document hash.
+
+Web Service Layer. HTTP endpoint.
+
+Command-Line Interface. Argument parsing.
+
+Data flow:
+
+Document and checklist go to the loaders. Falsification, Validation, and Reporting Standard Checkers run. Human Judgment Collector identifies items requiring context. Checklist Runner runs. Report Builder assembles. Table Formatter formats. Web Service Layer or Command-Line Interface delivers.
+
+Technology Stack
+Recommended for the web service:
+
+Backend: FastAPI (Python) or Express (Node.js).
+
+Document parsing: pdfplumber or PyPDF2 (Python) or pdf-parse (JS).
+
+LaTeX parsing: regex-based or a dedicated parser.
+
+JSON handling: standard library.
+
+HTTP: FastAPI plus uvicorn (Python) or Express (JS).
+
+Containerization: Docker.
+
+Testing: pytest (Python) or Vitest (JS).
+
+Recommended for the command-line interface:
+
+Same runtime as the web service.
+
+CLI framework: argparse or click (Python) or commander (JS).
+
+Recommended for the web interface:
+
+Frontend: React or Svelte.
+
+Form for uploading the document and the checklist.
+
+Display of the per-item audit report, the summary, and the human judgment items.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The STAG schema (Artifact 2, Appendix B.1).
+
+The falsification conditions (Artifact 1, Section 13.7).
+
+The validation workflow (Artifact 1, Appendix C).
+
+The reporting standard (Artifact 1, Section 14.1).
+
+UI/UX Specification
+Web service:
+
+Endpoint: POST /audit.
+
+Request body: multipart form with fields document (file), checklist (file or inline), options (JSON).
+
+Response on success: HTTP 200 with JSON report.
+
+Response on failure: HTTP 422 with JSON report.
+
+Response on malformed input: HTTP 400 with error message.
+
+Command-line interface:
+
+Usage: stag-audit --document FILE --checklist FILE [--stag-schema-version VERSION] [--mode full|falsification_only|validation_only|reporting_only] [--human-context FILE] [--output FILE] [--format json|text|both|table] [--submission-id ID].
+
+Output on success: the per-item audit report, the summary, and the human judgment items.
+
+Output on error: the error message and exit code 2.
+
+Web interface:
+
+A form for uploading the document and the checklist.
+
+Display of the per-item audit report as a table with color-coded statuses: green for pass, red for fail, grey for not_applicable, orange for human_judgment_required.
+
+Display of the summary.
+
+Display of the human judgment items with a form for providing context.
+
+Download buttons for the JSON and text reports.
+
+Batch audit:
+
+A form for uploading a batch file.
+
+Display of the batch report.
+
+Validation Engine Design
+The tool validates the following:
+
+Validation 1. Document validity. The document is in a supported format and is not empty.
+
+Validation 2. Checklist validity. The checklist is in a supported format and has the required structure.
+
+Validation 3. Item evaluation. Each item is evaluated against the document. The status is determined by the item's evaluation rule.
+
+Validation 4. Human judgment items. The items that require human judgment are identified. The user is prompted for context.
+
+Validation 5. Reproducibility. The STAG schema version, checklist version, tool version, submission identifier, and document hash are recorded.
+
+Testing Strategy
+Unit tests:
+
+Document Loader for PDF, LaTeX, JSON, and plain text.
+
+Checklist Loader for the built-in checklist and custom checklists.
+
+Falsification Condition Checker for each condition F1 through F14.
+
+Validation Workflow Checker for each item C1 through C16.
+
+Reporting Standard Checker for each item S1 through S24.
+
+Human Judgment Collector for each human judgment item.
+
+Checklist Runner for the full checklist.
+
+Report Builder for each report type.
+
+Table Formatter for the table structure.
+
+Batch Runner for multiple submissions.
+
+Reproducibility Recorder for the record structure.
+
+Integration tests:
+
+Audit a document that satisfies all conditions. Verify all items pass.
+
+Audit a document that fails a condition. Verify the condition is triggered.
+
+Audit a document that is missing evidence. Verify the items are not_applicable.
+
+Audit a document that requires human judgment. Verify the human judgment items are identified.
+
+Batch audit multiple documents. Verify the batch report.
+
+Worked-example tests:
+
+Audit the STAG worked examples (Artifact 1, Section 11). Verify the falsification conditions, the validation workflow items, and the reporting standard items.
+
+Audit the two-layer Ising example (Artifact 1, Section 11.2). Verify the reporting standard items S1 through S24.
+
+Audit the Fröhlich/Eliashberg example (Artifact 1, Section 11.1). Verify the not_determinable handling.
+
+Regression tests:
+
+Report determinism.
+
+Checklist consistency.
+
+Item evaluation consistency.
+
+Build Phases
+Phase 1. Document Loader. Read and extract text from the document.
+
+Phase 2. Checklist Loader. Read and validate the checklist.
+
+Phase 3. Falsification Condition Checker. Check F1 through F14.
+
+Phase 4. Validation Workflow Checker. Check C1 through C16.
+
+Phase 5. Reporting Standard Checker. Check S1 through S24.
+
+Phase 6. Human Judgment Collector. Identify and prompt for human judgment items.
+
+Phase 7. Checklist Runner. Run the checklist.
+
+Phase 8. Report Builder. Assemble the reports.
+
+Phase 9. Table Formatter. Format the per-item report as a table.
+
+Phase 10. Batch Runner. Run the audit on multiple submissions.
+
+Phase 11. Reproducibility Recorder. Record the versions, submission identifier, and document hash.
+
+Phase 12. Web Service Layer. HTTP endpoint.
+
+Phase 13. Command-Line Interface.
+
+Phase 14. Web Interface.
+
+Phase 15. Worked-example tests.
+
+Phase 16. Integration testing and hardening.
+
+Phase 17. Packaging and deployment.
+
+Dependencies
+Python path:
+
+pdfplumber or PyPDF2 (PDF parsing).
+
+jsonschema (schema validation).
+
+FastAPI and uvicorn (web service).
+
+argparse or click (command-line).
+
+json (JSON handling, standard library).
+
+re (regex, standard library).
+
+hashlib (hash computation, standard library).
+
+pytest (testing).
+
+Node.js path:
+
+pdf-parse (PDF parsing).
+
+ajv (schema validation).
+
+Express (web service).
+
+commander (command-line).
+
+JSON (standard library).
+
+crypto (hash computation, standard library).
+
+Vitest (testing).
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The STAG schema (Artifact 2, Appendix B.1).
+
+The falsification conditions (Artifact 1, Section 13.7).
+
+The validation workflow (Artifact 1, Appendix C).
+
+The reporting standard (Artifact 1, Section 14.1).
+
+Deployment Notes
+Web service:
+
+Deploy with Docker. Expose a single endpoint. Use a reverse proxy for TLS.
+
+Scale horizontally if needed.
+
+Stateless: no session state between requests.
+
+Log the submission identifier, the checklist version, and the summary for audit.
+
+Command-line interface:
+
+Package as a standalone executable (PyInstaller or pkg).
+
+Distribute via pip, npm, or a direct download.
+
+Web interface:
+
+Deploy the frontend as a static bundle.
+
+Backend with FastAPI or Express.
+
+Reproducibility:
+
+Record the STAG schema version, the checklist version, the tool version, the submission identifier, and the document hash.
+
+Provide a version pin for the checklist.
+
+Open Questions to Resolve Before Building
+Question 1. Which runtime first? Python or Node.js. Decision affects the PDF parsing library and the packaging.
+
+Question 2. What document formats are supported? Options: PDF, LaTeX, JSON, plain text, or all four. Decision needed.
+
+Question 3. How should the tool handle items that require human judgment? Options: prompt the user, defer the items to a later pass, or mark them as not_assessed. Decision needed.
+
+Question 4. How should the tool handle a document that is missing the required evidence for a falsification condition? Options: mark the condition as not_applicable, or mark it as fail. Decision needed.
+
+Question 5. How should the tool handle a document that is missing the required evidence for a reporting standard item? Options: mark the item as fail, or mark it as not_applicable. Decision needed.
+
+Question 6. Should the tool support custom checklists? The design allows it. Decision needed: enable it by default, or only in advanced mode.
+
+Question 7. How should the tool handle the batch audit? Options: process submissions in parallel, or sequentially. Decision needed.
+
+Question 8. Should the tool integrate with the STAG schema library (App 17) and the STAG annotation validator (App 2)? Decision needed: shared schemas, or independent.
+
+Question 9. How should the tool report the falsification conditions? Options: a separate report, or integrated into the main report. Decision needed.
+
+Question 10. How should the tool handle the not_determinable flag propagation? The STAG specification specifies that not_determinable propagates from the entailment basis to the intervention classification to the cross-domain counterfactual dependence. Decision needed: does the tool check the propagation automatically, or trust the record?
+
+End of build specification for App 21
