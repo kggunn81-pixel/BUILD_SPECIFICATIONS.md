@@ -1,0 +1,1390 @@
+App 26: The Replication Tracker
+Completeness status: COMPLETE. All sections delivered in one pass. No truncation. Formatted for copy-paste. Long lists are broken into short lines.
+
+1. What It Is
+A provenance-aware, versioned database of replication attempts. A replication attempt is any effort to independently repeat a published result, whether it succeeded, failed, or produced a partial or inconclusive outcome.
+
+The Replication Tracker records each attempt with:
+
+the original claim
+
+the replication method
+
+the outcome
+
+the effect sizes
+
+the reasons for any difference
+
+the provenance
+
+It reuses:
+
+the Physics Knowledge Library (App 23)
+
+the Full-Pipeline Simulator (App 9)
+
+the Null-Model Protocol Library (App 18)
+
+the Provenance-Aware Annotation Database (App 20)
+
+the Numerical Verification Tool (App 22)
+
+It is for researchers, meta-scientists, journal editors, funders, and anyone who wants to know which results have been independently tested.
+
+2. Core Requirements
+Functional requirements:
+
+Accept deposits of replication attempts from users.
+
+Store each replication attempt with its original claim, its method, its outcome, and its provenance.
+
+Link each replication attempt to the original claim in the Physics Knowledge Library.
+
+Record the original paper reference and the replication paper reference.
+
+Record the replication method, including the sample size, the instruments, and the statistical pipeline.
+
+Record the replication outcome: success, failure, partial, inconclusive.
+
+Record the effect size in the original study and the effect size in the replication.
+
+Record the difference between the original and the replication, and the reason for the difference.
+
+Record the replication date, the replicator, and the replicator's affiliation.
+
+Enforce provenance completeness. Every deposit has a depositor, a date, a source, and a tool version.
+
+Enforce versioning. Every deposit has a version, and updates create new versions.
+
+Enforce supersession acyclicity.
+
+Support querying by replication ID, original claim ID, field, subfield, outcome, replicator, replication date, and keywords.
+
+Support full-text search of the replication description, the method, and the notes.
+
+Support aggregation queries. Count by field, by outcome, by year, by replicator, by effect-size change.
+
+Support exporting a replication attempt as JSON, PROV-O, and Turtle.
+
+Support importing a replication attempt from JSON.
+
+Support bulk import and bulk export.
+
+Support a REST API for CRUD operations.
+
+Support a GraphQL API for flexible queries.
+
+Support a command-line interface for administration.
+
+Support authentication and authorization.
+
+Support audit logging.
+
+Support backup and restore.
+
+Support a web interface for depositing, browsing, and querying.
+
+Support moderation. Replication attempts can be marked as pending, approved, or rejected.
+
+Support linking a replication attempt to a STAG annotation if the original claim has one.
+
+Support linking a replication attempt to a Null-Model Protocol result if the replication used one.
+
+Support linking a replication attempt to a numerical verification result.
+
+Support the replication map. A visualisation of replication attempts by field, by outcome, and by effect-size change.
+
+Support the replication funnel. A visualisation of the path from the original study to the replication.
+
+Non-functional requirements:
+
+Deterministic. Same inputs produce same outputs.
+
+Fast. Query a typical replication attempt in under 100 milliseconds. Aggregate over 10,000 attempts in under one second.
+
+Scalable. Support up to 10^6 replication attempts.
+
+Versioned. The tracker records the STAG schema version, the Null-Model Protocol schema version, the replication schema version, and the tracker version.
+
+Reproducible. The tracker records the provenance for every deposit.
+
+Portable. Works on Linux, macOS, and Windows.
+
+Well-documented. API documentation, replication schema documentation, and user guide.
+
+3. Input Specification
+Input 1. Replication deposit. Required for create and update operations. A deposit object conforming to the replication schema.
+
+Input 2. Files. Optional. One or more files supporting the replication.
+
+Input 3. Provenance record. Required for create and update operations. The replicator ID, the timestamp, the source, and the tool version.
+
+Input 4. Link to the original claim. Required. The claim ID in the Physics Knowledge Library.
+
+Input 5. STAG annotation. Optional. A STAG record describing the original claim if it has one.
+
+Input 6. Null-Model Protocol result. Optional. A Null-Model Protocol result if the replication used one.
+
+Input 7. Numerical verification result. Optional. A numerical verification result checking the reported numbers.
+
+Input 8. Query. Required for read operations. A query object with fields for replication ID, original claim ID, field, subfield, outcome, replicator, replication date, and keywords.
+
+Input 9. Aggregation query. Required for aggregation operations. A query object with fields for the aggregation dimension and the filter.
+
+Input 10. Authentication credentials. Required for authenticated operations.
+
+Input 11. Bulk import file. Optional. A file containing multiple replication attempts.
+
+Input 12. Bulk export query. Optional. A query object selecting the replication attempts to export.
+
+4. Output Specification
+Output 1. Replication record. JSON. The replication attempt as stored.
+
+Output 2. PROV-O serialization. Turtle or JSON-LD.
+
+Output 3. Turtle serialization. Turtle.
+
+Output 4. Query result. JSON. The list of replication attempts matching the query, with pagination.
+
+Output 5. Aggregation result. JSON. The counts by the aggregation dimension.
+
+Output 6. Full-text search result. JSON.
+
+Output 7. Replication map. JSON or a rendered graph.
+
+Output 8. Replication funnel. JSON or a rendered funnel.
+
+Output 9. Related replications. JSON.
+
+Output 10. Bulk export file. JSON or JSON Lines.
+
+Output 11. Audit log entry. JSON.
+
+Output 12. API response. JSON.
+
+Output 13. GraphQL response. JSON.
+
+Output 14. Backup file. A database dump or a JSON archive.
+
+5. Module-by-Module Specification
+Module 1. Replication Schema.
+
+Defines the structure of a replication deposit.
+
+Module 2. Database Schema.
+
+The tables and indexes.
+
+Module 3. Replication Loader.
+
+Reads and validates a replication deposit.
+
+Module 4. Replication Writer.
+
+Writes a replication deposit to the database.
+
+Module 5. Replication Reader.
+
+Reads a replication deposit from the database.
+
+Module 6. Replication Updater.
+
+Updates a replication deposit. Creates a new version.
+
+Module 7. Replication Deleter.
+
+Deletes a replication deposit. Soft delete or hard delete.
+
+Module 8. Query Engine.
+
+Executes queries against the database.
+
+Module 9. Full-Text Search Engine.
+
+Executes full-text search.
+
+Module 10. Aggregation Engine.
+
+Executes aggregation queries.
+
+Module 11. Exporter.
+
+Exports a replication attempt as JSON, PROV-O, and Turtle.
+
+Module 12. Importer.
+
+Imports a replication attempt from JSON.
+
+Module 13. Bulk Import and Export.
+
+Imports and exports multiple replication attempts.
+
+Module 14. REST API.
+
+HTTP endpoints.
+
+Module 15. GraphQL API.
+
+GraphQL endpoint.
+
+Module 16. Command-Line Interface.
+
+Administration commands.
+
+Module 17. Authentication and Authorization.
+
+Access control.
+
+Module 18. Audit Logging.
+
+Logs operations.
+
+Module 19. Backup and Restore.
+
+Database backup and restore.
+
+Module 20. Web Interface.
+
+Depositing, browsing, querying.
+
+Module 21. Moderation Workflow.
+
+Moderation of replication attempts.
+
+Module 22. Replication Map.
+
+Visualises replication attempts by field, by outcome, and by effect-size change.
+
+Module 23. Replication Funnel.
+
+Visualises the path from the original study to the replication.
+
+Module 24. Related-Replication Finder.
+
+Finds replication attempts related to a given one.
+
+Module 25. Migration Manager.
+
+Database migrations.
+
+6. Full Replication Specification
+6.1 Replication Schema
+The replication schema defines the structure of a replication deposit.
+
+It has the following fields:
+
+replication_id. A string. Required.
+
+original_claim_id. A string. Required.
+
+original_paper_reference. A string. Required.
+
+replication_paper_reference. A string. Required.
+
+field. A string. Required.
+
+subfield. A string. Optional.
+
+replication_method. An object. It contains design, sample_size, instruments, statistical_pipeline, and preregistration_status.
+
+replication_outcome. An enum. The values are success, failure, partial, inconclusive.
+
+effect_size_original. A number. Optional.
+
+effect_size_replication. A number. Optional.
+
+effect_size_confidence_interval_original. An object. Optional.
+
+effect_size_confidence_interval_replication. An object. Optional.
+
+difference_reason. A string. Optional.
+
+difference_category. An enum. The values are sampling_error, measurement_error, selection_effect, analysis_choice, population_difference, contextual_difference, unknown, other.
+
+replication_date. A string in ISO8601 format. Required.
+
+replicator_id. A string. Required.
+
+replicator_affiliation. A string. Optional.
+
+provenance. An object. It contains source, tool_version, and notes.
+
+stag_annotation. An object. Optional.
+
+null_model_result. An object. Optional.
+
+numerical_verification_result. An object. Optional.
+
+keywords. An array of strings. Optional.
+
+notes. A string. Optional.
+
+moderation_status. An enum. The values are pending, approved, rejected. The default is pending.
+
+version. An integer. The default is 1.
+
+supersedes. A string. Optional.
+
+superseded_by. A string. Optional.
+
+6.2 Database Schema
+The database has the following tables.
+
+replication. Holds the replication records.
+
+Its fields are:
+
+replication_id
+
+original_claim_id
+
+original_paper_reference
+
+replication_paper_reference
+
+field
+
+subfield
+
+replication_method
+
+replication_outcome
+
+effect_size_original
+
+effect_size_replication
+
+effect_size_confidence_interval_original
+
+effect_size_confidence_interval_replication
+
+difference_reason
+
+difference_category
+
+replication_date
+
+replicator_id
+
+replicator_affiliation
+
+provenance
+
+keywords
+
+notes
+
+moderation_status
+
+version
+
+supersedes
+
+superseded_by
+
+created_at
+
+updated_at
+
+stag_link. Holds the STAG links.
+
+Its fields are:
+
+link_id
+
+replication_id
+
+annotation_id
+
+created_at
+
+null_model_link. Holds the Null-Model Protocol links.
+
+Its fields are:
+
+link_id
+
+replication_id
+
+result_id
+
+created_at
+
+verification_link. Holds the numerical verification links.
+
+Its fields are:
+
+link_id
+
+replication_id
+
+verification_id
+
+created_at
+
+provenance. Holds the provenance records.
+
+Its fields are:
+
+provenance_id
+
+replication_id
+
+replicator_id
+
+replicator_affiliation
+
+timestamp
+
+source
+
+tool_version
+
+operation
+
+created_at
+
+audit_log. Holds the audit log entries.
+
+Its fields are:
+
+audit_id
+
+operation
+
+record_type
+
+record_id
+
+replicator_id
+
+timestamp
+
+result
+
+details
+
+created_at
+
+moderation. Holds the moderation records.
+
+Its fields are:
+
+moderation_id
+
+replication_id
+
+moderator_id
+
+moderation_status
+
+moderation_date
+
+moderation_notes
+
+created_at
+
+6.3 Referential Integrity
+The database enforces the following constraints.
+
+Every stag_link.replication_id must exist in replication.
+
+Every null_model_link.replication_id must exist in replication.
+
+Every verification_link.replication_id must exist in replication.
+
+Every provenance.replication_id must exist in replication.
+
+Every moderation.replication_id must exist in replication.
+
+The version chain (supersedes and superseded_by) must be acyclic.
+
+Every original_claim_id must resolve to a claim in the Physics Knowledge Library, or be flagged as unresolved.
+
+6.4 Indexes
+The database has indexes on:
+
+replication.replication_id
+
+replication.original_claim_id
+
+replication.field
+
+replication.subfield
+
+replication.replication_outcome
+
+replication.replicator_id
+
+replication.replication_date
+
+replication.moderation_status
+
+replication.keywords
+
+stag_link.replication_id
+
+null_model_link.replication_id
+
+verification_link.replication_id
+
+provenance.replication_id
+
+provenance.replicator_id
+
+audit_log.operation
+
+audit_log.record_id
+
+moderation.replication_id
+
+moderation.moderation_status
+
+Full-text search indexes on the replication description, the method, and the notes.
+
+7. Core Logic as Executable Pseudocode
+7.1 Create Replication
+function createReplication(replication, files, provenance, auth):
+
+Step 1. validateAuth(auth, "replicator"). If not authorized, return an error.
+
+Step 2. validationResult = validateReplication(replication). If invalid, return an error with the details.
+
+Step 3. originalClaim = lookupClaim(replication.original_claim_id). If null, set replication.original_claim_id_unresolved to true.
+
+Step 4. If replication.stag_annotation is not null, validate it against the STAG schema.
+
+Step 5. If replication.null_model_result is not null, validate it against the Null-Model Protocol schema.
+
+Step 6. replicationId = generateReplicationId(). Set the fields: replication_id, version 1, moderation_status pending, replication_date now, replicator_id from auth, replicator_affiliation from auth, provenance from provenance.
+
+Step 7. insertReplication(replication).
+
+Step 8. If replication.stag_annotation is not null, insertSTAGLink.
+
+Step 9. If replication.null_model_result is not null, insertNullModelLink.
+
+Step 10. If replication.numerical_verification_result is not null, insertVerificationLink.
+
+Step 11. insertProvenance.
+
+Step 12. insertModeration with status pending.
+
+Step 13. insertAuditLog.
+
+Step 14. return the replication_id and the status created.
+
+7.2 Read Replication
+function readReplication(replicationId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. replication = selectReplication(replicationId). If null, return an error.
+
+Step 3. Read the links, the provenance, the moderation, and the original claim.
+
+Step 4. Reconstruct the deposit.
+
+Step 5. insertAuditLog.
+
+Step 6. return the deposit.
+
+7.3 Update Replication
+function updateReplication(replicationId, replication, provenance, auth):
+
+Step 1. validateAuth(auth, "replicator"). If not authorized, return an error.
+
+Step 2. existing = selectReplication(replicationId). If null, return an error.
+
+Step 3. Validate the new replication.
+
+Step 4. newVersion = existing.version + 1. Update the version, supersedes, and superseded_by fields.
+
+Step 5. insertProvenance with operation update.
+
+Step 6. insertAuditLog.
+
+Step 7. return the replication_id, the version, and the status updated.
+
+7.4 Delete Replication
+function deleteReplication(replicationId, provenance, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. existing = selectReplication(replicationId). If null, return an error.
+
+Step 3. If soft delete, mark as deleted. Otherwise, remove the record.
+
+Step 4. insertAuditLog.
+
+Step 5. return the replication_id and the status deleted.
+
+7.5 Query Replications
+function queryReplications(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build the query.
+
+Step 3. Execute the query.
+
+Step 4. Read the matching replications.
+
+Step 5. insertAuditLog.
+
+Step 6. return the replications, the count, and the pagination.
+
+7.6 Aggregate Replications
+function aggregateReplications(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build the aggregation.
+
+Step 3. Execute the aggregation.
+
+Step 4. insertAuditLog.
+
+Step 5. return the results.
+
+7.7 Full-Text Search
+function fullTextSearch(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build the search.
+
+Step 3. Execute the search.
+
+Step 4. Read the matching replications.
+
+Step 5. insertAuditLog.
+
+Step 6. return the replications and the count.
+
+7.8 Export Replication
+function exportReplication(replicationId, format, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. deposit = readReplication(replicationId, auth).deposit.
+
+Step 3. If the format is json, output the deposit. If the format is provo, export to PROV-O. If the format is turtle, serialize to Turtle.
+
+Step 4. insertAuditLog.
+
+Step 5. return the output and the format.
+
+7.9 Bulk Import
+function bulkImport(file, provenance, auth):
+
+Step 1. validateAuth(auth, "replicator"). If not authorized, return an error.
+
+Step 2. Parse the file into a list of replications.
+
+Step 3. For each replication, call createReplication.
+
+Step 4. insertAuditLog.
+
+Step 5. return the results and the count.
+
+7.10 Bulk Export
+function bulkExport(query, format, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. replications = queryReplications(query, auth).replications.
+
+Step 3. If the format is json, output the list. If the format is jsonl, output one line per replication. If the format is provo, export each one.
+
+Step 4. insertAuditLog.
+
+Step 5. return the output and the count.
+
+7.11 Moderate Replication
+function moderateReplication(replicationId, moderationStatus, moderationNotes, auth):
+
+Step 1. validateAuth(auth, "moderator"). If not authorized, return an error.
+
+Step 2. existing = selectReplication(replicationId). If null, return an error.
+
+Step 3. Update the moderation status. Insert a moderation record.
+
+Step 4. insertAuditLog.
+
+Step 5. return the replication_id and the status.
+
+7.12 Find Related Replications
+function findRelatedReplications(replicationId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. replication = selectReplication(replicationId). If null, return an error.
+
+Step 3. sameClaim = selectReplicationsByClaim(replication.original_claim_id). sameField = selectReplicationsByField(replication.field).
+
+Step 4. related = sameClaim excluding the current one. relatedField = sameField excluding the same claim and the current one.
+
+Step 5. return the same_claim and same_field lists.
+
+7.13 Replication Map
+function replicationMap(auth, options):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. replications = selectAllReplications().
+
+Step 3. Build the map with fields, outcomes, and points. For each replication, compute the effect size change.
+
+Step 4. return the map.
+
+7.14 Replication Funnel
+function replicationFunnel(replicationId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. replication = selectReplication(replicationId). If null, return an error.
+
+Step 3. originalClaim = lookupClaim(replication.original_claim_id).
+
+Step 4. Build the funnel with the original claim, the original effect size, the replication method, the sample size, the replication effect size, and the difference.
+
+Step 5. return the funnel.
+
+7.15 Audit Log
+function auditLog(query, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Build the query.
+
+Step 3. Execute the query.
+
+Step 4. return the results.
+
+7.16 Backup
+function backup(auth, options):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. If the format is sql, dump the database as SQL. If the format is json, dump the database as JSON.
+
+Step 3. insertAuditLog.
+
+Step 4. return the output and the format.
+
+7.17 Restore
+function restore(file, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Load the database from the file.
+
+Step 3. insertAuditLog.
+
+Step 4. return the status restored.
+
+8. Data Model
+The tracker's internal state is the set of tables. The API's internal state is a request object and a response object.
+
+Request object:
+
+operation. One of create, read, update, delete, query, aggregate, search, export, import, moderate, backup, restore.
+
+resource. One of replication, stag_link, null_model_link, verification_link, database.
+
+record_id. A string or null.
+
+record_json. A JSON object or null.
+
+query. A JSON object or null.
+
+auth. An object with replicator_id, api_key, and role.
+
+Response object:
+
+status. Success or failure.
+
+result. A JSON object or null.
+
+error. A string or null.
+
+audit_id. A string.
+
+9. Architecture
+Module breakdown:
+
+Replication Schema.
+
+Database Schema.
+
+Replication Loader.
+
+Replication Writer.
+
+Replication Reader.
+
+Replication Updater.
+
+Replication Deleter.
+
+Query Engine.
+
+Full-Text Search Engine.
+
+Aggregation Engine.
+
+Exporter.
+
+Importer.
+
+Bulk Import and Export.
+
+REST API.
+
+GraphQL API.
+
+Command-Line Interface.
+
+Authentication and Authorization.
+
+Audit Logging.
+
+Backup and Restore.
+
+Web Interface.
+
+Moderation Workflow.
+
+Replication Map.
+
+Replication Funnel.
+
+Related-Replication Finder.
+
+Migration Manager.
+
+Data flow:
+
+API requests go to the REST or GraphQL API.
+
+The API calls the replication loader, writer, reader, updater, deleter, query engine, search engine, aggregation engine, exporter, or importer.
+
+The database schema stores the data.
+
+The audit logging records every operation.
+
+The authentication and authorization check access.
+
+The moderation workflow handles moderation.
+
+The replication map visualises.
+
+The replication funnel visualises.
+
+The related-replication finder finds relations.
+
+The backup and restore handle backup.
+
+The web interface provides depositing, browsing, and querying.
+
+10. Technology Stack
+Recommended for the database:
+
+Database: PostgreSQL 15+ or SQLite 3.40+.
+
+Language: Python 3.11+ or Node.js 20+.
+
+ORM: SQLAlchemy (Python) or Prisma (JS).
+
+Migrations: Alembic (Python) or Prisma Migrate (JS).
+
+Full-text search: PostgreSQL tsvector or SQLite FTS5.
+
+Recommended for the REST API:
+
+Framework: FastAPI (Python) or Express (JS).
+
+Authentication: FastAPI Users (Python) or Passport (JS).
+
+Recommended for the GraphQL API:
+
+Framework: Strawberry (Python) or Apollo Server (JS).
+
+Recommended for the command-line interface:
+
+Framework: Click (Python) or Commander (JS).
+
+Recommended for the web interface:
+
+Frontend: React or Svelte.
+
+Backend: the same as the REST API.
+
+Recommended for deployment:
+
+Containerization: Docker.
+
+Orchestration: Docker Compose or Kubernetes.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The STAG schema (Artifact 2, Appendix B.1).
+
+The Null-Model Protocol schema (from App 8 and App 9).
+
+The PROV-O exporter (App 3).
+
+The STAG schema library (App 17).
+
+The Null-Model Protocol library (App 18).
+
+The provenance database (App 20).
+
+The numerical verification tool (App 22).
+
+The Physics Knowledge Library (App 23).
+
+The Full-Pipeline Simulator (App 9).
+
+The Autofill Library Service (App 49).
+
+11. UI/UX Specification
+REST API:
+
+Base URL: https://api.example.com/v1.
+
+Authentication: Bearer token in the Authorization header.
+
+Endpoints:
+
+GET /replications. List replication attempts with pagination and filters.
+
+GET /replications/{id}. Get a replication attempt by ID.
+
+POST /replications. Create a replication attempt.
+
+PUT /replications/{id}. Update a replication attempt.
+
+DELETE /replications/{id}. Delete a replication attempt.
+
+GET /replications/{id}/provo. Get a replication attempt as PROV-O.
+
+GET /replications/{id}/turtle. Get a replication attempt as Turtle.
+
+GET /replications/{id}/original. Get the original claim linked to this replication.
+
+GET /replications/{id}/related. Get the replication attempts related to this one.
+
+GET /replications/{id}/funnel. Get the replication funnel for this attempt.
+
+GET /replications/{id}/stag. Get the STAG annotation linked to this replication.
+
+GET /replications/{id}/null-model. Get the Null-Model Protocol result linked to this replication.
+
+GET /replications/{id}/verification. Get the numerical verification result linked to this replication.
+
+GET /replications/by-claim/{claim_id}. Get all replication attempts for a given original claim.
+
+POST /query. Execute a query.
+
+POST /aggregate. Execute an aggregation query.
+
+POST /search. Execute a full-text search.
+
+GET /map. Get the replication map.
+
+POST /bulk/import. Bulk import replication attempts.
+
+POST /bulk/export. Bulk export replication attempts.
+
+POST /moderate/{id}. Moderate a replication attempt.
+
+GET /audit. List audit log entries.
+
+Responses in JSON.
+
+HTTP status codes: 200 for success, 201 for created, 204 for deleted, 400 for bad request, 401 for unauthorized, 403 for forbidden, 404 for not found, 409 for conflict, 422 for unprocessable entity, 500 for internal server error.
+
+GraphQL API:
+
+Endpoint: https://api.example.com/graphql.
+
+Schema exposes the entities and their relationships.
+
+Queries and mutations for CRUD operations.
+
+Command-line interface:
+
+Usage: replication-tracker [command] [options].
+
+Commands: init, migrate, backup, restore, import, export, query, aggregate, moderate, audit.
+
+Web interface:
+
+A browsable list of replication attempts.
+
+A deposit form for adding a new replication attempt.
+
+A search box for full-text search.
+
+A filter panel for querying by field, subfield, outcome, replicator, and date.
+
+An aggregation view for counts.
+
+A replication map for visualisation.
+
+A replication funnel for each attempt.
+
+A detail view for each attempt.
+
+A moderation view for moderators.
+
+12. Validation Engine Design
+The tracker validates the following.
+
+Validation 1. Replication validity. Every replication attempt is validated against the replication schema before it is stored.
+
+Validation 2. STAG annotation validity. Every STAG annotation is validated against the STAG schema and the thirty-two semantic rules.
+
+Validation 3. Null-Model Protocol result validity. Every Null-Model Protocol result is validated against the Null-Model Protocol schema.
+
+Validation 4. Numerical verification result validity. Every numerical verification result is validated against the verification schema.
+
+Validation 5. Referential integrity. Every foreign key reference must resolve to an existing record.
+
+Validation 6. Version chain acyclicity. The version chain must be acyclic.
+
+Validation 7. Original claim resolution. Every original_claim_id must resolve to a claim in the Physics Knowledge Library, or be flagged as unresolved.
+
+Validation 8. Provenance completeness. Every replication attempt must have a provenance record.
+
+Validation 9. Audit completeness. Every operation must have an audit log entry.
+
+Validation 10. Moderation completeness. Every replication attempt must have a moderation record.
+
+Validation 11. Effect-size consistency. If both effect sizes are recorded, the difference must be consistent with the recorded values.
+
+13. Testing Strategy
+Unit tests:
+
+Replication Schema for valid and invalid replications.
+
+Database Schema for each table and index.
+
+Replication Loader for valid and invalid replications.
+
+Replication Writer for each table.
+
+Replication Reader for each replication type.
+
+Replication Updater for versioning.
+
+Replication Deleter for soft and hard deletes.
+
+Query Engine for each query field.
+
+Full-Text Search Engine for each search term.
+
+Aggregation Engine for each aggregation dimension.
+
+Exporter for each format.
+
+Importer for each format.
+
+Bulk Import and Export for each format.
+
+REST API for each endpoint.
+
+GraphQL API for each query and mutation.
+
+Command-Line Interface for each command.
+
+Authentication and Authorization for each role.
+
+Audit Logging for each operation.
+
+Backup and Restore for each format.
+
+Web Interface for each view.
+
+Moderation Workflow for each moderation status.
+
+Replication Map for the map structure.
+
+Replication Funnel for the funnel structure.
+
+Related-Replication Finder for each relation type.
+
+Migration Manager for each migration.
+
+Integration tests:
+
+Create a replication attempt via the REST API. Read it back. Verify the attempt is complete.
+
+Create a replication attempt via the GraphQL API. Read it back.
+
+Update a replication attempt. Verify the version chain.
+
+Delete a replication attempt. Verify the audit log.
+
+Query replication attempts by each field.
+
+Aggregate replication attempts by each dimension.
+
+Search replication attempts by full-text search.
+
+Export a replication attempt as JSON, PROV-O, and Turtle.
+
+Bulk import replication attempts.
+
+Bulk export replication attempts.
+
+Backup the database. Restore the database.
+
+Moderate a replication attempt.
+
+Find related replications.
+
+Generate the replication map.
+
+Generate the replication funnel.
+
+Worked-example tests:
+
+Deposit the replication of the ego-depletion effect.
+
+Deposit the replication of the Stanford Prison Experiment.
+
+Deposit the replication of the power-posing effect.
+
+Deposit the replication of the amyloid-beta hypothesis in Alzheimer's research.
+
+Deposit the replication of the cold fusion result. Verify its outcome is failure.
+
+Regression tests:
+
+Replication determinism.
+
+Query consistency.
+
+Aggregation consistency.
+
+Audit log consistency.
+
+Moderation consistency.
+
+Effect-size consistency.
+
+14. Build Phases
+Phase 1. Replication Schema.
+
+Phase 2. Database Schema.
+
+Phase 3. Replication Loader.
+
+Phase 4. Replication Writer.
+
+Phase 5. Replication Reader.
+
+Phase 6. Replication Updater.
+
+Phase 7. Replication Deleter.
+
+Phase 8. Query Engine.
+
+Phase 9. Full-Text Search Engine.
+
+Phase 10. Aggregation Engine.
+
+Phase 11. Exporter.
+
+Phase 12. Importer.
+
+Phase 13. Bulk Import and Export.
+
+Phase 14. REST API.
+
+Phase 15. GraphQL API.
+
+Phase 16. Command-Line Interface.
+
+Phase 17. Authentication and Authorization.
+
+Phase 18. Audit Logging.
+
+Phase 19. Backup and Restore.
+
+Phase 20. Web Interface.
+
+Phase 21. Moderation Workflow.
+
+Phase 22. Replication Map.
+
+Phase 23. Replication Funnel.
+
+Phase 24. Related-Replication Finder.
+
+Phase 25. Migration Manager.
+
+Phase 26. Worked-example tests.
+
+Phase 27. Integration testing and hardening.
+
+Phase 28. Packaging and deployment.
+
+15. Dependencies
+Python path:
+
+SQLAlchemy.
+
+Alembic.
+
+FastAPI.
+
+Strawberry.
+
+FastAPI Users.
+
+Click.
+
+psycopg2.
+
+sqlite3.
+
+jsonschema.
+
+hashlib.
+
+json.
+
+pytest.
+
+Node.js path:
+
+Prisma.
+
+Express.
+
+Apollo Server.
+
+Passport.
+
+Commander.
+
+pg.
+
+better-sqlite3.
+
+ajv.
+
+crypto.
+
+JSON.
+
+Vitest.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The STAG schema (Artifact 2, Appendix B.1).
+
+The Null-Model Protocol schema (from App 8 and App 9).
+
+The PROV-O exporter (App 3).
+
+The STAG schema library (App 17).
+
+The Null-Model Protocol library (App 18).
+
+The provenance database (App 20).
+
+The numerical verification tool (App 22).
+
+The Physics Knowledge Library (App 23).
+
+The Full-Pipeline Simulator (App 9).
+
+The Autofill Library Service (App 49).
+
+16. Deployment Notes
+Database:
+
+PostgreSQL for multi-user deployments.
+
+SQLite for single-user deployments.
+
+Backup and restore via pg_dump and pg_restore or the SQLite backup API.
+
+REST API:
+
+Deploy with Docker. Stateless. Scale horizontally.
+
+Use a reverse proxy for TLS.
+
+Log every request for audit.
+
+GraphQL API:
+
+Deploy alongside the REST API.
+
+Use a query depth limit and a query complexity limit.
+
+Command-line interface:
+
+Package as a standalone executable.
+
+Distribute via pip, npm, or a direct download.
+
+Web interface:
+
+Deploy the frontend as a static bundle.
+
+Backend with FastAPI or Express.
+
+Reproducibility:
+
+Record the STAG schema version, the Null-Model Protocol schema version, the replication schema version, and the tracker version.
+
+Record the provenance for every deposit.
+
+Provide a version pin for the schemas and codebook.
+
+17. Open Questions to Resolve Before Building
+Question 1. Which runtime first? Python or Node.js.
+
+Question 2. Which database first? PostgreSQL or SQLite.
+
+Question 3. How should the tracker handle the replication outcome? A fixed set of four values, or an open set.
+
+Question 4. How should the tracker handle the difference category? A fixed set, or an open set.
+
+Question 5. How should the tracker handle the effect size? Store it as a raw number, or store it with its type.
+
+Question 6. How should the tracker handle the original claim link? Require the claim to exist in the Physics Knowledge Library, or allow an unresolved link.
+
+Question 7. How should the tracker handle the preregistration status? A boolean, or a set of values.
+
+Question 8. How should the tracker handle the moderation workflow? Pending until approved, auto-approved, or require a moderator.
+
+Question 9. How should the tracker handle the STAG annotation? Required, optional, or optional depending on the claim type.
+
+Question 10. How should the tracker handle the Null-Model Protocol result? Required, optional, or optional depending on the replication type.
+
+Question 11. How should the tracker handle the replication map? A scatter plot, a network graph, or both.
+
+Question 12. How should the tracker handle the replication funnel? A linear funnel, a tree of related attempts, or both.
+
+Question 13. Should the tracker integrate with the STAG schema library (App 17), the Null-Model Protocol library (App 18), the provenance database (App 20), the numerical verification tool (App 22), the Physics Knowledge Library (App 23), and the Full-Pipeline Simulator (App 9)?
+
+Question 14. Should the tracker support federation with other instances of itself?
+
+Question 15. How should the tracker handle the deposit of a replication attempt that is already in the tracker? Reject, create a new version, or create a separate record with a cross-reference.
+
+Question 16. Should the tracker support autofill via App 49? If so, which library does it register?
+
+End of build specification for App 26, the Replication Tracker.
