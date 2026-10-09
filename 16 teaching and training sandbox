@@ -1,0 +1,989 @@
+Build Specification — App 16: Teaching and Training Sandbox
+Completeness status: COMPLETE. All sections delivered in one pass. No truncation. Formatted for copy-paste into another conversation window. No tables, no boxes.
+
+What It Is
+An interactive environment (web platform) with the worked examples from both the STAG specification (Artifact 1) and the Null-Model Protocol paper preloaded. It lets a student change the support rule, the null, the scan family, or the partition, and see the effect in real time. It takes in a choice of example and a parameter change, and puts out the recomputed statistic, label, or p-value, with the relevant section shown alongside. It is for courses in methodology, statistics, and philosophy of science.
+
+Core Requirements
+Functional requirements:
+
+Preload the worked examples from Artifact 1, Sections 11.1 through 11.5, and from the Null-Model Protocol paper, Sections 11.1 through 11.7.
+
+Present each example as an interactive scenario.
+
+Let the student change parameters and see the effect in real time.
+
+For STAG examples, let the student change the support rule, the null model, the partition, the scan family, the g_min, the boundary convention, the empty-W convention, and the tie-breaking rule.
+
+For Null-Model Protocol examples, let the student change the support rule, the null, the scan family, the g_min, the boundary convention, the empty-W convention, the tail definition, and N.
+
+Recompute the derived display label and the evidential anchoring status for STAG examples.
+
+Recompute the observed statistic, the empirical null distribution, the exceedance probability, the Monte Carlo uncertainty, the empty-W fraction, and the point mass at zero for Null-Model Protocol examples.
+
+Show the relevant section of the specification alongside the recomputed output.
+
+Show the effect of the change as a delta from the original value.
+
+Show a warning when a change makes a label or statistic inconsistent with the specification.
+
+Show the worked-example's original values as a baseline.
+
+Allow the student to reset the parameters to the baseline.
+
+Allow the student to save the current parameter set and the recomputed output.
+
+Allow the student to load a saved parameter set.
+
+Provide a guided tour for each example.
+
+Provide a set of exercises for each example.
+
+Provide the answers to the exercises.
+
+Support multiple students with separate sessions.
+
+Support the instructor mode with the ability to add new examples.
+
+Non-functional requirements:
+
+Deterministic: same parameter set produces same output.
+
+Fast: recompute in under one second for STAG examples and under ten seconds for Null-Model Protocol examples with N <= 10^4.
+
+No network dependency for the core functionality.
+
+Versioned: the sandbox records the STAG schema version, the Null-Model Protocol schema version, and the sandbox version.
+
+Reproducible: the sandbox records the parameter set, the seed, and the output.
+
+Input Specification
+Input 1. Example selection. Required. The student selects an example from the preloaded set.
+
+Input 2. Parameter changes. Optional. The student changes one or more parameters.
+
+Input 3. Saved parameter set. Optional. The student loads a previously saved parameter set.
+
+Input 4. Session identifier. Required. A string identifying the student's session.
+
+Input 5. Instructor mode. Optional. Boolean. If true, the student can add new examples.
+
+Input 6. Seed. Required for Null-Model Protocol examples.
+
+Input 7. Output format. Optional. Values: interactive (default), text, json.
+
+Output Specification
+Output 1. Interactive display. The example's original values, the current parameter set, the recomputed output, and the delta.
+
+Output 2. Recomputed label. For STAG examples, the derived display label and the evidential anchoring status.
+
+Output 3. Recomputed statistic. For Null-Model Protocol examples, the observed statistic, the empirical null distribution, the exceedance probability, the Monte Carlo uncertainty, the empty-W fraction, and the point mass at zero.
+
+Output 4. Relevant section. The section of the specification that defines the recomputed output.
+
+Output 5. Warnings. Array of warning objects. Each warning has a code, a message, and the offending parameter.
+
+Output 6. Exercises. The exercises for the example.
+
+Output 7. Answers. The answers to the exercises.
+
+Output 8. Saved parameter set. JSON. The parameter set and the recomputed output.
+
+Output 9. Reproducibility record. JSON. The STAG schema version, Null-Model Protocol schema version, sandbox version, parameter set, seed, and output.
+
+Module-by-Module Specification
+Module 1: Example Loader
+Loads the preloaded examples. Each example has:
+
+An identifier.
+
+A description.
+
+The original parameter set.
+
+The original recomputed output.
+
+The relevant section of the specification.
+
+A guided tour.
+
+A set of exercises.
+
+The answers to the exercises.
+
+The examples from Artifact 1 are:
+
+Example A1. Uniform null, S2 support, W_adj, exactly solvable (Artifact 1, Section 11.1). STAG example.
+
+Example A2. What goes wrong if the support rule is ignored (Artifact 1, Section 11.2). STAG example.
+
+Example A3. A non-uniform null where the Lambda-maximizer is not the widest gap (Artifact 1, Section 11.3). STAG example.
+
+Example A4. A small simulation of calibration and power (Artifact 1, Section 11.4). Null-Model Protocol example.
+
+Example A5. Nuisance estimation, the gap-exclusion loop, and dependence (Artifact 1, Section 11.5). Null-Model Protocol example.
+
+Example A6. Pair windows, the endpoint bias, and the endpoint-conditioned statistic (Artifact 1, Section 11.6). Null-Model Protocol example.
+
+Example A7. Selection function (Artifact 1, Section 11.7). Null-Model Protocol example.
+
+The examples from the Null-Model Protocol paper are:
+
+Example N1. Uniform null, S2 support, W_adj, exactly solvable (Null-Model Protocol paper, Section 11.1). Null-Model Protocol example.
+
+Example N2. What goes wrong if the support rule is ignored (Null-Model Protocol paper, Section 11.2). Null-Model Protocol example.
+
+Example N3. A non-uniform null where the Lambda-maximizer is not the widest gap (Null-Model Protocol paper, Section 11.3). Null-Model Protocol example.
+
+Example N4. A small simulation of calibration and power (Null-Model Protocol paper, Section 11.4). Null-Model Protocol example.
+
+Example N5. Nuisance estimation, the gap-exclusion loop, and dependence (Null-Model Protocol paper, Section 11.5). Null-Model Protocol example.
+
+Example N6. Pair windows, the endpoint bias, and the endpoint-conditioned statistic (Null-Model Protocol paper, Section 11.6). Null-Model Protocol example.
+
+Example N7. Selection function (Null-Model Protocol paper, Section 11.7). Null-Model Protocol example.
+
+Module 2: Example Presenter
+Presents the selected example. Shows the original parameter set, the original recomputed output, and the relevant section of the specification.
+
+Module 3: Parameter Editor
+Lets the student change parameters. For STAG examples, the parameters are:
+
+The support rule (S1, S2, S3).
+
+The null model (uniform, parametric, mixture, empirical, KDE).
+
+The partition (partition ID, version, domain entries).
+
+The scan family (adjacent, pair, fixed).
+
+The g_min (value and units).
+
+The boundary convention (B1, B2).
+
+The empty-W convention (no_candidate, zero).
+
+The tie-breaking rule.
+
+For Null-Model Protocol examples, the parameters are:
+
+The support rule (S1, S2, S3).
+
+The null model (uniform, parametric, mixture, empirical, KDE).
+
+The scan family (adjacent, pair, fixed).
+
+The g_min (value and units).
+
+The boundary convention (B1, B2).
+
+The empty-W convention (no_candidate, zero).
+
+The tail definition (>=, >).
+
+N (integer).
+
+Module 4: Recomputation Engine
+For STAG examples, recomputes the derived display label and the evidential anchoring status using the STAG annotation editor logic (App 1).
+
+For Null-Model Protocol examples, recomputes the observed statistic, the empirical null distribution, the exceedance probability, the Monte Carlo uncertainty, the empty-W fraction, and the point mass at zero using the Full-Pipeline Simulator logic (App 9).
+
+Module 5: Delta Calculator
+Computes the delta between the original output and the recomputed output. For STAG examples, the delta is in the derived display label and the evidential anchoring status. For Null-Model Protocol examples, the delta is in the observed statistic, the exceedance probability, and the other outputs.
+
+Module 6: Section Reference
+Shows the relevant section of the specification alongside the recomputed output. The section reference is preloaded with the example.
+
+Module 7: Warning Generator
+Generates warnings for the following conditions:
+
+A change makes a label or statistic inconsistent with the specification.
+
+A change makes a STAG-Discovered label unreachable.
+
+A change makes the effective null atomic or discontinuous.
+
+A change makes the scan family empty.
+
+A change makes the exceedance probability below the resolution of direct Monte Carlo.
+
+Module 8: Guided Tour
+Provides a guided tour for the example. The tour is a sequence of steps, each with a description and a suggested parameter change. The tour is preloaded with the example.
+
+Module 9: Exercise Provider
+Provides a set of exercises for the example. Each exercise has a question and a hint. The exercises are preloaded with the example.
+
+Module 10: Answer Provider
+Provides the answers to the exercises. Each answer has a solution and an explanation.
+
+Module 11: Save and Load
+Saves the current parameter set and the recomputed output. Loads a saved parameter set.
+
+Module 12: Session Manager
+Manages multiple student sessions. Each session has its own parameter set and output.
+
+Module 13: Instructor Mode
+Allows the instructor to add new examples. A new example has an identifier, a description, the original parameter set, the original recomputed output, the relevant section, a guided tour, a set of exercises, and the answers.
+
+Module 14: Web Interface
+A web interface with the example selector, the parameter editor, the interactive display, the relevant section, the warnings, the guided tour, the exercises, and the answers.
+
+Module 15: Command-Line Interface (optional)
+A command-line wrapper for batch recomputation.
+
+Module 16: Reproducibility Recorder
+Records the STAG schema version, Null-Model Protocol schema version, sandbox version, parameter set, seed, and output.
+
+Full Example Specification
+6.1 Example A1: Uniform null, S2 support, W_adj, exactly solvable
+Source: Artifact 1, Section 11.1.
+
+Original parameter set: S2 support, uniform null, W_adj, g_min = 0.3, boundary rule B1, selection by maximum Lambda.
+
+Original output: Lambda_obs = 19.54, exact exceedance probability = 2.99 * 10^-3.
+
+Relevant section: Artifact 1, Section 11.1.
+
+Guided tour:
+
+Step 1. Look at the data. 25 log10 values with a gap from 2.4 to 3.5.
+
+Step 2. See the W_adj family. Only the spacing from 2.4 to 3.5 exceeds g_min.
+
+Step 3. Compute Lambda_obs. Lambda_obs = -50 * log(1 - 0.32353) = 19.54.
+
+Step 4. Compute the exact exceedance probability. p = 2.99 * 10^-3.
+
+Step 5. Change the support rule to S1. See the exceedance probability become 1.37 * 10^-3.
+
+Exercises:
+
+Exercise 1. What is the value of Lambda_obs for this example?
+
+Exercise 2. What is the exact exceedance probability?
+
+Exercise 3. What happens to the exceedance probability if the support rule is S1?
+
+Answers:
+
+Answer 1. Lambda_obs = 19.54.
+
+Answer 2. p = 2.99 * 10^-3.
+
+Answer 3. The exceedance probability becomes 1.37 * 10^-3, smaller than the correct S2 value.
+
+6.2 Example A2: What goes wrong if the support rule is ignored
+Source: Artifact 1, Section 11.2.
+
+Original parameter set: The support is data-estimated but the analyst calibrates against a fixed support of the same length.
+
+Original output: The exceedance probability is 1.37 * 10^-3, smaller than the correct S2 value of 2.99 * 10^-3.
+
+Relevant section: Artifact 1, Section 11.2.
+
+Guided tour:
+
+Step 1. Look at the setup. The support is data-estimated but the analyst calibrates against a fixed support.
+
+Step 2. See the leading term of the inclusion-exclusion sum. 24 * (1 - c)^25 = 1.37 * 10^-3.
+
+Step 3. Compare with the correct S2 value. The ratio is about 2.2.
+
+Step 4. See the anti-conservative effect. The p-value is too small.
+
+Exercises:
+
+Exercise 1. What is the exceedance probability when the support rule is ignored?
+
+Exercise 2. What is the ratio of the correct S2 value to the ignored-support value?
+
+Answer 1. The exceedance probability is 1.37 * 10^-3.
+
+Answer 2. The ratio is about 2.2.
+
+6.3 Example A3: A non-uniform null where the Lambda-maximizer is not the widest gap
+Source: Artifact 1, Section 11.3.
+
+Original parameter set: S1 support [0, 8], exponential null with rate 0.5 truncated to [0, 8], W_adj, g_min = 0, boundary rule B1, n = 30.
+
+Original output: The widest raw gap has Lambda = 1.87; the Lambda-maximizer has Lambda = 14.90; the Monte Carlo reference gives p = 0.0167.
+
+Relevant section: Artifact 1, Section 11.3.
+
+Guided tour:
+
+Step 1. Look at the data. 30 values from a truncated exponential with a gap opened in the high-density region.
+
+Step 2. See the widest raw gap. It has Lambda = 1.87.
+
+Step 3. See the Lambda-maximizer. It has Lambda = 14.90.
+
+Step 4. See the Monte Carlo reference. p = 0.0167.
+
+Step 5. Change the null to uniform. See the Lambda-maximizer become the widest gap.
+
+Exercises:
+
+Exercise 1. What is the Lambda value for the widest raw gap?
+
+Exercise 2. What is the Lambda value for the Lambda-maximizer?
+
+Exercise 3. What is the Monte Carlo reference p-value?
+
+Answer 1. Lambda = 1.87.
+
+Answer 2. Lambda = 14.90.
+
+Answer 3. p = 0.0167.
+
+6.4 Example A4: A small simulation of calibration and power
+Source: Artifact 1, Section 11.4.
+
+Original parameter set: Uniform null, S2 support, W_adj, g_min = 0, alpha = 0.05, n = 25 or n = 40.
+
+Original output: False-positive rate 0.051 at nominal 0.05 for the full pipeline; 0.086 for the fixed-support reference. Power values as in Artifact 1, Section 11.4.
+
+Relevant section: Artifact 1, Section 11.4.
+
+Guided tour:
+
+Step 1. Look at the false-positive rate. The full pipeline gives 0.051.
+
+Step 2. See the fixed-support reference. It gives 0.086.
+
+Step 3. See the power curves. Hard gap theta = 1.0 gives 0.32, 0.98, 1.00, 1.00 at widths 0.10, 0.15, 0.20, 0.30.
+
+Step 4. Change the null to uniform with a different support. See the false-positive rate change.
+
+Exercises:
+
+Exercise 1. What is the false-positive rate for the full pipeline?
+
+Exercise 2. What is the false-positive rate for the fixed-support reference?
+
+Exercise 3. What is the power for a hard gap at width 0.15?
+
+Answer 1. 0.051.
+
+Answer 2. 0.086.
+
+Answer 3. 0.98.
+
+6.5 Example A5: Nuisance estimation, the gap-exclusion loop, and dependence
+Source: Artifact 1, Section 11.5.
+
+Original parameter set: Exponential with unknown rate truncated to [0, 5], normal with unknown mean and standard deviation, gamma with unknown shape and scale, S1 support, n = 40, alpha = 0.05, W_adj, g_min = 0, single pass of the gap-exclusion loop.
+
+Original output: Full-pipeline reference within about two standard errors of nominal. Ignoring a plain refit: 0.041 to 0.043. Ignoring the gap-dependent refit: 0.076 to 0.119. Dependence: 0.765 at sigma = 0.03 and 0.361 at sigma = 0.06; hierarchical reference restores to 0.050 and 0.051.
+
+Relevant section: Artifact 1, Section 11.5.
+
+Guided tour:
+
+Step 1. Look at the three nulls. Exponential, normal, gamma.
+
+Step 2. See the full-pipeline reference. Within about two standard errors of nominal.
+
+Step 3. See the effect of ignoring the plain refit. Mildly conservative.
+
+Step 4. See the effect of ignoring the gap-dependent refit. Clearly anti-conservative.
+
+Step 5. See the effect of dependence. Severely anti-conservative.
+
+Exercises:
+
+Exercise 1. What is the rejection rate when the gap-dependent refit is ignored?
+
+Exercise 2. What is the rejection rate at sigma = 0.03 when dependence is ignored?
+
+Exercise 3. What restores the rate to nominal?
+
+Answer 1. Between 0.076 and 0.119.
+
+Answer 2. 0.765.
+
+Answer 3. A hierarchical reference simulating the same clustered process.
+
+6.6 Example A6: Pair windows, the endpoint bias, and the endpoint-conditioned statistic
+Source: Artifact 1, Section 11.6.
+
+Original parameter set: Uniform null, S2 support, n = 40, alpha = 0.05, g_min = 0, depletion alternatives.
+
+Original output: Critical values 14.0 for W_adj, 23.8 for W_all uncapped, 15.6 for the endpoint-corrected count, 14.7 for P_max = 0.5, 10.2 for P_max = 0.5 with endpoint correction. Power values as in Artifact 1, Section 11.6.
+
+Relevant section: Artifact 1, Section 11.6.
+
+Guided tour:
+
+Step 1. Look at the critical values. W_adj gives 14.0. W_all uncapped gives 23.8.
+
+Step 2. See the endpoint bias. Wide windows have a systematic shortfall.
+
+Step 3. See the remedies. A cap on window probability recovers hard-gap power close to W_adj.
+
+Step 4. See the endpoint-conditioned statistic T_max. Critical values 6.67, 7.97, 7.50.
+
+Exercises:
+
+Exercise 1. What is the critical value for W_adj alone?
+
+Exercise 2. What is the critical value for W_all uncapped?
+
+Exercise 3. What is the critical value for T_max with all windows and P_max = 0.5?
+
+Answer 1. 14.0.
+
+Answer 2. 23.8.
+
+Answer 3. 7.50.
+
+6.7 Example A7: Selection function
+Source: Artifact 1, Section 11.7.
+
+Original parameter set: Underlying population uniform on [0, 1], selection function s(x) = x, selected observations have density 2x, S1 support, n = 40, W_adj, g_min = 0, alpha = 0.05.
+
+Original output: Using Lambda from the effective null x^2: rejection rate 0.048. Using Lambda from the unmodified uniform p_0 with a reference simulated with selection: 0.058. Using Lambda from the unmodified uniform p_0 with a reference simulated without selection: 0.204. Power values as in Artifact 1, Section 11.7.
+
+Relevant section: Artifact 1, Section 11.7.
+
+Guided tour:
+
+Step 1. Look at the selection function. s(x) = x.
+
+Step 2. See the effective null. Density 2x.
+
+Step 3. See the rejection rate with the effective null. 0.048.
+
+Step 4. See the rejection rate with the unmodified p_0 and a reference simulated without selection. 0.204.
+
+Step 5. Change the selection function to s(x) = x^2. See the effective null change.
+
+Exercises:
+
+Exercise 1. What is the effective null when s(x) = x?
+
+Exercise 2. What is the rejection rate when the effective null is used?
+
+Exercise 3. What is the rejection rate when selection is omitted from the simulation?
+
+Answer 1. Density 2x.
+
+Answer 2. 0.048.
+
+Answer 3. 0.204.
+
+6.8 Examples N1 through N7
+Examples N1 through N7 are the same as examples A1 through A7, but sourced from the Null-Model Protocol paper, Sections 11.1 through 11.7. They are preloaded with the same parameter sets, the same original outputs, and the same relevant sections. The guided tours, exercises, and answers are adapted to the Null-Model Protocol paper.
+
+Core Logic as Executable Pseudocode
+7.1 Main Flow
+function runSandbox(exampleId, parameterChanges, sessionId, options):
+
+Step 1. example = loadExample(exampleId).
+
+Step 2. session = getSession(sessionId).
+
+Step 3. if parameterChanges is not null: session.parameters = applyChanges(session.parameters, parameterChanges).
+
+Step 4. if example.type == "stag":
+
+recomputed = recomputeSTAG(example, session.parameters, options).
+
+else if example.type == "null_model":
+
+recomputed = recomputeNullModel(example, session.parameters, options).
+
+Step 5. delta = computeDelta(example.originalOutput, recomputed).
+
+Step 6. warnings = generateWarnings(example, session.parameters, recomputed).
+
+Step 7. section = example.relevantSection.
+
+Step 8. display = buildDisplay(example.originalOutput, session.parameters, recomputed, delta, warnings, section).
+
+Step 9. return {display, recomputed, delta, warnings, section, session}.
+
+7.2 Recompute STAG
+function recomputeSTAG(example, parameters, options):
+
+record = cloneRecord(example.originalRecord).
+
+record.support_rule = parameters.support_rule.
+
+record.null_model = parameters.null_model.
+
+record.partition = parameters.partition.
+
+record.scan_family = parameters.scan_family.
+
+record.g_min = parameters.g_min.
+
+record.boundary_convention = parameters.boundary_convention.
+
+record.empty_w_convention = parameters.empty_w_convention.
+
+record.tie_breaking_rule = parameters.tie_breaking_rule.
+
+label = deriveDisplayLabel(record).
+
+anchoring = deriveAnchoringStatus(record).
+
+return {label: label, anchoring: anchoring, record: record}.
+
+7.3 Recompute Null-Model
+function recomputeNullModel(example, parameters, options):
+
+spec = cloneSpec(example.originalSpec).
+
+spec.support_rule = parameters.support_rule.
+
+spec.null_model = parameters.null_model.
+
+spec.scan_family = parameters.scan_family.
+
+spec.g_min = parameters.g_min.
+
+spec.boundary_convention = parameters.boundary_convention.
+
+spec.empty_w_convention = parameters.empty_w_convention.
+
+spec.tail_definition = parameters.tail_definition.
+
+spec.N = parameters.N.
+
+result = runSimulator(spec, example.data, options.seed, options).
+
+return result.
+
+7.4 Compute Delta
+function computeDelta(original, recomputed):
+
+if original.label != null:
+
+return {label_original: original.label, label_recomputed: recomputed.label, label_changed: original.label != recomputed.label, anchoring_original: original.anchoring, anchoring_recomputed: recomputed.anchoring, anchoring_changed: original.anchoring != recomputed.anchoring}.
+
+else:
+
+return {observed_statistic_original: original.observed_statistic, observed_statistic_recomputed: recomputed.observed_statistic, observed_statistic_delta: recomputed.observed_statistic - original.observed_statistic, exceedance_probability_original: original.exceedance_probability, exceedance_probability_recomputed: recomputed.exceedance_probability, exceedance_probability_delta: recomputed.exceedance_probability - original.exceedance_probability}.
+
+7.5 Generate Warnings
+function generateWarnings(example, parameters, recomputed):
+
+warnings = [].
+
+if example.type == "stag":
+
+if recomputed.label == "STAG-Unclassified" and example.originalOutput.label != "STAG-Unclassified":
+
+warnings.push({code: "LABEL_BECAME_UNCLASSIFIED", message: "label became STAG-Unclassified with reason " + recomputed.record.unclassified_reason, parameter: "unknown"}).
+
+if recomputed.record.scale_separation is null and recomputed.label == "STAG-Discovered":
+
+warnings.push({code: "STAG_DISCOVERED_UNREACHABLE", message: "STAG-Discovered is unreachable", parameter: "scale_separation"}).
+
+else if example.type == "null_model":
+
+if recomputed.empty_w_fraction > 0.10:
+
+warnings.push({code: "EMPTY_W_FRACTION_HIGH", message: "empty-W fraction is above 0.10", parameter: "scan_family"}).
+
+if recomputed.exceedance_probability < 1 / (parameters.N + 1):
+
+warnings.push({code: "P_BELOW_RESOLUTION", message: "exceedance probability is below the resolution of direct Monte Carlo", parameter: "N"}).
+
+return warnings.
+
+7.6 Build Display
+function buildDisplay(original, parameters, recomputed, delta, warnings, section):
+
+return {original: original, parameters: parameters, recomputed: recomputed, delta: delta, warnings: warnings, section: section}.
+
+7.7 Get Session
+function getSession(sessionId):
+
+if sessionStore.has(sessionId): return sessionStore.get(sessionId).
+
+else: session = {id: sessionId, parameters: {}, created: now()}; sessionStore.set(sessionId, session); return session.
+
+7.8 Apply Changes
+function applyChanges(currentParameters, changes):
+
+merged = clone(currentParameters).
+
+for key, value in changes: merged[key] = value.
+
+return merged.
+
+Data Model / JSON Schema for Internal State
+The sandbox's internal state is a session object and an example object.
+
+Session object:
+
+id (string)
+
+parameters (object)
+
+created (ISO8601)
+
+last_updated (ISO8601)
+
+Example object:
+
+id (string)
+
+type (stag, null_model)
+
+description (string)
+
+original_parameters (object)
+
+original_output (object)
+
+original_record (object, for STAG examples)
+
+original_spec (object, for Null-Model examples)
+
+data (array of numbers, for Null-Model examples)
+
+relevant_section (string)
+
+guided_tour (array of step objects)
+
+exercises (array of exercise objects)
+
+answers (array of answer objects)
+
+Each step object:
+
+step_number (integer)
+
+description (string)
+
+suggested_change (object or null)
+
+Each exercise object:
+
+number (integer)
+
+question (string)
+
+hint (string or null)
+
+Each answer object:
+
+number (integer)
+
+solution (string)
+
+explanation (string)
+
+Architecture
+Module breakdown:
+
+Example Loader. Loads the preloaded examples.
+
+Example Presenter. Presents the selected example.
+
+Parameter Editor. Lets the student change parameters.
+
+Recomputation Engine. Recomputes the label or the statistic.
+
+Delta Calculator. Computes the delta.
+
+Section Reference. Shows the relevant section.
+
+Warning Generator. Generates warnings.
+
+Guided Tour. Provides the guided tour.
+
+Exercise Provider. Provides the exercises.
+
+Answer Provider. Provides the answers.
+
+Save and Load. Saves and loads parameter sets.
+
+Session Manager. Manages student sessions.
+
+Instructor Mode. Allows the instructor to add new examples.
+
+Web Interface. Interactive display.
+
+Command-Line Interface (optional).
+
+Reproducibility Recorder. Records the versions, parameter set, seed, and output.
+
+Data flow:
+
+Example selection goes to the Example Loader. Example Presenter presents. Parameter Editor lets the student change. Recomputation Engine recomputes. Delta Calculator computes the delta. Section Reference shows the section. Warning Generator generates warnings. Guided Tour, Exercise Provider, and Answer Provider provide the learning content. Web Interface displays. Session Manager manages sessions.
+
+Technology Stack
+Recommended for the web platform:
+
+Frontend: React or Svelte.
+
+Backend: FastAPI (Python) or Express (Node.js).
+
+Recomputation: import the STAG annotation editor logic (App 1) and the Full-Pipeline Simulator logic (App 9) as libraries.
+
+Session storage: SQLite (single-user) or Redis (multi-user).
+
+Containerization: Docker.
+
+Testing: pytest (Python) or Vitest (JS).
+
+Recommended for the command-line interface:
+
+Same runtime as the backend.
+
+CLI framework: argparse or click (Python) or commander (JS).
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The STAG schema (Artifact 2, Appendix B.1).
+
+The Null-Model Protocol schema (from App 8 and App 9).
+
+UI/UX Specification
+Layout:
+
+Left panel: example selector.
+
+Center panel: interactive display with the original values, the parameter editor, the recomputed output, and the delta.
+
+Right panel: relevant section, warnings, guided tour, exercises, and answers.
+
+Top bar: session identifier, save and load buttons, reset button.
+
+Navigation:
+
+Select an example from the left panel.
+
+Change parameters in the center panel.
+
+See the recomputed output and the delta in real time.
+
+Read the relevant section in the right panel.
+
+Follow the guided tour.
+
+Answer the exercises.
+
+Check the answers.
+
+Error display:
+
+Parameter changes that make the label or statistic inconsistent: a warning badge in the center panel.
+
+Parameter changes that make the scan family empty: a warning badge.
+
+Parameter changes that make the exceedance probability below the resolution: a warning badge.
+
+Display conventions:
+
+The original values are always shown as a baseline.
+
+The recomputed output is always shown alongside the original.
+
+The delta is always shown as a signed difference.
+
+The relevant section is always shown alongside the recomputed output.
+
+Validation Engine Design
+The sandbox validates the following:
+
+Validation 1. Example validity. Each example is valid and consistent with the specification.
+
+Validation 2. Parameter validity. Each parameter change is within the permitted set.
+
+Validation 3. Consistency. The recomputed output is consistent with the specification.
+
+Validation 4. Reproducibility. The parameter set, the seed, and the output are recorded.
+
+Testing Strategy
+Unit tests:
+
+Example Loader for each example.
+
+Example Presenter for each example.
+
+Parameter Editor for each parameter.
+
+Recomputation Engine for each example and each parameter change.
+
+Delta Calculator for label changes and statistic changes.
+
+Section Reference for each example.
+
+Warning Generator for each warning code.
+
+Guided Tour for each example.
+
+Exercise Provider for each example.
+
+Answer Provider for each example.
+
+Save and Load for round-trip fidelity.
+
+Session Manager for multiple sessions.
+
+Instructor Mode for adding new examples.
+
+Integration tests:
+
+Load example A1. Change the support rule to S1. Verify the recomputed exceedance probability is 1.37 * 10^-3.
+
+Load example A2. Verify the exceedance probability is 1.37 * 10^-3.
+
+Load example A3. Change the null to uniform. Verify the Lambda-maximizer becomes the widest gap.
+
+Load example A4. Change the null. Verify the false-positive rate changes.
+
+Load example A5. Change the dependence structure. Verify the rejection rate changes.
+
+Load example A6. Change the scan family. Verify the critical value changes.
+
+Load example A7. Change the selection function. Verify the rejection rate changes.
+
+Worked-example tests:
+
+Artifact 1, Section 11.1: Lambda_obs = 19.54, exact exceedance probability = 2.99 * 10^-3.
+
+Artifact 1, Section 11.2: exceedance probability = 1.37 * 10^-3.
+
+Artifact 1, Section 11.3: Lambda-maximizer = 14.90, Monte Carlo p = 0.0167.
+
+Artifact 1, Section 11.4: false-positive rate 0.051 for the full pipeline, 0.086 for the fixed-support reference.
+
+Artifact 1, Section 11.5: rejection rate 0.076 to 0.119 when the gap-dependent refit is ignored; 0.765 at sigma = 0.03 when dependence is ignored.
+
+Artifact 1, Section 11.6: critical values 14.0, 23.8, 15.6, 14.7, 10.2.
+
+Artifact 1, Section 11.7: rejection rate 0.048 for the effective null, 0.204 when selection is omitted.
+
+Regression tests:
+
+Example determinism.
+
+Parameter change determinism.
+
+Session determinism.
+
+Build Phases
+Phase 1. Example Loader. Load the preloaded examples.
+
+Phase 2. Example Presenter. Present the selected example.
+
+Phase 3. Parameter Editor. Let the student change parameters.
+
+Phase 4. Recomputation Engine. Recompute the label or the statistic.
+
+Phase 5. Delta Calculator. Compute the delta.
+
+Phase 6. Section Reference. Show the relevant section.
+
+Phase 7. Warning Generator. Generate warnings.
+
+Phase 8. Guided Tour. Provide the guided tour.
+
+Phase 9. Exercise Provider. Provide the exercises.
+
+Phase 10. Answer Provider. Provide the answers.
+
+Phase 11. Save and Load. Save and load parameter sets.
+
+Phase 12. Session Manager. Manage student sessions.
+
+Phase 13. Instructor Mode. Allow the instructor to add new examples.
+
+Phase 14. Web Interface.
+
+Phase 15. Command-Line Interface (optional).
+
+Phase 16. Reproducibility Recorder. Record the versions, parameter set, seed, and output.
+
+Phase 17. Worked-example tests.
+
+Phase 18. Integration testing and hardening.
+
+Phase 19. Packaging and deployment.
+
+Dependencies
+Python path:
+
+FastAPI and uvicorn (web service).
+
+SQLite or Redis (session storage).
+
+jsonschema (schema validation).
+
+json (JSON handling, standard library).
+
+pytest (testing).
+
+The STAG annotation editor logic (App 1) and the Full-Pipeline Simulator logic (App 9) as libraries.
+
+Node.js path:
+
+Express (web service).
+
+SQLite or Redis (session storage).
+
+ajv (schema validation).
+
+JSON (standard library).
+
+Vitest (testing).
+
+The STAG annotation editor logic (App 1) and the Full-Pipeline Simulator logic (App 9) as libraries.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The STAG schema (Artifact 2, Appendix B.1).
+
+The Null-Model Protocol schema (from App 8 and App 9).
+
+The worked examples from Artifact 1, Sections 11.1 through 11.5, and from the Null-Model Protocol paper, Sections 11.1 through 11.7.
+
+Deployment Notes
+Web platform:
+
+Deploy the frontend as a static bundle.
+
+Backend with FastAPI or Express.
+
+Session storage with SQLite (single-user) or Redis (multi-user).
+
+Containerization: Docker.
+
+Reproducibility:
+
+Record the STAG schema version, Null-Model Protocol schema version, sandbox version, parameter set, seed, and output.
+
+Provide a version pin for the recomputation logic.
+
+Open Questions to Resolve Before Building
+Question 1. Which runtime first? Python or Node.js. Decision affects the recomputation libraries and the packaging.
+
+Question 2. How many examples should be preloaded? Options: all 14 (A1 through A7 and N1 through N7), or a subset. Decision needed.
+
+Question 3. Should the sandbox support user-added examples? The instructor mode allows this. Decision needed: enable it by default, or only in instructor mode.
+
+Question 4. How should the sandbox handle the recomputation of Null-Model Protocol examples with large N? Options: limit N to 10^4, use a cached result, or use the full simulator. Decision needed.
+
+Question 5. How should the sandbox handle the recomputation of STAG examples when the partition changes? Options: require the student to provide the alternative partition, or use a preloaded alternative. Decision needed.
+
+Question 6. How should the sandbox handle the guided tour when the student changes parameters mid-tour? Options: reset the tour, follow the tour, or let the student explore. Decision needed.
+
+Question 7. How should the sandbox handle the exercises? Options: provide the answers immediately, or after the student submits an answer. Decision needed.
+
+Question 8. Should the sandbox integrate with the STAG annotation editor (App 1), the STAG validator (App 2), the Pipeline Specification Wizard (App 8), and the Full-Pipeline Simulator (App 9)? Decision needed: shared libraries, or independent.
+
+Question 9. How should the sandbox report the delta? Options: a signed difference, a percentage, or both. Decision needed.
+
+Question 10. Should the sandbox support multiple languages? Decision needed.
+
+End of build specification for App 16.
