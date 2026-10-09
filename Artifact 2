@@ -1,0 +1,668 @@
+Artifact 2 — Codebook and Schema
+Scale-Transition Annotation Graphs (STAG): Codebook and Machine-Readable Schema
+
+This artifact is the operational instrument of the STAG framework. It is self-contained: it states the field list, the permitted value sets, the semantic validation rules, and the machine-readable schemas. The main paper (Artifact 1) refers to this artifact for field-by-field specifications and for the rule numbers used in the main text.
+
+A.1 Node tuple
+A node N is the tuple N = (S, M, G).
+
+S, system scope: the scope-nesting position declared in the model reference.
+
+M, model or formalism: the Hamiltonian, Lagrangian, or equivalent formal object under which the description is generated.
+
+G, granularity: the annotation granularity declared before annotation begins.
+
+Domain D is a partition-relative annotation attribute, not an identity component.
+
+The domain fields are:
+
+domain_id
+
+partition_id
+
+partition_version
+
+Regime, purpose, validity regime, solution-method class, primary observable, and domains spanned are attributes.
+
+A.2 Display labels
+The seven display labels are:
+
+STAG-Discovered, abbreviated STAG-DISC
+
+STAG-Definitional, abbreviated STAG-DEF
+
+STAG-None, abbreviated STAG-NONE
+
+STAG-Intra, abbreviated STAG-INTRA
+
+STAG-Intra-Definitional, abbreviated STAG-INTRA-DEF
+
+STAG-Intra-Non_definitional, abbreviated STAG-INTRA-ND
+
+STAG-Unclassified, abbreviated STAG-UNC
+
+All seven are extension-tier and derived. evidential_anchoring accompanies every display label and takes the value not_applicable for non-STAG-Discovered labels.
+
+A.3 Regime attribute
+Values:
+
+symmetric
+
+broken
+
+crossover-band
+
+not_applicable
+
+not_determinable
+
+Assignment as in Section 5.2 of the main paper. not_determinable attaches regime_not_determinable. regime_band_source records external_reference or analyst_chosen. value_bands_if_crossover records the crossover bands.
+
+A.4 Node identity
+Decision values:
+
+merged
+
+new_node
+
+uncertain
+
+not_determinable
+
+The node identity record also carries component-level match decisions, matching_rule_version, m_equivalence_rule_version, m_equivalence_basis, m_equivalence_witness, solution_method_attribute, and domains_spanned.
+
+The plausible-merge set, primary definition: pairs differing in at least one of S, M, G.
+
+The plausible-merge sensitivity set: pairs differing in exactly one.
+
+A.5 Effective-description change
+Values:
+
+Yes-strong
+
+Yes-weak
+
+No
+
+Uncertain
+
+A.6 Intervention classification
+Values:
+
+Definitional
+
+Definitional(expertise-dependent)
+
+Non_definitional
+
+Not_applicable
+
+not_determinable
+
+entailment_basis values:
+
+E1
+
+E2
+
+E3
+
+E4
+
+not_determinable
+
+Mapping:
+
+Definitional if and only if E1 or E2
+
+Definitional(expertise-dependent) if and only if E4
+
+Non_definitional if and only if E3
+
+Not_applicable if and only if no intervention is attempted
+
+not_determinable when the entailment basis cannot be determined from the available sources
+
+Definitions of E1 through E4 are in Section 7.1 of the main paper.
+
+A.7 Cross-domain counterfactual dependence
+Values:
+
+Yes
+
+No
+
+Definitional_only
+
+Not_tested
+
+Intra_domain
+
+Untestable
+
+Uncertain
+
+not_determinable
+
+Rules are in Section 7.2 of the main paper.
+
+A.8 Partition
+Fields:
+
+partition_registry_id
+
+partition_version
+
+partition_kind
+
+partition_admissibility_status
+
+partition_preregistration_date
+
+partition_justification
+
+intra_domain_rate
+
+partition_sensitivity
+
+alternative_partition_ids
+
+partition_untested_flag
+
+splitting_partition_id
+
+splitting_would_change_label
+
+splitting_audit_note
+
+A.9 Scale-separation record
+Fields:
+
+ratio
+
+expansion_parameter
+
+scale_microscopic
+
+scale_collective
+
+source_each
+
+scale_separation_source_kind
+
+scale_inference_source
+
+unit_conversion_if_needed
+
+minimum
+
+band_declared
+
+band_min_ratio
+
+band_max_ratio
+
+band_source
+
+band_source_citation
+
+dimensionless
+
+control_parameter_value
+
+control_parameter_source
+
+analyst_dependence_acknowledged
+
+analyst_dependence_note
+
+A.10 Derived-from relation
+Fields:
+
+derived_from_source_node
+
+derived_from_target_node
+
+derivation_kind, values integration_out or truncation
+
+derivation_specification
+
+A.11 Extended codebook entries
+Effective-description change kind: free text. Records the specific criterion that fired. The criteria are Delta-DOF, Delta-PC, Delta-SYM, Delta-APP, Delta-EFT, Delta-COL, Delta-BIND, and EXPERT.
+
+Threshold provenance: per-component provenance label, one of theoretical, empirical, or conventional. Summary label, one of Class 1, Class 2, Class 3, Mixed, or Unknown.
+
+Characteristic scale:
+
+scale_value
+
+scale_kind
+
+scale_convention
+
+Reversibility: one of reversible, irreversible, condition-dependent, or unknown.
+
+Status dimensions:
+
+physical_status, one of D, E, P, O
+
+graph_status, one of F, R, A
+
+underlying_science_status, one of established, candidate, heuristic, open
+
+stag_implementation_status, one of tested, pilot-tested, untested, disputed
+
+Statistical gap interface:
+
+statistical_gap_result
+
+dependence_gap_discordance
+
+Evidence: free text. Per-field evidence record.
+
+Uncertainty and alternatives: free text. alternative_classifications.
+
+Theory version: free text. Versioned identifier.
+
+Annotator provenance:
+
+annotator identifier
+
+annotation date
+
+affiliation
+
+Event node:
+
+event_node_id
+
+source nodes list
+
+target nodes list
+
+composition kind
+
+B. Machine-Readable Schema
+The full JSON Schema and the SHACL schema are deposited in Supplementary Material B and are reproduced below in summary form. The JSON Schema is a draft whose SHACL validation has not been run. The schema has two layers: a structural layer that specifies the fields and their permitted value sets, and a semantic layer that specifies the validation rules.
+
+B.1 Fields
+The fields are:
+
+annotation_id
+
+source_nodes and target_nodes, or source_nodes and event_node_id
+
+node_identity
+
+domain_annotation
+
+regime_attribute
+
+validity_regime
+
+purpose_attribute
+
+composition
+
+effective_description_change
+
+effective_description_change_kind
+
+intervention_classification
+
+entailment_basis
+
+cited_structural_result
+
+cited_numerical_result
+
+cross_domain_counterfactual_dependence
+
+intervention_source_domains
+
+intervention_target_domain
+
+intervention_kind
+
+defining_coupling_intervention
+
+cross_domain_intervention_available
+
+reason_if_not_performed
+
+domain_mismatch
+
+model_reference
+
+counterfactual_intervention
+
+counterfactual_description
+
+counterfactual_result
+
+material_change_test
+
+material_change_test_justification
+
+material_change_result
+
+quantities_held_fixed
+
+independence_of_material_change_evidence
+
+material_change_test_result_independence
+
+partition_registry_id
+
+partition_version
+
+partition_kind
+
+partition_admissibility_status
+
+partition_preregistration_date
+
+partition_justification
+
+intra_domain_rate
+
+partition_sensitivity
+
+alternative_partition_ids
+
+partition_untested_flag
+
+splitting_partition_id
+
+splitting_would_change_label
+
+splitting_audit_note
+
+identity_partition_sensitive
+
+scale_separation
+
+derived_from_source_node
+
+derived_from_target_node
+
+derivation_kind
+
+derivation_specification
+
+derived_display_label
+
+evidential_anchoring
+
+unclassified_reason
+
+threshold_provenance
+
+characteristic_scale
+
+reversibility
+
+physical_status
+
+graph_status
+
+underlying_science_status
+
+stag_implementation_status
+
+statistical_gap_result
+
+dependence_gap_discordance
+
+agreement_outcome
+
+provisional_flag
+
+threshold_sensitive_flag
+
+not_determinable_flag
+
+evidential_anchoring_status
+
+confidence
+
+alternative_classifications
+
+evidence
+
+protocol_cross_reference
+
+annotator
+
+annotation_date
+
+theory_version
+
+supersedes
+
+superseded_by
+
+event_node
+
+The node_identity field contains:
+
+S
+
+M
+
+G
+
+primary_observable
+
+decision
+
+component-level matches
+
+matching_rule_version
+
+m_equivalence_rule_version
+
+m_equivalence_basis
+
+m_equivalence_witness
+
+solution_method_attribute
+
+domains_spanned
+
+granularity
+
+confidence
+
+The regime_attribute field contains:
+
+value
+
+domain_specific_label
+
+framework_value_mapping
+
+order_parameter
+
+control_parameter_point
+
+phase_diagram_source
+
+value_bands_if_crossover
+
+regime_band_source
+
+regime_band_analyst_chosen
+
+regime_not_determinable
+
+The cited_structural_result field contains:
+
+result_reference
+
+applicability_conditions
+
+conditions_check
+
+The cited_numerical_result field contains:
+
+citation
+
+result_summary
+
+classification_effect
+
+citation_scope
+
+The scale_separation field contains:
+
+ratio
+
+expansion_parameter
+
+scale_microscopic
+
+scale_collective
+
+source_each
+
+scale_separation_source_kind
+
+scale_inference_source
+
+unit_conversion_if_needed
+
+minimum
+
+band_declared
+
+band_min_ratio
+
+band_max_ratio
+
+band_source
+
+band_source_citation
+
+dimensionless
+
+control_parameter_value
+
+control_parameter_source
+
+analyst_dependence_acknowledged
+
+analyst_dependence_note
+
+B.2 Semantic validation rules
+Rule 1. If intervention_classification is Non_definitional and cross_domain_counterfactual_dependence is Yes or No, then the following must be present: model_reference, counterfactual_intervention, counterfactual_description, counterfactual_result, material_change_test, and material_change_result.
+
+Rule 2. Precedence as in Section 7.2 of the main paper.
+
+Rule 3. If cross_domain_counterfactual_dependence is Yes, then intervention_source_domains together with intervention_target_domain must span at least two distinct declared domains.
+
+Rule 4. If partition_kind is framework_level, then cross_domain_counterfactual_dependence must be Untestable and unclassified_reason must be inadmissible_partition.
+
+Rule 5. If effective_description_change is Yes-strong and includes Delta-APP or Delta-EFT, then external_justification must be populated.
+
+Rule 6. All domain entries must belong to the partition identified by partition_registry_id and partition_version.
+
+Rule 7. If derived_display_label is STAG-Discovered, then all of the following are required: partition_sensitivity, scale_separation, a ratio at or above the recorded minimum, scale_separation_source_kind equal to external_value or external_coefficient, band_declared, band_min_ratio, band_max_ratio, band_source, band_source_citation when band_source is external_reference, independence_of_material_change_evidence, and material_change_test_result_independence. The recording is required for the annotation record; conditions (a) through (d) do not gate the label. If derived_display_label is STAG-Definitional or any STAG-Intra variant, then partition_sensitivity is required.
+
+Rule 8. Node identity must be established from S, M, and G alone, before any transition attribute is recorded and before any domain annotation is fixed.
+
+Rule 9. Every annotation must declare tuple-matching rules, the M-equivalence rule, granularity, and the partition justification before node identity is finalized.
+
+Rule 10. Supersession must be acyclic.
+
+Rule 11. Every annotation must identify the theory, model, or scientific version under which it was produced.
+
+Rule 12. If composition is composite, then event_node must be populated and source_nodes must contain at least two entries.
+
+Rule 13. If composition is not composite, then event_node must be absent and transition attributes are stored on the edge. Self-loops carry regime_change.
+
+Rule 14. validity_regime is an attribute and must not be consulted when determining node identity.
+
+Rule 15. Regime attribute is required for every node. When the value is symmetric, broken, or crossover-band, the following must be populated: order_parameter, control_parameter_point, phase_diagram_source, domain_specific_label, and framework_value_mapping. When the value is crossover-band, value_bands_if_crossover must be populated, regime_band_source must be populated and must be external_reference or analyst_chosen, with regime_band_analyst_chosen set true if analyst_chosen.
+
+Rule 16. If two candidate descriptions share S, M, and G, then node_identity must be merged. Under different partitions, the same pair is the same node; the domain annotation differs.
+
+Rule 17. cross_domain_counterfactual_dependence equal to Not_tested is permitted only when intervention_classification equals Not_applicable. An intervention performed with no result recorded is a validation error. An intervention performed with a result recorded but an uncertain material-change classification requires Uncertain.
+
+Rule 18. If intervention_classification is Definitional or Definitional(expertise-dependent), then cited_structural_result must be populated with result_reference, applicability_conditions, and conditions_check as a list of entries each having condition and condition_witness, at least one per applicability condition. Each condition_witness must name a specific equation, term, kernel, parameter range, or regime condition in the surviving description and must cite a source. A condition_witness naming only a general property is a validation error. If any applicability condition lacks a witness, then entailment_basis must be E4 and intervention_classification must be Definitional(expertise-dependent). If a numerical result is cited in support of a Non_definitional classification, then cited_numerical_result must be populated with citation, result_summary, classification_effect, and citation_scope.
+
+Rule 19. If cross_domain_counterfactual_dependence is Intra_domain, then intervention_source_domains must be a non-empty set contained within a single declared domain, intervention_target_domain must be that same domain, and cross_domain_intervention_available must be populated.
+
+Rule 20. If either endpoint has regime_attribute.value equal to not_determinable, then record regime_not_determinable equal to true and retain the derived label with the flag attached.
+
+Rule 21. If derived_display_label is STAG-Unclassified, then unclassified_reason must be populated and displayed with the label.
+
+Rule 22. If a structural relation between two M's is recorded, whether integration_out or truncation, then it must be recorded as a derived-from edge, not as an M-equivalence.
+
+Rule 23. If effective_description_change is Yes-weak, then derived_display_label must be STAG-Unclassified with unclassified_reason equal to weak_effective_description_basis.
+
+Rule 24. If a merged decision is recorded on two descriptions with different Lagrangians, then m_equivalence_basis and m_equivalence_witness must both be populated.
+
+Rule 25. domain_mismatch is true if and only if intervention_target_domain is not a member of the set of domains to which the source and target nodes are assigned under the annotation's declared partition_id and partition_version.
+
+Rule 26. If agreement_outcome is inconclusive for any core-tier field on which the derived label depends, then the derived label is reported with provisional_flag equal to true attached.
+
+Rule 27. If cross_domain_counterfactual_dependence is Intra_domain and the material-change classification is Uncertain, then derived_display_label must be STAG-Unclassified with unclassified_reason equal to uncertain.
+
+Rule 28. If material_change_test is a class change, then material_change_test_justification must state the classification scheme.
+
+Rule 29. evidential_anchoring_status is the field carrying the anchoring status of a STAG-Discovered annotation. For STAG-Discovered annotations, the value is anchored if and only if all four anchoring conditions of Section 1.2 of the main paper are satisfied; anchored_with_stated_limitations if all four are satisfied but at least one condition is flagged as interpretive or convention-dependent; preliminary if the case is used to develop or illustrate the codebook; candidate if the case is proposed as a possible instance. Operational determination: condition (a) requires cited_numerical_result.citation_scope equal to annotated_model or an annotator computation; condition (b) requires band_source equal to external_reference, band_source_citation populated, and band_min_ratio at or above the declared minimum; condition (c) requires independence_of_material_change_evidence equal to independent; condition (d) requires material_change_test_result_independence equal to independent.
+
+Rule 30. For non-STAG-Discovered annotations, evidential_anchoring_status is not_applicable or not_assessed.
+
+Rule 31. If defining_coupling_intervention equals true, then a second independent rater is required, and the case is excluded from STAG-Discovered unless the second rater independently confirms the intervention classification and the material-change result.
+
+Rule 32. If agreement_outcome differs between the 0.5 and 0.7 thresholds, then threshold_sensitive_flag must be true, and the falsification status of any dependent label must be reported as threshold-dependent.
+
+Rule 33. If any field is marked not_determinable because a load-bearing source cannot be verified, then the label is retained with the not_determinable flag attached and displayed alongside, and the flag is recorded in the annotation record under not_determinable_flag.
+
+B.3 SHACL shape summary
+The SHACL shapes mirror the semantic validation rules above. Each rule corresponds to one SHACL constraint. The full SHACL shape file is deposited in Supplementary Material B and is not reproduced here. The shapes are drafts whose validation has not been run. Running SHACL validation against the worked examples of the main paper is a target for the validation programme, not a completed result.
+
+B.4 JSON Schema summary
+The JSON Schema is a structural schema with the field names and permitted value sets from Appendix B.1, with allOf and if-then constructs that encode the semantic rules of Appendix B.2 as schema constraints where the constraint is expressible in JSON Schema Draft 2020-12. Constraints that require cross-field inference beyond what JSON Schema expresses are recorded in the SHACL shape file rather than in the JSON Schema. The full JSON Schema file is deposited in Supplementary Material B.
+
+B.5 Worked example records
+The full annotation records for the worked examples of the main paper, including the complete scale-separation records, cited_numerical_result blocks, and conditions_check entries for the Frohlich/Eliashberg example and the two-layer Ising example, are deposited in Supplementary Material B. Each record is in JSON and in Turtle. The Turtle serialization of the two-layer Ising self-loop is reproduced in the main paper at Section 8.5.
+
+C. Recommended Validation Workflow
+Freeze the codebook at a versioned identifier.
+
+Run the ambiguity audit on eight to twelve cases across at least three domains, with expertise stratification on the entailment basis.
+
+Revise the codebook once, then re-freeze.
+
+Pre-register the codebook, schema, sampling rule, power analysis, negative-control count and strata, and the information-matched control.
+
+Run Phase 1a: twenty cases minimum, three raters minimum, one domain, core tier plus the two anchoring independence fields.
+
+Compute agreement per Section 13.3 of the main paper. Apply the governing rule. Flag inconclusive fields. Report threshold sensitivity.
+
+If at least four of the five core-tier fields pass, escalate to Phase 1b.
+
+Validate node-set agreement before any transition annotation is scored.
+
+Run the negative-control analysis with the two strata reported separately.
+
+Run synthetic ground-truth validation on the entailment basis and the intra-domain precedence rule, and independent computational replication.
+
+Run the reachability search as a separate pre-registered step, reporting the profile type of each candidate and the reason for any failure.
+
+Validate the extension tier as a unit.
+
+Run the independent empirical application.
+
+Run the scientific-value test against the information-matched control, and report the adequacy of the matching.
+
+Apply the falsification conditions of Section 13.7 of the main paper. Report all outcomes, including inconclusive and threshold-sensitive ones.
+
+Deposit the codebook, schemas, protocol, scripts, and results.
+
+D. Data Availability
+The full codebook, expanded worked examples, the complete JSON Schema and SHACL schema, the pre-registered validation protocol, the synthetic ground-truth validation script, the extended limitations discussion, and the scoping-review protocol are deposited at Zenodo. Supplementary Material D contains the search protocol, the draft feature matrix, the coding manual for features (a) through (d), and the decision rules of Section 1.5 of the main paper. Matrix entries will be confirmed against executed search results. The repository DOI will be inserted immediately before submission.
+
