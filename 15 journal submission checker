@@ -1,0 +1,891 @@
+Build Specification — App 15: Journal Submission Checker
+Completeness status: COMPLETE. All sections delivered in one pass. No truncation. Formatted for copy-paste into another conversation window. No tables, no boxes.
+
+What It Is
+A web service that checks a submission against the two reporting standards. It accepts a manuscript plus its STAG annotations and its Null-Model specification, checks them against the reporting standard in each paper, and returns a checklist. It is for journals, preprint servers, and repositories.
+
+Core Requirements
+Functional requirements:
+
+Accept a manuscript submission.
+
+Accept STAG annotation files.
+
+Accept a Null-Model Protocol pipeline specification.
+
+Check the submission against the STAG reporting standard (Artifact 1, Section 14.1).
+
+Check the submission against the Null-Model Protocol reporting standard (Section 12 of the Null-Model Protocol paper).
+
+Return a checklist report with pass, fail, or missing per item.
+
+Report the reason for each fail or missing item.
+
+Distinguish between items that are required and items that are required-when-applicable.
+
+Distinguish between the STAG reporting standard and the Null-Model Protocol reporting standard.
+
+Detect whether the manuscript uses STAG annotations, Null-Model Protocol specifications, or both.
+
+Detect whether the STAG annotations use the correct schema version.
+
+Detect whether the Null-Model Protocol specification uses the correct schema version.
+
+Detect whether the STAG annotations contain a STAG-Discovered label with its anchoring status alongside.
+
+Detect whether the Null-Model Protocol specification contains the required pre-specification items.
+
+Detect whether the manuscript's reported numbers match the numbers in the annotations and specifications.
+
+Return a machine-readable report (JSON) and a human-readable report (text).
+
+Support batch checking of multiple submissions.
+
+Support a web interface and a command-line interface.
+
+Non-functional requirements:
+
+Deterministic: same inputs produce same outputs.
+
+No network dependency for the core validation logic (though the service itself is web-based).
+
+Fast: check a typical submission in under ten seconds.
+
+Versioned: the checker records the STAG schema version, the Null-Model Protocol schema version, and the checker version.
+
+Reproducible: the checker records all inputs and the outputs.
+
+Input Specification
+Input 1. Manuscript. Required. A document in PDF, LaTeX, or plain text format.
+
+Input 2. STAG annotation files. Optional. One or more STAG annotation records in JSON format.
+
+Input 3. Null-Model Protocol pipeline specification. Optional. A pipeline specification in JSON format.
+
+Input 4. Null-Model Protocol statistical gap results. Optional. One or more statistical gap results in JSON format.
+
+Input 5. STAG schema version. Optional. Defaults to the latest supported version.
+
+Input 6. Null-Model Protocol schema version. Optional. Defaults to the latest supported version.
+
+Input 7. Check mode. Optional. Values: full (default), stag_only, null_model_only, numbers_only.
+
+Input 8. Output format. Optional. Values: json (default), text, both.
+
+Input 9. Submission identifier. Optional. A string identifying the submission.
+
+Output Specification
+Output 1. Checklist report. JSON or text. For each item in the STAG reporting standard and the Null-Model Protocol reporting standard, the status: pass, fail, missing, or not_applicable.
+
+Output 2. Per-item reason. Text. For each fail or missing item, the reason.
+
+Output 3. Summary report. Text. The number of items passed, the number of items failed, the number of items missing, and the number of items not applicable.
+
+Output 4. Cross-check report. JSON. For each reported number in the manuscript, whether it matches the corresponding number in the annotation or specification.
+
+Output 5. Detection report. JSON. Whether the manuscript uses STAG annotations, Null-Model Protocol specifications, or both.
+
+Output 6. Reproducibility record. JSON. The STAG schema version, Null-Model Protocol schema version, checker version, submission identifier, and timestamp.
+
+Module-by-Module Specification
+Module 1: Manuscript Loader
+Reads the manuscript. Supports PDF, LaTeX, and plain text. Extracts the text for analysis. Extracts any structured metadata if present.
+
+Module 2: STAG Annotation Loader
+Reads the STAG annotation files. Validates each against the STAG JSON Schema (Artifact 2, Appendix B.1) for the selected version. Rejects malformed records with an error.
+
+Module 3: Null-Model Protocol Loader
+Reads the pipeline specification and the statistical gap results. Validates each against the Null-Model Protocol schema. Rejects malformed specifications with an error.
+
+Module 4: Detection Engine
+Detects whether the manuscript uses STAG annotations, Null-Model Protocol specifications, or both. Detection is based on:
+
+The presence of STAG annotation files in the submission.
+
+The presence of Null-Model Protocol files in the submission.
+
+The presence of STAG-specific terms in the manuscript text (for example, "STAG-Discovered", "evidential anchoring", "node tuple", "scale-separation record").
+
+The presence of Null-Model Protocol-specific terms in the manuscript text (for example, "empirical null distribution", "exceedance probability", "scan statistic", "empty-W fraction").
+
+The detection report records the detection result and the evidence.
+
+Module 5: STAG Reporting Standard Checker
+Checks the submission against the STAG reporting standard (Artifact 1, Section 14.1). The reporting standard has the following items:
+
+Item S1. System and domain; partition identifier and version. Core-tier, required.
+
+Item S2. Candidate effective descriptions. Core-tier, required.
+
+Item S3. Node tuple rule (S, M, G matching rules); M-equivalence rule version; m_equivalence_basis, m_equivalence_witness where claimed; solution-method attribute; domains spanned. Core-tier, required.
+
+Item S4. Node identity decision; component-level match decisions. Core-tier, required.
+
+Item S5. Regime attribute (value; order parameter; control-parameter point; phase-diagram source; domain-specific label and framework mapping; value_bands_if_crossover; regime_band_source; regime_not_determinable flag). Core-tier, required.
+
+Item S6. Node-set agreement. Core-tier, required.
+
+Item S7. Effective-description change (value; criteria fired with evidence; external justification for ΔAPP and ΔEFT). Core-tier, required.
+
+Item S8. Intervention classification (value; entailment_basis; for E1 and E2, cited_structural_result with result_reference, applicability_conditions, and conditions_check; for E3, cited_numerical_result with citation, result_summary, classification_effect, citation_scope; not_determinable where the sources cannot be verified). Core-tier, required.
+
+Item S9. Cross-domain counterfactual dependence (value; source and target domains; intervention_kind; defining_coupling_intervention flag; cross_domain_intervention_available; domain_mismatch; material-change test and result; material_change_test_justification). Core-tier, required.
+
+Item S10. independence_of_material_change_evidence and material_change_test_result_independence. Core-tier, required.
+
+Item S11. Scale-separation record. Extension-tier, required when applicable.
+
+Item S12. Partition; partition sensitivity; identity-splitting audit for merged nodes above STAG-Unclassified. Extension-tier, required when applicable.
+
+Item S13. Display label; evidential_anchoring; unclassified_reason; regime_not_determinable; identity_partition_sensitive; not_determinable flag; agreement_outcome; provisional_flag; threshold_sensitive_flag; evidential_anchoring_status. Derived, required.
+
+Item S14. Threshold provenance. Extension-tier, required when applicable.
+
+Item S15. Characteristic scale. Extension-tier, required when applicable.
+
+Item S16. Reversibility. Extension-tier, required when applicable.
+
+Item S17. Status dimensions. Extension-tier, required when applicable.
+
+Item S18. Statistical gap interface. Extension-tier, required when applicable.
+
+Item S19. Evidence. Core-tier, required.
+
+Item S20. Uncertainty and alternatives. Extension-tier, required when applicable.
+
+Item S21. Theory version. Core-tier, required.
+
+Item S22. Annotator provenance. Core-tier, required.
+
+Item S23. Validity evidence. Core-tier, required.
+
+Item S24. Agreement statistics. Core-tier, required.
+
+Module 6: Null-Model Protocol Reporting Standard Checker
+Checks the submission against the Null-Model Protocol reporting standard (Section 12 of the Null-Model Protocol paper). The reporting standard has the following items:
+
+Item N1. Data and population, and measurement definition. Required.
+
+Item N2. Measurement uncertainty, in the form of a kernel, or a justification for neglecting it. Required.
+
+Item N3. Selection criteria, in the form of a selection function, or a justification for neglecting it, including whether n is fixed or random and the order of selection and measurement. Required.
+
+Item N4. Dependence structure and any clustering step, including algorithm, settings, and how each is reproduced in the simulation. Required.
+
+Item N5. Transformation and its justification. Required.
+
+Item N6. Jittering scale and its reproduction in the simulation, where applicable. Required when applicable.
+
+Item N7. Support rule, whether S1, S2, or S3, its details, and its reproduction in the simulation. Required.
+
+Item N8. Null model, including density, parameters, provenance, and the bandwidth rule if a KDE. Required.
+
+Item N9. Scan family, whether adjacent, pair, or fixed, and g_min as a ratio of scales together with whether it is in data or probability units, and P_max, and the boundary convention, and the empty-W convention, and the tie-breaking rule. Required.
+
+Item N10. Gap-selection rule. Required.
+
+Item N11. Nuisance-estimation method, the gap-exclusion loop, the truncated-likelihood treatment, the iteration count, and its reproduction in the simulation. Required.
+
+Item N12. Statistic, with an explicit statement that it is one-sided. Required.
+
+Item N13. N, the target tail probability and the Monte Carlo uncertainty. Required.
+
+Item N14. Multiplicity procedure, including how multiple nulls are handled. Required.
+
+Item N15. Lambda_obs together with its computation. Required.
+
+Item N16. Empirical null distribution, including the point mass at zero and the fraction of empty-W datasets. Required.
+
+Item N17. Exceedance probability together with the tail definition, whether >= or >. Required.
+
+Item N18. Sensitivity analysis and the selection-effect analysis. Required.
+
+Item N19. Code, data, seeds and software versions. Required.
+
+Item N20. Statement that a gap is not described as physically significant solely because it is visually obvious, has a large score, was identified by a clustering algorithm, or has a small p-value under one null. Required.
+
+Module 7: Required-When-Applicable Resolver
+For each item that is required-when-applicable, checks whether the item is applicable to the submission. An item is applicable if the corresponding feature is present in the submission. Examples:
+
+Item S11 (scale-separation record) is applicable if the STAG record contains a STAG-Discovered label.
+
+Item S12 (partition sensitivity) is applicable if the STAG record contains a label above STAG-Unclassified.
+
+Item S14 (threshold provenance) is applicable if the STAG record contains a threshold.
+
+Item N2 (measurement uncertainty) is applicable if the pipeline specification declares measurement uncertainty.
+
+Item N3 (selection criteria) is applicable if the pipeline specification declares selection effects.
+
+Item N6 (jittering scale) is applicable if the pipeline specification declares jittering.
+
+The resolver returns not_applicable for items that are not applicable.
+
+Module 8: Cross-Check Engine
+Compares the reported numbers in the manuscript with the numbers in the STAG annotations and the Null-Model Protocol specification.
+
+For each number in the manuscript that matches a pattern for a reported number (for example, a p-value, a statistic, a ratio), the engine searches the annotations and specifications for a matching number. If a match is found and the numbers are equal within a tolerance, the item passes. If a match is found and the numbers differ, the item fails with the reason. If no match is found, the item is marked as code-dependent.
+
+The engine reports the cross-check results.
+
+Module 9: Checklist Report Builder
+Assembles the checklist report. For each item in the STAG reporting standard and the Null-Model Protocol reporting standard, the status: pass, fail, missing, or not_applicable. Includes the reason for each fail or missing item.
+
+Module 10: Summary Reporter
+Produces the summary report. The number of items passed, the number of items failed, the number of items missing, and the number of items not applicable.
+
+Module 11: Reproducibility Recorder
+Records the STAG schema version, Null-Model Protocol schema version, checker version, submission identifier, and timestamp.
+
+Module 12: Web Service Layer
+Wraps the checker in an HTTP endpoint. Accepts a POST with the manuscript, the STAG annotation files, the Null-Model Protocol files, and the options. Returns the JSON report. Uses HTTP status 200 for a complete check, 422 for a check with failures, 400 for malformed input.
+
+Module 13: Command-Line Interface
+Parses arguments. Invokes Modules 1 through 11. Prints the report to stdout.
+
+Full Reporting Standard Specification
+6.1 STAG Reporting Standard
+The STAG reporting standard is defined in Artifact 1, Section 14.1. It has 24 items. Each item is checked against the STAG annotation files and the manuscript text.
+
+For each item, the checker:
+
+Searches the STAG annotation files for the field or fields corresponding to the item.
+
+Searches the manuscript text for a reference to the item (for example, a sentence that reports the node tuple rule, or a table that reports the agreement statistics).
+
+Records the status: pass if the field is present in the annotation and referenced in the manuscript; fail if the field is present but incorrect or inconsistent with the manuscript; missing if the field is absent; not_applicable if the item is required-when-applicable and not applicable.
+
+6.2 Null-Model Protocol Reporting Standard
+The Null-Model Protocol reporting standard is defined in Section 12 of the Null-Model Protocol paper. It has 20 items. Each item is checked against the pipeline specification, the statistical gap results, and the manuscript text.
+
+For each item, the checker:
+
+Searches the pipeline specification and the statistical gap results for the field or fields corresponding to the item.
+
+Searches the manuscript text for a reference to the item.
+
+Records the status: pass, fail, missing, or not_applicable.
+
+6.3 Cross-Check
+The cross-check engine compares the reported numbers in the manuscript with the numbers in the annotations and specifications. The following numbers are cross-checked:
+
+The observed statistic Lambda_obs.
+
+The exceedance probability p.
+
+The Monte Carlo uncertainty.
+
+The empty-W fraction.
+
+The point mass at zero.
+
+The critical values for the scan families.
+
+The power values for the scan families.
+
+The scale-separation ratio.
+
+The expansion parameter.
+
+The band minimum ratio.
+
+The agreement statistics (Krippendorff's alpha, Gwet's AC1).
+
+The material-change result.
+
+The node identity decision.
+
+The entailment basis.
+
+The intervention classification.
+
+The cross-domain counterfactual dependence.
+
+The derived display label.
+
+The evidential anchoring status.
+
+For each number, the engine searches the manuscript for a matching number. If a match is found and the numbers are equal within a tolerance, the item passes. If a match is found and the numbers differ, the item fails with the reason. If no match is found, the item is marked as code-dependent.
+
+6.4 Required-When-Applicable Logic
+The required-when-applicable logic is applied to the items that are marked as required-when-applicable. For each such item, the checker determines whether the corresponding feature is present in the submission. If the feature is present, the item is required and is checked. If the feature is absent, the item is not_applicable and is not checked.
+
+The features that trigger required-when-applicable status are:
+
+For the STAG reporting standard: the presence of a STAG-Discovered label, a label above STAG-Unclassified, a threshold, a characteristic scale, a reversibility attribute, a status dimension, a statistical gap interface, an uncertainty and alternatives section, and a scale-separation record.
+
+For the Null-Model Protocol reporting standard: the presence of measurement uncertainty, selection effects, dependence structure, jittering, a KDE null, a pair scan family, a fixed scan family, a nuisance-estimation procedure, a multiplicity procedure, and a sensitivity analysis.
+
+6.5 Detection Logic
+The detection engine detects whether the manuscript uses STAG annotations, Null-Model Protocol specifications, or both. The detection is based on:
+
+The presence of STAG annotation files in the submission.
+
+The presence of Null-Model Protocol files in the submission.
+
+The presence of STAG-specific terms in the manuscript text.
+
+The presence of Null-Model Protocol-specific terms in the manuscript text.
+
+The detection report records the detection result and the evidence. The possible results are: stag_only, null_model_only, both, neither.
+
+6.6 Checklist Report Structure
+The checklist report has the following structure:
+
+submission_id (string)
+
+detection (object: result, evidence)
+
+stag_checklist (array of item objects)
+
+null_model_checklist (array of item objects)
+
+cross_check (array of cross-check objects)
+
+summary (object: pass_count, fail_count, missing_count, not_applicable_count)
+
+reproducibility (object: stag_schema_version, null_model_schema_version, checker_version, timestamp)
+
+Each item object:
+
+item_id (string, e.g., "S1" or "N1")
+
+item_name (string)
+
+status (pass, fail, missing, not_applicable)
+
+reason (string or null)
+
+evidence (string or null)
+
+Each cross-check object:
+
+field (string)
+
+manuscript_value (number or string)
+
+annotation_value (number or string)
+
+status (match, mismatch, code_dependent)
+
+reason (string or null)
+
+Core Logic as Executable Pseudocode
+7.1 Main Flow
+function checkSubmission(manuscript, stagAnnotations, pipelineSpec, gapResults, options):
+
+Step 1. manuscriptText = loadManuscript(manuscript, options).
+
+Step 2. stagRecords = [].
+
+if stagAnnotations is not null:
+
+for annotation in stagAnnotations:
+
+result = validateSTAGRecord(annotation, options.stagSchemaVersion).
+
+if result.valid: stagRecords.push(annotation).
+
+else: return {error: "invalid STAG record", details: result.errors}.
+
+Step 3. nullModelSpec = null.
+
+if pipelineSpec is not null: result = validatePipelineSpec(pipelineSpec, options.nullModelSchemaVersion); if result.valid: nullModelSpec = pipelineSpec; else: return {error: "invalid pipeline specification", details: result.errors}.
+
+Step 4. gapResultsList = [].
+
+if gapResults is not null:
+
+for result in gapResults: validated = validateGapResult(result, options.nullModelSchemaVersion); if validated.valid: gapResultsList.push(result).
+
+Step 5. detection = detectUsage(manuscriptText, stagRecords, nullModelSpec).
+
+Step 6. stagChecklist = checkSTAGStandard(stagRecords, manuscriptText, detection).
+
+Step 7. nullModelChecklist = checkNullModelStandard(nullModelSpec, gapResultsList, manuscriptText, detection).
+
+Step 8. crossCheck = crossCheckNumbers(manuscriptText, stagRecords, nullModelSpec, gapResultsList).
+
+Step 9. summary = buildSummary(stagChecklist, nullModelChecklist).
+
+Step 10. report = buildReport(stagChecklist, nullModelChecklist, crossCheck, summary, detection, options).
+
+Step 11. reproducibility = buildReproducibilityRecord(options, submissionId, timestamp).
+
+Step 12. return {report, reproducibility}.
+
+7.2 Detect Usage
+function detectUsage(manuscriptText, stagRecords, nullModelSpec):
+
+evidence = [].
+
+if stagRecords.length > 0: evidence.push({type: "stag_files", count: stagRecords.length}).
+
+if nullModelSpec is not null: evidence.push({type: "null_model_file"}).
+
+stagTerms = ["STAG-Discovered", "evidential anchoring", "node tuple", "scale-separation record", "STAG-Definitional", "STAG-Unclassified"].
+
+for term in stagTerms:
+
+if manuscriptText.contains(term): evidence.push({type: "stag_term", term: term}).
+
+nullModelTerms = ["empirical null distribution", "exceedance probability", "scan statistic", "empty-W fraction", "Monte Carlo uncertainty", "full-pipeline simulation"].
+
+for term in nullModelTerms:
+
+if manuscriptText.contains(term): evidence.push({type: "null_model_term", term: term}).
+
+hasStag = evidence.some(e => e.type == "stag_files" or e.type == "stag_term").
+
+hasNullModel = evidence.some(e => e.type == "null_model_file" or e.type == "null_model_term").
+
+if hasStag and hasNullModel: return {result: "both", evidence: evidence}.
+
+else if hasStag: return {result: "stag_only", evidence: evidence}.
+
+else if hasNullModel: return {result: "null_model_only", evidence: evidence}.
+
+else: return {result: "neither", evidence: evidence}.
+
+7.3 Check STAG Standard
+function checkSTAGStandard(stagRecords, manuscriptText, detection):
+
+checklist = [].
+
+for item in STAG_STANDARD_ITEMS:
+
+status = checkSTAGItem(item, stagRecords, manuscriptText).
+
+checklist.push({item_id: item.id, item_name: item.name, status: status.status, reason: status.reason, evidence: status.evidence}).
+
+return checklist.
+
+function checkSTAGItem(item, stagRecords, manuscriptText):
+
+if item.required_when_applicable:
+
+if not isApplicable(item, stagRecords): return {status: "not_applicable"}.
+
+if stagRecords.length == 0: return {status: "missing", reason: "no STAG annotation files provided"}.
+
+for record in stagRecords:
+
+if hasField(record, item.field): found = true.
+
+if not found: return {status: "missing", reason: "field " + item.field + " not found in STAG annotation"}.
+
+if not manuscriptText.contains(item.name) and not manuscriptText.contains(item.term): return {status: "missing", reason: "item not referenced in manuscript"}.
+
+return {status: "pass"}.
+
+7.4 Check Null-Model Standard
+function checkNullModelStandard(nullModelSpec, gapResults, manuscriptText, detection):
+
+checklist = [].
+
+for item in NULL_MODEL_STANDARD_ITEMS:
+
+status = checkNullModelItem(item, nullModelSpec, gapResults, manuscriptText).
+
+checklist.push({item_id: item.id, item_name: item.name, status: status.status, reason: status.reason, evidence: status.evidence}).
+
+return checklist.
+
+function checkNullModelItem(item, nullModelSpec, gapResults, manuscriptText):
+
+if item.required_when_applicable:
+
+if not isApplicableNullModel(item, nullModelSpec): return {status: "not_applicable"}.
+
+if nullModelSpec is null: return {status: "missing", reason: "no pipeline specification provided"}.
+
+if not hasField(nullModelSpec, item.field) and not hasField(gapResults[0], item.field): return {status: "missing", reason: "field " + item.field + " not found"}.
+
+if not manuscriptText.contains(item.name) and not manuscriptText.contains(item.term): return {status: "missing", reason: "item not referenced in manuscript"}.
+
+return {status: "pass"}.
+
+7.5 Cross Check Numbers
+function crossCheckNumbers(manuscriptText, stagRecords, nullModelSpec, gapResults):
+
+crossChecks = [].
+
+numbers = extractNumbers(manuscriptText).
+
+for number in numbers:
+
+match = findMatch(number, stagRecords, nullModelSpec, gapResults).
+
+if match is not null:
+
+if abs(number.value - match.value) <= tolerance: crossChecks.push({field: match.field, manuscript_value: number.value, annotation_value: match.value, status: "match"}).
+
+else: crossChecks.push({field: match.field, manuscript_value: number.value, annotation_value: match.value, status: "mismatch", reason: "values differ"}).
+
+else: crossChecks.push({field: "unknown", manuscript_value: number.value, annotation_value: null, status: "code_dependent"}).
+
+return crossChecks.
+
+7.6 Build Summary
+function buildSummary(stagChecklist, nullModelChecklist):
+
+allItems = stagChecklist.concat(nullModelChecklist).
+
+passCount = count(item in allItems where item.status == "pass").
+
+failCount = count(item in allItems where item.status == "fail").
+
+missingCount = count(item in allItems where item.status == "missing").
+
+notApplicableCount = count(item in allItems where item.status == "not_applicable").
+
+return {pass_count: passCount, fail_count: failCount, missing_count: missingCount, not_applicable_count: notApplicableCount}.
+
+7.7 Build Report
+function buildReport(stagChecklist, nullModelChecklist, crossCheck, summary, detection, options):
+
+return {submission_id: options.submissionId, detection: detection, stag_checklist: stagChecklist, null_model_checklist: nullModelChecklist, cross_check: crossCheck, summary: summary, reproducibility: {stag_schema_version: options.stagSchemaVersion, null_model_schema_version: options.nullModelSchemaVersion, checker_version: options.checkerVersion, timestamp: now()}}.
+
+Data Model / JSON Schema for Internal State
+The checker's internal state is a report object.
+
+Report object:
+
+submission_id (string)
+
+detection (object: result, evidence)
+
+stag_checklist (array of item objects)
+
+null_model_checklist (array of item objects)
+
+cross_check (array of cross-check objects)
+
+summary (object: pass_count, fail_count, missing_count, not_applicable_count)
+
+reproducibility (object: stag_schema_version, null_model_schema_version, checker_version, timestamp)
+
+Each item object:
+
+item_id (string)
+
+item_name (string)
+
+status (pass, fail, missing, not_applicable)
+
+reason (string or null)
+
+evidence (string or null)
+
+Each cross-check object:
+
+field (string)
+
+manuscript_value (number or string)
+
+annotation_value (number or string)
+
+status (match, mismatch, code_dependent)
+
+reason (string or null)
+
+Architecture
+Module breakdown:
+
+Manuscript Loader. Reads and extracts text from the manuscript.
+
+STAG Annotation Loader. Reads and validates STAG annotation files.
+
+Null-Model Protocol Loader. Reads and validates the pipeline specification and the statistical gap results.
+
+Detection Engine. Detects whether the manuscript uses STAG annotations, Null-Model Protocol specifications, or both.
+
+STAG Reporting Standard Checker. Checks the submission against the STAG reporting standard.
+
+Null-Model Protocol Reporting Standard Checker. Checks the submission against the Null-Model Protocol reporting standard.
+
+Required-When-Applicable Resolver. Determines applicability for required-when-applicable items.
+
+Cross-Check Engine. Compares reported numbers with annotation and specification numbers.
+
+Checklist Report Builder. Assembles the checklist report.
+
+Summary Reporter. Produces the summary report.
+
+Reproducibility Recorder. Records the versions, submission identifier, and timestamp.
+
+Web Service Layer. HTTP endpoint.
+
+Command-Line Interface. Argument parsing.
+
+Data flow:
+
+Manuscript, STAG annotations, pipeline specification, and gap results go to the loaders. Detection Engine detects usage. STAG and Null-Model Reporting Standard Checkers run. Required-When-Applicable Resolver determines applicability. Cross-Check Engine compares numbers. Checklist Report Builder assembles. Summary Reporter produces summary. Reproducibility Recorder records.
+
+Technology Stack
+Recommended for the web service:
+
+Backend: FastAPI (Python) or Express (Node.js).
+
+Manuscript parsing: pdfplumber or PyPDF2 (Python) or pdf-parse (JS).
+
+LaTeX parsing: regex-based or a dedicated parser.
+
+JSON Schema validation: jsonschema (Python) or ajv (JS).
+
+HTTP: FastAPI plus uvicorn (Python) or Express (JS).
+
+Containerization: Docker.
+
+Testing: pytest (Python) or Vitest (JS).
+
+Recommended for the command-line interface:
+
+Same runtime as the web service.
+
+CLI framework: argparse or click (Python) or commander (JS).
+
+Recommended for the web interface:
+
+Frontend: React or Svelte.
+
+Form for uploading the manuscript, the STAG annotation files, the pipeline specification, and the gap results.
+
+Display of the checklist report, the cross-check report, and the summary.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The STAG reporting standard (Artifact 1, Section 14.1).
+
+The Null-Model Protocol reporting standard (Section 12 of the Null-Model Protocol paper).
+
+UI/UX Specification
+Web service:
+
+Endpoint: POST /check.
+
+Request body: multipart form with fields manuscript (file), stag_annotations (files), pipeline_specification (file), gap_results (files), options (JSON).
+
+Response on success: HTTP 200 with JSON report.
+
+Response on failure: HTTP 422 with JSON report.
+
+Response on malformed input: HTTP 400 with error message.
+
+Command-line interface:
+
+Usage: submission-checker --manuscript FILE [--stag-annotations FILE1,FILE2,...] [--pipeline-specification FILE] [--gap-results FILE1,FILE2,...] [--stag-schema-version VERSION] [--null-model-schema-version VERSION] [--mode full|stag_only|null_model_only|numbers_only] [--output FILE] [--format json|text|both].
+
+Output on success: the checklist report, the cross-check report, and the summary.
+
+Output on error: the error message and exit code 2.
+
+Web interface:
+
+A form for uploading the manuscript, the STAG annotation files, the pipeline specification, and the gap results.
+
+Display of the checklist report with color-coded statuses: green for pass, red for fail, orange for missing, grey for not_applicable.
+
+Display of the cross-check report with the manuscript value and the annotation value.
+
+Display of the summary.
+
+Download buttons for the JSON and text reports.
+
+Validation Engine Design
+The checker validates the following:
+
+Validation 1. Manuscript validity. The manuscript is in a supported format and is not empty.
+
+Validation 2. STAG annotation validity. Each STAG annotation is validated against the STAG JSON Schema.
+
+Validation 3. Pipeline specification validity. The pipeline specification is validated against the Null-Model Protocol schema.
+
+Validation 4. Statistical gap result validity. Each statistical gap result is validated against the Null-Model Protocol schema.
+
+Validation 5. Reporting standard consistency. Each item in the reporting standards is checked against the submission.
+
+Validation 6. Cross-check consistency. Each reported number in the manuscript is compared with the corresponding number in the annotations or specification.
+
+Validation 7. Detection consistency. The detection result is checked against the evidence.
+
+Testing Strategy
+Unit tests:
+
+Manuscript Loader for PDF, LaTeX, and plain text.
+
+STAG Annotation Loader for valid and invalid records.
+
+Null-Model Protocol Loader for valid and invalid specifications.
+
+Detection Engine for each detection result.
+
+STAG Reporting Standard Checker for each item.
+
+Null-Model Protocol Reporting Standard Checker for each item.
+
+Required-When-Applicable Resolver for each applicable and not-applicable item.
+
+Cross-Check Engine for match, mismatch, and code-dependent.
+
+Checklist Report Builder for the report structure.
+
+Summary Reporter for the summary counts.
+
+Reproducibility Recorder for the record structure.
+
+Integration tests:
+
+Check a submission that uses STAG annotations only. Verify the detection, the STAG checklist, and the summary.
+
+Check a submission that uses Null-Model Protocol only. Verify the detection, the Null-Model checklist, and the summary.
+
+Check a submission that uses both. Verify the detection, both checklists, and the summary.
+
+Check a submission with a missing required item. Verify the missing status and the reason.
+
+Check a submission with an inconsistent number. Verify the mismatch status and the reason.
+
+Check a submission with a required-when-applicable item that is not applicable. Verify the not_applicable status.
+
+Worked-example tests:
+
+Artifact 1, Section 11.2 (two-layer Ising): the STAG reporting standard checker should check items S1 through S24 against the record. The Null-Model Protocol reporting standard checker should check items N1 through N20 against the pipeline specification.
+
+Section 11.1 of the Null-Model Protocol paper: the cross-check engine should verify the observed statistic 19.54 and the exceedance probability 2.99 * 10^-3.
+
+Regression tests:
+
+Report determinism.
+
+Detection consistency.
+
+Cross-check consistency.
+
+Build Phases
+Phase 1. Manuscript Loader. Read and extract text from the manuscript.
+
+Phase 2. STAG Annotation Loader. Read and validate STAG annotation files.
+
+Phase 3. Null-Model Protocol Loader. Read and validate the pipeline specification and the statistical gap results.
+
+Phase 4. Detection Engine. Detect whether the manuscript uses STAG annotations, Null-Model Protocol specifications, or both.
+
+Phase 5. STAG Reporting Standard Checker. Check each item.
+
+Phase 6. Null-Model Protocol Reporting Standard Checker. Check each item.
+
+Phase 7. Required-When-Applicable Resolver. Determine applicability.
+
+Phase 8. Cross-Check Engine. Compare reported numbers.
+
+Phase 9. Checklist Report Builder. Assemble the report.
+
+Phase 10. Summary Reporter. Produce the summary.
+
+Phase 11. Reproducibility Recorder. Record the versions, submission identifier, and timestamp.
+
+Phase 12. Web Service Layer. HTTP endpoint.
+
+Phase 13. Command-Line Interface.
+
+Phase 14. Web Interface.
+
+Phase 15. Worked-example tests.
+
+Phase 16. Integration testing and hardening.
+
+Phase 17. Packaging and deployment.
+
+Dependencies
+Python path:
+
+pdfplumber or PyPDF2 (PDF parsing).
+
+jsonschema (schema validation).
+
+FastAPI and uvicorn (web service).
+
+argparse or click (command-line).
+
+json (JSON handling, standard library).
+
+re (regex, standard library).
+
+pytest (testing).
+
+Node.js path:
+
+pdf-parse (PDF parsing).
+
+ajv (schema validation).
+
+Express (web service).
+
+commander (command-line).
+
+JSON (standard library).
+
+Vitest (testing).
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The STAG reporting standard (Artifact 1, Section 14.1).
+
+The Null-Model Protocol reporting standard (Section 12 of the Null-Model Protocol paper).
+
+Deployment Notes
+Web service:
+
+Deploy with Docker. Expose a single endpoint. Use a reverse proxy for TLS.
+
+Scale horizontally if needed.
+
+Stateless: no session state between requests.
+
+Log the submission identifier, the detection result, and the summary for audit.
+
+Command-line interface:
+
+Package as a standalone executable (PyInstaller or pkg).
+
+Distribute via pip, npm, or a direct download.
+
+Web interface:
+
+Deploy the frontend as a static bundle.
+
+Backend with FastAPI or Express.
+
+Reproducibility:
+
+Record the STAG schema version, Null-Model Protocol schema version, checker version, submission identifier, and timestamp.
+
+Provide a version pin for the reporting standards.
+
+Open Questions to Resolve Before Building
+Question 1. Which runtime first? Python or Node.js. Decision affects the PDF parsing library and the packaging.
+
+Question 2. What manuscript formats are supported? Options: PDF, LaTeX, plain text, or all three. Decision needed.
+
+Question 3. How should the checker handle a manuscript that references items but does not include the annotation files? Options: mark the items as missing, or mark them as code-dependent. Decision needed.
+
+Question 4. How should the checker handle a manuscript that includes the annotation files but does not reference the items? Options: mark the items as missing, or mark them as pass if the fields are present. Decision needed.
+
+Question 5. How should the cross-check engine handle numbers that appear multiple times in the manuscript? Options: check each occurrence, or check the first occurrence. Decision needed.
+
+Question 6. What is the tolerance for the cross-check? Options: absolute tolerance, relative tolerance, or both. Decision needed.
+
+Question 7. How should the checker handle a submission that uses neither STAG nor Null-Model Protocol? Options: return a detection result of "neither" and an empty checklist, or fail. Decision needed.
+
+Question 8. Should the checker integrate with the STAG annotation validator (App 2) and the Full-Pipeline Simulator (App 9)? Decision needed: shared schema registry, or independent.
+
+Question 9. How should the checker report the detection evidence? Options: a list of evidence objects, or a text summary. Decision needed.
+
+Question 10. Should the checker support batch checking of multiple submissions? Decision needed.
+
+End of build specification for App 15
