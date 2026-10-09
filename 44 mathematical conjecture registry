@@ -1,0 +1,1689 @@
+Build Specification — App 44: The Mathematical Conjecture Registry
+Completeness status: COMPLETE. All sections delivered in one pass. No truncation. Formatted for copy-paste. Long lists are broken into short lines.
+
+1. What It Is
+A provenance-aware, versioned registry of open mathematical conjectures, their status, the partial results, and the relations between them. A conjecture is a mathematical statement that is believed to be true but has not been proved or disproved: the Riemann hypothesis, the Collatz conjecture, Goldbach's conjecture, the twin prime conjecture, P versus NP, the Hodge conjecture, and many others. The Mathematical Conjecture Registry records each conjecture with its statement, its field, its status, the partial results, the implications, the relations to other conjectures, and its provenance.
+
+It reuses:
+
+the Physics Knowledge Library (App 23)
+
+the Provenance-Aware Annotation Database (App 20)
+
+the Numerical Verification Tool (App 22)
+
+the PROV-O Exporter (App 3)
+
+the Revision History Viewer (App 7)
+
+the STAG Graph Viewer (App 5)
+
+the Autofill Library Service (App 49)
+
+It is for mathematicians, mathematics students, researchers, and anyone who wants to know the state of an open problem.
+
+2. Core Requirements
+Functional requirements:
+
+Accept deposits of mathematical conjectures from users.
+
+Store each conjecture with its statement, its field, its status, and its provenance.
+
+Record the statement: the formal statement and the informal description.
+
+Record the field and subfield: number theory, algebra, geometry, topology, analysis, logic, combinatorics, probability, or other.
+
+Record the status: open, proved, disproved, partially_resolved, or undecided.
+
+Record the partial results: what has been proved toward the conjecture.
+
+Record the implications: what would follow if the conjecture were proved or disproved.
+
+Record the relations to other conjectures: which imply, are implied by, generalize, specialize, or are equivalent to others.
+
+Record the history: who stated the conjecture, when, and where.
+
+Record the prize or recognition associated with the conjecture, if any.
+
+Record the known counterexamples or partial counterexamples.
+
+Record the computational checks: what has been verified computationally and up to what bound.
+
+Enforce provenance completeness.
+
+Enforce versioning.
+
+Enforce supersession acyclicity.
+
+Support querying by conjecture ID, name, field, status, author, year, depositor, deposit date, and keywords.
+
+Support full-text search of the statement, the informal description, the partial results, and the notes.
+
+Support aggregation queries: count by field, by status, by author, by year, by prize.
+
+Support exporting a conjecture as JSON, PROV-O, and Turtle.
+
+Support importing a conjecture from JSON.
+
+Support bulk import and bulk export.
+
+Support a REST API for CRUD operations.
+
+Support a GraphQL API for flexible queries.
+
+Support a command-line interface for administration.
+
+Support authentication and authorization.
+
+Support audit logging.
+
+Support backup and restore.
+
+Support a web interface.
+
+Support moderation.
+
+Support linking a conjecture to a Physics Knowledge Library work if the conjecture is described in a deposited work.
+
+Support linking a conjecture to a Numerical Verification Tool result if the conjecture's computational checks have been verified.
+
+Support the conjecture graph: a visualisation of the conjectures as nodes and the relations as edges.
+
+Support the implication map: a visualisation of what follows from each conjecture.
+
+Support the conjecture timeline: a visualisation of the conjectures and their partial results over time.
+
+Support the field map: a visualisation of the conjectures by field and subfield.
+
+Support the status view: a visualisation of the conjectures by status.
+
+Non-functional requirements:
+
+Deterministic.
+
+Fast: query a typical conjecture in under 100 milliseconds.
+
+Scalable: support up to 10^6 conjectures.
+
+Versioned: the registry records the STAG schema version, the mathematical conjecture schema version, and the registry version.
+
+Reproducible.
+
+Portable.
+
+Well-documented.
+
+3. Input Specification
+Input 1. Mathematical conjecture deposit. Required. A deposit object conforming to the mathematical conjecture schema.
+
+Input 2. Files. Optional. Papers, proofs, or computational results.
+
+Input 3. Provenance record. Required.
+
+Input 4. Work reference. Optional.
+
+Input 5. Verification result reference. Optional.
+
+Input 6. Query.
+
+Input 7. Aggregation query.
+
+Input 8. Authentication credentials.
+
+Input 9. Bulk import file.
+
+Input 10. Bulk export query.
+
+4. Output Specification
+Output 1. Mathematical conjecture record. JSON.
+
+Output 2. PROV-O serialization.
+
+Output 3. Turtle serialization.
+
+Output 4. Query result. JSON.
+
+Output 5. Aggregation result. JSON.
+
+Output 6. Full-text search result. JSON.
+
+Output 7. Conjecture graph. JSON or a rendered graph.
+
+Output 8. Implication map. JSON or a rendered map.
+
+Output 9. Conjecture timeline. JSON or a rendered timeline.
+
+Output 10. Field map. JSON or a rendered map.
+
+Output 11. Status view. JSON or a rendered view.
+
+Output 12. Related conjectures. JSON.
+
+Output 13. Bulk export file.
+
+Output 14. Audit log entry. JSON.
+
+Output 15. API response. JSON.
+
+Output 16. GraphQL response. JSON.
+
+Output 17. Backup file.
+
+5. Module-by-Module Specification
+Module 1. Mathematical Conjecture Schema.
+
+Defines the structure of a mathematical conjecture deposit.
+
+Module 2. Database Schema.
+
+The tables and indexes.
+
+Module 3. Conjecture Loader.
+
+Reads and validates a mathematical conjecture deposit.
+
+Module 4. Conjecture Writer.
+
+Writes a mathematical conjecture deposit to the database.
+
+Module 5. Conjecture Reader.
+
+Reads a mathematical conjecture deposit from the database.
+
+Module 6. Conjecture Updater.
+
+Updates a mathematical conjecture deposit.
+
+Module 7. Conjecture Deleter.
+
+Deletes a mathematical conjecture deposit.
+
+Module 8. Query Engine.
+
+Executes queries.
+
+Module 9. Full-Text Search Engine.
+
+Executes full-text search.
+
+Module 10. Aggregation Engine.
+
+Executes aggregation queries.
+
+Module 11. Exporter.
+
+Exports a conjecture as JSON, PROV-O, and Turtle.
+
+Module 12. Importer.
+
+Imports a conjecture from JSON.
+
+Module 13. Bulk Import and Export.
+
+Bulk operations.
+
+Module 14. REST API.
+
+HTTP endpoints.
+
+Module 15. GraphQL API.
+
+GraphQL endpoint.
+
+Module 16. Command-Line Interface.
+
+Administration commands.
+
+Module 17. Authentication and Authorization.
+
+Access control.
+
+Module 18. Audit Logging.
+
+Logs operations.
+
+Module 19. Backup and Restore.
+
+Database backup and restore.
+
+Module 20. Web Interface.
+
+Depositing, browsing, querying.
+
+Module 21. Moderation Workflow.
+
+Moderation of conjectures.
+
+Module 22. Conjecture Graph.
+
+Visualises the conjectures as nodes and the relations as edges.
+
+Module 23. Implication Map.
+
+Visualises what follows from each conjecture.
+
+Module 24. Conjecture Timeline.
+
+Visualises the conjectures and their partial results over time.
+
+Module 25. Field Map.
+
+Visualises the conjectures by field and subfield.
+
+Module 26. Status View.
+
+Visualises the conjectures by status.
+
+Module 27. Related-Conjecture Finder.
+
+Finds conjectures related to a given one.
+
+Module 28. Migration Manager.
+
+Database migrations.
+
+6. Full Mathematical Conjecture Specification
+6.1 Mathematical Conjecture Schema
+The mathematical conjecture schema defines the structure of a mathematical conjecture deposit.
+
+It has the following fields:
+
+conjecture_id. A string. Required.
+
+conjecture_name. A string. Required.
+
+statement_formal. A string. Required.
+
+statement_informal. A string. Required.
+
+field. A string. Required.
+
+subfield. A string. Optional.
+
+status. An enum. Required. The values are open, proved, disproved, partially_resolved, undecided.
+
+history. An object. Required. It contains author, year, and publication_reference.
+
+prize. An object. Optional. It contains prize_name, prize_amount, and prize_conditions.
+
+partial_results. An array of partial_result objects. Optional.
+
+implications. An array of implication objects. Optional.
+
+counterexamples. An array of counterexample objects. Optional.
+
+computational_checks. An array of check objects. Optional.
+
+known_bounds. An array of bound objects. Optional.
+
+related_conjectures. An array of conjecture relations. Optional.
+
+proof_reference. A string. Optional.
+
+disproof_reference. A string. Optional.
+
+provenance. An object. Required.
+
+work_reference. A string. Optional.
+
+verification_result_reference. A string. Optional.
+
+keywords. An array of strings. Optional.
+
+notes. A string. Optional.
+
+moderation_status. An enum. The values are pending, approved, rejected.
+
+version. An integer.
+
+supersedes. A string. Optional.
+
+superseded_by. A string. Optional.
+
+The history object has:
+
+author. An array of strings.
+
+year. An integer.
+
+publication_reference. A string.
+
+The prize object has:
+
+prize_name. A string.
+
+prize_amount. An object. Optional. It contains value and currency.
+
+prize_conditions. A string.
+
+Each partial_result object has:
+
+result_id. A string.
+
+result_description. A string.
+
+result_date. A string in ISO8601 format.
+
+prover. An array of strings.
+
+reference. A string.
+
+notes. A string. Optional.
+
+Each implication object has:
+
+implication_id. A string.
+
+implication_description. A string.
+
+implication_direction. An enum. The values are follows_from_conjecture, follows_from_negation, bidirectional.
+
+implication_target. A string.
+
+notes. A string. Optional.
+
+Each counterexample object has:
+
+counterexample_id. A string.
+
+counterexample_description. A string.
+
+counterexample_status. An enum. The values are confirmed, suspected, refuted, unclear.
+
+reference. A string.
+
+notes. A string. Optional.
+
+Each check object has:
+
+check_id. A string.
+
+check_description. A string.
+
+check_bound. An object. It contains value and units.
+
+check_date. A string in ISO8601 format.
+
+checker. A string.
+
+reference. A string.
+
+notes. A string. Optional.
+
+Each bound object has:
+
+bound_id. A string.
+
+bound_description. A string.
+
+bound_value. An object. It contains value and units.
+
+bound_direction. An enum. The values are upper_bound, lower_bound, exact.
+
+reference. A string.
+
+notes. A string. Optional.
+
+Each conjecture relation has:
+
+relation_id. A string.
+
+related_conjecture_id. A string.
+
+relation_type. An enum. The values are implies, implied_by, equivalent, generalizes, special_case, related, independent.
+
+relation_note. A string. Optional.
+
+6.2 Database Schema
+The database has the following tables.
+
+mathematical_conjecture. Holds the mathematical conjecture records.
+
+Its fields are:
+
+conjecture_id
+
+conjecture_name
+
+statement_formal
+
+statement_informal
+
+field
+
+subfield
+
+status
+
+history
+
+prize
+
+proof_reference
+
+disproof_reference
+
+provenance
+
+keywords
+
+notes
+
+moderation_status
+
+version
+
+supersedes
+
+superseded_by
+
+created_at
+
+updated_at
+
+partial_result. Holds the partial result records.
+
+Its fields are:
+
+result_id
+
+conjecture_id
+
+result_description
+
+result_date
+
+prover
+
+reference
+
+notes
+
+created_at
+
+implication. Holds the implication records.
+
+Its fields are:
+
+implication_id
+
+conjecture_id
+
+implication_description
+
+implication_direction
+
+implication_target
+
+notes
+
+created_at
+
+counterexample. Holds the counterexample records.
+
+Its fields are:
+
+counterexample_id
+
+conjecture_id
+
+counterexample_description
+
+counterexample_status
+
+reference
+
+notes
+
+created_at
+
+computational_check. Holds the computational check records.
+
+Its fields are:
+
+check_id
+
+conjecture_id
+
+check_description
+
+check_bound
+
+check_date
+
+checker
+
+reference
+
+notes
+
+created_at
+
+bound. Holds the bound records.
+
+Its fields are:
+
+bound_id
+
+conjecture_id
+
+bound_description
+
+bound_value
+
+bound_direction
+
+reference
+
+notes
+
+created_at
+
+conjecture_relation. Holds the conjecture relations.
+
+Its fields are:
+
+relation_id
+
+conjecture_id
+
+related_conjecture_id
+
+relation_type
+
+relation_note
+
+created_at
+
+work_link. Holds the work links.
+
+Its fields are:
+
+link_id
+
+conjecture_id
+
+work_id
+
+created_at
+
+verification_link. Holds the verification links.
+
+Its fields are:
+
+link_id
+
+conjecture_id
+
+verification_id
+
+created_at
+
+provenance. Holds the provenance records.
+
+Its fields are:
+
+provenance_id
+
+conjecture_id
+
+depositor_id
+
+depositor_affiliation
+
+timestamp
+
+source
+
+tool_version
+
+operation
+
+created_at
+
+audit_log. Holds the audit log entries.
+
+Its fields are:
+
+audit_id
+
+operation
+
+record_type
+
+record_id
+
+depositor_id
+
+timestamp
+
+result
+
+details
+
+created_at
+
+moderation. Holds the moderation records.
+
+Its fields are:
+
+moderation_id
+
+conjecture_id
+
+moderator_id
+
+moderation_status
+
+moderation_date
+
+moderation_notes
+
+created_at
+
+6.3 Referential Integrity
+Every partial_result.conjecture_id must exist in mathematical_conjecture.
+
+Every implication.conjecture_id must exist in mathematical_conjecture.
+
+Every counterexample.conjecture_id must exist in mathematical_conjecture.
+
+Every computational_check.conjecture_id must exist in mathematical_conjecture.
+
+Every bound.conjecture_id must exist in mathematical_conjecture.
+
+Every conjecture_relation.conjecture_id and conjecture_relation.related_conjecture_id must exist in mathematical_conjecture.
+
+Every work_link.conjecture_id must exist in mathematical_conjecture.
+
+Every verification_link.conjecture_id must exist in mathematical_conjecture.
+
+Every provenance.conjecture_id must exist in mathematical_conjecture.
+
+Every moderation.conjecture_id must exist in mathematical_conjecture.
+
+The version chain must be acyclic.
+
+The conjecture relation must be symmetric where appropriate.
+
+Every implication.implication_target must resolve to a conjecture or be flagged as unresolved.
+
+6.4 Indexes
+The database has indexes on:
+
+mathematical_conjecture.conjecture_id
+
+mathematical_conjecture.conjecture_name
+
+mathematical_conjecture.field
+
+mathematical_conjecture.subfield
+
+mathematical_conjecture.status
+
+mathematical_conjecture.moderation_status
+
+mathematical_conjecture.keywords
+
+partial_result.conjecture_id
+
+implication.conjecture_id
+
+counterexample.conjecture_id
+
+computational_check.conjecture_id
+
+bound.conjecture_id
+
+conjecture_relation.conjecture_id
+
+conjecture_relation.related_conjecture_id
+
+work_link.conjecture_id
+
+verification_link.conjecture_id
+
+provenance.conjecture_id
+
+provenance.depositor_id
+
+audit_log.operation
+
+audit_log.record_id
+
+moderation.conjecture_id
+
+moderation.moderation_status
+
+Full-text search indexes on the statement, the informal description, the partial results, and the notes.
+
+7. Core Logic as Executable Pseudocode
+7.1 Create Mathematical Conjecture
+function createMathematicalConjecture(conjecture, files, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Validate the conjecture against the schema. If invalid, return an error with the details.
+
+Step 3. If the work reference is present, look it up. If null, flag it as unresolved.
+
+Step 4. If the verification result reference is present, look it up. If null, flag it as unresolved.
+
+Step 5. Generate a conjecture ID. Set the fields: version 1, moderation_status pending, deposit_date now, depositor_id from auth, depositor_affiliation from auth, provenance from provenance.
+
+Step 6. Insert the mathematical conjecture.
+
+Step 7. Insert the partial results, the implications, the counterexamples, the computational checks, the bounds, and the conjecture relations.
+
+Step 8. Insert the work link and the verification link if present.
+
+Step 9. Insert the provenance.
+
+Step 10. Insert the moderation record.
+
+Step 11. Insert the audit log entry.
+
+Step 12. Return the conjecture_id and the status created.
+
+7.2 Read Mathematical Conjecture
+function readMathematicalConjecture(conjectureId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the conjecture. If null, return an error.
+
+Step 3. Read the partial results, the implications, the counterexamples, the computational checks, the bounds, the relations, the links, the provenance, and the moderation.
+
+Step 4. Reconstruct the deposit.
+
+Step 5. Insert the audit log entry.
+
+Step 6. Return the deposit.
+
+7.3 Update Mathematical Conjecture
+function updateMathematicalConjecture(conjectureId, conjecture, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Read the existing conjecture. If null, return an error.
+
+Step 3. Validate the new conjecture.
+
+Step 4. Increment the version. Update the supersedes and superseded_by fields.
+
+Step 5. Insert a provenance record with operation update.
+
+Step 6. Insert an audit log entry.
+
+Step 7. Return the conjecture_id, the version, and the status updated.
+
+7.4 Delete Mathematical Conjecture
+function deleteMathematicalConjecture(conjectureId, provenance, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Read the existing conjecture. If null, return an error.
+
+Step 3. If soft delete, mark as deleted. Otherwise, remove.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the conjecture_id and the status deleted.
+
+7.5 Query Mathematical Conjectures
+function queryMathematicalConjectures(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the query.
+
+Step 3. Read the matching conjectures.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the conjectures, the count, and the pagination.
+
+7.6 Aggregate Mathematical Conjectures
+function aggregateMathematicalConjectures(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the aggregation.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the results.
+
+7.7 Full-Text Search
+function fullTextSearch(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the search.
+
+Step 3. Read the matching conjectures.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the conjectures and the count.
+
+7.8 Export Mathematical Conjecture
+function exportMathematicalConjecture(conjectureId, format, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the deposit.
+
+Step 3. If json, output the deposit. If provo, export to PROV-O. If turtle, serialize to Turtle.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the output and the format.
+
+7.9 Bulk Import
+function bulkImport(file, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Parse the file.
+
+Step 3. For each conjecture, call createMathematicalConjecture.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the results and the count.
+
+7.10 Bulk Export
+function bulkExport(query, format, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the matching conjectures.
+
+Step 3. If json, output the list. If jsonl, output one line per conjecture. If provo, export each one.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the output and the count.
+
+7.11 Moderate Mathematical Conjecture
+function moderateMathematicalConjecture(conjectureId, moderationStatus, moderationNotes, auth):
+
+Step 1. validateAuth(auth, "moderator"). If not authorized, return an error.
+
+Step 2. Read the existing conjecture. If null, return an error.
+
+Step 3. Update the moderation status. Insert a moderation record.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the conjecture_id and the status.
+
+7.12 Conjecture Graph
+function conjectureGraph(auth, options):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read all conjectures.
+
+Step 3. Read all conjecture relations.
+
+Step 4. Build the graph with conjectures as nodes and relations as directed edges.
+
+Step 5. Return the graph.
+
+7.13 Implication Map
+function implicationMap(conjectureId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the conjecture. If null, return an error.
+
+Step 3. Read the implications.
+
+Step 4. Build the map with what follows from the conjecture.
+
+Step 5. Return the map.
+
+7.14 Conjecture Timeline
+function conjectureTimeline(field, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read all conjectures for the field.
+
+Step 3. Build the timeline with the conjectures and their partial results over time.
+
+Step 4. Return the timeline.
+
+7.15 Field Map
+function fieldMap(auth, options):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read all conjectures.
+
+Step 3. Build the map with fields as regions and subfields as positions.
+
+Step 4. Return the map.
+
+7.16 Status View
+function statusView(auth, options):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read all conjectures.
+
+Step 3. Build the view with the conjectures by status.
+
+Step 4. Return the view.
+
+7.17 Find Related Conjectures
+function findRelatedConjectures(conjectureId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the conjecture. If null, return an error.
+
+Step 3. Find conjectures with the same field, the same author, or an implication relation.
+
+Step 4. Return the related conjectures.
+
+7.18 Audit Log
+function auditLog(query, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Build and execute the query.
+
+Step 3. Return the results.
+
+7.19 Backup
+function backup(auth, options):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. If sql, dump as SQL. If json, dump as JSON.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the output and the format.
+
+7.20 Restore
+function restore(file, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Load the database from the file.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the status restored.
+
+8. Data Model
+The registry's internal state is the set of tables. The API's internal state is a request object and a response object.
+
+Request object:
+
+operation
+
+resource
+
+record_id
+
+record_json
+
+query
+
+auth
+
+Response object:
+
+status
+
+result
+
+error
+
+audit_id
+
+9. Architecture
+Module breakdown:
+
+Mathematical Conjecture Schema.
+
+Database Schema.
+
+Conjecture Loader.
+
+Conjecture Writer.
+
+Conjecture Reader.
+
+Conjecture Updater.
+
+Conjecture Deleter.
+
+Query Engine.
+
+Full-Text Search Engine.
+
+Aggregation Engine.
+
+Exporter.
+
+Importer.
+
+Bulk Import and Export.
+
+REST API.
+
+GraphQL API.
+
+Command-Line Interface.
+
+Authentication and Authorization.
+
+Audit Logging.
+
+Backup and Restore.
+
+Web Interface.
+
+Moderation Workflow.
+
+Conjecture Graph.
+
+Implication Map.
+
+Conjecture Timeline.
+
+Field Map.
+
+Status View.
+
+Related-Conjecture Finder.
+
+Migration Manager.
+
+Data flow:
+
+API requests go to the REST or GraphQL API.
+
+The API calls the conjecture loader, writer, reader, updater, deleter, query engine, search engine, aggregation engine, exporter, or importer.
+
+The database schema stores the data.
+
+The audit logging records every operation.
+
+The authentication and authorization check access.
+
+The moderation workflow handles moderation.
+
+The conjecture graph, the implication map, the conjecture timeline, the field map, and the status view visualise.
+
+The related-conjecture finder finds relations.
+
+The backup and restore handle backup.
+
+The web interface provides depositing, browsing, and querying.
+
+10. Technology Stack
+Recommended for the database:
+
+Database: PostgreSQL 15+ or SQLite 3.40+.
+
+Language: Python 3.11+ or Node.js 20+.
+
+ORM: SQLAlchemy or Prisma.
+
+Migrations: Alembic or Prisma Migrate.
+
+Full-text search: PostgreSQL tsvector or SQLite FTS5.
+
+Recommended for the REST API:
+
+Framework: FastAPI or Express.
+
+Authentication: FastAPI Users or Passport.
+
+Recommended for the GraphQL API:
+
+Framework: Strawberry or Apollo Server.
+
+Recommended for the command-line interface:
+
+Framework: Click or Commander.
+
+Recommended for the web interface:
+
+Frontend: React or Svelte.
+
+Backend: the same as the REST API.
+
+Recommended for deployment:
+
+Containerization: Docker.
+
+Orchestration: Docker Compose or Kubernetes.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The PROV-O exporter (App 3).
+
+The STAG schema library (App 17).
+
+The provenance database (App 20).
+
+The revision history viewer (App 7).
+
+The STAG Graph Viewer (App 5).
+
+The Physics Knowledge Library (App 23).
+
+The Numerical Verification Tool (App 22).
+
+The Autofill Library Service (App 49).
+
+11. UI/UX Specification
+REST API:
+
+Base URL: https://api.example.com/v1.
+
+Authentication: Bearer token.
+
+Endpoints:
+
+GET /conjectures.
+
+GET /conjectures/{id}.
+
+POST /conjectures.
+
+PUT /conjectures/{id}.
+
+DELETE /conjectures/{id}.
+
+GET /conjectures/{id}/provo.
+
+GET /conjectures/{id}/turtle.
+
+GET /conjectures/{id}/partial-results.
+
+GET /conjectures/{id}/implications.
+
+GET /conjectures/{id}/counterexamples.
+
+GET /conjectures/{id}/computational-checks.
+
+GET /conjectures/{id}/bounds.
+
+GET /conjectures/{id}/related.
+
+GET /conjectures/{id}/work.
+
+GET /conjectures/{id}/verification.
+
+GET /conjectures/by-field/{field}.
+
+GET /conjectures/by-status/{status}.
+
+GET /conjectures/by-author/{author}.
+
+GET /conjectures/{id}/implication-map.
+
+GET /conjectures/{id}/timeline.
+
+GET /fields/map.
+
+GET /status-view.
+
+POST /query.
+
+POST /aggregate.
+
+POST /search.
+
+GET /graph.
+
+POST /bulk/import.
+
+POST /bulk/export.
+
+POST /moderate/{id}.
+
+GET /audit.
+
+Responses in JSON.
+
+HTTP status codes: 200, 201, 204, 400, 401, 403, 404, 409, 422, 500.
+
+GraphQL API:
+
+Endpoint: https://api.example.com/graphql.
+
+Schema exposes the entities and their relationships.
+
+Command-line interface:
+
+Usage: mathematical-conjecture-registry [command] [options].
+
+Commands: init, migrate, backup, restore, import, export, query, aggregate, moderate, audit.
+
+Web interface:
+
+A browsable list of conjectures.
+
+A deposit form.
+
+A search box.
+
+A filter panel.
+
+An aggregation view.
+
+A conjecture graph.
+
+An implication map.
+
+A conjecture timeline.
+
+A field map.
+
+A status view.
+
+A detail view for each conjecture.
+
+A moderation view.
+
+12. Validation Engine Design
+The registry validates the following.
+
+Validation 1. Conjecture validity. Every conjecture is validated against the schema.
+
+Validation 2. Referential integrity.
+
+Validation 3. Version chain acyclicity.
+
+Validation 4. Work resolution.
+
+Validation 5. Verification result resolution.
+
+Validation 6. Provenance completeness.
+
+Validation 7. Audit completeness.
+
+Validation 8. Moderation completeness.
+
+Validation 9. Status consistency. The status must be consistent with the proof and disproof references.
+
+Validation 10. Implication consistency. The implication target must resolve to a conjecture or be flagged.
+
+Validation 11. Bound consistency. The bounds must be consistent with the computational checks.
+
+Validation 12. Counterexample consistency. The counterexample status must be consistent with the conjecture status.
+
+13. Testing Strategy
+Unit tests:
+
+Mathematical Conjecture Schema for valid and invalid conjectures.
+
+Database Schema for each table and index.
+
+Conjecture Loader.
+
+Conjecture Writer.
+
+Conjecture Reader.
+
+Conjecture Updater.
+
+Conjecture Deleter.
+
+Query Engine.
+
+Full-Text Search Engine.
+
+Aggregation Engine.
+
+Exporter.
+
+Importer.
+
+Bulk Import and Export.
+
+REST API.
+
+GraphQL API.
+
+Command-Line Interface.
+
+Authentication and Authorization.
+
+Audit Logging.
+
+Backup and Restore.
+
+Web Interface.
+
+Moderation Workflow.
+
+Conjecture Graph.
+
+Implication Map.
+
+Conjecture Timeline.
+
+Field Map.
+
+Status View.
+
+Related-Conjecture Finder.
+
+Migration Manager.
+
+Integration tests:
+
+Create a conjecture. Read it back.
+
+Update a conjecture.
+
+Delete a conjecture.
+
+Query by each field.
+
+Aggregate by each dimension.
+
+Search by full text.
+
+Export as JSON, PROV-O, and Turtle.
+
+Bulk import and export.
+
+Backup and restore.
+
+Moderate a conjecture.
+
+Generate the conjecture graph.
+
+Generate the implication map.
+
+Generate the conjecture timeline.
+
+Generate the field map.
+
+Generate the status view.
+
+Worked-example tests:
+
+Deposit the Riemann hypothesis.
+
+Deposit the Collatz conjecture.
+
+Deposit Goldbach's conjecture.
+
+Deposit the twin prime conjecture.
+
+Deposit the P versus NP problem.
+
+Deposit the Hodge conjecture.
+
+Deposit the Birch and Swinnerton-Dyer conjecture.
+
+Deposit the Navier-Stokes existence and smoothness problem.
+
+Deposit the Yang-Mills existence and mass gap problem.
+
+Deposit Fermat's Last Theorem (now proved, so a good test of the proved status).
+
+Deposit the Poincaré conjecture (now proved).
+
+Deposit the Kepler conjecture (now proved).
+
+Regression tests:
+
+Conjecture determinism.
+
+Query consistency.
+
+Aggregation consistency.
+
+Audit log consistency.
+
+Moderation consistency.
+
+Status consistency.
+
+Implication consistency.
+
+Bound consistency.
+
+Counterexample consistency.
+
+14. Build Phases
+Phase 1. Mathematical Conjecture Schema.
+
+Phase 2. Database Schema.
+
+Phase 3. Conjecture Loader.
+
+Phase 4. Conjecture Writer.
+
+Phase 5. Conjecture Reader.
+
+Phase 6. Conjecture Updater.
+
+Phase 7. Conjecture Deleter.
+
+Phase 8. Query Engine.
+
+Phase 9. Full-Text Search Engine.
+
+Phase 10. Aggregation Engine.
+
+Phase 11. Exporter.
+
+Phase 12. Importer.
+
+Phase 13. Bulk Import and Export.
+
+Phase 14. REST API.
+
+Phase 15. GraphQL API.
+
+Phase 16. Command-Line Interface.
+
+Phase 17. Authentication and Authorization.
+
+Phase 18. Audit Logging.
+
+Phase 19. Backup and Restore.
+
+Phase 20. Web Interface.
+
+Phase 21. Moderation Workflow.
+
+Phase 22. Conjecture Graph.
+
+Phase 23. Implication Map.
+
+Phase 24. Conjecture Timeline.
+
+Phase 25. Field Map.
+
+Phase 26. Status View.
+
+Phase 27. Related-Conjecture Finder.
+
+Phase 28. Migration Manager.
+
+Phase 29. Worked-example tests.
+
+Phase 30. Integration testing and hardening.
+
+Phase 31. Packaging and deployment.
+
+15. Dependencies
+Python path:
+
+SQLAlchemy.
+
+Alembic.
+
+FastAPI.
+
+Strawberry.
+
+FastAPI Users.
+
+Click.
+
+psycopg2.
+
+sqlite3.
+
+jsonschema.
+
+hashlib.
+
+json.
+
+pytest.
+
+Node.js path:
+
+Prisma.
+
+Express.
+
+Apollo Server.
+
+Passport.
+
+Commander.
+
+pg.
+
+better-sqlite3.
+
+ajv.
+
+crypto.
+
+JSON.
+
+Vitest.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The PROV-O exporter (App 3).
+
+The STAG schema library (App 17).
+
+The provenance database (App 20).
+
+The revision history viewer (App 7).
+
+The STAG Graph Viewer (App 5).
+
+The Physics Knowledge Library (App 23).
+
+The Numerical Verification Tool (App 22).
+
+The Autofill Library Service (App 49).
+
+16. Deployment Notes
+Database:
+
+PostgreSQL for multi-user deployments.
+
+SQLite for single-user deployments.
+
+Backup and restore via pg_dump and pg_restore or the SQLite backup API.
+
+REST API:
+
+Deploy with Docker. Stateless. Scale horizontally.
+
+Use a reverse proxy for TLS.
+
+Log every request for audit.
+
+GraphQL API:
+
+Deploy alongside the REST API.
+
+Use a query depth limit and a query complexity limit.
+
+Command-line interface:
+
+Package as a standalone executable.
+
+Distribute via pip, npm, or a direct download.
+
+Web interface:
+
+Deploy the frontend as a static bundle.
+
+Backend with FastAPI or Express.
+
+Reproducibility:
+
+Record the STAG schema version, the mathematical conjecture schema version, and the registry version.
+
+Record the provenance for every deposit.
+
+Provide a version pin for the schemas and codebook.
+
+17. Open Questions to Resolve Before Building
+Question 1. Which runtime first? Python or Node.js.
+
+Question 2. Which database first? PostgreSQL or SQLite.
+
+Question 3. How should the registry handle the field and subfield? A fixed taxonomy, or an open set.
+
+Question 4. How should the registry handle the status? A fixed set of five values, or an open set.
+
+Question 5. How should the registry handle the implication direction? A fixed set of three values, or an open set.
+
+Question 6. How should the registry handle the counterexample status? A fixed set of four values, or an open set.
+
+Question 7. How should the registry handle the bound direction? A fixed set of three values, or an open set.
+
+Question 8. How should the registry handle the relation between conjectures? Manual entry, or automatic detection.
+
+Question 9. How should the registry handle the moderation workflow? Pending until approved, auto-approved, or require a moderator.
+
+Question 10. How should the registry handle the work reference? Required, optional, or optional depending on the conjecture type.
+
+Question 11. How should the registry handle the verification result reference? Required, optional, or optional depending on the conjecture type.
+
+Question 12. How should the registry handle the conjecture graph? A directed graph, a citation network, or both.
+
+Question 13. How should the registry handle the implication map? A tree, a network, or both.
+
+Question 14. How should the registry handle the conjecture timeline? A line plot, a Gantt chart, or both.
+
+Question 15. How should the registry handle the field map? A scatter plot, a heat map, or both.
+
+Question 16. How should the registry handle the status view? A bar chart, a pie chart, or both.
+
+Question 17. Should the registry integrate with the STAG schema library (App 17), the provenance database (App 20), the revision history viewer (App 7), the STAG Graph Viewer (App 5), the Physics Knowledge Library (App 23), and the Numerical Verification Tool (App 22)?
+
+Question 18. Should the registry support federation with other instances of itself?
+
+Question 19. How should the registry handle the deposit of a conjecture that is already in the registry? Reject, create a new version, or create a separate record with a cross-reference.
+
+Question 20. Should the registry support autofill via App 49? If so, which library does it register?
+
+Question 21. Should the registry support a proof assistant view that links a conjecture to its formalization in a proof assistant?
+
+Question 22. Should the registry support a conjecture priority score that suggests which conjectures are most important?
+
+Question 23. Should the registry support a textbook view that shows the conjectures in a standard mathematics curriculum?
+
+End of build specification for App 44, the Mathematical Conjecture Registry.
