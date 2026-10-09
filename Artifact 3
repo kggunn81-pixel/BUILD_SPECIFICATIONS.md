@@ -1,0 +1,106 @@
+Artifact 3 — Response to Hostile Readings
+Scale-Transition Annotation Graphs (STAG): Response to Hostile Readings
+This artifact accompanies the main paper (Artifact 1). It states the objections that a hostile referee is likely to raise and the framework's replies. Each objection is stated in one paragraph and the reply is stated in one paragraph. The replies are not part of the specification. They are the material a referee receives when the referee asks the questions the specification does not answer on its face.
+
+Objection 1. The flagship label is unreachable.
+Objection. Under a single-status formulation, the flagship label STAG-Discovered is assigned only when all four anchoring conditions are satisfied, and the paper's own example fails all four. If the flagship label is not instantiated, the framework has no instance of its own central construct.
+
+Reply. The framework separates the label from the anchoring status. STAG-Discovered is assigned by the four prerequisites of Section 7.5, which are satisfied by the worked example in Section 11.2. The anchoring status is a separate and stronger field, reported alongside the label, and is the object of the empirical reachability search in Section 13.4. The framework makes no claim that the anchoring status is currently instantiated. The label is instantiated; the stronger status is an open empirical question.
+
+Objection 2. The four anchoring conditions are heterogeneous.
+Objection. Condition (a) is a condition on the annotation record. Condition (b) is a condition on the annotated system and the band. Condition (c) is a condition on the relation between the material-change evidence and other fields. Condition (d) is a condition on the relation between the test and its result. The four conditions do not jointly constitute a formally unified notion of evidential strength, and calling the conjunction "anchoring" misleads.
+
+Reply. The framework states in Section 1.2 and Section 7.10 that the four conditions are not of the same logical type and are not combined into a single score. The framework reports the four conditions individually. A reader who requires a formally unified notion of evidential strength will not find one, and the framework does not claim one. The word "anchoring" is a label for the conjunction and is not a claim that the conjunction has a formal structure.
+
+Objection 3. Condition (c) is not ratable.
+Objection. The rating procedure for condition (c) asks the rater to list the assumptions used to fix node identity, the regime attribute, and the effective-description-change classification, then to list the assumptions underlying the material-change evidence, then to classify the two lists as disjoint or intersecting. Assumptions are not enumerated by the framework, and the lists will be constructed post hoc by the rater to yield the classification the rater prefers.
+
+Reply. The framework states in Section 13.2 that the rating is interpretive and that agreement on the field is reported as a measure of interpretive convergence, not as a measure of the correctness of the classification. The field is validated under the same governing rule as the other core-tier fields, and the framework reports whether the field passes. If the field does not pass, the anchoring status is reported as provisional on that condition. The framework does not claim that the field measures anything beyond the raters' interpretive convergence.
+
+Objection 4. The entailment basis has no proof-theoretic semantics.
+Objection. The entailment basis separates E1 through E4 by whether the outcome "follows from the symbolic form of the surviving equations alone." The framework cites no proof theory, no equational logic, and no operational decision procedure. In principle, every case is E4, because every entailment result is contestable under some reading.
+
+Reply. The framework states in Section 7.1 that the entailment basis is a classification and not a decision procedure, that the phrase "follows from the symbolic form" is used in the ordinary mathematical sense, and that the classification is bounded by the E4 label. The framework does not claim that E4 is a well-defined set or that the assignment of E4 is rater-independent. The regress is bounded by the E4 label, not eliminated by it, and the framework discloses this.
+
+Objection 5. The graph formalism is decorative.
+Objection. Section 8.5 gives a tuple definition of the graph. The definition is a labelled directed multigraph with two node sorts and a provenance map. The composition notation is not given a semantics in terms of the tuple. The formalism is a definition, not a theory.
+
+Reply. The framework states in Section 8.5 that the formal definition does not impose constraints that would make the graph a category, a functor, or any structure richer than a labelled directed multigraph, and that the composition notation is a notational convention for display. A reader who requires a categorical semantics will not find one, and the framework does not claim one. The formalism is a definition, and the framework states that it is a definition.
+
+Objection 6. The statistical argument is thin.
+Objection. The validation programme specifies Krippendorff's alpha and Gwet's AC1 with a governing rule at 0.6, a threshold the paper calls conventional and threshold-sensitive. The sample size is left to a simulation-based power analysis that is not executed. The negative-control count presumes a binomial model that may not hold across strata. The validation programme is pre-registered but not pre-specified in the statistical sense.
+
+Reply. The framework states in Section 13.2 and Section 13.3 that the threshold is a convention, that the sample size is a floor subject to a power analysis whose results will be deposited with the pre-registration, and that the two strata may have different base rates and are reported separately. The framework does not claim that the validation programme is a fully pre-specified statistical analysis. The programme is a plan whose execution is the object of the pre-registration.
+
+Objection 7. The information-matched control is under-controlled.
+Objection. The control is a domain expert's structured summary of the same source text. Length and content are not the right matching dimensions for an information-theoretic comparison. The comparison may not isolate STAG structure from the treatment's greater information density.
+
+Reply. The framework states in Section 13.6 that the matched control is assessed by a pre-registered rubric applied by two independent raters, and that the rubric names the dimensions on which matching is judged: number of retrievable facts, number of causal or dependence relations stated, number of evidential qualifiers stated, and length in tokens. The framework does not claim that the matching is exact. If the two raters disagree, the case is excluded and the exclusion is reported.
+
+Objection 8. The conventions are conventions dressed as criteria.
+Objection. The 0.6 agreement threshold, the 0.20 false-positive tolerance, the 60 percent intra-domain threshold, and the declared minimum ratio of 10 are stated without derivation. They are conventions in a pre-registration, where conventions are supposed to be pre-committed rather than pre-registered as caveats.
+
+Reply. The framework states in Section 13.3, Section 7.7, and Section 7.5 that each of these is a convention, and that the sensitivity analyses at alternative thresholds are reported alongside. The framework reports the outcomes at the alternatives and does not claim that the outcomes are threshold-independent.
+
+Objection 9. The framework has no positive instance.
+Objection. The paper concedes that no example is validated. The two-layer example fails every anchoring condition. The Fröhlich/Eliashberg example is marked not_determinable. The paper has no positive instance of anything and asks to be published on the strength of a specification.
+
+Reply. The framework is a specification and pre-registration. The flagship label is instantiated by the worked example in Section 11.2, and the anchoring status is the object of the reachability search. The framework does not claim that any annotation is evidentially anchored and states in Section 13.4 that the contribution narrows to the annotation architecture with the anchoring status retained as a defined but uninstantiated field if the search fails. The framework is offered as a specification, not as a validated instrument.
+
+Objection 10. The venue claim is under-supported.
+Objection. Section 1.4 says the appropriate venue class is a registered-report, protocol, or philosophy-of-science outlet. A philosophy-of-science journal will ask what the philosophical contribution is. A methods journal will say the framework is too philosophical to be a method.
+
+Reply. The framework is a specification and pre-registration. Its contribution is representational and methodological, not empirical and not philosophical in the sense of arguing a philosophical thesis. It is directed at the registered-report, protocol, and philosophy-of-science venue class, and the framework does not claim to satisfy the standards of a methods journal.
+
+Objection 11. The not_determinable handling is a retreat.
+Objection. After the verification check, the Fröhlich/Eliashberg example is marked not_determinable in its intervention classification, entailment basis, and cited structural result. The two-layer example is marked not_determinable in its regime control-parameter point, phase-diagram source, material-change result, and band-source citation. The paper is retreating from its own examples rather than defending them.
+
+Reply. The framework states in Section 14.3 and Section 14.4 that three load-bearing empirical inputs could not be verified against their primary sources, and that the corresponding fields are marked not_determinable rather than populated from memory. The handling is a disclosure, not a retreat. The framework states in Section 7.6 that a label whose dependent field is not_determinable is retained with the not_determinable flag attached and displayed alongside, and that the flag is displayed with the label under the display convention of Section 7.10.
+
+Objection 12. The verification check cannot be extended.
+Objection. The verification check is confined to eight items. Other load-bearing inputs in the framework, for example the value of the declared minimum ratio and the choice of the Clopper–Pearson bound, are not verified against sources and are not marked not_determinable.
+
+Reply. The framework states in Section 14.4 that the eight items listed are the load-bearing empirical inputs on which the worked examples and the falsification conditions depend. The declared minimum ratio and the Clopper–Pearson bound are conventions and are reported as conventions in Section 14.3. The framework does not claim that the list of eight items is exhaustive over the framework; it claims that it is exhaustive over the items that the worked examples and the reachability search depend on.
+
+Objection 13. The response to hostile readings is part of the paper.
+Objection. The framework's replies to objections are part of the submission. If the replies were responses to a referee, they would be in a separate document. In the paper, they displace the specification.
+
+Reply. The replies are stated in Artifact 3, which is a separate document from the main paper (Artifact 1). The main paper defers to Artifact 3 for extended discussion of objections and to Artifact 2 for field-by-field specifications. The main paper is a specification and pre-registration; Artifact 3 is the response material.
+
+Objection 14. The framework's reachability cannot be decided by the search as specified.
+Objection. The reachability hypothesis is that at least one published physical system or K synthetic constructions satisfies all four anchoring conditions. The search reports each candidate's profile type and the reason for any failure. But the search cannot decide whether the ratio is bounded below the minimum at the band endpoint closest to the phase boundary, because that bound is a property of the system and not of the search.
+
+Reply. The framework states in Section 7.10 that the bound exists as a formal consequence of the correlation length being finite away from the critical point and growing as the endpoint approaches the phase boundary. The bound is not computed by the framework. The search reports, for each candidate, whether the bound is likely to be below the minimum given the candidate's phase-stability range. If the bound is below the minimum for all candidates in all target domains, the reachability hypothesis is falsified for those domains, and the consequence is stated in Section 13.4.
+
+Objection 15. The framework conflates the label with the assessment.
+Objection. A reader who sees STAG-Discovered may read it as a strong classification. The framework states that the anchoring status is displayed with the label, but the framework cannot enforce the display convention. In practice, downstream consumers will strip the anchoring status and treat STAG-Discovered as a claim.
+
+Reply. The framework states in Section 7.10 that the display convention is a convention, that the framework cannot enforce it technically, and that the schema requires the anchoring fields to be recorded. The framework's defence is that the schema makes the anchoring status checkable. The framework's vulnerability is that a downstream consumer may strip the field. The framework discloses the vulnerability and does not claim to eliminate it.
+
+Objection 16. The framework is not a methodology.
+Objection. A methodology tells an analyst how to proceed. The framework tells an analyst how to record what the analyst has decided. It is a recording instrument, not a methodology.
+
+Reply. The framework states in Section 1.1 that it is a specification and pre-registration protocol, that its contribution is representational and methodological rather than empirical, and that it proposes operational definitions for annotation purposes. The framework is a recording instrument for scale-transition claims, and the framework states that this is what it is.
+
+Objection 17. The framework is not falsifiable.
+Objection. The framework is a specification. A specification does not make a claim that can be falsified. Section 13.7 lists falsification conditions, but those conditions are falsification conditions for the framework's fields, not for the framework as a claim. The framework itself is not falsifiable because it makes no empirical claim.
+
+Reply. The framework's falsification conditions are the conditions under which the framework fails on its own terms: agreement failure, redundancy, non-accommodation, false-positive rate above tolerance, and reachability failure. The framework does make an empirical claim, namely that its fields are reproducible and that at least one case satisfies the anchoring conditions. The falsification conditions are the conditions under which that claim fails. The framework does not claim to be falsifiable in the sense of making a predictive empirical claim about the world.
+
+Objection 18. The framework does not solve the problem it states.
+Objection. The paper states the problem of representing inter-scale relations in a way that preserves distinctions between derivation, representation, evidence, counterfactual dependence, and interpretation. The framework provides a recording instrument, not a solution to the problem. A recording instrument does not solve a representational problem; it records the analyst's decisions about it.
+
+Reply. The framework states in Section 1.1 that it is a specification and pre-registration protocol and that its contribution is representational and methodological rather than empirical. The framework records distinctions rather than resolving them. The problem of representing inter-scale relations is not solved by a recording instrument; the framework's contribution is the instrument. The framework does not claim to solve the problem.
+
+Objection 19. The framework mislabels the anchoring status as strong.
+Objection. The framework calls the anchoring status a "stronger status." But the four anchoring conditions include condition (a), which is a restatement of the prerequisites, and condition (b), which is a condition on the band. Calling the conjunction stronger than the label obscures the fact that the label already carries the prerequisites.
+
+Reply. The framework states in Section 1.2 that STAG-Discovered is assigned by the four prerequisites of Section 7.5 and that evidential anchoring is a separate and stronger status. The word "stronger" refers to the fact that evidential anchoring requires the four anchoring conditions in addition to the prerequisites. Condition (a) restates the prerequisite evidence requirement, and condition (b) adds the band requirement. The framework states that the four anchoring conditions are not of the same logical type and that the word "stronger" is a description of the conjunction, not a formal claim.
+
+Objection 20. The framework's codebook is not self-contained.
+Objection. The codebook in Artifact 2 refers to the main paper for the definitions of E1 through E4 and for the rules of cross-domain counterfactual dependence. A codebook that refers to the main paper for its definitions is not self-contained.
+
+Reply. The codebook is a companion to the main paper, not a substitute for it. The codebook states the field list, the permitted value sets, and the semantic validation rules. The definitions of E1 through E4 and the rules of cross-domain counterfactual dependence are stated in the main paper and are cited by section. A reader who requires a self-contained codebook will find the definitions by following the section references. The framework does not claim that the codebook is self-contained from a reader who has not read the main paper.
+
+Data Availability (Artifact 3)
+Artifact 3 is deposited with the main paper and Artifact 2 at Zenodo. The repository DOI will be inserted immediately before submission.
