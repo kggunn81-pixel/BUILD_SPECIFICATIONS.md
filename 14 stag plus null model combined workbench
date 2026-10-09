@@ -1,0 +1,735 @@
+Build Specification — App 14: STAG plus Null-Model Combined Workbench
+Completeness status: COMPLETE. All sections delivered in one pass. No truncation. Formatted for copy-paste into another conversation window. No tables, no boxes.
+
+What It Is
+A platform (web or desktop) that uses both the STAG specification (Artifact 1) and the Null-Model Protocol together. It lets an annotator record a claim in STAG, hands the transition set to the Null-Model Protocol where a gap is involved, and records the statistical gap result back into the STAG record. It takes in a STAG record and, where applicable, a dataset and a pipeline specification, and puts out a STAG record with the gap result and the discordance flag. It is for research groups that use both.
+
+Core Requirements
+Functional requirements:
+
+Provide a unified environment for STAG annotation and Null-Model Protocol analysis.
+
+Load a STAG annotation record, or create one from scratch.
+
+Identify which transitions in the STAG record involve a gap in an empirical distribution.
+
+For each gap-involved transition, hand the transition set and the relevant dataset to the Null-Model Protocol.
+
+Accept a pipeline specification produced by the Pipeline Specification Wizard (App 8).
+
+Run the Full-Pipeline Simulator (App 9) on the dataset with the pipeline specification.
+
+Record the statistical gap result back into the STAG record under the field statistical_gap_result.
+
+Compare the model-relative dependence classification (from STAG) with the statistical gap result (from the Null-Model Protocol).
+
+Record the discordance flag under the field dependence_gap_discordance.
+
+Report both the STAG label with its anchoring status and the statistical gap result, side by side.
+
+Refuse to save a STAG record that breaks a schema rule.
+
+Refuse to record a statistical gap result that breaks the Null-Model Protocol schema.
+
+Support multiple STAG records and multiple datasets in one session.
+
+Support saving the combined record as a single file.
+
+Support exporting the STAG record as JSON and the statistical gap result as JSON.
+
+Support the command-line interface and the graphical interface.
+
+Non-functional requirements:
+
+Deterministic: same inputs produce same outputs.
+
+No network dependency for the core functionality.
+
+Fast: the STAG annotation operations complete in under one second; the Null-Model Protocol simulation completes in the time determined by N.
+
+Versioned: the workbench records the STAG schema version, the Null-Model Protocol schema version, and the workbench version.
+
+Reproducible: the workbench records all inputs, the pipeline specification, the seed, and the outputs.
+
+Input Specification
+Input 1. STAG annotation record. Optional. If provided, the workbench loads it. If not, the workbench creates a new one.
+
+Input 2. Dataset. Optional. Required if the STAG record contains a gap-involved transition.
+
+Input 3. Pipeline specification. Optional. Required if a statistical gap analysis is to be run.
+
+Input 4. Seed. Required for the Null-Model Protocol run.
+
+Input 5. Output path. Required. Where to save the combined record.
+
+Input 6. Session mode. Optional. Values: stag_only (default), stag_with_gap_analysis, gap_analysis_only.
+
+Input 7. Gap-involved transition selector. Optional. A list of transition IDs to run the gap analysis on. If not provided, the workbench identifies gap-involved transitions automatically.
+
+Input 8. Output format. Optional. Values: json (default), text.
+
+Output Specification
+Output 1. Combined record. JSON. The STAG annotation record with the statistical_gap_result and the dependence_gap_discordance fields populated.
+
+Output 2. STAG annotation record. JSON. The record with the STAG fields.
+
+Output 3. Statistical gap result. JSON. The result from the Full-Pipeline Simulator (App 9).
+
+Output 4. Discordance report. Text or JSON. Where the model-relative dependence classification and the statistical gap result disagree, with the reason.
+
+Output 5. Side-by-side view. Text or JSON. The STAG label with its anchoring status, alongside the statistical gap result.
+
+Output 6. Reproducibility record. JSON. The STAG schema version, Null-Model Protocol schema version, workbench version, seed, RNG, and runtime.
+
+Output 7. Combined validation report. JSON. The validation status of the STAG record and the statistical gap result.
+
+Module-by-Module Specification
+Module 1: STAG Record Loader
+Reads the STAG annotation record. Validates it against the STAG JSON Schema (Artifact 2, Appendix B.1) for the selected version. Rejects malformed records with an error.
+
+Module 2: STAG Record Creator
+If no STAG record is provided, the workbench creates a new one. It presents the STAG annotation editor panels (App 1) in order. It enforces the STAG schema rules.
+
+Module 3: Gap-Involved Transition Identifier
+Identifies which transitions in the STAG record involve a gap in an empirical distribution. A transition involves a gap if:
+
+The transition's model-relative dependence classification is Yes or No.
+
+The transition's material_change_test is a gap-related test (disappearance, order change, or a class change involving an empirical distribution).
+
+The transition is associated with a dataset.
+
+The workbench reports the list of gap-involved transitions.
+
+Module 4: Dataset Loader
+Reads the dataset. Validates it for format and completeness. Applies the transformation, jittering, and clustering specified in the pipeline specification.
+
+Module 5: Pipeline Specification Loader
+Reads the pipeline specification produced by the Pipeline Specification Wizard (App 8). Validates it against the schema. Rejects malformed specifications.
+
+Module 6: Full-Pipeline Simulator Interface
+Invokes the Full-Pipeline Simulator (App 9) with the pipeline specification, the dataset, and the seed. Collects the observed statistic, the empirical null distribution, the exceedance probability, the Monte Carlo uncertainty, the empty-W fraction, and the point mass at zero.
+
+Module 7: Statistical Gap Result Recorder
+Records the statistical gap result back into the STAG record under the field statistical_gap_result. The field is an object with the observed statistic, the exceedance probability, the Monte Carlo uncertainty, the empty-W fraction, the point mass at zero, and the tail definition.
+
+Module 8: Discordance Checker
+Compares the model-relative dependence classification (from STAG) with the statistical gap result (from the Null-Model Protocol). Records the discordance flag under the field dependence_gap_discordance.
+
+The discordance is true if:
+
+The model-relative dependence classification is Yes (a substantive intervention changes the outcome) and the statistical gap result is not significant (p > alpha).
+
+Or the model-relative dependence classification is No (no material change) and the statistical gap result is significant (p <= alpha).
+
+Or the model-relative dependence classification is Intra_domain and the statistical gap result is significant.
+
+The discordance report records the reason for the discordance.
+
+Module 9: Side-by-Side Reporter
+Produces the side-by-side view. The STAG label with its anchoring status on one side, the statistical gap result on the other.
+
+Module 10: Combined Validator
+Validates the combined record against both the STAG schema and the Null-Model Protocol schema. Checks consistency between the STAG fields and the statistical gap result.
+
+Module 11: Reproducibility Recorder
+Records the STAG schema version, the Null-Model Protocol schema version, the workbench version, the seed, the RNG, and the runtime.
+
+Module 12: Session Manager
+Manages multiple STAG records and multiple datasets in one session. Allows the analyst to switch between records and datasets.
+
+Module 13: Save and Export
+Saves the combined record as a single JSON file. Exports the STAG record as JSON and the statistical gap result as JSON.
+
+Module 14: Command-Line Interface
+Parses arguments. Invokes Modules 1 through 13. Writes the combined record to the output path.
+
+Module 15: Graphical Interface
+A window with the STAG annotation editor panels (App 1) on one side and the Null-Model Protocol panels (App 8 and App 9) on the other. Real-time display of the side-by-side view.
+
+Full Integration Specification
+6.1 STAG to Null-Model Handoff
+The workbench identifies gap-involved transitions in the STAG record. For each gap-involved transition, it hands the following to the Null-Model Protocol:
+
+The dataset associated with the transition.
+
+The pipeline specification associated with the transition.
+
+The seed.
+
+The alpha level.
+
+The transition set (the collection of all transitions in the STAG record that are gap-involved).
+
+6.2 Null-Model to STAG Handoff
+The workbench records the following back into the STAG record:
+
+statistical_gap_result: an object with the observed statistic, the exceedance probability, the Monte Carlo uncertainty, the empty-W fraction, the point mass at zero, the tail definition, and the N.
+
+dependence_gap_discordance: a boolean indicating whether the model-relative dependence classification and the statistical gap result disagree.
+
+dependence_gap_discordance_reason: a string explaining the disagreement.
+
+6.3 Discordance Rules
+The discordance is true if:
+
+The model-relative dependence classification is Yes and the statistical gap result is not significant (p > alpha).
+
+Or the model-relative dependence classification is No and the statistical gap result is significant (p <= alpha).
+
+Or the model-relative dependence classification is Intra_domain and the statistical gap result is significant (p <= alpha).
+
+Otherwise, the discordance is false.
+
+The discordance reason is one of:
+
+dependence_yes_gap_not_significant.
+
+dependence_no_gap_significant.
+
+intra_domain_gap_significant.
+
+no_discordance.
+
+6.4 Side-by-Side View
+The side-by-side view displays:
+
+The STAG derived display label.
+
+The STAG evidential anchoring status.
+
+The STAG model-relative dependence classification.
+
+The STAG cross-domain counterfactual dependence.
+
+The statistical gap result: the observed statistic, the exceedance probability, the Monte Carlo uncertainty, and the tail definition.
+
+The discordance flag and its reason.
+
+6.5 Combined Record
+The combined record is a JSON object with the STAG annotation record and the statistical gap result. The STAG annotation record is the original record with the statistical_gap_result and dependence_gap_discordance fields populated.
+
+The combined record conforms to a schema that extends the STAG schema (Artifact 2, Appendix B.1) with the statistical gap result fields.
+
+6.6 Validation
+The combined validator validates:
+
+The STAG record against the STAG schema.
+
+The statistical gap result against the Null-Model Protocol schema.
+
+The consistency between the STAG fields and the statistical gap result.
+
+Consistency checks include:
+
+If the model-relative dependence classification is Yes, the statistical gap result should be significant.
+
+If the model-relative dependence classification is No, the statistical gap result should not be significant.
+
+If the model-relative dependence classification is Intra_domain, the statistical gap result may be either significant or not, but the discordance flag should be set if it is significant.
+
+If the statistical_gap_result is populated, the dependence_gap_discordance flag must be populated.
+
+Core Logic as Executable Pseudocode
+7.1 Main Flow
+function runWorkbench(stagRecord, dataset, pipelineSpec, seed, options):
+
+Step 1. if stagRecord is null: stagRecord = createSTAGRecord(options).
+
+else: validateSTAGRecord(stagRecord, options.stagSchemaVersion).
+
+Step 2. gapTransitions = identifyGapInvolvedTransitions(stagRecord).
+
+if gapTransitions.length == 0: return {stagRecord, message: "no gap-involved transitions"}.
+
+Step 3. if dataset is null or pipelineSpec is null: return {error: "dataset and pipeline specification required for gap analysis"}.
+
+Step 4. validateDataset(dataset, pipelineSpec).
+
+Step 5. validatePipelineSpec(pipelineSpec, options.nullModelSchemaVersion).
+
+Step 6. gapResults = [].
+
+for transition in gapTransitions:
+
+result = invokeSimulator(pipelineSpec, dataset, seed, options).
+
+gapResults.push({transition_id: transition.id, result: result}).
+
+Step 7. for each gapResult:
+
+stagRecord = recordGapResult(stagRecord, gapResult.transition_id, gapResult.result).
+
+Step 8. for each gapResult:
+
+discordance = checkDiscordance(stagRecord, gapResult.transition_id, gapResult.result, options.alpha).
+
+stagRecord = recordDiscordance(stagRecord, gapResult.transition_id, discordance).
+
+Step 9. combinedRecord = buildCombinedRecord(stagRecord, gapResults).
+
+Step 10. validationReport = validateCombinedRecord(combinedRecord, options).
+
+Step 11. sideBySide = buildSideBySideView(combinedRecord).
+
+Step 12. record = buildReproducibilityRecord(stagRecord, dataset, pipelineSpec, seed, gapResults, options).
+
+Step 13. saveCombinedRecord(combinedRecord, options.outputPath).
+
+Step 14. return {combinedRecord, sideBySide, validationReport, record}.
+
+7.2 Identify Gap-Involved Transitions
+function identifyGapInvolvedTransitions(stagRecord):
+
+gapTransitions = [].
+
+for transition in stagRecord.transitions:
+
+if transition.cross_domain_counterfactual_dependence in ["Yes", "No"]:
+
+if transition.material_change_test in ["disappearance", "order_change", "class_change"]:
+
+if transition.dataset_associated:
+
+gapTransitions.push(transition).
+
+return gapTransitions.
+
+7.3 Invoke Simulator
+function invokeSimulator(pipelineSpec, dataset, seed, options):
+
+specResult = validatePipelineSpec(pipelineSpec, options.nullModelSchemaVersion).
+
+if not specResult.valid: return {error: "invalid pipeline specification", details: specResult.errors}.
+
+simulatorResult = runSimulator(pipelineSpec, dataset, seed, options).
+
+return simulatorResult.
+
+7.4 Record Gap Result
+function recordGapResult(stagRecord, transitionId, result):
+
+stagRecord.transitions[transitionId].statistical_gap_result = {observed_statistic: result.observed_statistic, exceedance_probability: result.exceedance_probability, monte_carlo_uncertainty: result.monte_carlo_uncertainty, empty_w_fraction: result.empty_w_fraction, point_mass_at_zero: result.point_mass_at_zero, tail_definition: result.tail_definition, N: result.N}.
+
+return stagRecord.
+
+7.5 Check Discordance
+function checkDiscordance(stagRecord, transitionId, gapResult, alpha):
+
+transition = stagRecord.transitions[transitionId].
+
+classification = transition.cross_domain_counterfactual_dependence.
+
+p = gapResult.exceedance_probability.
+
+if classification == "Yes" and p > alpha: return {discordance: true, reason: "dependence_yes_gap_not_significant"}.
+
+if classification == "No" and p <= alpha: return {discordance: true, reason: "dependence_no_gap_significant"}.
+
+if classification == "Intra_domain" and p <= alpha: return {discordance: true, reason: "intra_domain_gap_significant"}.
+
+return {discordance: false, reason: "no_discordance"}.
+
+7.6 Record Discordance
+function recordDiscordance(stagRecord, transitionId, discordance):
+
+stagRecord.transitions[transitionId].dependence_gap_discordance = discordance.discordance.
+
+stagRecord.transitions[transitionId].dependence_gap_discordance_reason = discordance.reason.
+
+return stagRecord.
+
+7.7 Build Combined Record
+function buildCombinedRecord(stagRecord, gapResults):
+
+return {stag_record: stagRecord, statistical_gap_results: gapResults, stag_schema_version: stagRecord.schema_version, null_model_schema_version: gapResults[0].result.schema_version, workbench_version: options.workbenchVersion, timestamp: now()}.
+
+7.8 Validate Combined Record
+function validateCombinedRecord(combinedRecord, options):
+
+stagValidation = validateSTAGRecord(combinedRecord.stag_record, options.stagSchemaVersion).
+
+nullModelValidation = validateNullModelResult(combinedRecord.statistical_gap_results, options.nullModelSchemaVersion).
+
+consistencyValidation = checkConsistency(combinedRecord).
+
+return {stag_validation: stagValidation, null_model_validation: nullModelValidation, consistency_validation: consistencyValidation}.
+
+7.9 Check Consistency
+function checkConsistency(combinedRecord):
+
+errors = [].
+
+for transition in combinedRecord.stag_record.transitions:
+
+if transition.statistical_gap_result != null:
+
+if transition.dependence_gap_discordance == null:
+
+errors.push({field: "dependence_gap_discordance", message: "statistical_gap_result populated but dependence_gap_discordance not populated"}).
+
+if transition.cross_domain_counterfactual_dependence == "Yes" and transition.statistical_gap_result.exceedance_probability > alpha:
+
+if not transition.dependence_gap_discordance:
+
+errors.push({field: "dependence_gap_discordance", message: "classification Yes but gap not significant; discordance should be true"}).
+
+return {valid: errors.length == 0, errors: errors}.
+
+7.10 Build Side-by-Side View
+function buildSideBySideView(combinedRecord):
+
+view = [].
+
+for transition in combinedRecord.stag_record.transitions:
+
+if transition.statistical_gap_result != null:
+
+view.push({stag_label: transition.derived_display_label, stag_anchoring: transition.evidential_anchoring, stag_classification: transition.cross_domain_counterfactual_dependence, statistical_gap_result: transition.statistical_gap_result, discordance: transition.dependence_gap_discordance, discordance_reason: transition.dependence_gap_discordance_reason}).
+
+return view.
+
+7.11 Build Reproducibility Record
+function buildReproducibilityRecord(stagRecord, dataset, pipelineSpec, seed, gapResults, options):
+
+return {stag_schema_version: options.stagSchemaVersion, null_model_schema_version: options.nullModelSchemaVersion, workbench_version: options.workbenchVersion, seed: seed, rng: options.rng, gap_results_count: gapResults.length, runtime_seconds: options.runtime, timestamp: now()}.
+
+Data Model / JSON Schema for Internal State
+The workbench's internal state is a combined record object.
+
+Combined record object:
+
+stag_record (object: the STAG annotation record)
+
+statistical_gap_results (array of gap result objects)
+
+stag_schema_version (string)
+
+null_model_schema_version (string)
+
+workbench_version (string)
+
+timestamp (ISO8601)
+
+Each gap result object:
+
+transition_id (string)
+
+result (object: the Full-Pipeline Simulator result)
+
+The STAG record's statistical_gap_result field is an object:
+
+observed_statistic (number or null)
+
+exceedance_probability (number)
+
+monte_carlo_uncertainty (number)
+
+empty_w_fraction (number)
+
+point_mass_at_zero (number)
+
+tail_definition (>=, >)
+
+N (integer)
+
+The STAG record's dependence_gap_discordance field is a boolean.
+
+The STAG record's dependence_gap_discordance_reason field is a string.
+
+Architecture
+Module breakdown:
+
+STAG Record Loader. Reads and validates the STAG record.
+
+STAG Record Creator. Creates a new STAG record.
+
+Gap-Involved Transition Identifier. Identifies gap-involved transitions.
+
+Dataset Loader. Reads and validates the dataset.
+
+Pipeline Specification Loader. Reads and validates the pipeline specification.
+
+Full-Pipeline Simulator Interface. Invokes the simulator.
+
+Statistical Gap Result Recorder. Records the result into the STAG record.
+
+Discordance Checker. Compares the STAG classification with the statistical gap result.
+
+Side-by-Side Reporter. Produces the side-by-side view.
+
+Combined Validator. Validates the combined record.
+
+Reproducibility Recorder. Records the versions, seed, and runtime.
+
+Session Manager. Manages multiple records and datasets.
+
+Save and Export. Saves the combined record and exports the parts.
+
+Command-Line Interface. Parses arguments.
+
+Graphical Interface. Interactive window.
+
+Data flow:
+
+STAG record and dataset go to the loaders. Gap-Involved Transition Identifier identifies transitions. Pipeline Specification Loader reads the specification. Full-Pipeline Simulator Interface invokes the simulator. Statistical Gap Result Recorder records. Discordance Checker compares. Side-by-Side Reporter produces the view. Combined Validator validates. Reproducibility Recorder records. Save and Export saves.
+
+Technology Stack
+Recommended for the desktop application:
+
+Language: Python 3.11+ or JavaScript/TypeScript (Node.js 20+).
+
+UI framework: PyQt6 or Tkinter (Python) or Electron plus React or Svelte (JS).
+
+JSON handling: standard library.
+
+Schema validation: jsonschema (Python) or ajv (JS).
+
+Testing: pytest (Python) or Vitest (JS).
+
+Recommended for the web application:
+
+Frontend: React or Svelte.
+
+Backend: FastAPI (Python) or Express (JS).
+
+Database (optional): SQLite (single-user) or PostgreSQL (multi-user).
+
+Containerization: Docker.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The STAG record conforms to Artifact 2, Appendix B.1.
+
+The pipeline specification conforms to the schema produced by the Pipeline Specification Wizard (App 8).
+
+The statistical gap result conforms to the schema produced by the Full-Pipeline Simulator (App 9).
+
+UI/UX Specification
+Layout:
+
+Left panel: STAG annotation editor panels (App 1).
+
+Center panel: Null-Model Protocol panels (App 8 and App 9).
+
+Right panel: side-by-side view.
+
+Bottom panel: discordance report and validation report.
+
+Top bar: session manager, save and export buttons.
+
+Navigation:
+
+Switch between STAG records and datasets using the session manager.
+
+Run the gap analysis using the Null-Model Protocol panels.
+
+View the side-by-side comparison in the right panel.
+
+Review the discordance and validation in the bottom panel.
+
+Error display:
+
+STAG validation errors: a modal dialog with the rule numbers and offending fields.
+
+Null-Model Protocol validation errors: a modal dialog with the rule numbers and offending fields.
+
+Discordance: a badge in the side-by-side view with the reason.
+
+Display conventions:
+
+The STAG label is always displayed with its anchoring status.
+
+The statistical gap result is always displayed with the tail definition and the N.
+
+The discordance flag is always displayed with its reason.
+
+Validation Engine Design
+The workbench validates the following:
+
+Validation 1. STAG record validity. The STAG record is validated against the STAG JSON Schema (Artifact 2, Appendix B.1).
+
+Validation 2. Pipeline specification validity. The pipeline specification is validated against the schema produced by the Pipeline Specification Wizard (App 8).
+
+Validation 3. Dataset validity. The dataset is validated for format and completeness.
+
+Validation 4. Statistical gap result validity. The statistical gap result is validated against the schema produced by the Full-Pipeline Simulator (App 9).
+
+Validation 5. Consistency. The STAG fields and the statistical gap result are checked for consistency. The discordance flag is checked against the classification and the p-value.
+
+Validation 6. Combined schema. The combined record conforms to a schema that extends the STAG schema with the statistical gap result fields.
+
+Testing Strategy
+Unit tests:
+
+STAG Record Loader for valid and invalid records.
+
+STAG Record Creator for each panel.
+
+Gap-Involved Transition Identifier for each classification.
+
+Dataset Loader for each format.
+
+Pipeline Specification Loader for valid and invalid specifications.
+
+Full-Pipeline Simulator Interface for each result field.
+
+Statistical Gap Result Recorder for each field.
+
+Discordance Checker for each discordance reason.
+
+Side-by-Side Reporter for each field.
+
+Combined Validator for each consistency check.
+
+Reproducibility Recorder for the record structure.
+
+Session Manager for multiple records and datasets.
+
+Integration tests:
+
+Load a STAG record with a gap-involved transition. Load a dataset and a pipeline specification. Run the gap analysis. Verify the combined record.
+
+Load a STAG record with no gap-involved transition. Verify the message.
+
+Load a STAG record with a gap-involved transition. Run the gap analysis. Verify the discordance flag when the classification and the p-value disagree.
+
+Verify the side-by-side view.
+
+Verify the combined validation report.
+
+Worked-example tests:
+
+Artifact 1, Section 11.2 (two-layer Ising): the STAG record has a gap-involved transition. The pipeline specification is a uniform null with S2 support and W_adj. The statistical gap result should be recorded and the discordance flag should be checked.
+
+Artifact 1, Section 11.3 (non-uniform null): the STAG record has a gap-involved transition. The pipeline specification is a truncated-exponential null with S1 support and W_adj. The statistical gap result should be recorded and the discordance flag should be checked.
+
+Regression tests:
+
+Combined record determinism.
+
+Consistency check consistency.
+
+Discordance check consistency.
+
+Build Phases
+Phase 1. STAG Record Loader. Read and validate STAG records.
+
+Phase 2. STAG Record Creator. Create new STAG records.
+
+Phase 3. Gap-Involved Transition Identifier. Identify gap-involved transitions.
+
+Phase 4. Dataset Loader. Read and validate datasets.
+
+Phase 5. Pipeline Specification Loader. Read and validate pipeline specifications.
+
+Phase 6. Full-Pipeline Simulator Interface. Invoke the simulator.
+
+Phase 7. Statistical Gap Result Recorder. Record results into STAG records.
+
+Phase 8. Discordance Checker. Compare classification and gap result.
+
+Phase 9. Side-by-Side Reporter. Produce the side-by-side view.
+
+Phase 10. Combined Validator. Validate the combined record.
+
+Phase 11. Reproducibility Recorder. Record versions, seed, runtime.
+
+Phase 12. Session Manager. Manage multiple records and datasets.
+
+Phase 13. Save and Export.
+
+Phase 14. Command-Line Interface.
+
+Phase 15. Graphical Interface.
+
+Phase 16. Worked-example tests.
+
+Phase 17. Integration testing and hardening.
+
+Phase 18. Packaging.
+
+Dependencies
+Python path:
+
+jsonschema (schema validation).
+
+argparse or click (command-line).
+
+json (JSON handling, standard library).
+
+PyQt6 or Tkinter (graphical interface).
+
+pytest (testing).
+
+Node.js path:
+
+ajv (schema validation).
+
+commander (command-line).
+
+JSON (standard library).
+
+React or Svelte (graphical interface).
+
+Vitest (testing).
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The STAG schema (Artifact 2, Appendix B.1).
+
+The Null-Model Protocol schema (from App 8 and App 9).
+
+The combined schema (extends the STAG schema with the statistical gap result fields).
+
+Deployment Notes
+Desktop application:
+
+Package as a standalone executable (PyInstaller for Python, Electron for JS).
+
+Distribute via pip, npm, or a direct download.
+
+No server required.
+
+Web application:
+
+Deploy the frontend as a static bundle.
+
+Backend with FastAPI or Express.
+
+Database optional; SQLite for single-user, PostgreSQL for multi-user.
+
+Containerization: Docker.
+
+Reproducibility:
+
+Record the STAG schema version, the Null-Model Protocol schema version, the workbench version, the seed, and the RNG.
+
+Provide a version pin for the combined schema.
+
+Open Questions to Resolve Before Building
+Question 1. Which runtime first? Python or JavaScript. Decision affects the UI framework and the packaging.
+
+Question 2. Which STAG panels are required in the workbench? Options: all 13 panels (full editor), or only the panels needed for gap-involved transitions. Decision needed.
+
+Question 3. How does the workbench identify gap-involved transitions? The heuristic in Section 6.1 uses the cross_domain_counterfactual_dependence, the material_change_test, and the dataset association. Decision needed: is this heuristic sufficient, or does the analyst need to select transitions manually?
+
+Question 4. How does the workbench handle multiple datasets? Options: one dataset per STAG record, or multiple datasets with a mapping. Decision needed.
+
+Question 5. How does the workbench handle multiple pipeline specifications? Options: one specification per STAG record, or multiple specifications with a mapping. Decision needed.
+
+Question 6. How does the workbench handle the discordance report? Options: a boolean flag, a reason string, or both. The Null-Model Protocol paper says record both. Decision needed.
+
+Question 7. How does the workbench handle the not_determinable flag propagation? The STAG specification specifies that not_determinable propagates from the entailment basis to the intervention classification to the cross-domain counterfactual dependence. Decision needed: does the workbench check the propagation automatically, or trust the record?
+
+Question 8. Should the workbench support batch processing of multiple STAG records? Decision needed.
+
+Question 9. Should the workbench integrate with the STAG annotation editor (App 1), the STAG validator (App 2), the Pipeline Specification Wizard (App 8), the Full-Pipeline Simulator (App 9), and the Scan-Family Comparator (App 10)? Decision needed: shared schema registry, or independent.
+
+Question 10. How does the workbench report the combined record? Options: a single JSON file, separate JSON files for the STAG record and the statistical gap result, or both. Decision needed.
+
+End of build specification for App 14
