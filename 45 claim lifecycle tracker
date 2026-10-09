@@ -1,0 +1,1682 @@
+Build Specification — App 45: The Claim Lifecycle Tracker
+Completeness status: COMPLETE. All sections delivered in one pass. No truncation. Formatted for copy-paste. Long lists are broken into short lines.
+
+1. What It Is
+A provenance-aware, versioned system that tracks a claim from its first statement to its current status. A claim passes through a lifecycle: proposed, tested, replicated, contested, superseded, or withdrawn. The Claim Lifecycle Tracker records each transition in the lifecycle, the reasons for it, the evidence that drove it, and the provenance. It is a meta-level system: it tracks the claims that the other apps record, and it records how those claims have evolved over time.
+
+It reuses:
+
+the Physics Knowledge Library (App 23)
+
+the Replication Tracker (App 26)
+
+the Anomaly Register (App 25)
+
+the Medical Claim Verifier (App 40)
+
+the Psychological Effect Registry (App 41)
+
+the Climate Attribution Registry (App 42)
+
+the Historical Claim Registry (App 38)
+
+the Provenance-Aware Annotation Database (App 20)
+
+the PROV-O Exporter (App 3)
+
+the Revision History Viewer (App 7)
+
+the Evidence Aggregator (App 46)
+
+the Autofill Library Service (App 49)
+
+It is for meta-scientists, journal editors, funders, research auditors, and anyone who wants to see the trajectory of a claim over time.
+
+2. Core Requirements
+Functional requirements:
+
+Accept deposits of claims from the other apps.
+
+Store each claim with its identifier, its source app, its current status, and its provenance.
+
+Record the lifecycle events: each transition of the claim's status, with the date, the reason, the evidence, and the actor.
+
+Record the status history: the sequence of statuses the claim has passed through.
+
+Record the drivers: the evidence, the events, or the discoveries that drove each transition.
+
+Record the actors: the people, groups, or systems that made each transition happen.
+
+Record the current status: proposed, tested, replicated, contested, superseded, withdrawn, or other.
+
+Record the current confidence: the confidence level associated with the current status.
+
+Record the relations to other claims: which claims depend on this one, which are alternatives, which have superseded it.
+
+Record the trajectory: the direction the claim is moving, toward acceptance or toward rejection.
+
+Record the key events: the significant moments in the claim's history.
+
+Enforce provenance completeness.
+
+Enforce versioning.
+
+Enforce supersession acyclicity.
+
+Support querying by claim ID, source app, status, confidence, actor, date, and keywords.
+
+Support full-text search of the claim description, the lifecycle events, and the notes.
+
+Support aggregation queries: count by status, by source app, by year, by actor, by trajectory.
+
+Support exporting a claim lifecycle as JSON, PROV-O, and Turtle.
+
+Support importing a claim lifecycle from JSON.
+
+Support bulk import and bulk export.
+
+Support a REST API for CRUD operations.
+
+Support a GraphQL API for flexible queries.
+
+Support a command-line interface for administration.
+
+Support authentication and authorization.
+
+Support audit logging.
+
+Support backup and restore.
+
+Support a web interface.
+
+Support moderation.
+
+Support linking a claim lifecycle to a Physics Knowledge Library work.
+
+Support linking a claim lifecycle to a Replication Tracker record.
+
+Support linking a claim lifecycle to an Anomaly Register record.
+
+Support linking a claim lifecycle to a Medical Claim Verifier record.
+
+Support linking a claim lifecycle to a Psychological Effect Registry record.
+
+Support linking a claim lifecycle to a Climate Attribution Registry record.
+
+Support linking a claim lifecycle to a Historical Claim Registry record.
+
+Support linking a claim lifecycle to a Mathematical Conjecture Registry record.
+
+Support the lifecycle timeline: a visualisation of a claim's status over time.
+
+Support the claim network: a visualisation of the relations between claims.
+
+Support the trajectory dashboard: a visualisation of the direction each claim is moving.
+
+Support the actor network: a visualisation of who is driving which transitions.
+
+Non-functional requirements:
+
+Deterministic.
+
+Fast: query a typical lifecycle in under 100 milliseconds.
+
+Scalable: support up to 10^7 lifecycle events.
+
+Versioned: the system records the STAG schema version, the claim lifecycle schema version, and the system version.
+
+Reproducible.
+
+Portable.
+
+Well-documented.
+
+3. Input Specification
+Input 1. Claim lifecycle deposit. Required. A deposit object conforming to the claim lifecycle schema.
+
+Input 2. Files. Optional. Supporting documents.
+
+Input 3. Provenance record. Required.
+
+Input 4. Source claim reference. Required. A reference to a claim in one of the other apps.
+
+Input 5. Query.
+
+Input 6. Aggregation query.
+
+Input 7. Authentication credentials.
+
+Input 8. Bulk import file.
+
+Input 9. Bulk export query.
+
+4. Output Specification
+Output 1. Claim lifecycle record. JSON.
+
+Output 2. PROV-O serialization.
+
+Output 3. Turtle serialization.
+
+Output 4. Query result. JSON.
+
+Output 5. Aggregation result. JSON.
+
+Output 6. Full-text search result. JSON.
+
+Output 7. Lifecycle timeline. JSON or a rendered timeline.
+
+Output 8. Claim network. JSON or a rendered network.
+
+Output 9. Trajectory dashboard. JSON or a rendered dashboard.
+
+Output 10. Actor network. JSON or a rendered network.
+
+Output 11. Related claims. JSON.
+
+Output 12. Bulk export file.
+
+Output 13. Audit log entry. JSON.
+
+Output 14. API response. JSON.
+
+Output 15. GraphQL response. JSON.
+
+Output 16. Backup file.
+
+5. Module-by-Module Specification
+Module 1. Claim Lifecycle Schema.
+
+Defines the structure of a claim lifecycle deposit.
+
+Module 2. Database Schema.
+
+The tables and indexes.
+
+Module 3. Lifecycle Loader.
+
+Reads and validates a claim lifecycle deposit.
+
+Module 4. Lifecycle Writer.
+
+Writes a claim lifecycle deposit to the database.
+
+Module 5. Lifecycle Reader.
+
+Reads a claim lifecycle deposit from the database.
+
+Module 6. Lifecycle Updater.
+
+Updates a claim lifecycle deposit.
+
+Module 7. Lifecycle Deleter.
+
+Deletes a claim lifecycle deposit.
+
+Module 8. Query Engine.
+
+Executes queries.
+
+Module 9. Full-Text Search Engine.
+
+Executes full-text search.
+
+Module 10. Aggregation Engine.
+
+Executes aggregation queries.
+
+Module 11. Exporter.
+
+Exports a claim lifecycle as JSON, PROV-O, and Turtle.
+
+Module 12. Importer.
+
+Imports a claim lifecycle from JSON.
+
+Module 13. Bulk Import and Export.
+
+Bulk operations.
+
+Module 14. REST API.
+
+HTTP endpoints.
+
+Module 15. GraphQL API.
+
+GraphQL endpoint.
+
+Module 16. Command-Line Interface.
+
+Administration commands.
+
+Module 17. Authentication and Authorization.
+
+Access control.
+
+Module 18. Audit Logging.
+
+Logs operations.
+
+Module 19. Backup and Restore.
+
+Database backup and restore.
+
+Module 20. Web Interface.
+
+Depositing, browsing, querying.
+
+Module 21. Moderation Workflow.
+
+Moderation of lifecycles.
+
+Module 22. Lifecycle Timeline.
+
+Visualises a claim's status over time.
+
+Module 23. Claim Network.
+
+Visualises the relations between claims.
+
+Module 24. Trajectory Dashboard.
+
+Visualises the direction each claim is moving.
+
+Module 25. Actor Network.
+
+Visualises who is driving which transitions.
+
+Module 26. Related-Claim Finder.
+
+Finds claims related to a given one.
+
+Module 27. Source App Integrator.
+
+Integrates with the other apps to pull claim information and push lifecycle updates.
+
+Module 28. Migration Manager.
+
+Database migrations.
+
+6. Full Claim Lifecycle Specification
+6.1 Claim Lifecycle Schema
+The claim lifecycle schema defines the structure of a claim lifecycle deposit.
+
+It has the following fields:
+
+lifecycle_id. A string. Required.
+
+claim_id. A string. Required.
+
+claim_description. A string. Required.
+
+source_app. An enum. Required. The values are physics_knowledge_library, replication_tracker, anomaly_register, medical_claim_verifier, psychological_effect_registry, climate_attribution_registry, historical_claim_registry, mathematical_conjecture_registry, legal_precedent_graph, economic_indicator_provenance, other.
+
+current_status. An enum. Required. The values are proposed, tested, replicated, contested, superseded, withdrawn, other.
+
+current_confidence. An enum. Required. The values are very_high, high, medium, low, very_low, unknown.
+
+trajectory. An enum. Required. The values are toward_acceptance, toward_rejection, stable, oscillating, unclear.
+
+lifecycle_events. An array of lifecycle event objects. Required.
+
+key_events. An array of key event objects. Optional.
+
+relations. An array of claim relation objects. Optional.
+
+provenance. An object. Required.
+
+keywords. An array of strings. Optional.
+
+notes. A string. Optional.
+
+moderation_status. An enum. The values are pending, approved, rejected.
+
+version. An integer.
+
+supersedes. A string. Optional.
+
+superseded_by. A string. Optional.
+
+Each lifecycle event object has:
+
+event_id. A string.
+
+event_date. A string in ISO8601 format.
+
+previous_status. An enum. The values are proposed, tested, replicated, contested, superseded, withdrawn, other.
+
+new_status. An enum. The values are proposed, tested, replicated, contested, superseded, withdrawn, other.
+
+event_reason. A string.
+
+event_drivers. An array of driver objects.
+
+event_actors. An array of actor objects.
+
+event_evidence. An array of evidence objects.
+
+notes. A string. Optional.
+
+Each driver object has:
+
+driver_id. A string.
+
+driver_description. A string.
+
+driver_type. An enum. The values are new_evidence, new_study, replication_result, methodological_critique, theoretical_advance, retraction, community_consensus, other.
+
+Each actor object has:
+
+actor_id. A string.
+
+actor_name. A string.
+
+actor_type. An enum. The values are individual_researcher, research_group, journal, institution, community, automated_system, other.
+
+actor_role. An enum. The values are proponent, opponent, neutral_arbiter, observer, other.
+
+Each evidence object has:
+
+evidence_id. A string.
+
+evidence_description. A string.
+
+evidence_reference. A string.
+
+evidence_type. An enum. The values are study, meta_analysis, replication, data, argument, other.
+
+Each key event object has:
+
+key_event_id. A string.
+
+key_event_date. A string in ISO8601 format.
+
+key_event_description. A string.
+
+key_event_significance. An enum. The values are major, moderate, minor.
+
+Each claim relation has:
+
+relation_id. A string.
+
+related_claim_id. A string.
+
+relation_type. An enum. The values are depends_on, alternative, supersedes, superseded_by, supports, contradicts, related, independent.
+
+relation_note. A string. Optional.
+
+6.2 Database Schema
+The database has the following tables.
+
+claim_lifecycle. Holds the claim lifecycle records.
+
+Its fields are:
+
+lifecycle_id
+
+claim_id
+
+claim_description
+
+source_app
+
+current_status
+
+current_confidence
+
+trajectory
+
+provenance
+
+keywords
+
+notes
+
+moderation_status
+
+version
+
+supersedes
+
+superseded_by
+
+created_at
+
+updated_at
+
+lifecycle_event. Holds the lifecycle event records.
+
+Its fields are:
+
+event_id
+
+lifecycle_id
+
+event_date
+
+previous_status
+
+new_status
+
+event_reason
+
+notes
+
+created_at
+
+event_driver. Holds the event driver records.
+
+Its fields are:
+
+driver_id
+
+event_id
+
+driver_description
+
+driver_type
+
+created_at
+
+event_actor. Holds the event actor records.
+
+Its fields are:
+
+actor_id
+
+event_id
+
+actor_name
+
+actor_type
+
+actor_role
+
+created_at
+
+event_evidence. Holds the event evidence records.
+
+Its fields are:
+
+evidence_id
+
+event_id
+
+evidence_description
+
+evidence_reference
+
+evidence_type
+
+created_at
+
+key_event. Holds the key event records.
+
+Its fields are:
+
+key_event_id
+
+lifecycle_id
+
+key_event_date
+
+key_event_description
+
+key_event_significance
+
+created_at
+
+claim_relation. Holds the claim relation records.
+
+Its fields are:
+
+relation_id
+
+lifecycle_id
+
+related_claim_id
+
+relation_type
+
+relation_note
+
+created_at
+
+source_link. Holds the source app links.
+
+Its fields are:
+
+link_id
+
+lifecycle_id
+
+source_claim_id
+
+source_app
+
+created_at
+
+provenance. Holds the provenance records.
+
+Its fields are:
+
+provenance_id
+
+lifecycle_id
+
+depositor_id
+
+depositor_affiliation
+
+timestamp
+
+source
+
+tool_version
+
+operation
+
+created_at
+
+audit_log. Holds the audit log entries.
+
+Its fields are:
+
+audit_id
+
+operation
+
+record_type
+
+record_id
+
+depositor_id
+
+timestamp
+
+result
+
+details
+
+created_at
+
+moderation. Holds the moderation records.
+
+Its fields are:
+
+moderation_id
+
+lifecycle_id
+
+moderator_id
+
+moderation_status
+
+moderation_date
+
+moderation_notes
+
+created_at
+
+6.3 Referential Integrity
+Every lifecycle_event.lifecycle_id must exist in claim_lifecycle.
+
+Every event_driver.event_id must exist in lifecycle_event.
+
+Every event_actor.event_id must exist in lifecycle_event.
+
+Every event_evidence.event_id must exist in lifecycle_event.
+
+Every key_event.lifecycle_id must exist in claim_lifecycle.
+
+Every claim_relation.lifecycle_id and claim_relation.related_claim_id must exist in claim_lifecycle.
+
+Every source_link.lifecycle_id must exist in claim_lifecycle.
+
+Every provenance.lifecycle_id must exist in claim_lifecycle.
+
+Every moderation.lifecycle_id must exist in claim_lifecycle.
+
+The version chain must be acyclic.
+
+The claim relation must be symmetric where appropriate.
+
+6.4 Indexes
+The database has indexes on:
+
+claim_lifecycle.lifecycle_id
+
+claim_lifecycle.claim_id
+
+claim_lifecycle.source_app
+
+claim_lifecycle.current_status
+
+claim_lifecycle.current_confidence
+
+claim_lifecycle.trajectory
+
+claim_lifecycle.moderation_status
+
+claim_lifecycle.keywords
+
+lifecycle_event.lifecycle_id
+
+lifecycle_event.event_date
+
+lifecycle_event.new_status
+
+event_driver.event_id
+
+event_driver.driver_type
+
+event_actor.event_id
+
+event_actor.actor_name
+
+event_actor.actor_type
+
+event_evidence.event_id
+
+key_event.lifecycle_id
+
+claim_relation.lifecycle_id
+
+claim_relation.related_claim_id
+
+source_link.lifecycle_id
+
+source_link.source_claim_id
+
+provenance.lifecycle_id
+
+provenance.depositor_id
+
+audit_log.operation
+
+audit_log.record_id
+
+moderation.lifecycle_id
+
+moderation.moderation_status
+
+Full-text search indexes on the claim description, the lifecycle events, and the notes.
+
+7. Core Logic as Executable Pseudocode
+7.1 Create Claim Lifecycle
+function createClaimLifecycle(lifecycle, files, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Validate the lifecycle against the schema. If invalid, return an error with the details.
+
+Step 3. If the source claim reference is present, look it up. If null, flag it as unresolved.
+
+Step 4. Generate a lifecycle ID. Set the fields: version 1, moderation_status pending, deposit_date now, depositor_id from auth, depositor_affiliation from auth, provenance from provenance.
+
+Step 5. Insert the claim lifecycle.
+
+Step 6. Insert the lifecycle events, the event drivers, the event actors, the event evidence, the key events, and the claim relations.
+
+Step 7. Insert the source link if present.
+
+Step 8. Insert the provenance.
+
+Step 9. Insert the moderation record.
+
+Step 10. Insert the audit log entry.
+
+Step 11. Return the lifecycle_id and the status created.
+
+7.2 Read Claim Lifecycle
+function readClaimLifecycle(lifecycleId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the lifecycle. If null, return an error.
+
+Step 3. Read the lifecycle events, the drivers, the actors, the evidence, the key events, the relations, the source link, the provenance, and the moderation.
+
+Step 4. Reconstruct the deposit.
+
+Step 5. Insert the audit log entry.
+
+Step 6. Return the deposit.
+
+7.3 Update Claim Lifecycle
+function updateClaimLifecycle(lifecycleId, lifecycle, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Read the existing lifecycle. If null, return an error.
+
+Step 3. Validate the new lifecycle.
+
+Step 4. Increment the version. Update the supersedes and superseded_by fields.
+
+Step 5. Insert a provenance record with operation update.
+
+Step 6. Insert an audit log entry.
+
+Step 7. Return the lifecycle_id, the version, and the status updated.
+
+7.4 Add Lifecycle Event
+function addLifecycleEvent(lifecycleId, event, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Read the lifecycle. If null, return an error.
+
+Step 3. Validate the event against the schema.
+
+Step 4. Insert the lifecycle event.
+
+Step 5. Insert the event drivers, the event actors, and the event evidence.
+
+Step 6. Update the lifecycle current_status and current_confidence.
+
+Step 7. Insert a provenance record with operation update.
+
+Step 8. Insert an audit log entry.
+
+Step 9. Return the event_id and the status added.
+
+7.5 Delete Claim Lifecycle
+function deleteClaimLifecycle(lifecycleId, provenance, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Read the existing lifecycle. If null, return an error.
+
+Step 3. If soft delete, mark as deleted. Otherwise, remove.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the lifecycle_id and the status deleted.
+
+7.6 Query Claim Lifecycles
+function queryClaimLifecycles(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the query.
+
+Step 3. Read the matching lifecycles.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the lifecycles, the count, and the pagination.
+
+7.7 Aggregate Claim Lifecycles
+function aggregateClaimLifecycles(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the aggregation.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the results.
+
+7.8 Full-Text Search
+function fullTextSearch(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the search.
+
+Step 3. Read the matching lifecycles.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the lifecycles and the count.
+
+7.9 Export Claim Lifecycle
+function exportClaimLifecycle(lifecycleId, format, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the deposit.
+
+Step 3. If json, output the deposit. If provo, export to PROV-O. If turtle, serialize to Turtle.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the output and the format.
+
+7.10 Bulk Import
+function bulkImport(file, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Parse the file.
+
+Step 3. For each lifecycle, call createClaimLifecycle.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the results and the count.
+
+7.11 Bulk Export
+function bulkExport(query, format, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the matching lifecycles.
+
+Step 3. If json, output the list. If jsonl, output one line per lifecycle. If provo, export each one.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the output and the count.
+
+7.12 Moderate Claim Lifecycle
+function moderateClaimLifecycle(lifecycleId, moderationStatus, moderationNotes, auth):
+
+Step 1. validateAuth(auth, "moderator"). If not authorized, return an error.
+
+Step 2. Read the existing lifecycle. If null, return an error.
+
+Step 3. Update the moderation status. Insert a moderation record.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the lifecycle_id and the status.
+
+7.13 Lifecycle Timeline
+function lifecycleTimeline(lifecycleId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the lifecycle. If null, return an error.
+
+Step 3. Read the lifecycle events.
+
+Step 4. Build the timeline with the events over time.
+
+Step 5. Return the timeline.
+
+7.14 Claim Network
+function claimNetwork(auth, options):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read all lifecycles.
+
+Step 3. Read all claim relations.
+
+Step 4. Build the network with claims as nodes and relations as edges.
+
+Step 5. Return the network.
+
+7.15 Trajectory Dashboard
+function trajectoryDashboard(auth, options):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read all lifecycles.
+
+Step 3. Build the dashboard with the trajectories of the claims.
+
+Step 4. Return the dashboard.
+
+7.16 Actor Network
+function actorNetwork(auth, options):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read all actors from the lifecycle events.
+
+Step 3. Build the network with actors as nodes and lifecycle events as edges.
+
+Step 4. Return the network.
+
+7.17 Find Related Claims
+function findRelatedClaims(lifecycleId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the lifecycle. If null, return an error.
+
+Step 3. Find claims with the same source app, the same status, or a relation.
+
+Step 4. Return the related claims.
+
+7.18 Sync with Source Apps
+function syncWithSourceApps(lifecycleId, auth):
+
+Step 1. validateAuth(auth, "system"). If not authorized, return an error.
+
+Step 2. Read the lifecycle. If null, return an error.
+
+Step 3. Read the source app and the source claim.
+
+Step 4. Pull the current claim information from the source app.
+
+Step 5. Compare with the lifecycle's current status.
+
+Step 6. If they differ, add a lifecycle event to record the change.
+
+Step 7. Return the sync status.
+
+7.19 Audit Log
+function auditLog(query, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Build and execute the query.
+
+Step 3. Return the results.
+
+7.20 Backup
+function backup(auth, options):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. If sql, dump as SQL. If json, dump as JSON.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the output and the format.
+
+7.21 Restore
+function restore(file, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Load the database from the file.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the status restored.
+
+8. Data Model
+The system's internal state is the set of tables. The API's internal state is a request object and a response object.
+
+Request object:
+
+operation
+
+resource
+
+record_id
+
+record_json
+
+query
+
+auth
+
+Response object:
+
+status
+
+result
+
+error
+
+audit_id
+
+9. Architecture
+Module breakdown:
+
+Claim Lifecycle Schema.
+
+Database Schema.
+
+Lifecycle Loader.
+
+Lifecycle Writer.
+
+Lifecycle Reader.
+
+Lifecycle Updater.
+
+Lifecycle Deleter.
+
+Query Engine.
+
+Full-Text Search Engine.
+
+Aggregation Engine.
+
+Exporter.
+
+Importer.
+
+Bulk Import and Export.
+
+REST API.
+
+GraphQL API.
+
+Command-Line Interface.
+
+Authentication and Authorization.
+
+Audit Logging.
+
+Backup and Restore.
+
+Web Interface.
+
+Moderation Workflow.
+
+Lifecycle Timeline.
+
+Claim Network.
+
+Trajectory Dashboard.
+
+Actor Network.
+
+Related-Claim Finder.
+
+Source App Integrator.
+
+Migration Manager.
+
+Data flow:
+
+API requests go to the REST or GraphQL API.
+
+The API calls the lifecycle loader, writer, reader, updater, deleter, query engine, search engine, aggregation engine, exporter, or importer.
+
+The source app integrator pulls claim information from the source apps and pushes lifecycle updates.
+
+The database schema stores the data.
+
+The audit logging records every operation.
+
+The authentication and authorization check access.
+
+The moderation workflow handles moderation.
+
+The lifecycle timeline, the claim network, the trajectory dashboard, and the actor network visualise.
+
+The related-claim finder finds relations.
+
+The backup and restore handle backup.
+
+The web interface provides depositing, browsing, and querying.
+
+10. Technology Stack
+Recommended for the database:
+
+Database: PostgreSQL 15+ or SQLite 3.40+.
+
+Language: Python 3.11+ or Node.js 20+.
+
+ORM: SQLAlchemy or Prisma.
+
+Migrations: Alembic or Prisma Migrate.
+
+Full-text search: PostgreSQL tsvector or SQLite FTS5.
+
+Recommended for the REST API:
+
+Framework: FastAPI or Express.
+
+Authentication: FastAPI Users or Passport.
+
+Recommended for the GraphQL API:
+
+Framework: Strawberry or Apollo Server.
+
+Recommended for the command-line interface:
+
+Framework: Click or Commander.
+
+Recommended for the web interface:
+
+Frontend: React or Svelte.
+
+Backend: the same as the REST API.
+
+Recommended for deployment:
+
+Containerization: Docker.
+
+Orchestration: Docker Compose or Kubernetes.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The PROV-O exporter (App 3).
+
+The STAG schema library (App 17).
+
+The provenance database (App 20).
+
+The revision history viewer (App 7).
+
+The Physics Knowledge Library (App 23).
+
+The Replication Tracker (App 26).
+
+The Anomaly Register (App 25).
+
+The Medical Claim Verifier (App 40).
+
+The Psychological Effect Registry (App 41).
+
+The Climate Attribution Registry (App 42).
+
+The Historical Claim Registry (App 38).
+
+The Mathematical Conjecture Registry (App 44).
+
+The Evidence Aggregator (App 46).
+
+The Autofill Library Service (App 49).
+
+11. UI/UX Specification
+REST API:
+
+Base URL: https://api.example.com/v1.
+
+Authentication: Bearer token.
+
+Endpoints:
+
+GET /lifecycles.
+
+GET /lifecycles/{id}.
+
+POST /lifecycles.
+
+PUT /lifecycles/{id}.
+
+DELETE /lifecycles/{id}.
+
+GET /lifecycles/{id}/provo.
+
+GET /lifecycles/{id}/turtle.
+
+GET /lifecycles/{id}/events.
+
+POST /lifecycles/{id}/events.
+
+GET /lifecycles/{id}/key-events.
+
+GET /lifecycles/{id}/relations.
+
+GET /lifecycles/{id}/source-link.
+
+GET /lifecycles/{id}/related.
+
+GET /lifecycles/by-source-app/{source_app}.
+
+GET /lifecycles/by-status/{status}.
+
+GET /lifecycles/by-trajectory/{trajectory}.
+
+GET /lifecycles/{id}/timeline.
+
+GET /lifecycles/{id}/sync.
+
+POST /query.
+
+POST /aggregate.
+
+POST /search.
+
+GET /network.
+
+GET /trajectory-dashboard.
+
+GET /actor-network.
+
+POST /bulk/import.
+
+POST /bulk/export.
+
+POST /moderate/{id}.
+
+GET /audit.
+
+Responses in JSON.
+
+HTTP status codes: 200, 201, 204, 400, 401, 403, 404, 409, 422, 500.
+
+GraphQL API:
+
+Endpoint: https://api.example.com/graphql.
+
+Schema exposes the entities and their relationships.
+
+Command-line interface:
+
+Usage: claim-lifecycle-tracker [command] [options].
+
+Commands: init, migrate, backup, restore, import, export, query, aggregate, moderate, audit, sync.
+
+Web interface:
+
+A browsable list of lifecycles.
+
+A deposit form.
+
+A search box.
+
+A filter panel.
+
+An aggregation view.
+
+A lifecycle timeline.
+
+A claim network.
+
+A trajectory dashboard.
+
+An actor network.
+
+A detail view for each lifecycle.
+
+A moderation view.
+
+12. Validation Engine Design
+The system validates the following.
+
+Validation 1. Lifecycle validity. Every lifecycle is validated against the schema.
+
+Validation 2. Referential integrity.
+
+Validation 3. Version chain acyclicity.
+
+Validation 4. Source claim resolution. Every source claim reference must resolve or be flagged.
+
+Validation 5. Provenance completeness.
+
+Validation 6. Audit completeness.
+
+Validation 7. Moderation completeness.
+
+Validation 8. Status consistency. The current status must be consistent with the lifecycle events.
+
+Validation 9. Trajectory consistency. The trajectory must be consistent with the recent events.
+
+Validation 10. Relation consistency. The relations must be consistent with the source apps.
+
+Validation 11. Event sequence consistency. The lifecycle events must be in chronological order.
+
+13. Testing Strategy
+Unit tests:
+
+Claim Lifecycle Schema for valid and invalid lifecycles.
+
+Database Schema for each table and index.
+
+Lifecycle Loader.
+
+Lifecycle Writer.
+
+Lifecycle Reader.
+
+Lifecycle Updater.
+
+Lifecycle Deleter.
+
+Query Engine.
+
+Full-Text Search Engine.
+
+Aggregation Engine.
+
+Exporter.
+
+Importer.
+
+Bulk Import and Export.
+
+REST API.
+
+GraphQL API.
+
+Command-Line Interface.
+
+Authentication and Authorization.
+
+Audit Logging.
+
+Backup and Restore.
+
+Web Interface.
+
+Moderation Workflow.
+
+Lifecycle Timeline.
+
+Claim Network.
+
+Trajectory Dashboard.
+
+Actor Network.
+
+Related-Claim Finder.
+
+Source App Integrator.
+
+Migration Manager.
+
+Integration tests:
+
+Create a lifecycle. Read it back.
+
+Update a lifecycle.
+
+Add a lifecycle event.
+
+Delete a lifecycle.
+
+Query by each field.
+
+Aggregate by each dimension.
+
+Search by full text.
+
+Export as JSON, PROV-O, and Turtle.
+
+Bulk import and export.
+
+Backup and restore.
+
+Moderate a lifecycle.
+
+Generate the lifecycle timeline.
+
+Generate the claim network.
+
+Generate the trajectory dashboard.
+
+Generate the actor network.
+
+Sync with a source app.
+
+Worked-example tests:
+
+Deposit the lifecycle for the claim that cold fusion is real (proposed, then tested, then failed replication, then withdrawn).
+
+Deposit the lifecycle for the claim that the Higgs boson exists (proposed, then tested, then replicated, then accepted).
+
+Deposit the lifecycle for the claim that the MMR vaccine causes autism (proposed, then tested, then failed replication, then withdrawn).
+
+Deposit the lifecycle for the claim that the universe is expanding (proposed, then tested, then replicated, then accepted).
+
+Deposit the lifecycle for the claim that the Loch Ness Monster exists (proposed, then tested, then failed replication, then withdrawn).
+
+Deposit the lifecycle for the claim that P versus NP is decidable (proposed, then tested, then contested).
+
+Deposit the lifecycle for the claim that the Riemann hypothesis is true (proposed, then tested, then partially resolved).
+
+Deposit the lifecycle for the claim that the Anthropocene is a geological epoch (proposed, then tested, then contested).
+
+Regression tests:
+
+Lifecycle determinism.
+
+Query consistency.
+
+Aggregation consistency.
+
+Audit log consistency.
+
+Moderation consistency.
+
+Status consistency.
+
+Trajectory consistency.
+
+Relation consistency.
+
+Event sequence consistency.
+
+14. Build Phases
+Phase 1. Claim Lifecycle Schema.
+
+Phase 2. Database Schema.
+
+Phase 3. Lifecycle Loader.
+
+Phase 4. Lifecycle Writer.
+
+Phase 5. Lifecycle Reader.
+
+Phase 6. Lifecycle Updater.
+
+Phase 7. Lifecycle Deleter.
+
+Phase 8. Query Engine.
+
+Phase 9. Full-Text Search Engine.
+
+Phase 10. Aggregation Engine.
+
+Phase 11. Exporter.
+
+Phase 12. Importer.
+
+Phase 13. Bulk Import and Export.
+
+Phase 14. REST API.
+
+Phase 15. GraphQL API.
+
+Phase 16. Command-Line Interface.
+
+Phase 17. Authentication and Authorization.
+
+Phase 18. Audit Logging.
+
+Phase 19. Backup and Restore.
+
+Phase 20. Web Interface.
+
+Phase 21. Moderation Workflow.
+
+Phase 22. Lifecycle Timeline.
+
+Phase 23. Claim Network.
+
+Phase 24. Trajectory Dashboard.
+
+Phase 25. Actor Network.
+
+Phase 26. Related-Claim Finder.
+
+Phase 27. Source App Integrator.
+
+Phase 28. Migration Manager.
+
+Phase 29. Worked-example tests.
+
+Phase 30. Integration testing and hardening.
+
+Phase 31. Packaging and deployment.
+
+15. Dependencies
+Python path:
+
+SQLAlchemy.
+
+Alembic.
+
+FastAPI.
+
+Strawberry.
+
+FastAPI Users.
+
+Click.
+
+psycopg2.
+
+sqlite3.
+
+jsonschema.
+
+hashlib.
+
+json.
+
+pytest.
+
+Node.js path:
+
+Prisma.
+
+Express.
+
+Apollo Server.
+
+Passport.
+
+Commander.
+
+pg.
+
+better-sqlite3.
+
+ajv.
+
+crypto.
+
+JSON.
+
+Vitest.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The PROV-O exporter (App 3).
+
+The STAG schema library (App 17).
+
+The provenance database (App 20).
+
+The revision history viewer (App 7).
+
+The Physics Knowledge Library (App 23).
+
+The Replication Tracker (App 26).
+
+The Anomaly Register (App 25).
+
+The Medical Claim Verifier (App 40).
+
+The Psychological Effect Registry (App 41).
+
+The Climate Attribution Registry (App 42).
+
+The Historical Claim Registry (App 38).
+
+The Mathematical Conjecture Registry (App 44).
+
+The Evidence Aggregator (App 46).
+
+The Autofill Library Service (App 49).
+
+16. Deployment Notes
+Database:
+
+PostgreSQL for multi-user deployments.
+
+SQLite for single-user deployments.
+
+Backup and restore via pg_dump and pg_restore or the SQLite backup API.
+
+REST API:
+
+Deploy with Docker. Stateless. Scale horizontally.
+
+Use a reverse proxy for TLS.
+
+Log every request for audit.
+
+GraphQL API:
+
+Deploy alongside the REST API.
+
+Use a query depth limit and a query complexity limit.
+
+Command-line interface:
+
+Package as a standalone executable.
+
+Distribute via pip, npm, or a direct download.
+
+Web interface:
+
+Deploy the frontend as a static bundle.
+
+Backend with FastAPI or Express.
+
+Reproducibility:
+
+Record the STAG schema version, the claim lifecycle schema version, and the system version.
+
+Record the provenance for every deposit.
+
+Provide a version pin for the schemas and codebook.
+
+17. Open Questions to Resolve Before Building
+Question 1. Which runtime first? Python or Node.js.
+
+Question 2. Which database first? PostgreSQL or SQLite.
+
+Question 3. How should the system handle the source app? A fixed set of apps, or an open set.
+
+Question 4. How should the system handle the current status? A fixed set of seven values, or an open set.
+
+Question 5. How should the system handle the current confidence? A fixed set of six values, or a continuous scale.
+
+Question 6. How should the system handle the trajectory? A fixed set of five values, or an open set.
+
+Question 7. How should the system handle the driver type? A fixed set, or an open set.
+
+Question 8. How should the system handle the actor type? A fixed set, or an open set.
+
+Question 9. How should the system handle the actor role? A fixed set, or an open set.
+
+Question 10. How should the system handle the evidence type? A fixed set, or an open set.
+
+Question 11. How should the system handle the key event significance? A fixed set of three values, or an open set.
+
+Question 12. How should the system handle the relation between claims? Manual entry, or automatic detection.
+
+Question 13. How should the system handle the moderation workflow? Pending until approved, auto-approved, or require a moderator.
+
+Question 14. How should the system handle the source claim reference? Required, optional, or optional depending on the source app.
+
+Question 15. How should the system handle the sync with source apps? Manual, scheduled, or event-driven.
+
+Question 16. How should the system handle the lifecycle timeline? A line plot, a Gantt chart, or both.
+
+Question 17. How should the system handle the claim network? A directed graph, a citation network, or both.
+
+Question 18. How should the system handle the trajectory dashboard? A bar chart, a scatter plot, or both.
+
+Question 19. How should the system handle the actor network? A bipartite graph, a co-authorship network, or both.
+
+Question 20. Should the system integrate with the STAG schema library (App 17), the provenance database (App 20), the revision history viewer (App 7), the Physics Knowledge Library (App 23), the Replication Tracker (App 26), the Anomaly Register (App 25), the Medical Claim Verifier (App 40), the Psychological Effect Registry (App 41), the Climate Attribution Registry (App 42), the Historical Claim Registry (App 38), and the Mathematical Conjecture Registry (App 44)?
+
+Question 21. Should the system support federation with other instances of itself?
+
+Question 22. How should the system handle the deposit of a lifecycle that is already in the system? Reject, create a new version, or create a separate record with a cross-reference.
+
+Question 23. Should the system support autofill via App 49? If so, which library does it register?
+
+Question 24. Should the system support a funder view that shows the lifecycles of the claims they funded?
+
+Question 25. Should the system support a journal view that shows the lifecycles of the claims they published?
+
+Question 26. Should the system support a public communications view that shows the lifecycles of claims in plain language?
+
+Question 27. Should the system support a prediction function that estimates where a claim is likely to end up?
+
+Question 28. Should the system support a warning function that alerts when a claim's trajectory changes?
+
+End of build specification for App 45, the Claim Lifecycle Tracker.
+
+Say "46" when you want the next one, the Evidence 
