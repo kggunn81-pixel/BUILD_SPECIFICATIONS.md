@@ -1,0 +1,1010 @@
+Build Specification — App 19: Reproducibility Deposit Template
+Completeness status: COMPLETE. All sections delivered in one pass. No truncation. Formatted for copy-paste into another conversation window. No tables, no boxes.
+
+What It Is
+A template repository structured so a deposit satisfies both papers' data-availability requirements. It lays out the codebook, schemas, seeds, scripts, environment file, and results in the required structure, with a checklist. It takes in the author's code, data, and seeds, and puts out a deposit-ready repository. It is for authors and repositories.
+
+Core Requirements
+Functional requirements:
+
+Provide a directory structure that satisfies the data-availability requirements of the STAG specification (Artifact 1, Section 14.1 and Data Availability) and the Null-Model Protocol paper (Section 12 and Section 14.4).
+
+Provide a checklist that the author can use to verify the deposit is complete.
+
+Provide placeholders for the codebook, schemas, seeds, scripts, environment file, and results.
+
+Provide a README that explains the structure and how to reproduce the results.
+
+Provide a LICENSE file.
+
+Provide a CITATION file.
+
+Provide a setup script that prepares the environment.
+
+Provide a run script that reproduces the results.
+
+Provide a check script that runs the checklist.
+
+Provide example files for each type of content.
+
+Support multiple deposit types: STAG-only, Null-Model-only, both.
+
+Support versioning of the deposit.
+
+Support a manifest file that lists every file with its hash.
+
+Support a metadata file that records the authors, the date, the versions, and the deposit type.
+
+Non-functional requirements:
+
+Deterministic: same inputs produce same outputs.
+
+No network dependency for the core structure.
+
+Fast: the setup script completes in a reasonable time.
+
+Portable: works on Linux, macOS, and Windows.
+
+Well-documented: the README explains every directory and file.
+
+Language-agnostic: the template is not tied to a specific programming language, but provides examples for Python, R, and JavaScript.
+
+Input Specification
+Input 1. Author's code. Required. The analysis code, in one or more files.
+
+Input 2. Author's data. Required. The data used in the analysis.
+
+Input 3. Author's seeds. Required. The random seeds used in the analysis.
+
+Input 4. Author's results. Optional. The results of the analysis. If provided, the template includes them; if not, the template includes a placeholder and the run script generates them.
+
+Input 5. Deposit type. Required. Values: stag_only, null_model_only, both.
+
+Input 6. Metadata. Required. Authors, date, title, abstract, keywords.
+
+Input 7. Schema versions. Required. The STAG schema version and the Null-Model Protocol schema version.
+
+Input 8. Language. Optional. Values: python, r, javascript, other. Default: python.
+
+Input 9. Output directory. Required. Where to create the deposit.
+
+Output Specification
+Output 1. Deposit directory. A directory structured according to the template.
+
+Output 2. Manifest file. JSON. Lists every file with its SHA-256 hash.
+
+Output 3. Metadata file. JSON. Records the authors, the date, the title, the abstract, the keywords, the deposit type, the schema versions, and the language.
+
+Output 4. Checklist. Markdown or JSON. The checklist of required items, with a status for each.
+
+Output 5. README. Markdown. The structure and the reproduction instructions.
+
+Output 6. LICENSE. Text. The license.
+
+Output 7. CITATION. Text. The citation information.
+
+Output 8. Setup script. Executable. Prepares the environment.
+
+Output 9. Run script. Executable. Reproduces the results.
+
+Output 10. Check script. Executable. Runs the checklist.
+
+Output 11. Reproducibility record. JSON. The template version, the setup time, the run time, and the check time.
+
+Module-by-Module Specification
+Module 1: Directory Structure Builder
+Creates the deposit directory with the following structure:
+
+deposit/
+
+README.md
+
+LICENSE
+
+CITATION
+
+metadata.json
+
+manifest.json
+
+checklist.md
+
+setup.sh (or setup.py, setup.R, setup.js)
+
+run.sh (or run.py, run.R, run.js)
+
+check.sh (or check.py, check.R, check.js)
+
+code/
+
+data/
+
+seeds/
+
+results/
+
+schemas/
+
+codebook/
+
+logs/
+
+tests/
+
+For STAG-only deposits, the codebook/ directory contains the STAG codebook. For Null-Model-only deposits, the codebook/ directory contains the Null-Model Protocol specification. For both, it contains both.
+
+For STAG-only deposits, the schemas/ directory contains the STAG JSON Schema and the STAG SHACL schema. For Null-Model-only deposits, the schemas/ directory contains the Null-Model Protocol schema. For both, it contains both.
+
+Module 2: Metadata File Builder
+Creates the metadata.json file with the following fields:
+
+title (string)
+
+authors (array of strings)
+
+date (ISO8601)
+
+abstract (string)
+
+keywords (array of strings)
+
+deposit_type (stag_only, null_model_only, both)
+
+stag_schema_version (string or null)
+
+null_model_schema_version (string or null)
+
+language (python, r, javascript, other)
+
+template_version (string)
+
+Module 3: Manifest File Builder
+Creates the manifest.json file. It lists every file in the deposit with its SHA-256 hash. It is regenerated whenever the deposit is updated.
+
+Module 4: Checklist Builder
+Creates the checklist.md file. The checklist has the following items:
+
+Item 1. README.md exists and explains the structure and the reproduction instructions.
+
+Item 2. LICENSE exists.
+
+Item 3. CITATION exists.
+
+Item 4. metadata.json exists and is valid.
+
+Item 5. manifest.json exists and is valid.
+
+Item 6. code/ contains the analysis code.
+
+Item 7. data/ contains the data.
+
+Item 8. seeds/ contains the seeds.
+
+Item 9. results/ contains the results (or a placeholder if the results are generated by the run script).
+
+Item 10. schemas/ contains the required schemas for the deposit type.
+
+Item 11. codebook/ contains the required codebook for the deposit type.
+
+Item 12. setup.sh (or equivalent) exists and is executable.
+
+Item 13. run.sh (or equivalent) exists and is executable.
+
+Item 14. check.sh (or equivalent) exists and is executable.
+
+Item 15. For STAG-only deposits: the STAG codebook is present, the STAG JSON Schema is present, the STAG SHACL schema is present, and the STAG worked examples are present.
+
+Item 16. For Null-Model-only deposits: the Null-Model Protocol specification is present, the Null-Model Protocol schema is present, and the Null-Model Protocol worked examples are present.
+
+Item 17. For both: all items from 15 and 16 are present.
+
+Item 18. logs/ contains the setup, run, and check logs.
+
+Item 19. tests/ contains the test scripts.
+
+Item 20. The deposit is reproducible: running the run script from a clean environment reproduces the results.
+
+Module 5: README Builder
+Creates the README.md file. It explains:
+
+The purpose of the deposit.
+
+The structure of the deposit.
+
+How to set up the environment.
+
+How to run the analysis.
+
+How to reproduce the results.
+
+How to run the checklist.
+
+How to update the deposit.
+
+The versions of the schemas and the codebook.
+
+The license and the citation.
+
+Module 6: Setup Script Builder
+Creates the setup.sh (or equivalent) file. It:
+
+Installs the dependencies.
+
+Sets up the environment.
+
+Records the setup log.
+
+Module 7: Run Script Builder
+Creates the run.sh (or equivalent) file. It:
+
+Reads the seeds.
+
+Runs the analysis code.
+
+Writes the results to results/.
+
+Records the run log.
+
+Module 8: Check Script Builder
+Creates the check.sh (or equivalent) file. It:
+
+Runs the checklist.
+
+Records the check log.
+
+Reports any missing items.
+
+Module 9: Code, Data, Seeds, and Results Placeholders
+Creates placeholder files in code/, data/, seeds/, and results/. The author replaces the placeholders with their own code, data, seeds, and results.
+
+Module 10: Schema and Codebook Copies
+Copies the required schemas and codebook into schemas/ and codebook/.
+
+For STAG-only deposits: the STAG codebook (Artifact 2, Appendices A.1 through A.11), the STAG JSON Schema (Artifact 2, Appendix B.1), and the STAG SHACL schema (Artifact 2, Appendix B.3).
+
+For Null-Model-only deposits: the Null-Model Protocol specification (Appendix A) and the Null-Model Protocol schema (from App 8 and App 9).
+
+For both: all of the above.
+
+Module 11: Template Version Recorder
+Records the template version in the metadata file and in the README.
+
+Module 12: Reproducibility Recorder
+Records the template version, the setup time, the run time, and the check time in a reproducibility record.
+
+Module 13: Command-Line Interface
+Parses arguments. Invokes Modules 1 through 12. Creates the deposit directory.
+
+Full Template Specification
+6.1 Directory Structure
+The deposit directory has the following structure:
+
+deposit/
+
+README.md
+
+LICENSE
+
+CITATION
+
+metadata.json
+
+manifest.json
+
+checklist.md
+
+setup.sh
+
+run.sh
+
+check.sh
+
+code/
+
+data/
+
+seeds/
+
+results/
+
+schemas/
+
+codebook/
+
+logs/
+
+tests/
+
+The structure is fixed. The author may add subdirectories within code/, data/, seeds/, results/, schemas/, codebook/, logs/, and tests/, but the top-level structure is fixed.
+
+6.2 Metadata File
+The metadata.json file has the following structure:
+
+{
+"title": "...",
+"authors": ["..."],
+"date": "2026-...",
+"abstract": "...",
+"keywords": ["..."],
+"deposit_type": "stag_only | null_model_only | both",
+"stag_schema_version": "...",
+"null_model_schema_version": "...",
+"language": "python | r | javascript | other",
+"template_version": "..."
+}
+
+6.3 Manifest File
+The manifest.json file has the following structure:
+
+{
+"files": [
+{"path": "README.md", "hash": "sha256:...", "size": 1234},
+...
+],
+"generated": "2026-..."
+}
+
+6.4 Checklist
+The checklist.md file has the following structure:
+
+Deposit Checklist
+□ Item 1. README.md exists and explains the structure and the reproduction instructions.
+□ Item 2. LICENSE exists.
+□ Item 3. CITATION exists.
+□ Item 4. metadata.json exists and is valid.
+□ Item 5. manifest.json exists and is valid.
+□ Item 6. code/ contains the analysis code.
+□ Item 7. data/ contains the data.
+□ Item 8. seeds/ contains the seeds.
+□ Item 9. results/ contains the results (or a placeholder if the results are generated by the run script).
+□ Item 10. schemas/ contains the required schemas for the deposit type.
+□ Item 11. codebook/ contains the required codebook for the deposit type.
+□ Item 12. setup.sh (or equivalent) exists and is executable.
+□ Item 13. run.sh (or equivalent) exists and is executable.
+□ Item 14. check.sh (or equivalent) exists and is executable.
+□ Item 15. For STAG-only deposits: the STAG codebook is present, the STAG JSON Schema is present, the STAG SHACL schema is present, and the STAG worked examples are present.
+□ Item 16. For Null-Model-only deposits: the Null-Model Protocol specification is present, the Null-Model Protocol schema is present, and the Null-Model Protocol worked examples are present.
+□ Item 17. For both: all items from 15 and 16 are present.
+□ Item 18. logs/ contains the setup, run, and check logs.
+□ Item 19. tests/ contains the test scripts.
+□ Item 20. The deposit is reproducible: running the run script from a clean environment reproduces the results.
+6.5 README
+The README.md file has the following structure:
+
+Deposit Title
+Purpose
+Structure
+Setup
+Run
+Reproduce
+Checklist
+Update
+Versions
+License
+Citation
+6.6 Setup Script
+The setup.sh file (for Python) has the following structure:
+
+#!/bin/bash
+set -e
+echo "Setting up the environment..."
+
+Install dependencies
+pip install -r requirements.txt
+
+Record the setup log
+echo "Setup completed at $(date)" > logs/setup.log
+echo "Setup completed."
+
+The equivalent for R and JavaScript follows the same pattern.
+
+6.7 Run Script
+The run.sh file (for Python) has the following structure:
+
+#!/bin/bash
+set -e
+echo "Running the analysis..."
+
+Read the seeds
+SEED=$(cat seeds/seed.txt)
+
+Run the analysis code
+python code/analysis.py --seed $SEED --output results/
+
+Record the run log
+echo "Run completed at $(date)" > logs/run.log
+echo "Run completed."
+
+6.8 Check Script
+The check.sh file (for Python) has the following structure:
+
+#!/bin/bash
+set -e
+echo "Running the checklist..."
+
+Run the check
+python check.py
+
+Record the check log
+echo "Check completed at $(date)" > logs/check.log
+echo "Check completed."
+
+6.9 Placeholders
+The template creates placeholder files in code/, data/, seeds/, results/, schemas/, codebook/, logs/, and tests/. The author replaces the placeholders with their own content.
+
+6.10 Schema and Codebook Copies
+For STAG-only deposits, the template copies:
+
+The STAG codebook (Artifact 2, Appendices A.1 through A.11) to codebook/stag_codebook.md.
+
+The STAG JSON Schema (Artifact 2, Appendix B.1) to schemas/stag_schema.json.
+
+The STAG SHACL schema (Artifact 2, Appendix B.3) to schemas/stag_shacl.ttl.
+
+The STAG worked examples (Artifact 1, Section 11) to codebook/stag_worked_examples.md.
+
+For Null-Model-only deposits, the template copies:
+
+The Null-Model Protocol specification (Appendix A) to codebook/null_model_specification.md.
+
+The Null-Model Protocol schema (from App 8 and App 9) to schemas/null_model_schema.json.
+
+The Null-Model Protocol worked examples (Section 11) to codebook/null_model_worked_examples.md.
+
+For both, the template copies all of the above.
+
+6.11 Template Version
+The template version is recorded in the metadata file and in the README. It is a semantic version string.
+
+6.12 Reproducibility Record
+The reproducibility record is stored in logs/reproducibility.json with the following structure:
+
+{
+"template_version": "...",
+"setup_time": "...",
+"run_time": "...",
+"check_time": "...",
+"seed": "...",
+"results_hash": "sha256:..."
+}
+
+Core Logic as Executable Pseudocode
+7.1 Main Flow
+function createDeposit(authorCode, authorData, authorSeeds, authorResults, depositType, metadata, schemaVersions, language, outputDir):
+
+Step 1. createDirectoryStructure(outputDir, depositType).
+
+Step 2. createMetadataFile(outputDir, metadata, depositType, schemaVersions, language).
+
+Step 3. copyCode(outputDir, authorCode).
+
+Step 4. copyData(outputDir, authorData).
+
+Step 5. copySeeds(outputDir, authorSeeds).
+
+Step 6. if authorResults is not null: copyResults(outputDir, authorResults).
+
+else: createResultsPlaceholder(outputDir).
+
+Step 7. copySchemas(outputDir, depositType, schemaVersions).
+
+Step 8. copyCodebook(outputDir, depositType, schemaVersions).
+
+Step 9. createReadme(outputDir, metadata, depositType, language).
+
+Step 10. createLicense(outputDir).
+
+Step 11. createCitation(outputDir, metadata).
+
+Step 12. createSetupScript(outputDir, language).
+
+Step 13. createRunScript(outputDir, language).
+
+Step 14. createCheckScript(outputDir, language).
+
+Step 15. createChecklist(outputDir, depositType).
+
+Step 16. createManifest(outputDir).
+
+Step 17. createPlaceholders(outputDir, language).
+
+Step 18. createReproducibilityRecord(outputDir).
+
+Step 19. return {depositDir: outputDir, manifest: readManifest(outputDir), metadata: readMetadata(outputDir)}.
+
+7.2 Create Directory Structure
+function createDirectoryStructure(outputDir, depositType):
+
+createDirectory(outputDir).
+
+createDirectory(outputDir + "/code").
+
+createDirectory(outputDir + "/data").
+
+createDirectory(outputDir + "/seeds").
+
+createDirectory(outputDir + "/results").
+
+createDirectory(outputDir + "/schemas").
+
+createDirectory(outputDir + "/codebook").
+
+createDirectory(outputDir + "/logs").
+
+createDirectory(outputDir + "/tests").
+
+7.3 Create Metadata File
+function createMetadataFile(outputDir, metadata, depositType, schemaVersions, language):
+
+metadataObj = {title: metadata.title, authors: metadata.authors, date: metadata.date, abstract: metadata.abstract, keywords: metadata.keywords, deposit_type: depositType, stag_schema_version: schemaVersions.stag, null_model_schema_version: schemaVersions.nullModel, language: language, template_version: TEMPLATE_VERSION}.
+
+writeJSON(outputDir + "/metadata.json", metadataObj).
+
+7.4 Create Manifest
+function createManifest(outputDir):
+
+files = listAllFiles(outputDir).
+
+manifest = {files: [], generated: now()}.
+
+for file in files:
+
+hash = sha256(file).
+
+size = fileSize(file).
+
+manifest.files.push({path: relativePath(file, outputDir), hash: hash, size: size}).
+
+writeJSON(outputDir + "/manifest.json", manifest).
+
+7.5 Create Checklist
+function createChecklist(outputDir, depositType):
+
+checklist = generateChecklist(depositType).
+
+writeMarkdown(outputDir + "/checklist.md", checklist).
+
+7.6 Create README
+function createReadme(outputDir, metadata, depositType, language):
+
+readme = generateReadme(metadata, depositType, language).
+
+writeMarkdown(outputDir + "/README.md", readme).
+
+7.7 Create Setup Script
+function createSetupScript(outputDir, language):
+
+if language == "python": script = pythonSetupScript().
+
+else if language == "r": script = rSetupScript().
+
+else if language == "javascript": script = jsSetupScript().
+
+else: script = genericSetupScript().
+
+writeExecutable(outputDir + "/setup.sh", script).
+
+7.8 Create Run Script
+function createRunScript(outputDir, language):
+
+if language == "python": script = pythonRunScript().
+
+else if language == "r": script = rRunScript().
+
+else if language == "javascript": script = jsRunScript().
+
+else: script = genericRunScript().
+
+writeExecutable(outputDir + "/run.sh", script).
+
+7.9 Create Check Script
+function createCheckScript(outputDir, language):
+
+if language == "python": script = pythonCheckScript().
+
+else if language == "r": script = rCheckScript().
+
+else if language == "javascript": script = jsCheckScript().
+
+else: script = genericCheckScript().
+
+writeExecutable(outputDir + "/check.sh", script).
+
+7.10 Create Reproducibility Record
+function createReproducibilityRecord(outputDir):
+
+record = {template_version: TEMPLATE_VERSION, setup_time: null, run_time: null, check_time: null, seed: null, results_hash: null}.
+
+writeJSON(outputDir + "/logs/reproducibility.json", record).
+
+7.11 Copy Schemas
+function copySchemas(outputDir, depositType, schemaVersions):
+
+if depositType == "stag_only" or depositType == "both":
+
+copy(STAG_JSON_SCHEMA, outputDir + "/schemas/stag_schema.json").
+
+copy(STAG_SHACL_SCHEMA, outputDir + "/schemas/stag_shacl.ttl").
+
+if depositType == "null_model_only" or depositType == "both":
+
+copy(NULL_MODEL_SCHEMA, outputDir + "/schemas/null_model_schema.json").
+
+7.12 Copy Codebook
+function copyCodebook(outputDir, depositType, schemaVersions):
+
+if depositType == "stag_only" or depositType == "both":
+
+copy(STAG_CODEBOOK, outputDir + "/codebook/stag_codebook.md").
+
+copy(STAG_WORKED_EXAMPLES, outputDir + "/codebook/stag_worked_examples.md").
+
+if depositType == "null_model_only" or depositType == "both":
+
+copy(NULL_MODEL_SPECIFICATION, outputDir + "/codebook/null_model_specification.md").
+
+copy(NULL_MODEL_WORKED_EXAMPLES, outputDir + "/codebook/null_model_worked_examples.md").
+
+Data Model / JSON Schema for Internal State
+The template's internal state is a deposit object.
+
+Deposit object:
+
+output_dir (string)
+
+deposit_type (stag_only, null_model_only, both)
+
+language (python, r, javascript, other)
+
+metadata (object)
+
+manifest (object)
+
+checklist (object)
+
+readme (string)
+
+license (string)
+
+citation (string)
+
+setup_script (string)
+
+run_script (string)
+
+check_script (string)
+
+reproducibility_record (object)
+
+template_version (string)
+
+Metadata object:
+
+title (string)
+
+authors (array of strings)
+
+date (ISO8601)
+
+abstract (string)
+
+keywords (array of strings)
+
+deposit_type (string)
+
+stag_schema_version (string or null)
+
+null_model_schema_version (string or null)
+
+language (string)
+
+template_version (string)
+
+Manifest object:
+
+files (array of file objects)
+
+generated (ISO8601)
+
+Each file object:
+
+path (string)
+
+hash (string)
+
+size (integer)
+
+Reproducibility record object:
+
+template_version (string)
+
+setup_time (ISO8601 or null)
+
+run_time (ISO8601 or null)
+
+check_time (ISO8601 or null)
+
+seed (string or null)
+
+results_hash (string or null)
+
+Architecture
+Module breakdown:
+
+Directory Structure Builder. Creates the deposit directory.
+
+Metadata File Builder. Creates metadata.json.
+
+Manifest File Builder. Creates manifest.json.
+
+Checklist Builder. Creates checklist.md.
+
+README Builder. Creates README.md.
+
+Setup Script Builder. Creates setup.sh.
+
+Run Script Builder. Creates run.sh.
+
+Check Script Builder. Creates check.sh.
+
+Code, Data, Seeds, and Results Placeholders. Creates placeholder files.
+
+Schema and Codebook Copies. Copies the schemas and codebook.
+
+Template Version Recorder. Records the template version.
+
+Reproducibility Recorder. Records the reproducibility record.
+
+Command-Line Interface. Parses arguments.
+
+Data flow:
+
+Author inputs go to the builders. The Directory Structure Builder creates the directory. The Metadata, Manifest, Checklist, and README Builders create the files. The Script Builders create the scripts. The Placeholders and Copies fill the directories. The Reproducibility Recorder records. The Command-Line Interface delivers the deposit.
+
+Technology Stack
+Recommended for the template:
+
+Language: Python 3.11+ or Node.js 20+.
+
+Template engine: Jinja2 (Python) or Handlebars (JS).
+
+JSON handling: standard library.
+
+Hash computation: hashlib (Python) or crypto (JS).
+
+CLI framework: argparse (Python) or commander (JS).
+
+Testing: pytest (Python) or Vitest (JS).
+
+Recommended for the deposit:
+
+Language-specific setup scripts for Python, R, and JavaScript.
+
+Language-specific run scripts for Python, R, and JavaScript.
+
+Language-specific check scripts for Python, R, and JavaScript.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The STAG codebook, schemas, and worked examples.
+
+The Null-Model Protocol specification, schemas, and worked examples.
+
+UI/UX Specification
+Command-line interface:
+
+Usage: deposit-template --code DIR --data DIR --seeds DIR [--results DIR] --deposit-type TYPE --metadata FILE --schema-versions FILE --language LANG --output DIR.
+
+Output on success: the deposit directory, the manifest, and the metadata.
+
+Output on error: the error message and exit code 2.
+
+Interactive mode (optional):
+
+A wizard that asks for the author's code, data, seeds, results, deposit type, metadata, schema versions, and language, then creates the deposit.
+
+Web interface (optional):
+
+A form for uploading the author's code, data, seeds, and results, and filling in the metadata.
+
+A button to generate the deposit.
+
+A download link for the deposit zip file.
+
+Validation Engine Design
+The template validates the following:
+
+Validation 1. Directory structure. The deposit directory has the required structure.
+
+Validation 2. Metadata validity. metadata.json is present and conforms to the schema.
+
+Validation 3. Manifest validity. manifest.json is present and lists every file with its hash.
+
+Validation 4. Checklist validity. checklist.md is present and covers all required items.
+
+Validation 5. README validity. README.md is present and explains the structure and the reproduction instructions.
+
+Validation 6. License validity. LICENSE is present.
+
+Validation 7. Citation validity. CITATION is present.
+
+Validation 8. Script validity. setup.sh, run.sh, and check.sh are present and executable.
+
+Validation 9. Schema and codebook validity. The required schemas and codebook are present for the deposit type.
+
+Validation 10. Reproducibility. Running the run script from a clean environment reproduces the results.
+
+Testing Strategy
+Unit tests:
+
+Directory Structure Builder for each deposit type.
+
+Metadata File Builder for valid and invalid metadata.
+
+Manifest File Builder for various directory contents.
+
+Checklist Builder for each deposit type.
+
+README Builder for each deposit type and language.
+
+Setup Script Builder for each language.
+
+Run Script Builder for each language.
+
+Check Script Builder for each language.
+
+Schema and Codebook Copies for each deposit type.
+
+Reproducibility Recorder for the record structure.
+
+Integration tests:
+
+Create a STAG-only deposit. Verify the directory structure, the metadata, the manifest, the checklist, the README, the scripts, the schemas, and the codebook.
+
+Create a Null-Model-only deposit. Verify the same.
+
+Create a both deposit. Verify the same.
+
+Run the setup, run, and check scripts. Verify the logs.
+
+Verify the manifest lists every file with its hash.
+
+Worked-example tests:
+
+Create a deposit with the STAG worked examples (Artifact 1, Section 11). Verify the codebook includes them.
+
+Create a deposit with the Null-Model Protocol worked examples (Section 11). Verify the codebook includes them.
+
+Regression tests:
+
+Directory structure consistency.
+
+Metadata consistency.
+
+Manifest consistency.
+
+Checklist consistency.
+
+Build Phases
+Phase 1. Directory Structure Builder. Create the deposit directory.
+
+Phase 2. Metadata File Builder. Create metadata.json.
+
+Phase 3. Manifest File Builder. Create manifest.json.
+
+Phase 4. Checklist Builder. Create checklist.md.
+
+Phase 5. README Builder. Create README.md.
+
+Phase 6. Setup Script Builder. Create setup.sh.
+
+Phase 7. Run Script Builder. Create run.sh.
+
+Phase 8. Check Script Builder. Create check.sh.
+
+Phase 9. Code, Data, Seeds, and Results Placeholders. Create placeholder files.
+
+Phase 10. Schema and Codebook Copies. Copy the schemas and codebook.
+
+Phase 11. Template Version Recorder. Record the template version.
+
+Phase 12. Reproducibility Recorder. Record the reproducibility record.
+
+Phase 13. Command-Line Interface.
+
+Phase 14. Interactive Mode (optional).
+
+Phase 15. Web Interface (optional).
+
+Phase 16. Worked-example tests.
+
+Phase 17. Integration testing and hardening.
+
+Phase 18. Packaging.
+
+Dependencies
+Python path:
+
+Jinja2 (template engine).
+
+hashlib (hash computation, standard library).
+
+argparse (command-line, standard library).
+
+json (JSON handling, standard library).
+
+os (file system operations, standard library).
+
+pytest (testing).
+
+Node.js path:
+
+Handlebars (template engine).
+
+crypto (hash computation, standard library).
+
+commander (command-line).
+
+JSON (standard library).
+
+fs (file system operations, standard library).
+
+Vitest (testing).
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The STAG codebook, schemas, and worked examples.
+
+The Null-Model Protocol specification, schemas, and worked examples.
+
+Deployment Notes
+Template:
+
+Publish as a repository on GitHub, GitLab, or Zenodo.
+
+Semantic versioning.
+
+Provide a one-line command to create a deposit.
+
+Provide a zip file for download.
+
+Deposit:
+
+The template creates a deposit directory that can be zipped and uploaded to a repository.
+
+The deposit conforms to the data-availability requirements of both papers.
+
+Reproducibility:
+
+Record the template version in the metadata file.
+
+Record the setup, run, and check times in the reproducibility record.
+
+Provide a version pin for the schemas and codebook.
+
+Open Questions to Resolve Before Building
+Question 1. Which runtime first? Python or Node.js. Decision affects the template engine and the packaging.
+
+Question 2. What is the default language for the deposit? Options: python, r, javascript, other. Decision needed.
+
+Question 3. How should the template handle a deposit that uses multiple languages? Options: support one language, or support a hybrid. Decision needed.
+
+Question 4. Should the template include a Dockerfile for reproducibility? Decision needed.
+
+Question 5. Should the template include a Makefile for the setup, run, and check steps? Decision needed.
+
+Question 6. How should the template handle large data files? Options: include them in the deposit, or provide download instructions. Decision needed.
+
+Question 7. Should the template include a data dictionary for the data files? Decision needed.
+
+Question 8. Should the template include a Jupyter notebook or an R Markdown document for the analysis? Decision needed.
+
+Question 9. Should the template integrate with the STAG schema library (App 17) and the Null-Model Protocol library (App 18)? Decision needed: shared schemas, or independent.
+
+Question 10. How should the template handle the results? Options: include them in the deposit, or generate them with the run script. Decision needed.
+
+End of build specification for App 19.
