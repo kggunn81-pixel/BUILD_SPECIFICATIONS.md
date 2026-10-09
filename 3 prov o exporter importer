@@ -1,0 +1,859 @@
+Build Specification — App 3: PROV-O Exporter and Importer
+Completeness status: COMPLETE. All sections delivered in one pass. No truncation. Formatted for copy-paste into another conversation window. No tables, no boxes.
+
+What It Is
+A library that converts a STAG annotation record to and from PROV-O. It maps state nodes to prov:Entity, event nodes to prov:Activity, derived-from edges to prov:wasDerivedFrom, and revisions to prov:wasRevisionOf, and reverses the mapping on import. It takes in a STAG JSON record or a PROV-O document, and puts out the other of the two. It is for linked-data pipelines and provenance stores.
+
+Core Requirements
+Functional requirements:
+
+Export a STAG JSON record to PROV-O.
+
+Import a PROV-O document to a STAG JSON record.
+
+Map state nodes to prov:Entity.
+
+Map event nodes to prov:Activity.
+
+Map derived-from edges to prov:wasDerivedFrom.
+
+Map revision relations to prov:wasRevisionOf.
+
+Map annotation records to prov:Entity with prov:wasGeneratedBy.
+
+Map regime-qualified state records to distinct prov:Entity instances sharing one node ID.
+
+Map self-loops with regime change to the correct PROV-O structure.
+
+Preserve the full annotation record through a round trip (export then import returns the original record, modulo PROV-O expressiveness limits).
+
+Support Turtle and JSON-LD serializations.
+
+Operate as a library with a stable API.
+
+Non-functional requirements:
+
+Deterministic: same input produces same output.
+
+No network dependency.
+
+Fast: convert a typical annotation record in under one second.
+
+Versioned: each schema version has a corresponding PROV-O mapping version.
+
+Round-trip fidelity: report any information that cannot be preserved through PROV-O.
+
+Input Specification
+Input 1. STAG JSON record. Required for export. The annotation record conforming to Artifact 2, Appendix B.1.
+
+Input 2. PROV-O document. Required for import. Turtle or JSON-LD.
+
+Input 3. Serialization format. Optional for export. Values: turtle (default), jsonld, ntriples.
+
+Input 4. Schema version. Required. Selects the correct PROV-O mapping version.
+
+Input 5. Round-trip mode. Optional for export. Values: strict (fail if any field cannot be mapped), lossy (map what can be mapped and report the rest), extended (use STAG-specific PROV-O extensions for fields that have no standard mapping).
+
+Output Specification
+Output 1. PROV-O document. Turtle, JSON-LD, or N-Triples. For export.
+
+Output 2. STAG JSON record. For import.
+
+Output 3. Mapping report. JSON. Lists each STAG field and its PROV-O mapping, or "unmapped" if no mapping exists.
+
+Output 4. Round-trip fidelity report. JSON. Lists any information lost in a round trip.
+
+Output 5. Error report. JSON. Lists any mapping failures with the offending field and the reason.
+
+Module-by-Module Specification
+Module 1: STAG Record Loader
+Reads the STAG JSON record. Validates it against the JSON Schema for the selected version. Rejects malformed records with an error report.
+
+Module 2: PROV-O Document Loader
+Reads the PROV-O document. Parses Turtle, JSON-LD, or N-Triples into an RDF graph. Validates that the graph contains the expected PROV-O structure. Rejects malformed documents.
+
+Module 3: Mapping Table
+Holds the mapping between STAG fields and PROV-O terms. Versioned per schema version. Provides lookup in both directions.
+
+The mapping is:
+
+State node maps to prov:Entity.
+
+Event node maps to prov:Activity.
+
+Derived-from edge maps to prov:wasDerivedFrom.
+
+Revision relation maps to prov:wasRevisionOf.
+
+Annotation record maps to prov:Entity with prov:wasGeneratedBy.
+
+Regime-qualified state record maps to prov:Entity with prov:specializationOf pointing to the base node entity.
+
+Self-loop with regime change maps to a prov:Activity with prov:used pointing to the source regime-qualified entity and prov:generated pointing to the target regime-qualified entity.
+
+Node tuple (S, M, G) maps to STAG-specific properties on the prov:Entity: stag:system_scope, stag:model, stag:granularity.
+
+Partition ID and version map to stag:partition_id and stag:partition_version.
+
+Display label and anchoring status map to stag:derived_display_label and stag:evidential_anchoring.
+
+Flags map to stag:not_determinable_flag, stag:provisional_flag, stag:threshold_sensitive_flag, stag:regime_not_determinable, stag:identity_partition_sensitive.
+
+Module 4: Exporter
+Takes a STAG JSON record. Applies the mapping table. Produces an RDF graph. Serializes to the requested format. Emits a mapping report.
+
+The exporter handles the following cases:
+
+Simple state node. Creates a prov:Entity with the STAG properties.
+
+Regime-qualified state node. Creates two prov:Entity instances sharing one node ID, with prov:specializationOf pointing from the regime-qualified entity to the base entity.
+
+Self-loop with regime change. Creates a prov:Activity with prov:used and prov:generated pointing to the two regime-qualified entities.
+
+Event node. Creates a prov:Activity with prov:used pointing to the source entities and prov:generated pointing to the target entities.
+
+Derived-from edge. Creates a prov:wasDerivedFrom triple.
+
+Revision relation. Creates a prov:wasRevisionOf triple.
+
+Supersession chain. Creates a chain of prov:wasRevisionOf triples.
+
+Module 5: Importer
+Takes an RDF graph. Applies the mapping table in reverse. Produces a STAG JSON record. Emits a mapping report.
+
+The importer handles the following cases:
+
+prov:Entity with STAG properties. Creates a state node.
+
+prov:Activity with prov:used and prov:generated. Creates an event node or a self-loop.
+
+prov:wasDerivedFrom triple. Creates a derived-from edge.
+
+prov:wasRevisionOf triple. Creates a revision relation.
+
+prov:specializationOf triple. Merges regime-qualified entities into a single node with regime attributes.
+
+Module 6: Round-Trip Checker
+Exports a STAG record, imports the result, and compares the two. Reports any differences. Classifies differences as expected (PROV-O expressiveness limits) or unexpected (bugs).
+
+Module 7: Mapping Reporter
+Produces the mapping report. Lists each STAG field, its PROV-O mapping, and whether the mapping is exact, approximate, or unmapped.
+
+Module 8: Error Handler
+Collects mapping failures. Produces the error report. In strict mode, fails on the first unmapped field. In lossy mode, continues and reports all unmapped fields.
+
+Full Mapping Specification
+6.1 STAG to PROV-O
+The following STAG fields map to PROV-O terms or STAG-specific PROV-O extensions.
+
+annotation_id maps to prov:Entity with a dcterms:identifier.
+
+source_nodes and target_nodes map to prov:Entity instances.
+
+event_node_id maps to prov:Activity.
+
+node_identity.S maps to stag:system_scope.
+
+node_identity.M maps to stag:model.
+
+node_identity.G maps to stag:granularity.
+
+node_identity.primary_observable maps to stag:primary_observable.
+
+node_identity.decision maps to stag:node_identity_decision.
+
+node_identity.component_matches maps to stag:component_matches.
+
+node_identity.matching_rule_version maps to stag:matching_rule_version.
+
+node_identity.m_equivalence_rule_version maps to stag:m_equivalence_rule_version.
+
+node_identity.m_equivalence_basis maps to stag:m_equivalence_basis.
+
+node_identity.m_equivalence_witness maps to stag:m_equivalence_witness.
+
+node_identity.solution_method_attribute maps to stag:solution_method_attribute.
+
+node_identity.domains_spanned maps to stag:domains_spanned.
+
+node_identity.granularity maps to stag:granularity (same as G).
+
+node_identity.confidence maps to stag:confidence.
+
+domain_annotation maps to stag:domain_annotation.
+
+regime_attribute maps to stag:regime_attribute. The regime-qualified entity carries the regime value, order parameter, control parameter point, phase diagram source, and the regime_not_determinable flag.
+
+validity_regime maps to stag:validity_regime.
+
+purpose_attribute maps to stag:purpose_attribute.
+
+composition maps to stag:composition.
+
+effective_description_change maps to stag:effective_description_change.
+
+effective_description_change_kind maps to stag:effective_description_change_kind.
+
+intervention_classification maps to stag:intervention_classification.
+
+entailment_basis maps to stag:entailment_basis.
+
+cited_structural_result maps to stag:cited_structural_result.
+
+cited_numerical_result maps to stag:cited_numerical_result.
+
+cross_domain_counterfactual_dependence maps to stag:cross_domain_counterfactual_dependence.
+
+intervention_source_domains maps to stag:intervention_source_domains.
+
+intervention_target_domain maps to stag:intervention_target_domain.
+
+intervention_kind maps to stag:intervention_kind.
+
+defining_coupling_intervention maps to stag:defining_coupling_intervention.
+
+cross_domain_intervention_available maps to stag:cross_domain_intervention_available.
+
+reason_if_not_performed maps to stag:reason_if_not_performed.
+
+domain_mismatch maps to stag:domain_mismatch.
+
+model_reference maps to stag:model_reference.
+
+counterfactual_intervention maps to stag:counterfactual_intervention.
+
+counterfactual_description maps to stag:counterfactual_description.
+
+counterfactual_result maps to stag:counterfactual_result.
+
+material_change_test maps to stag:material_change_test.
+
+material_change_test_justification maps to stag:material_change_test_justification.
+
+material_change_result maps to stag:material_change_result.
+
+quantities_held_fixed maps to stag:quantities_held_fixed.
+
+independence_of_material_change_evidence maps to stag:independence_of_material_change_evidence.
+
+material_change_test_result_independence maps to stag:material_change_test_result_independence.
+
+partition_registry_id maps to stag:partition_registry_id.
+
+partition_version maps to stag:partition_version.
+
+partition_kind maps to stag:partition_kind.
+
+partition_admissibility_status maps to stag:partition_admissibility_status.
+
+partition_preregistration_date maps to stag:partition_preregistration_date.
+
+partition_justification maps to stag:partition_justification.
+
+intra_domain_rate maps to stag:intra_domain_rate.
+
+partition_sensitivity maps to stag:partition_sensitivity.
+
+alternative_partition_ids maps to stag:alternative_partition_ids.
+
+partition_untested_flag maps to stag:partition_untested_flag.
+
+splitting_partition_id maps to stag:splitting_partition_id.
+
+splitting_would_change_label maps to stag:splitting_would_change_label.
+
+splitting_audit_note maps to stag:splitting_audit_note.
+
+identity_partition_sensitive maps to stag:identity_partition_sensitive.
+
+scale_separation maps to stag:scale_separation.
+
+derived_from_source_node and derived_from_target_node map to prov:wasDerivedFrom.
+
+derivation_kind maps to stag:derivation_kind.
+
+derivation_specification maps to stag:derivation_specification.
+
+derived_display_label maps to stag:derived_display_label.
+
+evidential_anchoring maps to stag:evidential_anchoring.
+
+unclassified_reason maps to stag:unclassified_reason.
+
+threshold_provenance maps to stag:threshold_provenance.
+
+characteristic_scale maps to stag:characteristic_scale.
+
+reversibility maps to stag:reversibility.
+
+physical_status maps to stag:physical_status.
+
+graph_status maps to stag:graph_status.
+
+underlying_science_status maps to stag:underlying_science_status.
+
+stag_implementation_status maps to stag:stag_implementation_status.
+
+statistical_gap_result maps to stag:statistical_gap_result.
+
+dependence_gap_discordance maps to stag:dependence_gap_discordance.
+
+agreement_outcome maps to stag:agreement_outcome.
+
+provisional_flag maps to stag:provisional_flag.
+
+threshold_sensitive_flag maps to stag:threshold_sensitive_flag.
+
+not_determinable_flag maps to stag:not_determinable_flag.
+
+evidential_anchoring_status maps to stag:evidential_anchoring_status.
+
+confidence maps to stag:confidence.
+
+alternative_classifications maps to stag:alternative_classifications.
+
+evidence maps to stag:evidence.
+
+protocol_cross_reference maps to stag:protocol_cross_reference.
+
+supersedes maps to prov:wasRevisionOf.
+
+superseded_by maps to prov:wasRevisionOf (inverse).
+
+6.2 PROV-O to STAG
+The reverse mapping applies the same table in reverse. The importer reads prov:Entity, prov:Activity, prov:wasDerivedFrom, prov:wasRevisionOf, and prov:specializationOf triples, and reconstructs the STAG record.
+
+Special handling:
+
+prov:specializationOf. When two prov:Entity instances share a node ID and one has prov:specializationOf pointing to the other, the importer merges them into a single node with regime attributes.
+
+prov:Activity with prov:used and prov:generated. When a prov:Activity has one prov:used and one prov:generated and the two entities share a node ID, the importer creates a self-loop with regime_change.
+
+prov:Activity with multiple prov:used. When a prov:Activity has two or more prov:used and one or more prov:generated, the importer creates an event node.
+
+prov:wasRevisionOf chain. The importer reads the chain and populates supersedes and superseded_by.
+
+Core Logic as Executable Pseudocode
+7.1 Main Export Flow
+function exportToPROVO(stagRecord, options):
+
+Step 1. validate(stagRecord, options.schemaVersion). If invalid, return {error: "invalid STAG record"}.
+
+Step 2. graph = new RDFGraph().
+
+Step 3. for each node in stagRecord.nodes: addStateNodeToGraph(graph, node, options).
+
+Step 4. for each event in stagRecord.events: addEventNodeToGraph(graph, event, options).
+
+Step 5. for each edge in stagRecord.edges: addEdgeToGraph(graph, edge, options).
+
+Step 6. for each revision in stagRecord.revisions: addRevisionToGraph(graph, revision, options).
+
+Step 7. serialized = serialize(graph, options.format).
+
+Step 8. mappingReport = buildMappingReport(stagRecord, options).
+
+Step 9. return {output: serialized, mappingReport}.
+
+7.2 Add State Node to Graph
+function addStateNodeToGraph(graph, node, options):
+
+baseEntity = new prov:Entity(node.node_id).
+
+baseEntity.add(stag:system_scope, node.S).
+
+baseEntity.add(stag:model, node.M).
+
+baseEntity.add(stag:granularity, node.G).
+
+baseEntity.add(stag:partition_id, node.partition_id).
+
+baseEntity.add(stag:partition_version, node.partition_version).
+
+if node.regime_attribute.value != null:
+
+regimeEntity = new prov:Entity(node.node_id + "@" + node.regime_attribute.value).
+
+regimeEntity.add(prov:specializationOf, baseEntity).
+
+regimeEntity.add(stag:regime, node.regime_attribute.value).
+
+regimeEntity.add(stag:order_parameter, node.regime_attribute.order_parameter).
+
+regimeEntity.add(stag:control_parameter_point, node.regime_attribute.control_parameter_point).
+
+regimeEntity.add(stag:phase_diagram_source, node.regime_attribute.phase_diagram_source).
+
+if node.regime_attribute.regime_not_determinable:
+
+regimeEntity.add(stag:regime_not_determinable, true).
+
+graph.add(baseEntity).
+
+graph.add(regimeEntity).
+
+else:
+
+graph.add(baseEntity).
+
+7.3 Add Event Node to Graph
+function addEventNodeToGraph(graph, event, options):
+
+activity = new prov:Activity(event.event_node_id).
+
+for each source in event.source_nodes:
+
+activity.add(prov:used, source).
+
+for each target in event.target_nodes:
+
+activity.add(prov:generated, target).
+
+activity.add(stag:composition_kind, event.composition_kind).
+
+graph.add(activity).
+
+7.4 Add Edge to Graph
+function addEdgeToGraph(graph, edge, options):
+
+if edge.kind == "derived_from":
+
+triple = new Triple(edge.source, prov:wasDerivedFrom, edge.target).
+
+triple.add(stag:derivation_kind, edge.derivation_kind).
+
+triple.add(stag:derivation_specification, edge.derivation_specification).
+
+graph.add(triple).
+
+else:
+
+activity = new prov:Activity(edge.edge_id).
+
+activity.add(prov:used, edge.source).
+
+activity.add(prov:generated, edge.target).
+
+activity.add(stag:transition_attributes, edge.attributes).
+
+if edge.is_self_loop:
+
+activity.add(stag:regime_change, edge.regime_change).
+
+graph.add(activity).
+
+7.5 Add Revision to Graph
+function addRevisionToGraph(graph, revision, options):
+
+triple = new Triple(revision.new_annotation, prov:wasRevisionOf, revision.old_annotation).
+
+graph.add(triple).
+
+7.6 Main Import Flow
+function importFromPROVO(provoDocument, options):
+
+Step 1. graph = parse(provoDocument, options.format). If parse error, return {error: "malformed PROV-O document"}.
+
+Step 2. stagRecord = new STAGRecord().
+
+Step 3. entities = graph.findEntities().
+
+Step 4. for each entity in entities: addEntityToRecord(stagRecord, entity, graph).
+
+Step 5. activities = graph.findActivities().
+
+Step 6. for each activity in activities: addActivityToRecord(stagRecord, activity, graph).
+
+Step 7. derivedFromTriples = graph.findTriples(prov:wasDerivedFrom).
+
+Step 8. for each triple in derivedFromTriples: addDerivedFromToRecord(stagRecord, triple).
+
+Step 9. revisionTriples = graph.findTriples(prov:wasRevisionOf).
+
+Step 10. for each triple in revisionTriples: addRevisionToRecord(stagRecord, triple).
+
+Step 11. specializationTriples = graph.findTriples(prov:specializationOf).
+
+Step 12. for each triple in specializationTriples: mergeRegimeQualifiedEntities(stagRecord, triple).
+
+Step 13. mappingReport = buildMappingReport(stagRecord, options).
+
+Step 14. return {output: stagRecord, mappingReport}.
+
+7.7 Add Entity to Record
+function addEntityToRecord(stagRecord, entity, graph):
+
+if entity.hasProperty(stag:system_scope) and entity.hasProperty(stag:model) and entity.hasProperty(stag:granularity):
+
+node = new Node().
+
+node.node_id = entity.id.
+
+node.S = entity.getProperty(stag:system_scope).
+
+node.M = entity.getProperty(stag:model).
+
+node.G = entity.getProperty(stag:granularity).
+
+node.partition_id = entity.getProperty(stag:partition_id).
+
+node.partition_version = entity.getProperty(stag:partition_version).
+
+stagRecord.addNode(node).
+
+7.8 Add Activity to Record
+function addActivityToRecord(stagRecord, activity, graph):
+
+used = activity.getProperty(prov:used).
+
+generated = activity.getProperty(prov:generated).
+
+if used.length == 1 and generated.length == 1 and used[0] shares node ID with generated[0]:
+
+selfLoop = new SelfLoop().
+
+selfLoop.source = used[0].
+
+selfLoop.target = generated[0].
+
+selfLoop.regime_change = activity.getProperty(stag:regime_change).
+
+stagRecord.addSelfLoop(selfLoop).
+
+else:
+
+event = new Event().
+
+event.event_node_id = activity.id.
+
+event.source_nodes = used.
+
+event.target_nodes = generated.
+
+event.composition_kind = activity.getProperty(stag:composition_kind).
+
+stagRecord.addEvent(event).
+
+7.9 Merge Regime-Qualified Entities
+function mergeRegimeQualifiedEntities(stagRecord, triple):
+
+baseEntity = triple.target.
+
+regimeEntity = triple.source.
+
+baseNode = stagRecord.findNode(baseEntity.id).
+
+regimeNode = stagRecord.findNode(regimeEntity.id).
+
+if baseNode != null and regimeNode != null:
+
+baseNode.regime_attribute = regimeNode.regime_attribute.
+
+stagRecord.removeNode(regimeEntity.id).
+
+7.10 Round-Trip Check
+function roundTripCheck(stagRecord, options):
+
+Step 1. exportResult = exportToPROVO(stagRecord, options).
+
+Step 2. importResult = importFromPROVO(exportResult.output, options).
+
+Step 3. differences = compareRecords(stagRecord, importResult.output).
+
+Step 4. classified = differences.map(d => classifyDifference(d)).
+
+Step 5. return {differences: classified, expected: classified.filter(d => d.expected), unexpected: classified.filter(d => not d.expected)}.
+
+Data Model / JSON Schema for Internal State
+The library's internal state is an RDF graph and a STAG record. The mapping report is a JSON object:
+
+mappingReport:
+
+stagRecordId (string)
+
+schemaVersion (string)
+
+mappingVersion (string)
+
+entries (array of mapping entry objects)
+
+Each mapping entry:
+
+stagField (string)
+
+provoTerm (string or null)
+
+mappingType (exact, approximate, unmapped)
+
+note (string or null)
+
+The round-trip fidelity report is a JSON object:
+
+roundTripReport:
+
+stagRecordId (string)
+
+differences (array of difference objects)
+
+expectedCount (integer)
+
+unexpectedCount (integer)
+
+Each difference:
+
+fieldPath (string)
+
+originalValue (any)
+
+roundTrippedValue (any)
+
+classification (expected, unexpected)
+
+reason (string)
+
+Architecture
+Module breakdown:
+
+STAG Record Loader. Reads and validates the STAG JSON record.
+
+PROV-O Document Loader. Reads and parses the PROV-O document.
+
+Mapping Table. Holds the bidirectional mapping.
+
+Exporter. Converts STAG to PROV-O.
+
+Importer. Converts PROV-O to STAG.
+
+Round-Trip Checker. Exports, imports, and compares.
+
+Mapping Reporter. Produces the mapping report.
+
+Error Handler. Collects and reports errors.
+
+Data flow:
+
+For export: STAG record goes to STAG Record Loader. Mapping Table is consulted. Exporter produces the RDF graph. Serializer produces the output. Mapping Reporter produces the report.
+
+For import: PROV-O document goes to PROV-O Document Loader. Mapping Table is consulted. Importer produces the STAG record. Mapping Reporter produces the report.
+
+For round trip: Exporter produces PROV-O. Importer produces STAG. Round-Trip Checker compares.
+
+Technology Stack
+Recommended for the library:
+
+Language: Python 3.11+ or JavaScript/TypeScript (Node.js 20+).
+
+RDF handling: rdflib (Python) or n3 (JS).
+
+PROV-O serialization: rdflib (Python) or jsonld (JS) for JSON-LD.
+
+JSON Schema: jsonschema (Python) or ajv (JS).
+
+Testing: pytest (Python) or Vitest (JS).
+
+Packaging: PyPI (Python) or npm (JS).
+
+Recommended for a command-line wrapper:
+
+CLI framework: click (Python) or commander (JS).
+
+Output: JSON to stdout, errors to stderr.
+
+Recommended for a web service wrapper:
+
+Backend: FastAPI (Python) or Express (JS).
+
+Endpoint: POST /export and POST /import.
+
+UI/UX Specification
+Library API:
+
+exportToPROVO(stagRecord, options) returns {output, mappingReport}.
+
+importFromPROVO(provoDocument, options) returns {output, mappingReport}.
+
+roundTripCheck(stagRecord, options) returns {differences, expected, unexpected}.
+
+Command-line interface (optional wrapper):
+
+Usage: stag-provo export --input FILE --format turtle [--schema-version VERSION] [--round-trip] [--output FILE].
+
+Usage: stag-provo import --input FILE --format turtle [--schema-version VERSION] [--output FILE].
+
+Usage: stag-provo round-trip --input FILE [--schema-version VERSION].
+
+Web service (optional wrapper):
+
+Endpoint: POST /export. Body: {stagRecord, format, schemaVersion}. Response: {provoDocument, mappingReport}.
+
+Endpoint: POST /import. Body: {provoDocument, format, schemaVersion}. Response: {stagRecord, mappingReport}.
+
+Endpoint: POST /round-trip. Body: {stagRecord, schemaVersion}. Response: {differences, expected, unexpected}.
+
+Validation Engine Design
+The library validates three things:
+
+Validation 1. STAG record validity. Before export, the record is validated against the JSON Schema for the selected version.
+
+Validation 2. PROV-O document validity. Before import, the document is parsed and checked for the expected PROV-O structure.
+
+Validation 3. Round-trip fidelity. After export and import, the two records are compared, and differences are classified.
+
+The mapping table is versioned. Each schema version has a corresponding mapping table. The mapping table is frozen when the schema version is frozen.
+
+Testing Strategy
+Unit tests:
+
+Each mapping entry tested with a STAG record that exercises it.
+
+Each mapping entry tested with a PROV-O document that exercises the reverse mapping.
+
+Round-trip tested with a minimal record, a record with regime-qualified nodes, a record with event nodes, a record with derived-from edges, a record with revisions, and a record with all features.
+
+Integration tests:
+
+Export a worked example from Artifact 1, Section 11, and compare to the expected PROV-O structure.
+
+Import the Turtle serialization from Artifact 1, Section 8.5, and compare to the expected STAG record.
+
+Round-trip all five worked examples and verify no unexpected differences.
+
+Worked-example tests:
+
+Artifact 1, Section 8.5 (two-layer Ising self-loop): export should produce the Turtle structure described in the document.
+
+Artifact 1, Section 11.1 (Fröhlich/Eliashberg): export and import should preserve the derived-from edge for the BCS reduced Hamiltonian.
+
+Artifact 1, Section 11.2 (two-layer Ising): export and import should preserve the new_node decision and the derived-from edge.
+
+Regression tests:
+
+Supersession chain round trip.
+
+Specialization-of merging round trip.
+
+Derived-from edge round trip.
+
+Version tests:
+
+Each schema version maps to its own mapping table.
+
+A record from version X exported and imported under version X is lossless.
+
+A record from version X exported under version Y produces a version-mismatch warning.
+
+Build Phases
+Phase 1. Mapping Table. Encode the full bidirectional mapping for version 1.
+
+Phase 2. STAG Record Loader. Read and validate STAG JSON.
+
+Phase 3. PROV-O Document Loader. Read and parse Turtle, JSON-LD, N-Triples.
+
+Phase 4. Exporter. Convert STAG to PROV-O.
+
+Phase 5. Importer. Convert PROV-O to STAG.
+
+Phase 6. Round-Trip Checker. Export, import, compare.
+
+Phase 7. Mapping Reporter. Produce the mapping report.
+
+Phase 8. Error Handler. Collect and report errors.
+
+Phase 9. Library API. Stable public API.
+
+Phase 10. Command-line wrapper (optional).
+
+Phase 11. Web service wrapper (optional).
+
+Phase 12. Worked-example tests. Load the five worked examples and verify outputs.
+
+Phase 13. Integration testing and hardening.
+
+Phase 14. Packaging. PyPI or npm.
+
+Dependencies
+Python path:
+
+rdflib (RDF graph, Turtle, JSON-LD, N-Triples).
+
+jsonschema (STAG record validation).
+
+click (optional CLI).
+
+FastAPI and uvicorn (optional web service).
+
+pytest (testing).
+
+Node.js path:
+
+n3 (RDF graph, Turtle, N-Triples).
+
+jsonld (JSON-LD).
+
+ajv (STAG record validation).
+
+commander (optional CLI).
+
+Express or Fastify (optional web service).
+
+Vitest (testing).
+
+Shared:
+
+PROV-O vocabulary.
+
+STAG-specific PROV-O extension vocabulary (stag: namespace).
+
+JSON Schema Draft 2020-12.
+
+Deployment Notes
+Library:
+
+Publish to PyPI (Python) or npm (JS).
+
+Semantic versioning. Major version bumps for schema version changes.
+
+Bundle the mapping table and the JSON Schema inside the package.
+
+Command-line wrapper:
+
+Package as a standalone executable (PyInstaller or pkg).
+
+Distribute alongside the library.
+
+Web service wrapper:
+
+Deploy with Docker. Stateless. Scale horizontally.
+
+Log export and import metadata (schema version, mapping version, record ID) for audit.
+
+Round-trip fidelity:
+
+Report any information loss. Do not silently drop fields.
+
+In strict mode, fail on the first unmapped field.
+
+In lossy mode, report all unmapped fields and continue.
+
+Open Questions to Resolve Before Building
+Question 1. Which runtime first? Python or Node.js. Decision affects the RDF library and the packaging.
+
+Question 2. Should the STAG-specific PROV-O extension vocabulary be published as a separate ontology, or bundled in the library? Decision needed.
+
+Question 3. How should the mapping handle fields that have no standard PROV-O mapping? Options: STAG-specific extension properties, a generic prov:value with a type tag, or a literal with a datatype. Decision needed.
+
+Question 4. Should the round-trip checker be part of the library or a separate tool? Decision needed.
+
+Question 5. How should the importer handle PROV-O documents that contain extra triples not produced by the exporter? Options: ignore, warn, or fail. Decision needed.
+
+Question 6. How should the importer handle PROV-O documents that are missing expected triples? Options: fill with nulls, warn, or fail. Decision needed.
+
+Question 7. Should the exporter produce a SHACL-valid PROV-O graph? The documents state that SHACL validation has not been run. Decision needed.
+
+Question 8. How should the mapping table be versioned? Options: per schema version, per PROV-O version, or per library version. Decision needed.
+
+Question 9. Should the library support incremental export (export a subset of a record)? Decision needed.
+
+Question 10. How should the library handle the not_determinable flag propagation in PROV-O? The documents specify the propagation in the STAG record. Decision needed: encode the propagation in PROV-O, or rely on the STAG record's flags.
+
+End of build specification for App 3
