@@ -1,0 +1,1463 @@
+Build Specification — App 31: The Misconception Database
+Completeness status: COMPLETE. All sections delivered in one pass. No truncation. Formatted for copy-paste. Long lists are broken into short lines.
+
+1. What It Is
+A provenance-aware, versioned database of known student misconceptions in every subject. A misconception is a wrong belief that is common, persistent, and resistant to ordinary teaching. The Misconception Database records each misconception with the evidence for it, the teaching interventions that work, the teaching interventions that do not, the age range in which it appears, and the provenance.
+
+It reuses:
+
+the Physics Knowledge Library (App 23)
+
+the STAG Audit Tool (App 21)
+
+the Provenance-Aware Annotation Database (App 20)
+
+the PROV-O Exporter (App 3)
+
+the Revision History Viewer (App 7)
+
+the Numerical Verification Tool (App 22)
+
+the Autofill Library Service (App 49)
+
+It is for teachers, curriculum designers, education researchers, tutors, and anyone who teaches.
+
+2. Core Requirements
+Functional requirements:
+
+Accept deposits of misconceptions from users.
+
+Store each misconception with its subject, its topic, its description, and its provenance.
+
+Record the evidence for the misconception: the studies, the observations, the sample sizes, and the age ranges.
+
+Record the evidence against the misconception: interventions that have reduced it, and their results.
+
+Record the teaching interventions that work, with their evidence.
+
+Record the teaching interventions that do not work, with their evidence.
+
+Record the age range in which the misconception typically appears.
+
+Record the persistence of the misconception: how hard it is to change.
+
+Record the relation between misconceptions: which ones share a root cause, which are independent.
+
+Enforce provenance completeness.
+
+Enforce versioning.
+
+Enforce supersession acyclicity.
+
+Support querying by misconception ID, subject, topic, age range, persistence, depositor, deposit date, and keywords.
+
+Support full-text search of the description, the evidence, and the notes.
+
+Support aggregation queries: count by subject, by topic, by age range, by persistence, by year, by depositor.
+
+Support exporting a misconception as JSON, PROV-O, and Turtle.
+
+Support importing a misconception from JSON.
+
+Support bulk import and bulk export.
+
+Support a REST API for CRUD operations.
+
+Support a GraphQL API for flexible queries.
+
+Support a command-line interface for administration.
+
+Support authentication and authorization.
+
+Support audit logging.
+
+Support backup and restore.
+
+Support a web interface.
+
+Support moderation.
+
+Support linking a misconception to a Physics Knowledge Library work if the misconception is described in a deposited work.
+
+Support linking a misconception to a STAG annotation if the misconception involves a scale-transition claim.
+
+Support the misconception map: a visualisation of misconceptions by subject and by root cause.
+
+Support the intervention comparison view: a visualisation that compares two or more interventions for the same misconception.
+
+Support the persistence curve: a visualisation of how a misconception changes with teaching.
+
+Non-functional requirements:
+
+Deterministic.
+
+Fast: query a typical misconception in under 100 milliseconds.
+
+Scalable: support up to 10^6 misconceptions.
+
+Versioned: the database records the STAG schema version, the misconception schema version, and the database version.
+
+Reproducible.
+
+Portable.
+
+Well-documented.
+
+3. Input Specification
+Input 1. Misconception deposit. Required. A deposit object conforming to the misconception schema.
+
+Input 2. Files. Optional. Studies, observations, or teaching material.
+
+Input 3. Provenance record. Required.
+
+Input 4. STAG annotation. Optional.
+
+Input 5. Work reference. Optional.
+
+Input 6. Query.
+
+Input 7. Aggregation query.
+
+Input 8. Authentication credentials.
+
+Input 9. Bulk import file.
+
+Input 10. Bulk export query.
+
+4. Output Specification
+Output 1. Misconception record. JSON.
+
+Output 2. PROV-O serialization.
+
+Output 3. Turtle serialization.
+
+Output 4. Query result. JSON.
+
+Output 5. Aggregation result. JSON.
+
+Output 6. Full-text search result. JSON.
+
+Output 7. Misconception map. JSON or a rendered graph.
+
+Output 8. Intervention comparison view. JSON or a rendered graph.
+
+Output 9. Persistence curve. JSON or a rendered curve.
+
+Output 10. Related misconceptions. JSON.
+
+Output 11. Bulk export file.
+
+Output 12. Audit log entry. JSON.
+
+Output 13. API response. JSON.
+
+Output 14. GraphQL response. JSON.
+
+Output 15. Backup file.
+
+5. Module-by-Module Specification
+Module 1. Misconception Schema.
+
+Defines the structure of a misconception deposit.
+
+Module 2. Database Schema.
+
+The tables and indexes.
+
+Module 3. Misconception Loader.
+
+Reads and validates a misconception deposit.
+
+Module 4. Misconception Writer.
+
+Writes a misconception deposit to the database.
+
+Module 5. Misconception Reader.
+
+Reads a misconception deposit from the database.
+
+Module 6. Misconception Updater.
+
+Updates a misconception deposit.
+
+Module 7. Misconception Deleter.
+
+Deletes a misconception deposit.
+
+Module 8. Query Engine.
+
+Executes queries.
+
+Module 9. Full-Text Search Engine.
+
+Executes full-text search.
+
+Module 10. Aggregation Engine.
+
+Executes aggregation queries.
+
+Module 11. Exporter.
+
+Exports a misconception as JSON, PROV-O, and Turtle.
+
+Module 12. Importer.
+
+Imports a misconception from JSON.
+
+Module 13. Bulk Import and Export.
+
+Bulk operations.
+
+Module 14. REST API.
+
+HTTP endpoints.
+
+Module 15. GraphQL API.
+
+GraphQL endpoint.
+
+Module 16. Command-Line Interface.
+
+Administration commands.
+
+Module 17. Authentication and Authorization.
+
+Access control.
+
+Module 18. Audit Logging.
+
+Logs operations.
+
+Module 19. Backup and Restore.
+
+Database backup and restore.
+
+Module 20. Web Interface.
+
+Depositing, browsing, querying.
+
+Module 21. Moderation Workflow.
+
+Moderation of misconceptions.
+
+Module 22. Misconception Map.
+
+Visualises misconceptions by subject and by root cause.
+
+Module 23. Intervention Comparison View.
+
+Compares two or more interventions for the same misconception.
+
+Module 24. Persistence Curve.
+
+Visualises how a misconception changes with teaching.
+
+Module 25. Related-Misconception Finder.
+
+Finds misconceptions related to a given one.
+
+Module 26. Migration Manager.
+
+Database migrations.
+
+6. Full Misconception Specification
+6.1 Misconception Schema
+The misconception schema defines the structure of a misconception deposit.
+
+It has the following fields:
+
+misconception_id. A string. Required.
+
+misconception_name. A string. Required.
+
+description. A string. Required.
+
+subject. A string. Required.
+
+topic. A string. Required.
+
+age_range. An object. Required. It contains min_age and max_age.
+
+persistence. An enum. The values are low, medium, high, very_high.
+
+root_cause. A string. Optional.
+
+evidence_for. An array of evidence objects. Required.
+
+evidence_against. An array of evidence objects. Optional.
+
+interventions_that_work. An array of intervention objects. Optional.
+
+interventions_that_fail. An array of intervention objects. Optional.
+
+related_misconceptions. An array of misconception relations. Optional.
+
+provenance. An object. Required.
+
+stag_annotation. An object. Optional.
+
+work_reference. A string. Optional.
+
+keywords. An array of strings. Optional.
+
+notes. A string. Optional.
+
+moderation_status. An enum. The values are pending, approved, rejected.
+
+version. An integer.
+
+supersedes. A string. Optional.
+
+superseded_by. A string. Optional.
+
+Each evidence object has:
+
+evidence_id. A string.
+
+study_reference. A string.
+
+study_summary. A string.
+
+sample_size. An integer.
+
+age_range. An object. It contains min_age and max_age.
+
+observation. A string.
+
+statistical_result. A string.
+
+Each intervention object has:
+
+intervention_id. A string.
+
+intervention_name. A string.
+
+intervention_description. A string.
+
+intervention_type. An enum. The values are direct_instruction, inquiry_based, peer_instruction, demonstration, simulation, hands_on, other.
+
+study_reference. A string.
+
+result. An object. It contains outcome, effect_size, and statistical_significance.
+
+notes. A string. Optional.
+
+Each misconception relation has:
+
+relation_id. A string.
+
+related_misconception_id. A string.
+
+relation_type. An enum. The values are same_root_cause, prerequisite, related, independent.
+
+relation_note. A string. Optional.
+
+6.2 Database Schema
+The database has the following tables.
+
+misconception. Holds the misconception records.
+
+Its fields are:
+
+misconception_id
+
+misconception_name
+
+description
+
+subject
+
+topic
+
+age_range
+
+persistence
+
+root_cause
+
+provenance
+
+keywords
+
+notes
+
+moderation_status
+
+version
+
+supersedes
+
+superseded_by
+
+created_at
+
+updated_at
+
+evidence. Holds the evidence records.
+
+Its fields are:
+
+evidence_id
+
+misconception_id
+
+evidence_type
+
+study_reference
+
+study_summary
+
+sample_size
+
+age_range
+
+observation
+
+statistical_result
+
+created_at
+
+intervention. Holds the intervention records.
+
+Its fields are:
+
+intervention_id
+
+misconception_id
+
+intervention_type_category
+
+intervention_name
+
+intervention_description
+
+intervention_type
+
+study_reference
+
+result
+
+notes
+
+created_at
+
+misconception_relation. Holds the misconception relations.
+
+Its fields are:
+
+relation_id
+
+misconception_id
+
+related_misconception_id
+
+relation_type
+
+relation_note
+
+created_at
+
+stag_link. Holds the STAG links.
+
+Its fields are:
+
+link_id
+
+misconception_id
+
+annotation_id
+
+created_at
+
+work_link. Holds the work links.
+
+Its fields are:
+
+link_id
+
+misconception_id
+
+work_id
+
+created_at
+
+provenance. Holds the provenance records.
+
+Its fields are:
+
+provenance_id
+
+misconception_id
+
+depositor_id
+
+depositor_affiliation
+
+timestamp
+
+source
+
+tool_version
+
+operation
+
+created_at
+
+audit_log. Holds the audit log entries.
+
+Its fields are:
+
+audit_id
+
+operation
+
+record_type
+
+record_id
+
+depositor_id
+
+timestamp
+
+result
+
+details
+
+created_at
+
+moderation. Holds the moderation records.
+
+Its fields are:
+
+moderation_id
+
+misconception_id
+
+moderator_id
+
+moderation_status
+
+moderation_date
+
+moderation_notes
+
+created_at
+
+6.3 Referential Integrity
+Every evidence.misconception_id must exist in misconception.
+
+Every intervention.misconception_id must exist in misconception.
+
+Every misconception_relation.misconception_id and misconception_relation.related_misconception_id must exist in misconception.
+
+Every stag_link.misconception_id must exist in misconception.
+
+Every work_link.misconception_id must exist in misconception.
+
+Every provenance.misconception_id must exist in misconception.
+
+Every moderation.misconception_id must exist in misconception.
+
+The version chain must be acyclic.
+
+The misconception relation must be symmetric where appropriate.
+
+6.4 Indexes
+The database has indexes on:
+
+misconception.misconception_id
+
+misconception.misconception_name
+
+misconception.subject
+
+misconception.topic
+
+misconception.persistence
+
+misconception.age_range
+
+misconception.root_cause
+
+misconception.depositor_id
+
+misconception.moderation_status
+
+misconception.keywords
+
+evidence.misconception_id
+
+evidence.evidence_type
+
+intervention.misconception_id
+
+intervention.intervention_type
+
+misconception_relation.misconception_id
+
+misconception_relation.related_misconception_id
+
+stag_link.misconception_id
+
+work_link.misconception_id
+
+provenance.misconception_id
+
+provenance.depositor_id
+
+audit_log.operation
+
+audit_log.record_id
+
+moderation.misconception_id
+
+moderation.moderation_status
+
+Full-text search indexes on the description, the evidence, and the notes.
+
+7. Core Logic as Executable Pseudocode
+7.1 Create Misconception
+function createMisconception(misconception, files, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Validate the misconception against the schema. If invalid, return an error with the details.
+
+Step 3. If the STAG annotation is present, validate it.
+
+Step 4. If the work reference is present, look it up. If null, flag it as unresolved.
+
+Step 5. Generate a misconception ID. Set the fields: version 1, moderation_status pending, deposit_date now, depositor_id from auth, depositor_affiliation from auth, provenance from provenance.
+
+Step 6. Insert the misconception.
+
+Step 7. Insert the evidence records, the intervention records, and the relation records.
+
+Step 8. Insert the STAG link and the work link if present.
+
+Step 9. Insert the provenance.
+
+Step 10. Insert the moderation record.
+
+Step 11. Insert the audit log entry.
+
+Step 12. Return the misconception_id and the status created.
+
+7.2 Read Misconception
+function readMisconception(misconceptionId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the misconception. If null, return an error.
+
+Step 3. Read the evidence, the interventions, the relations, the links, the provenance, and the moderation.
+
+Step 4. Reconstruct the deposit.
+
+Step 5. Insert the audit log entry.
+
+Step 6. Return the deposit.
+
+7.3 Update Misconception
+function updateMisconception(misconceptionId, misconception, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Read the existing misconception. If null, return an error.
+
+Step 3. Validate the new misconception.
+
+Step 4. Increment the version. Update the supersedes and superseded_by fields.
+
+Step 5. Insert a provenance record with operation update.
+
+Step 6. Insert an audit log entry.
+
+Step 7. Return the misconception_id, the version, and the status updated.
+
+7.4 Delete Misconception
+function deleteMisconception(misconceptionId, provenance, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Read the existing misconception. If null, return an error.
+
+Step 3. If soft delete, mark as deleted. Otherwise, remove.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the misconception_id and the status deleted.
+
+7.5 Query Misconceptions
+function queryMisconceptions(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the query.
+
+Step 3. Read the matching misconceptions.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the misconceptions, the count, and the pagination.
+
+7.6 Aggregate Misconceptions
+function aggregateMisconceptions(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the aggregation.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the results.
+
+7.7 Full-Text Search
+function fullTextSearch(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the search.
+
+Step 3. Read the matching misconceptions.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the misconceptions and the count.
+
+7.8 Export Misconception
+function exportMisconception(misconceptionId, format, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the deposit.
+
+Step 3. If json, output the deposit. If provo, export to PROV-O. If turtle, serialize to Turtle.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the output and the format.
+
+7.9 Bulk Import
+function bulkImport(file, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Parse the file.
+
+Step 3. For each misconception, call createMisconception.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the results and the count.
+
+7.10 Bulk Export
+function bulkExport(query, format, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the matching misconceptions.
+
+Step 3. If json, output the list. If jsonl, output one line per misconception. If provo, export each one.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the output and the count.
+
+7.11 Moderate Misconception
+function moderateMisconception(misconceptionId, moderationStatus, moderationNotes, auth):
+
+Step 1. validateAuth(auth, "moderator"). If not authorized, return an error.
+
+Step 2. Read the existing misconception. If null, return an error.
+
+Step 3. Update the moderation status. Insert a moderation record.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the misconception_id and the status.
+
+7.12 Misconception Map
+function misconceptionMap(auth, options):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read all misconceptions.
+
+Step 3. Build the map with subjects as axes and root causes as positions.
+
+Step 4. Return the map.
+
+7.13 Intervention Comparison View
+function interventionComparisonView(misconceptionId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the misconception. If null, return an error.
+
+Step 3. Read the interventions that work and the interventions that fail.
+
+Step 4. Build the comparison by overlaying the effect sizes.
+
+Step 5. Return the comparison.
+
+7.14 Persistence Curve
+function persistenceCurve(misconceptionId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the misconception. If null, return an error.
+
+Step 3. Read the evidence that records the persistence of the misconception.
+
+Step 4. Build the curve with the persistence over time or over teaching.
+
+Step 5. Return the curve.
+
+7.15 Find Related Misconceptions
+function findRelatedMisconceptions(misconceptionId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the misconception. If null, return an error.
+
+Step 3. Find misconceptions with the same root cause, the same subject, or the same topic.
+
+Step 4. Return the related misconceptions.
+
+7.16 Audit Log
+function auditLog(query, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Build and execute the query.
+
+Step 3. Return the results.
+
+7.17 Backup
+function backup(auth, options):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. If sql, dump as SQL. If json, dump as JSON.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the output and the format.
+
+7.18 Restore
+function restore(file, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Load the database from the file.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the status restored.
+
+8. Data Model
+The database's internal state is the set of tables. The API's internal state is a request object and a response object.
+
+Request object:
+
+operation
+
+resource
+
+record_id
+
+record_json
+
+query
+
+auth
+
+Response object:
+
+status
+
+result
+
+error
+
+audit_id
+
+9. Architecture
+Module breakdown:
+
+Misconception Schema.
+
+Database Schema.
+
+Misconception Loader.
+
+Misconception Writer.
+
+Misconception Reader.
+
+Misconception Updater.
+
+Misconception Deleter.
+
+Query Engine.
+
+Full-Text Search Engine.
+
+Aggregation Engine.
+
+Exporter.
+
+Importer.
+
+Bulk Import and Export.
+
+REST API.
+
+GraphQL API.
+
+Command-Line Interface.
+
+Authentication and Authorization.
+
+Audit Logging.
+
+Backup and Restore.
+
+Web Interface.
+
+Moderation Workflow.
+
+Misconception Map.
+
+Intervention Comparison View.
+
+Persistence Curve.
+
+Related-Misconception Finder.
+
+Migration Manager.
+
+Data flow:
+
+API requests go to the REST or GraphQL API.
+
+The API calls the misconception loader, writer, reader, updater, deleter, query engine, search engine, aggregation engine, exporter, or importer.
+
+The database schema stores the data.
+
+The audit logging records every operation.
+
+The authentication and authorization check access.
+
+The moderation workflow handles moderation.
+
+The misconception map, the intervention comparison view, and the persistence curve visualise.
+
+The related-misconception finder finds relations.
+
+The backup and restore handle backup.
+
+The web interface provides depositing, browsing, and querying.
+
+10. Technology Stack
+Recommended for the database:
+
+Database: PostgreSQL 15+ or SQLite 3.40+.
+
+Language: Python 3.11+ or Node.js 20+.
+
+ORM: SQLAlchemy or Prisma.
+
+Migrations: Alembic or Prisma Migrate.
+
+Full-text search: PostgreSQL tsvector or SQLite FTS5.
+
+Recommended for the REST API:
+
+Framework: FastAPI or Express.
+
+Authentication: FastAPI Users or Passport.
+
+Recommended for the GraphQL API:
+
+Framework: Strawberry or Apollo Server.
+
+Recommended for the command-line interface:
+
+Framework: Click or Commander.
+
+Recommended for the web interface:
+
+Frontend: React or Svelte.
+
+Backend: the same as the REST API.
+
+Recommended for deployment:
+
+Containerization: Docker.
+
+Orchestration: Docker Compose or Kubernetes.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The STAG schema (Artifact 2, Appendix B.1).
+
+The PROV-O exporter (App 3).
+
+The STAG schema library (App 17).
+
+The provenance database (App 20).
+
+The numerical verification tool (App 22).
+
+The revision history viewer (App 7).
+
+The Physics Knowledge Library (App 23).
+
+The Autofill Library Service (App 49).
+
+11. UI/UX Specification
+REST API:
+
+Base URL: https://api.example.com/v1.
+
+Authentication: Bearer token.
+
+Endpoints:
+
+GET /misconceptions.
+
+GET /misconceptions/{id}.
+
+POST /misconceptions.
+
+PUT /misconceptions/{id}.
+
+DELETE /misconceptions/{id}.
+
+GET /misconceptions/{id}/provo.
+
+GET /misconceptions/{id}/turtle.
+
+GET /misconceptions/{id}/evidence.
+
+GET /misconceptions/{id}/interventions.
+
+GET /misconceptions/{id}/related.
+
+GET /misconceptions/{id}/stag.
+
+GET /misconceptions/{id}/work.
+
+GET /misconceptions/by-subject/{subject}.
+
+GET /misconceptions/by-topic/{topic}.
+
+GET /misconceptions/{id}/intervention-comparison.
+
+GET /misconceptions/{id}/persistence-curve.
+
+POST /query.
+
+POST /aggregate.
+
+POST /search.
+
+GET /map.
+
+POST /bulk/import.
+
+POST /bulk/export.
+
+POST /moderate/{id}.
+
+GET /audit.
+
+Responses in JSON.
+
+HTTP status codes: 200, 201, 204, 400, 401, 403, 404, 409, 422, 500.
+
+GraphQL API:
+
+Endpoint: https://api.example.com/graphql.
+
+Schema exposes the entities and their relationships.
+
+Command-line interface:
+
+Usage: misconception-database [command] [options].
+
+Commands: init, migrate, backup, restore, import, export, query, aggregate, moderate, audit.
+
+Web interface:
+
+A browsable list of misconceptions.
+
+A deposit form.
+
+A search box.
+
+A filter panel.
+
+An aggregation view.
+
+A misconception map.
+
+An intervention comparison view.
+
+A persistence curve.
+
+A detail view for each misconception.
+
+A moderation view.
+
+12. Validation Engine Design
+The registry validates the following.
+
+Validation 1. Misconception validity. Every misconception is validated against the schema.
+
+Validation 2. STAG annotation validity.
+
+Validation 3. Referential integrity.
+
+Validation 4. Version chain acyclicity.
+
+Validation 5. Work resolution.
+
+Validation 6. Provenance completeness.
+
+Validation 7. Audit completeness.
+
+Validation 8. Moderation completeness.
+
+Validation 9. Age range consistency. The age range must be consistent across evidence.
+
+Validation 10. Persistence consistency. The persistence must be consistent with the evidence.
+
+13. Testing Strategy
+Unit tests:
+
+Misconception Schema for valid and invalid misconceptions.
+
+Database Schema for each table and index.
+
+Misconception Loader.
+
+Misconception Writer.
+
+Misconception Reader.
+
+Misconception Updater.
+
+Misconception Deleter.
+
+Query Engine.
+
+Full-Text Search Engine.
+
+Aggregation Engine.
+
+Exporter.
+
+Importer.
+
+Bulk Import and Export.
+
+REST API.
+
+GraphQL API.
+
+Command-Line Interface.
+
+Authentication and Authorization.
+
+Audit Logging.
+
+Backup and Restore.
+
+Web Interface.
+
+Moderation Workflow.
+
+Misconception Map.
+
+Intervention Comparison View.
+
+Persistence Curve.
+
+Related-Misconception Finder.
+
+Migration Manager.
+
+Integration tests:
+
+Create a misconception. Read it back.
+
+Update a misconception.
+
+Delete a misconception.
+
+Query by each field.
+
+Aggregate by each dimension.
+
+Search by full text.
+
+Export as JSON, PROV-O, and Turtle.
+
+Bulk import and export.
+
+Backup and restore.
+
+Moderate a misconception.
+
+Generate the misconception map.
+
+Compare interventions.
+
+Generate the persistence curve.
+
+Worked-example tests:
+
+Deposit the misconception that heavier objects fall faster.
+
+Deposit the misconception that the seasons are caused by the Earth's distance from the Sun.
+
+Deposit the misconception that evolution is a ladder of progress.
+
+Deposit the misconception that atoms are solid spheres.
+
+Deposit the misconception that money is wealth.
+
+Deposit the misconception that memory works like a video recorder.
+
+Regression tests:
+
+Misconception determinism.
+
+Query consistency.
+
+Aggregation consistency.
+
+Audit log consistency.
+
+Moderation consistency.
+
+Age range consistency.
+
+Persistence consistency.
+
+14. Build Phases
+Phase 1. Misconception Schema.
+
+Phase 2. Database Schema.
+
+Phase 3. Misconception Loader.
+
+Phase 4. Misconception Writer.
+
+Phase 5. Misconception Reader.
+
+Phase 6. Misconception Updater.
+
+Phase 7. Misconception Deleter.
+
+Phase 8. Query Engine.
+
+Phase 9. Full-Text Search Engine.
+
+Phase 10. Aggregation Engine.
+
+Phase 11. Exporter.
+
+Phase 12. Importer.
+
+Phase 13. Bulk Import and Export.
+
+Phase 14. REST API.
+
+Phase 15. GraphQL API.
+
+Phase 16. Command-Line Interface.
+
+Phase 17. Authentication and Authorization.
+
+Phase 18. Audit Logging.
+
+Phase 19. Backup and Restore.
+
+Phase 20. Web Interface.
+
+Phase 21. Moderation Workflow.
+
+Phase 22. Misconception Map.
+
+Phase 23. Intervention Comparison View.
+
+Phase 24. Persistence Curve.
+
+Phase 25. Related-Misconception Finder.
+
+Phase 26. Migration Manager.
+
+Phase 27. Worked-example tests.
+
+Phase 28. Integration testing and hardening.
+
+Phase 29. Packaging and deployment.
+
+15. Dependencies
+Python path:
+
+SQLAlchemy.
+
+Alembic.
+
+FastAPI.
+
+Strawberry.
+
+FastAPI Users.
+
+Click.
+
+psycopg2.
+
+sqlite3.
+
+jsonschema.
+
+hashlib.
+
+json.
+
+pytest.
+
+Node.js path:
+
+Prisma.
+
+Express.
+
+Apollo Server.
+
+Passport.
+
+Commander.
+
+pg.
+
+better-sqlite3.
+
+ajv.
+
+crypto.
+
+JSON.
+
+Vitest.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The STAG schema (Artifact 2, Appendix B.1).
+
+The PROV-O exporter (App 3).
+
+The STAG schema library (App 17).
+
+The provenance database (App 20).
+
+The numerical verification tool (App 22).
+
+The revision history viewer (App 7).
+
+The Physics Knowledge Library (App 23).
+
+The Autofill Library Service (App 49).
+
+16. Deployment Notes
+Database:
+
+PostgreSQL for multi-user deployments.
+
+SQLite for single-user deployments.
+
+Backup and restore via pg_dump and pg_restore or the SQLite backup API.
+
+REST API:
+
+Deploy with Docker. Stateless. Scale horizontally.
+
+Use a reverse proxy for TLS.
+
+Log every request for audit.
+
+GraphQL API:
+
+Deploy alongside the REST API.
+
+Use a query depth limit and a query complexity limit.
+
+Command-line interface:
+
+Package as a standalone executable.
+
+Distribute via pip, npm, or a direct download.
+
+Web interface:
+
+Deploy the frontend as a static bundle.
+
+Backend with FastAPI or Express.
+
+Reproducibility:
+
+Record the STAG schema version, the misconception schema version, and the database version.
+
+Record the provenance for every deposit.
+
+Provide a version pin for the schemas and codebook.
+
+17. Open Questions to Resolve Before Building
+Question 1. Which runtime first? Python or Node.js.
+
+Question 2. Which database first? PostgreSQL or SQLite.
+
+Question 3. How should the database handle the subject and topic? A fixed taxonomy, or an open set.
+
+Question 4. How should the database handle the persistence? A fixed set of four values, or a continuous scale.
+
+Question 5. How should the database handle the age range? A fixed set of bands, or a continuous range.
+
+Question 6. How should the database handle the intervention type? A fixed set, or an open set.
+
+Question 7. How should the database handle the evidence? A fixed schema, or an open schema.
+
+Question 8. How should the database handle the relation between misconceptions? Manual entry, or automatic detection.
+
+Question 9. How should the database handle the moderation workflow? Pending until approved, auto-approved, or require a moderator.
+
+Question 10. How should the database handle the STAG annotation? Required, optional, or optional depending on the misconception type.
+
+Question 11. How should the database handle the work reference? Required, optional, or optional depending on the subject.
+
+Question 12. How should the database handle the misconception map? A scatter plot, a network graph, or both.
+
+Question 13. How should the database handle the intervention comparison view? An overlay of effect sizes, a side-by-side table, or both.
+
+Question 14. How should the database handle the persistence curve? A line plot, a bar chart, or both.
+
+Question 15. Should the database integrate with the STAG schema library (App 17), the provenance database (App 20), the numerical verification tool (App 22), the revision history viewer (App 7), and the Physics Knowledge Library (App 23)?
+
+Question 16. Should the database support federation with other instances of itself?
+
+Question 17. How should the database handle the deposit of a misconception that is already in the database? Reject, create a new version, or create a separate record with a cross-reference.
+
+Question 18. Should the database support autofill via App 49? If so, which library does it register?
+
+End of build specification for App 31, the Misconception Database.
