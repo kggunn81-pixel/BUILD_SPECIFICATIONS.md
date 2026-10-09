@@ -1,0 +1,871 @@
+Build Specification — App 18: Null-Model Protocol Library
+Completeness status: COMPLETE. All sections delivered in one pass. No truncation. Formatted for copy-paste into another conversation window. No tables, no boxes.
+
+What It Is
+The Null-Model Protocol as a versioned software library. It implements the statistic, the scan families, the effective-null builder, and the full-pipeline simulator, with a test suite that reproduces the numbers in Section 13 of the Null-Model Protocol paper. It takes in a pipeline specification and data, and puts out the same outputs as the Full-Pipeline Simulator (App 9), as a library. It is for statisticians and developers.
+
+Core Requirements
+Functional requirements:
+
+Provide a stable library API for the Null-Model Protocol.
+
+Implement the scan statistic Lambda(w) and the scan statistic Lambda_max.
+
+Implement the scan families W_adj, W_pair, and fixed.
+
+Implement the effective-null builder: apply a base null, a selection function, and a measurement kernel in the specified order, renormalise, and warn when the effective null has atoms.
+
+Implement the full-pipeline simulator: reproduce the entire pipeline on synthetic data, return the empirical null distribution, the exceedance probability, the Monte Carlo uncertainty, and the empty-W fraction.
+
+Implement the nuisance-estimation procedure, including the gap-exclusion loop and the truncated-likelihood treatment.
+
+Implement the tail definition, whether >= or >.
+
+Implement the multiplicity procedure.
+
+Implement the support rules S1, S2, S3.
+
+Implement the null models uniform, parametric, mixture, empirical, and KDE.
+
+Implement the selection functions analytic, tabulated, and stepwise.
+
+Implement the measurement kernels Gaussian (homoscedastic), Gaussian (heteroscedastic), uniform, exponential, and user-supplied.
+
+Implement the dependence structures hierarchical simulation, block resampling, and fitted correlation model.
+
+Implement clustering as a processing step.
+
+Implement jittering.
+
+Provide a test suite that reproduces the numbers in Section 13 of the Null-Model Protocol paper.
+
+Support N up to 10^6 with direct Monte Carlo.
+
+Provide the option for adaptive or importance sampling (deferred to a later version).
+
+Non-functional requirements:
+
+Deterministic: same inputs produce same outputs.
+
+Fast: run N simulations within a reasonable time (depends on N and the pipeline complexity).
+
+Versioned: the library records the schema version and the library version.
+
+Reproducible: the library records the seed and the random number generator.
+
+Portable: works on Linux, macOS, and Windows.
+
+Well-tested: the test suite covers all the worked examples.
+
+Documented: API documentation and a specification reference.
+
+Input Specification
+The library has no runtime inputs of its own. It is a dependency that other apps import.
+
+For simulation, the library takes:
+
+Input 1. Pipeline specification. Required. A JSON object conforming to the schema produced by the Pipeline Specification Wizard (App 8).
+
+Input 2. Data. Required. An array of numbers or a dataset object.
+
+Input 3. Seed. Required. An integer.
+
+Input 4. Options. Optional. An object with fields: N (integer), rng (string), progress (boolean), adaptive (boolean), output_dir (string).
+
+Input 5. Scan family override. Optional. If provided, overrides the scan family in the specification.
+
+Input 6. Null model override. Optional. If provided, overrides the null model in the specification.
+
+For statistic computation, the library takes:
+
+Input 7. Data. Required.
+
+Input 8. Window. Required. A window with a lower bound and an upper bound.
+
+Input 9. Effective null. Required.
+
+Input 10. Specification. Required.
+
+For effective-null building, the library takes:
+
+Input 11. Base null. Required.
+
+Input 12. Selection function. Optional.
+
+Input 13. Measurement kernel. Optional.
+
+Input 14. Order. Required if both selection and measurement are present.
+
+Input 15. Support. Required.
+
+Output Specification
+For simulation:
+
+Output 1. Result object. JSON. The observed statistic, the empirical null distribution, the exceedance probability, the Monte Carlo uncertainty, the empty-W fraction, the point mass at zero, the tail definition, the N, the seed, the runtime, the specification version, the library version, and any warnings.
+
+For statistic computation:
+
+Output 2. Statistic value. Number. The value of Lambda(w).
+
+For effective-null building:
+
+Output 3. Effective null object. The density function, the cumulative distribution function, the continuity status, the atoms, the discontinuities, and any warnings.
+
+For the library:
+
+Output 4. Function results. The return values of the public API functions.
+
+Module-by-Module Specification
+Module 1: Specification Loader
+Reads and validates the pipeline specification against the schema produced by the Pipeline Specification Wizard (App 8). Provides access to the specification's fields.
+
+Module 2: Data Loader
+Reads and validates the data. Applies the transformation, the jittering, and the clustering specified. Assigns the support by the specified rule.
+
+Module 3: Observed Statistic Calculator
+Computes Lambda_obs on the observed data. Forms the scan family W with the specified g_min, boundary convention, and empty-W convention. Estimates nuisance parameters under the initial null. Selects the candidate window. Excludes it and re-estimates. Recomputes Lambda(w) for all w in W under the re-estimated effective null. Sets Lambda_obs to the maximum.
+
+Module 4: Synthetic Data Generator
+For each simulation i from 1 to N, generates synthetic data from the null in the space where the null, the selection function, and the measurement kernel are defined.
+
+Applies dependence structure if specified.
+
+Applies selection and measurement in the specified order.
+
+Transforms if not already transformed.
+
+Applies jittering with an independent draw from the same distribution if specified.
+
+Applies clustering if applicable.
+
+Assigns the support by the same rule, computed from the synthetic data under S2.
+
+Module 5: Effective Null Builder
+Applies the base null, the selection function, and the measurement kernel in the specified order. Renormalises. Returns the effective null. Warns when it has atoms.
+
+Module 6: Scan Statistic Calculator
+Forms the scan family W with the same g_min, boundary convention, and empty-W convention. Computes Lambda(w) for all w in W. Sets Lambda_max to the maximum.
+
+Module 7: Nuisance Estimation
+Estimates nuisance parameters under the initial null. Selects the candidate window. Excludes it and re-estimates with the truncated-likelihood treatment. Applies the gap-exclusion loop with the specified iteration count.
+
+Module 8: Empirical Null Distribution Builder
+Collects Lambda_max,1 through Lambda_max,N. Computes the empirical null distribution. Computes the point mass at zero.
+
+Module 9: Exceedance Probability Calculator
+Computes p = (1 + number of i with Lambda_max,i >= Lambda_obs) / (N + 1) if the tail definition is >=, or p = (1 + number of i with Lambda_max,i > Lambda_obs) / (N + 1) if the tail definition is >.
+
+Module 10: Monte Carlo Uncertainty Calculator
+Computes the standard error of p as approximately sqrt(p * (1 - p) / N).
+
+Module 11: Empty-W Fraction Calculator
+Computes the fraction of synthetic datasets with an empty W. Applies the empty-W convention.
+
+Module 12: Multiplicity Handler
+Applies the multiplicity procedure once, after the loop. Handles multiple nulls if specified.
+
+Module 13: Result Formatter
+Produces the result object.
+
+Module 14: Reproducibility Recorder
+Records the specification version, the library version, the seed, the RNG, the number of simulations, and the runtime.
+
+Module 15: Public API
+Provides the public functions:
+
+runSimulator(specification, data, seed, options) returns the result object.
+
+computeObservedStatistic(data, specification) returns Lambda_obs.
+
+generateSyntheticData(specification, i, options) returns a synthetic dataset.
+
+buildEffectiveNull(baseNull, selectionFunction, measurementKernel, order, support, options) returns the effective null object.
+
+computeScanStatistic(data, W, effectiveNull, specification) returns Lambda_max.
+
+computeLambda(w, data, effectiveNull, specification) returns Lambda(w).
+
+computeExceedanceProbability(lambdaObs, nullDistribution, tailDefinition) returns p.
+
+computeMonteCarloUncertainty(p, N) returns the standard error.
+
+applyMultiplicity(p, procedure) returns the corrected p.
+
+Module 16: Test Suite
+Tests all the public API functions. Reproduces the numbers in Section 13 of the Null-Model Protocol paper.
+
+Full Computation Specification
+6.1 The Scan Statistic
+The scan statistic Lambda(w) is defined in Section 4.1 of the Null-Model Protocol paper.
+
+For a window w and null probability P = P_0(w), the statistic is:
+
+Lambda(w) = 2 * [ n_w * log(n_w / (n * P)) + (n - n_w) * log((n - n_w) / (n * (1 - P))) ] when n_w < n * P, and Lambda(w) = 0 otherwise.
+
+With the convention that 0 * log(0) = 0.
+
+For n_w = 0, Lambda(w) = -2n * log(1 - P).
+
+The scan statistic over the family W is Lambda_max = max over w in W of Lambda(w).
+
+6.2 The Effective Null
+The effective null is built by applying the base null, the selection function, and the measurement kernel in the specified order.
+
+For selection_on_true_then_measurement: the effective null is proportional to (p_0 * s) convolved with K.
+
+For selection_on_measured: the effective null is proportional to (p_0 convolved with K) * s.
+
+Both are renormalised to integrate to one over the support.
+
+6.3 The Empirical Null Distribution
+The empirical null distribution is the set of Lambda_max values computed on N synthetic datasets. It is computed by reproducing the entire pipeline on each synthetic dataset.
+
+6.4 The Exceedance Probability
+The exceedance probability is:
+
+p = (1 + number of i with Lambda_max,i >= Lambda_obs) / (N + 1) if the tail definition is >=.
+
+p = (1 + number of i with Lambda_max,i > Lambda_obs) / (N + 1) if the tail definition is >.
+
+The p-value cannot be zero.
+
+6.5 Monte Carlo Uncertainty
+The standard error of p is approximately sqrt(p * (1 - p) / N).
+
+For a target relative error r, the required N is approximately (1 - p) / (r^2 * p).
+
+6.6 Empty-W Fraction
+The empty-W fraction is the fraction of synthetic datasets for which the scan family W is empty. If W is empty, the empty-W convention applies: either report "no admissible candidate" with p = 1, or set Lambda_max = 0.
+
+6.7 Point Mass at Zero
+The point mass at zero is the fraction of synthetic datasets with Lambda_max = 0. This happens when no window in W has n_w < n * P_0(w), which is the surplus regime.
+
+6.8 The Gap-Exclusion Loop
+The gap-exclusion loop is described in Section 5.1 of the Null-Model Protocol paper.
+
+The loop is:
+
+Estimate an initial null from all data or a pre-specified subset.
+
+Select a candidate gap under that null.
+
+Exclude the selected region.
+
+Re-estimate the null from the retained data by the same estimator and exclusion rule.
+
+Recompute the statistic under the re-estimated null.
+
+The loop runs once by default. If iteration is specified, the loop runs for the specified iteration count.
+
+The re-estimation uses a truncated likelihood, conditioning on the retained region. The re-estimated density is renormalised over the full support. The rule for extrapolating mass into the excluded region is stated in the specification.
+
+6.9 Selection and Measurement
+The order of selection and measurement is specified in the pipeline specification. The two possible orders are:
+
+Selection acts on true values, and measurement follows. The observed density is proportional to (p_0 * s) convolved with K.
+
+Selection acts on measured values. The observed density is proportional to (p_0 convolved with K) * s.
+
+Both are renormalised to integrate to one over the support. P_0(w) in Lambda is computed from the applicable one.
+
+6.10 Dependence
+Dependence structures are simulated as specified. The remedies include hierarchical simulation, a fitted parametric correlation model, or block resampling with a pre-specified block structure.
+
+If dependence cannot be modelled, the library reports sensitivity to plausible strengths and states that the p-value is conditional on independence.
+
+6.11 Clustering
+Clustering is a processing step. It changes n and the shape of the distribution. The clustering algorithm, settings, and reproduction in the simulation are specified.
+
+6.12 Jittering
+Jittering is applied inside the pipeline, not once at the start. Every synthetic dataset receives an independent draw from the same distribution. The jitter scale is set by the measurement precision, not chosen to influence the result.
+
+For a grid of spacing delta, the jitter is uniform on [-delta/2, delta/2] in the transformed space, or on the grid spacing itself when the measurement is a rounded count.
+
+The transformation from the observed scale to the transformed scale is applied before the jitter is added.
+
+6.13 N
+N is the number of simulations. The recommended N for a target tail probability p and a target relative error r is approximately (1 - p) / (r^2 * p). The standard tabulated values are:
+
+For a target tail of 0.05, N = 1.9 * 10^3 for a 10% relative error, N = 1.9 * 10^5 for a 1% relative error.
+
+For a target tail of 0.01, N = 1.0 * 10^4 for a 10% relative error, N = 1.0 * 10^6 for a 1% relative error.
+
+For a target tail of 10^-3, N = 1.0 * 10^5 for a 10% relative error, N = 1.0 * 10^7 for a 1% relative error.
+
+For a target tail of 10^-4, N = 1.0 * 10^6 for a 10% relative error, N = 1.0 * 10^8 for a 1% relative error.
+
+For a target tail of 10^-5, N = 1.0 * 10^7 for a 10% relative error, N = 1.0 * 10^9 for a 1% relative error.
+
+6.14 Multiplicity
+The primary multiplicity, the search over W, is reproduced automatically by the full-pipeline simulation. Further correction applies when several datasets or hypotheses are tested.
+
+When several independent datasets are tested, Bonferroni, Holm, or Benjamini-Hochberg apply as appropriate.
+
+When several plausible nulls are applied to the same dataset, treat as a composite null: report the p-value under each null and use the least favourable for any single headline claim, or apply Bonferroni across nulls, or define a mixture null.
+
+When related datasets are tested whose joint null cannot be simulated, permutation-based maximum-statistic procedures apply.
+
+The procedure is pre-specified and applied once, after the loop.
+
+6.15 Worked Examples from Section 13
+The library's test suite reproduces the numbers in Section 13 of the Null-Model Protocol paper.
+
+Section 11.1 (uniform null, S2 support, W_adj, exactly solvable): Lambda_obs = 19.54, exact exceedance probability = 2.99 * 10^-3. With N = 10^4, the simulation is expected to give about 30 exceedances, p_hat approximately 3.0 * 10^-3, with standard error about 5.5 * 10^-4.
+
+Section 11.2 (what goes wrong if the support rule is ignored): the fixed-support value is 1.37 * 10^-3, a factor of about 2.2 too small.
+
+Section 11.3 (a non-uniform null where the Lambda-maximizer is not the widest gap): the Lambda-maximizer has Lambda = 14.90, and the Monte Carlo reference gives p = 0.0167 with Monte Carlo standard error about 2 * 10^-4.
+
+Section 11.4 (a small simulation of calibration and power): the false-positive rate is 0.051 for the full pipeline, 0.086 for the fixed-support reference. Power values as in Section 11.4.
+
+Section 11.5 (nuisance estimation, the gap-exclusion loop, and dependence): the full-pipeline reference is within about two standard errors of nominal. Ignoring a plain refit: 0.041 to 0.043. Ignoring the gap-dependent refit: 0.076 to 0.119. Dependence: 0.765 at sigma = 0.03 and 0.361 at sigma = 0.06; hierarchical reference restores to 0.050 and 0.051.
+
+Section 11.6 (pair windows, the endpoint bias, and the endpoint-conditioned statistic): critical values 14.0 for W_adj, 23.8 for W_all uncapped, 15.6 for the endpoint-corrected count, 14.7 for P_max = 0.5, 10.2 for P_max = 0.5 with endpoint correction. Power values as in Section 11.6.
+
+Section 11.7 (selection function): rejection rate 0.048 for the effective null, 0.058 for the unmodified p_0 with a reference simulated with selection, 0.204 for the unmodified p_0 with a reference simulated without selection.
+
+Core Logic as Executable Pseudocode
+7.1 Main Flow
+function runSimulator(specification, data, seed, options):
+
+Step 1. validatedSpec = validateSpecification(specification). If invalid, return {error: "invalid specification"}.
+
+Step 2. setSeed(seed, rng = validatedSpec.rng or "Mersenne Twister").
+
+Step 3. observedData = loadData(data, validatedSpec).
+
+Step 4. observedStatistic = computeObservedStatistic(observedData, validatedSpec).
+
+Step 5. nullDistribution = [].
+
+emptyWCount = 0.
+
+zeroCount = 0.
+
+for i in range(1, N + 1):
+
+syntheticData = generateSyntheticData(validatedSpec, i).
+
+effectiveNull = buildEffectiveNull(validatedSpec, syntheticData).
+
+W = formScanFamily(syntheticData, validatedSpec).
+
+if W is empty:
+
+emptyWCount = emptyWCount + 1.
+
+if validatedSpec.empty_w_convention == "zero": lambdaMax = 0.
+
+else: continue.
+
+else:
+
+lambdaMax = computeScanStatistic(syntheticData, W, effectiveNull, validatedSpec).
+
+if lambdaMax == 0: zeroCount = zeroCount + 1.
+
+nullDistribution.push(lambdaMax).
+
+Step 6. p = computeExceedanceProbability(observedStatistic, nullDistribution, validatedSpec.tail_definition).
+
+Step 7. mcUncertainty = computeMonteCarloUncertainty(p, N).
+
+Step 8. emptyWFraction = emptyWCount / N.
+
+Step 9. pointMassAtZero = zeroCount / N.
+
+Step 10. multiplicityResult = applyMultiplicity(p, validatedSpec.multiplicity_procedure).
+
+Step 11. return {observedStatistic, nullDistribution, p, mcUncertainty, emptyWFraction, pointMassAtZero, tailDefinition: validatedSpec.tail_definition, N, seed, runtime, specificationVersion: validatedSpec.schema_version, libraryVersion: options.libraryVersion, warnings: validatedSpec.warnings}.
+
+7.2 Compute Observed Statistic
+function computeObservedStatistic(data, spec):
+
+transformed = applyTransformation(data, spec.transformation).
+
+jittered = applyJittering(transformed, spec).
+
+clustered = applyClustering(jittered, spec.clustering_step).
+
+support = assignSupport(clustered, spec.support_rule).
+
+W = formScanFamily(clustered, spec, support).
+
+if W is empty:
+
+if spec.empty_w_convention == "no_candidate": return {lambda_obs: null, empty_w: true}.
+
+if spec.empty_w_convention == "zero": return {lambda_obs: 0, empty_w: true}.
+
+initialNull = estimateNull(clustered, spec.null_model).
+
+candidateWindow = selectCandidateWindow(W, initialNull, spec.gap_selection_rule).
+
+retainedData = excludeWindow(clustered, candidateWindow).
+
+reestimatedNull = reestimateNull(retainedData, spec.nuisance_estimation).
+
+effectiveNull = buildEffectiveNull(reestimatedNull, spec).
+
+lambdaObs = max over w in W of computeLambda(w, clustered, effectiveNull, spec).
+
+return {lambda_obs: lambdaObs, empty_w: false}.
+
+7.3 Generate Synthetic Data
+function generateSyntheticData(spec, i):
+
+data = drawFromNull(spec.null_model, spec.null_parameters, N = spec.N).
+
+if spec.dependence_declared: data = applyDependence(data, spec.dependence_structure).
+
+if spec.selection_effects_declared: data = applySelection(data, spec.selection_function, spec.selection_order).
+
+if spec.measurement_uncertainty_declared: data = applyMeasurement(data, spec.measurement_kernel, spec.selection_order).
+
+if spec.transformation != "identity": data = applyTransformation(data, spec.transformation).
+
+if spec.jittering_applied: data = applyJittering(data, spec.jittering_scale, spec.jittering_rule).
+
+if spec.clustering_step != null: data = applyClustering(data, spec.clustering_step, spec.clustering_settings).
+
+if spec.support_rule == "S2": data = assignSupport(data, "S2").
+
+else if spec.support_rule == "S3": data = assignSupport(data, "S3").
+
+return data.
+
+7.4 Build Effective Null
+function buildEffectiveNull(baseNull, selectionFunction, measurementKernel, order, support, options):
+
+validateInputs(baseNull, selectionFunction, measurementKernel, order, support).
+
+if order == "selection_on_true_then_measurement":
+
+f = multiply(baseNull, selectionFunction).
+
+g = convolve(f, measurementKernel).
+
+else if order == "selection_on_measured":
+
+h = convolve(baseNull, measurementKernel).
+
+g = multiply(h, selectionFunction).
+
+Z = integrate(g, support).
+
+effectiveNull = divide(g, Z).
+
+continuityStatus = checkContinuity(effectiveNull, support, options.continuityTolerance).
+
+warnings = generateWarnings(baseNull, selectionFunction, measurementKernel, continuityStatus, options).
+
+return {effectiveNull, continuityStatus, warnings}.
+
+7.5 Form Scan Family
+function formScanFamily(data, spec, support):
+
+if spec.scan_family == "adjacent":
+
+return formAdjacentWindows(data, spec.g_min_value, spec.g_min_units, support, spec.boundary_convention).
+
+else if spec.scan_family == "pair":
+
+return formPairWindows(data, spec.g_min_value, spec.g_min_units, spec.p_max, support, spec.boundary_convention).
+
+else if spec.scan_family == "fixed":
+
+return spec.fixed_windows.
+
+7.6 Compute Lambda
+function computeLambda(w, data, effectiveNull, spec):
+
+n = length(data).
+
+n_w = countObservationsInWindow(data, w).
+
+P = integrateEffectiveNull(effectiveNull, w).
+
+if n_w >= n * P: return 0.
+
+if n_w == 0: return -2 * n * log(1 - P).
+
+return 2 * (n_w * log(n_w / (n * P)) + (n - n_w) * log((n - n_w) / (n * (1 - P)))).
+
+7.7 Compute Exceedance Probability
+function computeExceedanceProbability(lambdaObs, nullDistribution, tailDefinition):
+
+N = length(nullDistribution).
+
+if tailDefinition == ">=":
+
+count = count(lambdaMax in nullDistribution where lambdaMax >= lambdaObs).
+
+else:
+
+count = count(lambdaMax in nullDistribution where lambdaMax > lambdaObs).
+
+return (1 + count) / (N + 1).
+
+7.8 Compute Monte Carlo Uncertainty
+function computeMonteCarloUncertainty(p, N):
+
+return sqrt(p * (1 - p) / N).
+
+7.9 Apply Multiplicity
+function applyMultiplicity(p, procedure):
+
+if procedure == "none": return p.
+
+else if procedure == "bonferroni": return min(1, p * numberOfTests).
+
+else if procedure == "holm": apply Holm procedure.
+
+else if procedure == "benjamini_hochberg": apply BH procedure.
+
+else if procedure == "composite_null": report p under each null and use least favourable.
+
+else if procedure == "permutation_max_statistic": apply permutation-based procedure.
+
+return p.
+
+Data Model / JSON Schema for Internal State
+The library's internal state is a result object.
+
+Result object:
+
+observed_statistic (number or null)
+
+empirical_null_distribution (array of numbers)
+
+exceedance_probability (number)
+
+monte_carlo_uncertainty (number)
+
+empty_w_fraction (number)
+
+point_mass_at_zero (number)
+
+tail_definition (>=, >)
+
+N (integer)
+
+seed (integer)
+
+runtime_seconds (number)
+
+specification_version (string)
+
+library_version (string)
+
+null_model (string)
+
+scan_family (adjacent, pair, fixed)
+
+support_rule (S1, S2, S3)
+
+multiplicity_result (object or null)
+
+warnings (array of warning objects)
+
+Architecture
+Module breakdown:
+
+Specification Loader. Reads and validates the pipeline specification.
+
+Data Loader. Reads and transforms the observed data.
+
+Observed Statistic Calculator. Computes Lambda_obs.
+
+Synthetic Data Generator. Generates synthetic data under the null.
+
+Effective Null Builder. Builds the effective null after selection and measurement.
+
+Scan Statistic Calculator. Computes Lambda(w) and Lambda_max.
+
+Nuisance Estimation. Estimates nuisance parameters, applies the gap-exclusion loop.
+
+Empirical Null Distribution Builder. Collects Lambda_max values.
+
+Exceedance Probability Calculator. Computes p.
+
+Monte Carlo Uncertainty Calculator. Computes the standard error of p.
+
+Empty-W Fraction Calculator. Computes the empty-W fraction.
+
+Multiplicity Handler. Applies the multiplicity procedure.
+
+Result Formatter. Produces the result object.
+
+Reproducibility Recorder. Records the specification version, library version, seed, RNG, N, runtime.
+
+Public API. Provides the public functions.
+
+Test Suite. Tests all the public API functions and reproduces the worked examples.
+
+Data flow:
+
+Specification and data go to the loaders. Observed Statistic Calculator computes Lambda_obs. Synthetic Data Generator generates N synthetic datasets. For each, Effective Null Builder builds the effective null, Scan Statistic Calculator computes Lambda_max. Empirical Null Distribution Builder collects. Exceedance Probability, Monte Carlo Uncertainty, and Empty-W Fraction Calculators compute. Multiplicity Handler applies. Result Formatter produces output.
+
+Technology Stack
+Recommended for the library:
+
+Language: Python 3.11+ or Julia 1.9+ or Rust 1.70+.
+
+Numeric computation: NumPy or SciPy (Python) or standard library (Julia or Rust).
+
+Random number generation: NumPy's PCG64 (Python) or standard library (Julia or Rust).
+
+Parallel computation: multiprocessing or joblib (Python) or Threads (Julia) or Rayon (Rust).
+
+JSON handling: standard library.
+
+Testing: pytest (Python) or Test (Julia) or cargo test (Rust).
+
+Packaging: PyPI (Python), Julia's General Registry (Julia), or crates.io (Rust).
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The pipeline specification schema (from App 8).
+
+The statistical gap result schema (from App 9).
+
+UI/UX Specification
+Public API:
+
+runSimulator(specification, data, seed, options) returns the result object.
+
+computeObservedStatistic(data, specification) returns Lambda_obs.
+
+generateSyntheticData(specification, i, options) returns a synthetic dataset.
+
+buildEffectiveNull(baseNull, selectionFunction, measurementKernel, order, support, options) returns the effective null object.
+
+computeScanStatistic(data, W, effectiveNull, specification) returns Lambda_max.
+
+computeLambda(w, data, effectiveNull, specification) returns Lambda(w).
+
+computeExceedanceProbability(lambdaObs, nullDistribution, tailDefinition) returns p.
+
+computeMonteCarloUncertainty(p, N) returns the standard error.
+
+applyMultiplicity(p, procedure) returns the corrected p.
+
+Command-line interface (optional):
+
+Usage: null-model-lib --specification FILE --data FILE --seed SEED [--N N] [--output FILE] [--format json].
+
+Documentation:
+
+API documentation generated from source code.
+
+Specification reference generated from the Null-Model Protocol paper.
+
+Validation Engine Design
+The library validates the following:
+
+Validation 1. Specification validity. The specification is validated against the schema produced by the Pipeline Specification Wizard (App 8).
+
+Validation 2. Data validity. The data is validated for format, completeness, and consistency with the specification.
+
+Validation 3. Consistency. The specification's fields are consistent (for example, if selection is declared, the selection function is specified).
+
+Validation 4. Effective null continuity. If the effective null has atoms, a warning is issued.
+
+Validation 5. Empty-W handling. The empty-W convention is applied consistently in the observed and synthetic analyses.
+
+Validation 6. N adequacy. If N is below the recommended minimum for the target tail, a warning is issued.
+
+Validation 7. Multiplicity. The multiplicity procedure is applied once, after the loop.
+
+Testing Strategy
+Unit tests:
+
+Specification Loader for valid and invalid specifications.
+
+Data Loader for each format.
+
+Observed Statistic Calculator for each scan family.
+
+Synthetic Data Generator for each null model, selection function, measurement kernel, and dependence structure.
+
+Effective Null Builder for each combination of selection and measurement.
+
+Scan Statistic Calculator for each window type.
+
+Nuisance Estimation for each estimator.
+
+Empirical Null Distribution Builder for the point mass at zero and the empty-W fraction.
+
+Exceedance Probability Calculator for the tail definitions >= and >.
+
+Monte Carlo Uncertainty Calculator.
+
+Multiplicity Handler for each procedure.
+
+Integration tests:
+
+Run the simulator with a uniform null, S1 support, and W_adj. Verify the outputs against the exact analytic result.
+
+Run the simulator with a uniform null, S2 support, and W_adj. Verify the outputs against the exact analytic result.
+
+Run the simulator with a non-uniform null and W_adj.
+
+Run the simulator with a uniform null and W_pair.
+
+Run the simulator with selection effects.
+
+Run the simulator with measurement uncertainty.
+
+Run the simulator with dependence structure.
+
+Run the simulator with jittering.
+
+Worked-example tests:
+
+Section 11.1 of the Null-Model Protocol paper: Lambda_obs = 19.54, exact exceedance probability = 2.99 * 10^-3. With N = 10^4, the simulation should give about 30 exceedances, p_hat approximately 3.0 * 10^-3, standard error about 5.5 * 10^-4.
+
+Section 11.2: the fixed-support value is 1.37 * 10^-3.
+
+Section 11.3: the Lambda-maximizer has Lambda = 14.90, and the Monte Carlo reference gives p = 0.0167.
+
+Section 11.4: the false-positive rate is 0.051 for the full pipeline, 0.086 for the fixed-support reference.
+
+Section 11.5: the full-pipeline reference is within about two standard errors of nominal. Ignoring a plain refit: 0.041 to 0.043. Ignoring the gap-dependent refit: 0.076 to 0.119. Dependence: 0.765 at sigma = 0.03 and 0.361 at sigma = 0.06; hierarchical reference restores to 0.050 and 0.051.
+
+Section 11.6: critical values 14.0, 23.8, 15.6, 14.7, 10.2. Power values as in Section 11.6.
+
+Section 11.7: rejection rate 0.048, 0.058, 0.204.
+
+Regression tests:
+
+Specification version compatibility.
+
+Data format compatibility.
+
+Determinism: same specification, data, and seed produce same output.
+
+Parallel computation: results are independent of the number of workers.
+
+Build Phases
+Phase 1. Specification Loader. Read and validate the pipeline specification.
+
+Phase 2. Data Loader. Read and transform the observed data.
+
+Phase 3. Observed Statistic Calculator. Compute Lambda_obs.
+
+Phase 4. Effective Null Builder. Build the effective null.
+
+Phase 5. Scan Statistic Calculator. Compute Lambda(w) and Lambda_max.
+
+Phase 6. Synthetic Data Generator. Generate synthetic data under the null.
+
+Phase 7. Nuisance Estimation. Estimate nuisance parameters and apply the gap-exclusion loop.
+
+Phase 8. Empirical Null Distribution Builder. Collect Lambda_max values.
+
+Phase 9. Exceedance Probability Calculator. Compute p.
+
+Phase 10. Monte Carlo Uncertainty Calculator. Compute the standard error.
+
+Phase 11. Empty-W Fraction Calculator. Compute the empty-W fraction.
+
+Phase 12. Multiplicity Handler. Apply the multiplicity procedure.
+
+Phase 13. Result Formatter. Produce the result object.
+
+Phase 14. Reproducibility Recorder. Record the specification version, library version, seed, RNG, N, runtime.
+
+Phase 15. Public API. Provide the public functions.
+
+Phase 16. Test Suite. Implement the test suite and reproduce the worked examples.
+
+Phase 17. Integration testing and hardening.
+
+Phase 18. Packaging and release.
+
+Dependencies
+Python path:
+
+NumPy (numeric computation).
+
+SciPy (statistical functions, convolution).
+
+multiprocessing or joblib (parallel computation).
+
+jsonschema (specification validation).
+
+pytest (testing).
+
+Julia path:
+
+Standard library (numeric computation, RNG).
+
+Threads (parallel computation).
+
+JSON (JSON handling).
+
+Test (testing).
+
+Rust path:
+
+ndarray or nalgebra (numeric computation).
+
+rand (RNG).
+
+rayon (parallel computation).
+
+serde_json (JSON handling).
+
+cargo test (testing).
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The pipeline specification schema (from App 8).
+
+The statistical gap result schema (from App 9).
+
+Deployment Notes
+Library:
+
+Publish to PyPI (Python), Julia's General Registry (Julia), or crates.io (Rust).
+
+Semantic versioning.
+
+Bundle the specification schema and the statistical gap result schema inside the package.
+
+Reproducibility:
+
+Record the seed and the RNG.
+
+Record the specification version and the library version.
+
+Provide a version pin for the pipeline logic.
+
+For N below the resolution of direct Monte Carlo, state "p is less than about 1/(N+1)" rather than a point estimate.
+
+Open Questions to Resolve Before Building
+Question 1. Which runtime first? Python, Julia, or Rust. Decision affects the numeric library, the parallel computation model, and the packaging.
+
+Question 2. Should the library be published as a single package or as multiple packages (one per runtime)? Decision needed.
+
+Question 3. What is the default random number generator? Options: NumPy's PCG64, the Mersenne Twister, or a specific generator. Decision needed.
+
+Question 4. How should the library handle the case where N is below the recommended minimum? Options: warn, require a confirmation, or fail. Decision needed.
+
+Question 5. How should the library handle the case where the effective null has atoms? Options: warn and continue, fail, or require a jittering prescription. Decision needed.
+
+Question 6. How should the library handle the case where the scan family W is empty in the observed data? Options: report "no admissible candidate" with p = 1, or set Lambda_obs = 0. Decision needed.
+
+Question 7. Should the library implement adaptive or importance sampling in the initial release, or defer? The Null-Model Protocol paper mentions these as appropriate for tail probabilities below the resolution of direct Monte Carlo. Decision needed.
+
+Question 8. Should the library integrate with the Pipeline Specification Wizard (App 8) and the Full-Pipeline Simulator (App 9)? Decision needed: shared schema registry, or independent.
+
+Question 9. How should the library handle the case where the analyst changes the specification after seeing the data? Options: refuse, warn, or record the change. Decision needed.
+
+Question 10. Should the library support batch processing of multiple specifications or datasets? Decision needed.
+
+End of build specification for App 18.
