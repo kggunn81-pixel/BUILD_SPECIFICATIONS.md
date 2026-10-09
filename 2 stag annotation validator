@@ -1,0 +1,598 @@
+Build Specification — App 2: STAG Annotation Validator
+Completeness status: COMPLETE. All sections delivered in one pass. No truncation. Formatted for copy-paste into another conversation window. No tables, no boxes.
+
+What It Is
+A command-line tool and web service that checks an annotation file against the schemas and the semantic rules. It runs the JSON Schema, the SHACL schema, and the thirty-two semantic rules, and reports each violation with the rule number and the offending field. It takes in an annotation JSON file and a schema version, and puts out a validation report: pass, or a list of violations. It is for journals, repositories, and data engineers.
+
+Core Requirements
+Functional requirements:
+
+Accept an annotation JSON file as input.
+
+Accept a schema version as input (to select the correct JSON Schema, SHACL schema, and rule set version).
+
+Run the JSON Schema validation (structural layer).
+
+Run the SHACL validation (graph layer).
+
+Run the thirty-two semantic rules (cross-field layer).
+
+Report each violation with the rule number, the offending field, and a message.
+
+Report pass when no violations are found.
+
+Operate as a command-line tool.
+
+Operate as a web service with the same validation logic.
+
+Return machine-readable output (JSON) and human-readable output (text).
+
+Non-functional requirements:
+
+Deterministic: same input and same schema version produce the same output.
+
+No network dependency for core validation (schemas and rules bundled).
+
+Fast: validate a typical annotation record in under one second.
+
+Versioned: each schema version has a frozen rule set.
+
+Reproducible: the validation report records the schema version and rule set version used.
+
+Input Specification
+Input 1. Annotation JSON file. Required. The annotation record conforming to Artifact 2, Appendix B.1.
+
+Input 2. Schema version. Required. A version identifier that selects the JSON Schema, the SHACL schema, and the thirty-two semantic rules. If omitted, the tool uses the latest bundled version but records the assumption in the report.
+
+Input 3. Output format. Optional. Values: text (default), json, both.
+
+Input 4. Strictness mode. Optional. Values: strict (all rules enforced, default), lenient (only structural and SHACL rules enforced, semantic rules reported as warnings), schema-only (only JSON Schema and SHACL).
+
+Input 5. Schema directory. Optional. A path to a directory containing schema files, overriding the bundled versions. Used for testing new schema versions before release.
+
+Output Specification
+Output 1. Validation report. Text or JSON.
+
+Output 2. Exit code. Command-line only. 0 if pass, 1 if violations found, 2 if input error (file not found, malformed JSON, unknown schema version).
+
+Output 3. Machine-readable violation list. JSON. Each violation has: rule number, rule name, severity (error or warning), offending field path, offending value, message, and schema version.
+
+Output 4. Human-readable summary. Text. Pass or the count of violations grouped by rule, with the first few examples.
+
+Output 5. Validation metadata. JSON. Schema version, rule set version, validation timestamp, tool version, input file hash.
+
+Output 6. Web service response. JSON with the same content as Output 3 plus Output 5, with HTTP status 200 for pass or 422 for violations.
+
+Module-by-Module Specification
+Module 1: Input Loader
+Reads the annotation JSON file. Validates that the file exists and parses as JSON. Computes the input file hash (SHA-256) for the report. Rejects malformed JSON with exit code 2 and a clear message.
+
+Module 2: Schema Version Resolver
+Takes the schema version string. Looks up the corresponding JSON Schema, SHACL schema, and rule set version in the bundled registry. If the version is unknown, returns an error with the list of known versions. If the version is omitted, uses the latest and records the assumption.
+
+Module 3: JSON Schema Validator
+Loads the JSON Schema for the selected version (Draft 2020-12). Validates the annotation record against it. Collects all structural violations (missing required fields, wrong types, values outside permitted sets). Maps each violation to a field path.
+
+Module 4: SHACL Validator
+Loads the SHACL shape file for the selected version. Runs SHACL Core validation against the annotation record serialized as RDF (Turtle or JSON-LD). Collects all SHACL violations (constraint components: sh:minCount, sh:maxCount, sh:datatype, sh:in, sh:class, sh:node, sh:property, sh:sparql). Maps each violation to a field path and a SHACL constraint.
+
+Module 5: Semantic Rule Engine
+Loads the thirty-two semantic rules for the selected version. Executes them in numeric order against the annotation record. Each rule is a pure function that returns pass or a violation. Collects all semantic violations. Maps each violation to a rule number and a field path.
+
+Module 6: Violation Aggregator
+Merges violations from Modules 3, 4, and 5. Deduplicates overlapping violations (a structural violation and a semantic violation may point at the same field; the aggregator reports both but flags the overlap). Sorts by rule number, then by field path.
+
+Module 7: Report Formatter
+Produces the text report and the JSON report. The text report groups violations by rule and shows the first few examples per rule. The JSON report lists every violation with full detail.
+
+Module 8: Web Service Layer
+Wraps Modules 1 through 7 in an HTTP endpoint. Accepts a POST with the annotation JSON and the schema version. Returns the JSON report. Uses HTTP status 200 for pass, 422 for violations, 400 for malformed input, 404 for unknown schema version.
+
+Module 9: Command-Line Interface
+Parses arguments (input file, schema version, output format, strictness mode, schema directory). Invokes Modules 1 through 7. Prints the report to stdout. Exits with the appropriate code.
+
+Module 10: Schema Registry
+Holds the bundled JSON Schema, SHACL schema, and rule set for each supported version. Provides lookup by version string. Provides a list of known versions. Allows override by a schema directory for testing.
+
+Full Rule Enforcement Specification
+The validator enforces all thirty-two semantic rules from Artifact 2, Appendix B.2. The rules are also enforced by the JSON Schema and the SHACL schema where expressible. The semantic rule engine catches the rules that require cross-field inference beyond what JSON Schema and SHACL express.
+
+The rules are:
+
+Rule 1. If intervention_classification is Non_definitional and cross_domain_counterfactual_dependence is Yes or No, then model_reference, counterfactual_intervention, counterfactual_description, counterfactual_result, material_change_test, material_change_result must be present.
+
+Rule 2. Precedence as in Section 7.2 of Artifact 1.
+
+Rule 3. If cross_domain_counterfactual_dependence is Yes, then intervention_source_domains together with intervention_target_domain must span at least two distinct declared domains.
+
+Rule 4. If partition_kind is framework_level, then cross_domain_counterfactual_dependence must be Untestable and unclassified_reason must be inadmissible_partition.
+
+Rule 5. If effective_description_change is Yes-strong and includes ΔAPP or ΔEFT, then external_justification must be populated.
+
+Rule 6. All domain entries must belong to the partition identified by partition_registry_id and partition_version.
+
+Rule 7. If derived_display_label is STAG-Discovered, partition_sensitivity is required; scale_separation must be recorded; ratio must be at or above the recorded minimum; scale_separation_source_kind must be external_value or external_coefficient; band_declared, band_min_ratio, and band_max_ratio must be populated; band_source must be populated, and band_source_citation must be populated when band_source is external_reference; and both independence_of_material_change_evidence and material_change_test_result_independence must be recorded. If derived_display_label is STAG-Definitional or any STAG-Intra variant, partition_sensitivity is required.
+
+Rule 8. Node identity must be established from (S, M, G) alone, before any transition attribute is recorded and before any domain annotation is fixed.
+
+Rule 9. Every annotation must declare tuple-matching rules, the M-equivalence rule, granularity, and the partition justification before node identity is finalized.
+
+Rule 10. Supersession must be acyclic.
+
+Rule 11. Every annotation must identify the theory, model, or scientific version under which it was produced.
+
+Rule 12. If composition is composite, event_node must be populated and source_nodes must contain at least two entries.
+
+Rule 13. If composition is not composite, event_node must be absent and transition attributes are stored on the edge. Self-loops carry regime_change.
+
+Rule 14. validity_regime is an attribute and must not be consulted when determining node identity.
+
+Rule 15. Regime attribute is required for every node. When the value is symmetric, broken, or crossover-band, order_parameter, control_parameter_point, phase_diagram_source, domain_specific_label, and framework_value_mapping must be populated. When the value is crossover-band, value_bands_if_crossover must be populated, regime_band_source must be populated and must be external_reference or analyst_chosen, with regime_band_analyst_chosen set true if analyst_chosen.
+
+Rule 16. If two candidate descriptions share S, M, and G, node_identity must be merged. Under different partitions, the same pair is the same node; the domain annotation differs.
+
+Rule 17. cross_domain_counterfactual_dependence = Not_tested is permitted only when intervention_classification = Not_applicable. An intervention performed with no result recorded is a validation error. An intervention performed with a result recorded but an uncertain material-change classification requires Uncertain.
+
+Rule 18. If intervention_classification is Definitional or Definitional(expertise-dependent), cited_structural_result must be populated with result_reference, applicability_conditions, and conditions_check as a list of entries each having condition and condition_witness, at least one per applicability condition. Each condition_witness must name a specific equation, term, kernel, parameter range, or regime condition in the surviving description and must cite a source. A condition_witness naming only a general property is a validation error. If any applicability condition lacks a witness, entailment_basis must be E4 and intervention_classification must be Definitional(expertise-dependent). If a numerical result is cited in support of a Non_definitional classification, cited_numerical_result must be populated with citation, result_summary, classification_effect, and citation_scope.
+
+Rule 19. If cross_domain_counterfactual_dependence is Intra_domain, intervention_source_domains must be a non-empty set contained within a single declared domain, intervention_target_domain must be that same domain, and cross_domain_intervention_available must be populated.
+
+Rule 20. If either endpoint has regime_attribute.value = not_determinable, record regime_not_determinable = true and retain the derived label with the flag attached.
+
+Rule 21. If derived_display_label is STAG-Unclassified, unclassified_reason must be populated and displayed with the label.
+
+Rule 22. If a structural relation between two M's is recorded (integration_out or truncation), it must be recorded as a derived-from edge, not as an M-equivalence.
+
+Rule 23. If effective_description_change is Yes-weak, derived_display_label must be STAG-Unclassified with unclassified_reason = weak_effective_description_basis.
+
+Rule 24. If a merged decision is recorded on two descriptions with different Lagrangians, m_equivalence_basis and m_equivalence_witness must both be populated.
+
+Rule 25. domain_mismatch is true if and only if intervention_target_domain is not a member of the set of domains to which the source and target nodes are assigned under the annotation's declared partition_id and partition_version.
+
+Rule 26. If agreement_outcome is inconclusive for any core-tier field on which the derived label depends, the derived label is reported with provisional_flag = true attached.
+
+Rule 27. If cross_domain_counterfactual_dependence is Intra_domain and the material-change classification is Uncertain, derived_display_label must be STAG-Unclassified with unclassified_reason = uncertain.
+
+Rule 28. If material_change_test is a class change, material_change_test_justification must state the classification scheme.
+
+Rule 29. evidential_anchoring_status is the field carrying the anchoring status of a STAG-Discovered annotation. For STAG-Discovered annotations: anchored if and only if all four anchoring conditions of Section 1.2 of Artifact 1 are satisfied; anchored_with_stated_limitations if all four are satisfied but at least one condition is flagged as interpretive or convention-dependent; preliminary if the case is used to develop or illustrate the codebook; candidate if the case is proposed as a possible instance. Operational determination: condition (a) requires cited_numerical_result.citation_scope = annotated_model or an annotator computation; condition (b) requires band_source = external_reference, band_source_citation populated, and band_min_ratio at or above the declared minimum; condition (c) requires independence_of_material_change_evidence = independent; condition (d) requires material_change_test_result_independence = independent.
+
+Rule 30. For non-STAG-Discovered annotations, evidential_anchoring_status is not_applicable or not_assessed.
+
+Rule 31. If defining_coupling_intervention = true, a second independent rater is required, and the case is excluded from STAG-Discovered unless the second rater independently confirms the intervention classification and the material-change result.
+
+Rule 32. If agreement_outcome differs between the 0.5 and 0.7 thresholds, threshold_sensitive_flag must be true, and the falsification status of any dependent label must be reported as threshold-dependent.
+
+Rule 33. If any field is marked not_determinable because a load-bearing source cannot be verified, the label is retained with the not_determinable flag attached and displayed alongside, and the flag is recorded in the annotation record under not_determinable_flag.
+
+Core Logic as Executable Pseudocode
+7.1 Main Validation Flow
+function validate(annotationFile, schemaVersion, options):
+
+Step 1. record = loadJSON(annotationFile). If parse error, return {exitCode: 2, error: "malformed JSON"}.
+
+Step 2. schemaSet = resolveSchemaVersion(schemaVersion). If unknown, return {exitCode: 2, error: "unknown schema version"}.
+
+Step 3. structuralViolations = runJSONSchema(record, schemaSet.jsonSchema).
+
+Step 4. shaclViolations = runSHACL(record, schemaSet.shaclSchema).
+
+Step 5. semanticViolations = runSemanticRules(record, schemaSet.ruleSet).
+
+Step 6. allViolations = aggregate(structuralViolations, shaclViolations, semanticViolations).
+
+Step 7. report = formatReport(allViolations, schemaSet.version, options.outputFormat).
+
+Step 8. exitCode = (allViolations.length > 0 and options.strictness == "strict") ? 1 : 0.
+
+Step 9. Return {report, exitCode, metadata: {schemaVersion: schemaSet.version, ruleSetVersion: schemaSet.ruleSetVersion, timestamp, toolVersion, inputHash}}.
+
+7.2 JSON Schema Validation
+function runJSONSchema(record, schema):
+
+validator = new JSONSchemaValidator(schema, draft202012).
+
+errors = validator.validate(record).
+
+return errors.map(e => ({ruleNumber: "JSON-SCHEMA", ruleName: e.keyword, severity: "error", fieldPath: e.instancePath, offendingValue: e.data, message: e.message})).
+
+7.3 SHACL Validation
+function runSHACL(record, shaclSchema):
+
+rdfGraph = serializeToRDF(record, format: "turtle").
+
+report = shaclValidate(rdfGraph, shaclSchema).
+
+return report.results.map(r => ({ruleNumber: "SHACL", ruleName: r.sourceConstraintComponent, severity: r.severity, fieldPath: r.focusNode, offendingValue: r.value, message: r.message})).
+
+7.4 Semantic Rule Engine
+function runSemanticRules(record, ruleSet):
+
+violations = [].
+
+for rule in ruleSet.rules (in numeric order 1 to 33):
+
+result = rule(record).
+
+if result is not PASS:
+
+violations.push({ruleNumber: rule.number, ruleName: rule.name, severity: "error", fieldPath: result.field, offendingValue: result.value, message: result.message}).
+
+return violations.
+
+7.5 Rule Example: Rule 16
+function rule16(record):
+
+descriptions = record.source_nodes.concat(record.target_nodes).
+
+for each pair (d1, d2) in descriptions:
+
+if d1.S == d2.S and d1.M == d2.M and d1.G == d2.G:
+
+if record.node_identity.decision != "merged":
+
+return {field: "node_identity.decision", value: record.node_identity.decision, message: "Rule 16: two descriptions share S, M, G; node_identity must be merged"}.
+
+return PASS.
+
+7.6 Rule Example: Rule 24
+function rule24(record):
+
+if record.node_identity.decision == "merged":
+
+if record.descriptions.have_different_lagrangians:
+
+if record.node_identity.m_equivalence_basis is null or record.node_identity.m_equivalence_witness is null:
+
+return {field: "node_identity.m_equivalence_basis", value: null, message: "Rule 24: merged decision on different Lagrangians requires both m_equivalence_basis and m_equivalence_witness"}.
+
+return PASS.
+
+7.7 Rule Example: Rule 7
+function rule7(record):
+
+if record.derived_display_label != "STAG-Discovered" and record.derived_display_label != "STAG-Definitional" and record.derived_display_label not in STAG_INTRA_VARIANTS:
+
+return PASS.
+
+if record.derived_display_label in ["STAG-Discovered", "STAG-Definitional"] or record.derived_display_label in STAG_INTRA_VARIANTS:
+
+if record.partition_sensitivity is null:
+
+return {field: "partition_sensitivity", value: null, message: "Rule 7: partition_sensitivity required for label " + record.derived_display_label}.
+
+if record.derived_display_label == "STAG-Discovered":
+
+checks = [record.scale_separation is not null, record.scale_separation.ratio >= record.scale_separation.minimum, record.scale_separation.scale_separation_source_kind in ["external_value", "external_coefficient"], record.scale_separation.band_declared is not null, record.scale_separation.band_min_ratio is not null, record.scale_separation.band_max_ratio is not null, record.scale_separation.band_source is not null, (record.scale_separation.band_source != "external_reference" or record.scale_separation.band_source_citation is not null), record.independence_of_material_change_evidence is not null, record.material_change_test_result_independence is not null].
+
+for each check at index i:
+
+if not check:
+
+return {field: "scale_separation or independence fields", value: null, message: "Rule 7: missing required field for STAG-Discovered at check index " + i}.
+
+return PASS.
+
+7.8 Rule Example: Rule 18
+function rule18(record):
+
+if record.intervention_classification not in ["Definitional", "Definitional(expertise-dependent)"]:
+
+return PASS.
+
+if record.cited_structural_result is null:
+
+return {field: "cited_structural_result", value: null, message: "Rule 18: cited_structural_result required for Definitional or Definitional(expertise-dependent)"}.
+
+for condition in record.cited_structural_result.applicability_conditions:
+
+witness = findWitness(record.cited_structural_result.conditions_check, condition).
+
+if witness is null:
+
+return {field: "cited_structural_result.conditions_check", value: condition, message: "Rule 18: applicability condition lacks witness; force E4 and Definitional(expertise-dependent)"}.
+
+if isGeneralPropertyOnly(witness):
+
+return {field: "cited_structural_result.conditions_check", value: witness, message: "Rule 18: condition_witness names only a general property"}.
+
+return PASS.
+
+7.9 Rule Example: Rule 32
+function rule32(record):
+
+if record.agreement_outcome_0_5 != record.agreement_outcome_0_7:
+
+if record.threshold_sensitive_flag != true:
+
+return {field: "threshold_sensitive_flag", value: record.threshold_sensitive_flag, message: "Rule 32: agreement outcome differs between 0.5 and 0.7 thresholds; threshold_sensitive_flag must be true"}.
+
+return PASS.
+
+Data Model / JSON Schema for Internal State
+The validator's internal state is a validation result object:
+
+inputFile (string)
+
+inputHash (string, SHA-256)
+
+schemaVersion (string)
+
+ruleSetVersion (string)
+
+toolVersion (string)
+
+timestamp (ISO8601)
+
+structuralViolations (array of violation objects)
+
+shaclViolations (array of violation objects)
+
+semanticViolations (array of violation objects)
+
+allViolations (array, merged and sorted)
+
+exitCode (integer)
+
+Each violation object:
+
+ruleNumber (string; "JSON-SCHEMA", "SHACL", or "1" through "33")
+
+ruleName (string)
+
+severity (string; "error" or "warning")
+
+fieldPath (string; JSON pointer or RDF path)
+
+offendingValue (any)
+
+message (string)
+
+Architecture
+Module breakdown:
+
+Input Loader. Reads and parses the annotation JSON.
+
+Schema Version Resolver. Selects the schema set by version.
+
+JSON Schema Validator. Structural validation.
+
+SHACL Validator. Graph validation.
+
+Semantic Rule Engine. Cross-field validation.
+
+Violation Aggregator. Merges and sorts violations.
+
+Report Formatter. Produces text and JSON reports.
+
+Web Service Layer. HTTP endpoint.
+
+Command-Line Interface. Argument parsing and output.
+
+Schema Registry. Bundled schemas and rules per version.
+
+Data flow:
+
+Input file goes to Input Loader. Schema Version Resolver selects the schema set. JSON Schema Validator, SHACL Validator, and Semantic Rule Engine run in parallel or sequence. Violation Aggregator merges. Report Formatter produces output. Command-Line Interface or Web Service Layer delivers the report.
+
+Technology Stack
+Recommended for the command-line tool:
+
+Language: Python 3.11+ or Node.js 20+.
+
+JSON Schema: jsonschema (Python) or ajv (JS).
+
+SHACL: pyshacl (Python) or rdf-validate-shacl (JS).
+
+RDF serialization: rdflib (Python) or n3 (JS).
+
+CLI framework: argparse (Python) or commander (JS).
+
+Recommended for the web service:
+
+Backend: FastAPI (Python) or Express (Node.js).
+
+Same validation libraries as the CLI.
+
+Containerization: Docker for deployment.
+
+Shared:
+
+Schema Registry: filesystem with version directories, or a package with versioned exports.
+
+JSON Schema Draft 2020-12.
+
+SHACL Core.
+
+UI/UX Specification
+Command-line interface:
+
+Usage: stag-validate --input FILE [--schema-version VERSION] [--format text|json|both] [--strictness strict|lenient|schema-only] [--schema-dir DIR].
+
+Output on pass: "PASS. Schema version: X. Rule set version: Y. Input hash: Z."
+
+Output on fail: a grouped list of violations by rule, with the first few examples per rule, and the total count.
+
+Exit codes: 0 pass, 1 violations, 2 input error.
+
+Web service:
+
+Endpoint: POST /validate.
+
+Request body: JSON with fields annotation (the record), schema_version (string), format (optional), strictness (optional).
+
+Response on pass: HTTP 200 with JSON report.
+
+Response on fail: HTTP 422 with JSON report.
+
+Response on bad input: HTTP 400 with error message.
+
+Response on unknown version: HTTP 404 with list of known versions.
+
+No authentication for public use; optional API key for rate limiting.
+
+Validation Engine Design
+The validator runs three validation layers in order:
+
+Layer 1. JSON Schema. Structural. Checks field presence, types, and permitted value sets. Fast. Catches most structural errors.
+
+Layer 2. SHACL. Graph. Checks constraints that require RDF graph structure, such as sh:node and sh:property constraints on nested objects. Catches graph-level errors.
+
+Layer 3. Semantic Rules. Cross-field. Checks the thirty-two rules that require inference across fields. Catches logical errors.
+
+Each layer produces a list of violations. The aggregator merges them. If the same field is flagged by more than one layer, all are reported, and the aggregator marks the overlap.
+
+The semantic rule engine executes rules in numeric order. Each rule is a pure function. Rules that depend on other rules (for example, Rule 23 depends on effective_description_change) are executed after their dependencies, which the numeric order already respects.
+
+Testing Strategy
+Unit tests:
+
+Each of the thirty-two semantic rules tested with a passing record and a failing record. At least one test per rule.
+
+JSON Schema validation tested against a valid record and against records with each required field missing.
+
+SHACL validation tested against the worked examples.
+
+Integration tests:
+
+A valid record passes all three layers.
+
+A record with a structural error fails at Layer 1 and is reported with the correct field path.
+
+A record with a semantic error fails at Layer 3 and is reported with the correct rule number.
+
+A record with errors at multiple layers has all errors reported.
+
+Worked-example tests:
+
+Artifact 1, Section 11.1 (Fröhlich/Eliashberg): should fail Rule 18 if cited_structural_result is not_determinable, and should pass Rule 20 (regime_not_determinable flag attached).
+
+Artifact 1, Section 11.2 (two-layer Ising): should pass Rule 7 (STAG-Discovered requirements met), should fail Rule 29 if anchoring conditions are not all satisfied, and should pass Rule 33 (not_determinable flag attached).
+
+Artifact 1, Section 11.3 (two-band superconductor): should pass Rule 1 (Non_definitional and No, with material-change block present).
+
+Artifact 1, Section 11.4 (glass transition): should pass Rule 4 (framework_level forces Untestable and inadmissible_partition).
+
+Artifact 1, Section 11.5 (QCD crossover): should pass Rule 17 (Not_tested with Not_applicable).
+
+Regression tests:
+
+Supersession chain acyclicity (Rule 10).
+
+Rule 16 enforcement (same S, M, G forces merged).
+
+Rule 24 enforcement (different Lagrangians require m_equivalence fields).
+
+Version tests:
+
+Each schema version validates its own records.
+
+A record from version X validated against version Y produces the expected version-mismatch warnings.
+
+Build Phases
+Phase 1. Schema Registry. Bundle the JSON Schema, SHACL schema, and thirty-two rules for version 1. Provide lookup by version.
+
+Phase 2. Input Loader and Schema Version Resolver. Read the annotation JSON. Resolve the schema version.
+
+Phase 3. JSON Schema Validator. Implement Layer 1.
+
+Phase 4. SHACL Validator. Implement Layer 2.
+
+Phase 5. Semantic Rule Engine. Implement all thirty-two rules as pure functions. Unit tests per rule.
+
+Phase 6. Violation Aggregator. Merge and sort.
+
+Phase 7. Report Formatter. Text and JSON output.
+
+Phase 8. Command-Line Interface. Argument parsing and exit codes.
+
+Phase 9. Web Service Layer. HTTP endpoint.
+
+Phase 10. Worked-example tests. Load the five worked examples and verify outputs.
+
+Phase 11. Integration testing and hardening.
+
+Phase 12. Packaging. Standalone executable and Docker image.
+
+Dependencies
+Python path:
+
+jsonschema (JSON Schema Draft 2020-12 validation).
+
+pyshacl (SHACL Core validation).
+
+rdflib (RDF serialization and graph handling).
+
+FastAPI and uvicorn (web service).
+
+argparse (command-line, standard library).
+
+pytest (testing).
+
+Node.js path:
+
+ajv (JSON Schema validation).
+
+rdf-validate-shacl (SHACL validation).
+
+n3 (RDF serialization).
+
+Express or Fastify (web service).
+
+commander (command-line).
+
+Vitest or Jest (testing).
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+SHACL Core.
+
+PROV-O vocabulary (for SHACL shapes that reference PROV-O terms).
+
+Deployment Notes
+Command-line tool:
+
+Package as a standalone executable (PyInstaller for Python, pkg or nexe for Node.js).
+
+Distribute via pip, npm, or a direct download.
+
+Bundle the schema registry inside the executable.
+
+Web service:
+
+Deploy with Docker. Expose a single endpoint. Use a reverse proxy for TLS.
+
+Scale horizontally if needed; the validator is stateless.
+
+Log validation metadata (schema version, rule set version, input hash) for audit.
+
+Reproducibility:
+
+Record the tool version, schema version, rule set version, and input hash in every report.
+
+Provide a schema registry version pin so a report can be reproduced exactly.
+
+Open Questions to Resolve Before Building
+Question 1. Which runtime first? Python or Node.js. Decision affects the schema and SHACL libraries and the packaging.
+
+Question 2. Should the JSON Schema and SHACL schema be bundled inside the executable, or fetched from a registry at runtime? Bundling is more reproducible; fetching is more flexible. Decision needed.
+
+Question 3. How strict should the SHACL validation be? SHACL Core only, or SHACL-SPARQL for cross-node constraints? Decision needed.
+
+Question 4. Should the validator support partial validation (for example, validate only the core tier)? The documents do not specify. Decision needed.
+
+Question 5. How should version mismatches be reported? If a record declares schema version X but is validated against version Y, should the validator fail, warn, or auto-select version X? Decision needed.
+
+Question 6. Should the web service support batch validation (multiple records in one request)? Decision needed.
+
+Question 7. How should the validator handle the not_determinable flag propagation? The documents specify that not_determinable propagates from entailment basis to intervention classification to cross-domain counterfactual dependence. Decision needed: does the validator check the propagation automatically, or does it trust the record?
+
+Question 8. What is the output format for the machine-readable violation list? The documents do not specify. Decision needed: a custom JSON schema, or a standard format such as SARIF.
+
+Question 9. Should the validator integrate with the STAG annotation editor (App 1)? Decision needed: shared schema registry, or independent.
+
+Question 10. How should the validator handle the SHACL shapes that are drafts? The documents state that SHACL validation has not been run. Decision needed: ship the draft shapes as-is, or mark them experimental.
+
+End of build specification for App 2
