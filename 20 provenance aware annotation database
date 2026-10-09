@@ -1,0 +1,1191 @@
+Build Specification — App 20: Provenance-Aware Annotation Database
+Completeness status: COMPLETE. All sections delivered in one pass. No truncation. Formatted for copy-paste into another conversation window. No tables, no boxes.
+
+What It Is
+A server-side database for annotation collections. It holds the five linked registries — node, event, partition, model, revision — plus a domain-annotation table, and serves annotations over an API. It takes in STAG records and puts out stored records, query results, and API responses. It is for labs and consortia.
+
+Core Requirements
+Functional requirements:
+
+Store STAG annotation records in a structured database.
+
+Maintain the five linked registries: node, event, partition, model, revision.
+
+Maintain a domain-annotation table linked to the node and partition registries.
+
+Enforce the STAG schema and the thirty-two semantic rules on every stored record.
+
+Enforce referential integrity between the registries.
+
+Enforce supersession chain acyclicity.
+
+Track provenance for every record: who created it, when, from what source, and with what tool.
+
+Support versioned records: each record has a version number and a revision chain.
+
+Support querying by node ID, event node ID, annotation ID, partition ID, partition version, domain ID, model reference, theory version, annotator, date range, display label, evidential anchoring status, and flag.
+
+Support full-text search of the evidence and uncertainty fields.
+
+Support aggregation queries: count by label, count by anchoring status, count by partition, count by domain.
+
+Support exporting a record as JSON, PROV-O, and Turtle.
+
+Support importing a record from JSON.
+
+Support bulk import and bulk export.
+
+Support a REST API for CRUD operations.
+
+Support a GraphQL API for flexible queries.
+
+Support a command-line interface for administration.
+
+Support authentication and authorization.
+
+Support audit logging.
+
+Support backup and restore.
+
+Support a web interface for browsing and querying.
+
+Non-functional requirements:
+
+Deterministic: same inputs produce same outputs.
+
+Fast: query a typical record in under 100 milliseconds; aggregate over 10,000 records in under one second.
+
+Scalable: support up to 10^6 records.
+
+Versioned: the database records the STAG schema version and the database version.
+
+Reproducible: the database records the provenance for every record.
+
+Portable: works on Linux, macOS, and Windows.
+
+Well-documented: API documentation and schema documentation.
+
+Input Specification
+Input 1. STAG annotation record. Required for create and update operations. A JSON object conforming to the STAG schema (Artifact 2, Appendix B.1).
+
+Input 2. Provenance record. Required for create and update operations. The annotator ID, the timestamp, the source, and the tool version.
+
+Input 3. Query. Required for read operations. A query object with fields for node ID, event node ID, annotation ID, partition ID, partition version, domain ID, model reference, theory version, annotator, date range, display label, evidential anchoring status, and flag.
+
+Input 4. Aggregation query. Required for aggregation operations. A query object with fields for the aggregation dimension and the filter.
+
+Input 5. Authentication credentials. Required for authenticated operations.
+
+Input 6. Bulk import file. Optional. A file containing multiple STAG records in JSON or JSON Lines format.
+
+Input 7. Bulk export query. Optional. A query object selecting the records to export.
+
+Output Specification
+Output 1. STAG record. JSON. The record as stored.
+
+Output 2. PROV-O serialization. Turtle or JSON-LD. The record mapped to PROV-O (see App 3).
+
+Output 3. Turtle serialization. Turtle. The record as an RDF graph.
+
+Output 4. Query result. JSON. The list of records matching the query, with pagination.
+
+Output 5. Aggregation result. JSON. The counts by the aggregation dimension.
+
+Output 6. Bulk export file. JSON or JSON Lines. The records matching the bulk export query.
+
+Output 7. Audit log entry. JSON. The operation, the record ID, the annotator, the timestamp, and the result.
+
+Output 8. API response. JSON. The result of the API operation, with HTTP status.
+
+Output 9. GraphQL response. JSON. The result of the GraphQL query.
+
+Output 10. Backup file. A database dump or a JSON archive.
+
+Module-by-Module Specification
+Module 1: Database Schema
+The database has the following tables:
+
+node_registry. Holds the node records. Fields: node_id (primary key), system_scope, model, granularity, partition_id, partition_version, created_at, updated_at.
+
+event_registry. Holds the event node records. Fields: event_node_id (primary key), composition_kind, source_nodes, target_nodes, created_at, updated_at.
+
+partition_registry. Holds the partition records. Fields: partition_id, partition_version (composite primary key), partition_kind, partition_admissibility_status, partition_preregistration_date, partition_justification, intra_domain_rate, created_at, updated_at.
+
+model_registry. Holds the model records. Fields: model_id (primary key), model_reference, theory_version, model_metadata, created_at, updated_at.
+
+revision_registry. Holds the revision records. Fields: revision_id (primary key), annotation_id, supersedes, superseded_by, revision_date, theory_version, annotator_id, created_at.
+
+domain_annotation. Holds the domain annotations. Fields: domain_annotation_id (primary key), node_id (foreign key to node_registry), partition_id, partition_version (foreign key to partition_registry), domain_id, role_tags, formalism, decomposition_source, validity, status, created_at, updated_at.
+
+annotation. Holds the full STAG annotation records. Fields: annotation_id (primary key), node_id (foreign key to node_registry), event_node_id (foreign key to event_registry, nullable), partition_id, partition_version (foreign key to partition_registry), model_id (foreign key to model_registry), revision_id (foreign key to revision_registry), record_json (the full JSON record), derived_display_label, evidential_anchoring_status, unclassified_reason, not_determinable_flag, provisional_flag, threshold_sensitive_flag, regime_not_determinable, identity_partition_sensitive, created_at, updated_at.
+
+provenance. Holds the provenance records. Fields: provenance_id (primary key), annotation_id (foreign key to annotation), annotator_id, annotator_affiliation, timestamp, source, tool_version, operation (create, update, delete), created_at.
+
+audit_log. Holds the audit log entries. Fields: audit_id (primary key), operation, record_type, record_id, annotator_id, timestamp, result, details, created_at.
+
+Module 2: Record Loader
+Reads a STAG annotation record from a JSON file or an API request. Validates it against the STAG JSON Schema and the thirty-two semantic rules. Rejects malformed records with an error.
+
+Module 3: Record Writer
+Writes a STAG annotation record to the database. Inserts into the node_registry, event_registry, partition_registry, model_registry, revision_registry, domain_annotation, annotation, and provenance tables. Enforces referential integrity.
+
+Module 4: Record Reader
+Reads a STAG annotation record from the database. Joins the tables to reconstruct the full record. Returns the record as JSON.
+
+Module 5: Record Updater
+Updates a STAG annotation record. Creates a new revision in the revision_registry. Inserts a new provenance record. Updates the annotation table.
+
+Module 6: Record Deleter
+Deletes a STAG annotation record. Marks it as deleted (soft delete) or removes it (hard delete, based on configuration). Inserts an audit log entry.
+
+Module 7: Query Engine
+Executes queries against the database. Supports queries by node ID, event node ID, annotation ID, partition ID, partition version, domain ID, model reference, theory version, annotator, date range, display label, evidential anchoring status, and flag. Supports pagination.
+
+Module 8: Full-Text Search Engine
+Executes full-text search against the evidence and uncertainty fields. Uses the database's full-text search capabilities (PostgreSQL tsvector, SQLite FTS5, or a dedicated search engine).
+
+Module 9: Aggregation Engine
+Executes aggregation queries. Supports counts by label, anchoring status, partition, domain, annotator, and date range.
+
+Module 10: Exporter
+Exports a record as JSON, PROV-O, and Turtle. Uses the PROV-O exporter (App 3) for the PROV-O and Turtle formats.
+
+Module 11: Importer
+Imports a record from JSON. Uses the record loader and the record writer.
+
+Module 12: Bulk Import and Export
+Imports multiple records from a JSON or JSON Lines file. Exports multiple records to a JSON or JSON Lines file.
+
+Module 13: REST API
+Provides the REST API. Endpoints:
+
+GET /records. List records with pagination and filters.
+
+GET /records/{id}. Get a record by ID.
+
+POST /records. Create a record.
+
+PUT /records/{id}. Update a record.
+
+DELETE /records/{id}. Delete a record.
+
+GET /records/{id}/provo. Get a record as PROV-O.
+
+GET /records/{id}/turtle. Get a record as Turtle.
+
+GET /nodes. List nodes.
+
+GET /nodes/{id}. Get a node by ID.
+
+GET /events. List event nodes.
+
+GET /events/{id}. Get an event node by ID.
+
+GET /partitions. List partitions.
+
+GET /partitions/{id}/{version}. Get a partition by ID and version.
+
+GET /models. List models.
+
+GET /models/{id}. Get a model by ID.
+
+GET /revisions. List revisions.
+
+GET /revisions/{id}. Get a revision by ID.
+
+GET /domains. List domain annotations.
+
+GET /domains/{id}. Get a domain annotation by ID.
+
+POST /query. Execute a query.
+
+POST /aggregate. Execute an aggregation query.
+
+POST /search. Execute a full-text search.
+
+POST /bulk/import. Bulk import records.
+
+POST /bulk/export. Bulk export records.
+
+GET /audit. List audit log entries.
+
+Module 14: GraphQL API
+Provides the GraphQL API. The schema exposes the same entities as the REST API, with the ability to traverse the relationships between them.
+
+Module 15: Command-Line Interface
+Provides the command-line interface for administration:
+
+db init. Initialize the database.
+
+db migrate. Run migrations.
+
+db backup. Backup the database.
+
+db restore. Restore the database.
+
+db import. Import records.
+
+db export. Export records.
+
+db query. Execute a query.
+
+db aggregate. Execute an aggregation query.
+
+db audit. List audit log entries.
+
+Module 16: Authentication and Authorization
+Provides authentication (API keys, OAuth, or JWT) and authorization (role-based access control: reader, writer, admin).
+
+Module 17: Audit Logging
+Logs every operation (create, update, delete, query) with the annotator, the timestamp, the result, and the details.
+
+Module 18: Backup and Restore
+Provides backup and restore. Backup produces a database dump or a JSON archive. Restore loads the backup.
+
+Module 19: Web Interface
+Provides a web interface for browsing and querying. Displays records, nodes, events, partitions, models, revisions, and domain annotations. Provides a search box, a filter panel, and an aggregation view.
+
+Module 20: Migration Manager
+Manages database migrations. Each schema version has a migration script. Migrations are applied in order.
+
+Full Database Specification
+6.1 Node Registry
+The node_registry table holds the node records. Each node record has:
+
+node_id (string, primary key)
+
+system_scope (string)
+
+model (string)
+
+granularity (string)
+
+partition_id (string)
+
+partition_version (string)
+
+created_at (ISO8601)
+
+updated_at (ISO8601)
+
+The node_id is a unique identifier. The system_scope, model, and granularity are the three components of the node tuple.
+
+6.2 Event Registry
+The event_registry table holds the event node records. Each event node record has:
+
+event_node_id (string, primary key)
+
+composition_kind (string)
+
+source_nodes (array of strings)
+
+target_nodes (array of strings)
+
+created_at (ISO8601)
+
+updated_at (ISO8601)
+
+6.3 Partition Registry
+The partition_registry table holds the partition records. Each partition record has:
+
+partition_id (string)
+
+partition_version (string, composite primary key with partition_id)
+
+partition_kind (decompositional, framework_level)
+
+partition_admissibility_status (string)
+
+partition_preregistration_date (ISO8601)
+
+partition_justification (string)
+
+intra_domain_rate (number)
+
+created_at (ISO8601)
+
+updated_at (ISO8601)
+
+6.4 Model Registry
+The model_registry table holds the model records. Each model record has:
+
+model_id (string, primary key)
+
+model_reference (string)
+
+theory_version (string)
+
+model_metadata (JSON)
+
+created_at (ISO8601)
+
+updated_at (ISO8601)
+
+6.5 Revision Registry
+The revision_registry table holds the revision records. Each revision record has:
+
+revision_id (string, primary key)
+
+annotation_id (string)
+
+supersedes (string or null)
+
+superseded_by (string or null)
+
+revision_date (ISO8601)
+
+theory_version (string)
+
+annotator_id (string)
+
+created_at (ISO8601)
+
+The supersedes and superseded_by fields form the revision chain. The chain must be acyclic.
+
+6.6 Domain Annotation
+The domain_annotation table holds the domain annotations. Each domain annotation has:
+
+domain_annotation_id (string, primary key)
+
+node_id (string, foreign key to node_registry)
+
+partition_id (string)
+
+partition_version (string, foreign key to partition_registry)
+
+domain_id (string)
+
+role_tags (array of strings)
+
+formalism (string)
+
+decomposition_source (string)
+
+validity (string)
+
+status (string)
+
+created_at (ISO8601)
+
+updated_at (ISO8601)
+
+6.7 Annotation
+The annotation table holds the full STAG annotation records. Each annotation has:
+
+annotation_id (string, primary key)
+
+node_id (string, foreign key to node_registry)
+
+event_node_id (string, foreign key to event_registry, nullable)
+
+partition_id (string)
+
+partition_version (string, foreign key to partition_registry)
+
+model_id (string, foreign key to model_registry)
+
+revision_id (string, foreign key to revision_registry)
+
+record_json (JSON, the full STAG record)
+
+derived_display_label (string)
+
+evidential_anchoring_status (string)
+
+unclassified_reason (string or null)
+
+not_determinable_flag (boolean)
+
+provisional_flag (boolean)
+
+threshold_sensitive_flag (boolean)
+
+regime_not_determinable (boolean)
+
+identity_partition_sensitive (boolean)
+
+created_at (ISO8601)
+
+updated_at (ISO8601)
+
+6.8 Provenance
+The provenance table holds the provenance records. Each provenance record has:
+
+provenance_id (string, primary key)
+
+annotation_id (string, foreign key to annotation)
+
+annotator_id (string)
+
+annotator_affiliation (string)
+
+timestamp (ISO8601)
+
+source (string)
+
+tool_version (string)
+
+operation (create, update, delete)
+
+created_at (ISO8601)
+
+6.9 Audit Log
+The audit_log table holds the audit log entries. Each audit log entry has:
+
+audit_id (string, primary key)
+
+operation (create, update, delete, query, export, import)
+
+record_type (annotation, node, event, partition, model, revision, domain_annotation)
+
+record_id (string)
+
+annotator_id (string)
+
+timestamp (ISO8601)
+
+result (success, failure)
+
+details (JSON)
+
+created_at (ISO8601)
+
+6.10 Referential Integrity
+The database enforces the following referential integrity constraints:
+
+Every annotation.node_id must exist in node_registry.
+
+Every annotation.event_node_id, if not null, must exist in event_registry.
+
+Every annotation.partition_id and annotation.partition_version must exist in partition_registry.
+
+Every annotation.model_id must exist in model_registry.
+
+Every annotation.revision_id must exist in revision_registry.
+
+Every domain_annotation.node_id must exist in node_registry.
+
+Every domain_annotation.partition_id and domain_annotation.partition_version must exist in partition_registry.
+
+Every provenance.annotation_id must exist in annotation.
+
+The revision chain (supersedes and superseded_by) must be acyclic.
+
+6.11 Indexes
+The database has indexes on:
+
+node_registry.node_id
+
+node_registry.system_scope, model, granularity
+
+event_registry.event_node_id
+
+partition_registry.partition_id, partition_version
+
+model_registry.model_id
+
+revision_registry.annotation_id
+
+revision_registry.supersedes
+
+revision_registry.superseded_by
+
+annotation.annotation_id
+
+annotation.node_id
+
+annotation.partition_id, partition_version
+
+annotation.derived_display_label
+
+annotation.evidential_anchoring_status
+
+annotation.not_determinable_flag
+
+annotation.provisional_flag
+
+domain_annotation.node_id
+
+domain_annotation.domain_id
+
+provenance.annotation_id
+
+provenance.annotator_id
+
+audit_log.operation
+
+audit_log.record_type
+
+audit_log.record_id
+
+Full-text search indexes on the evidence and uncertainty fields in the annotation.record_json.
+
+Core Logic as Executable Pseudocode
+7.1 Create Record
+function createRecord(recordJson, provenance, auth):
+
+Step 1. validateAuth(auth, "writer"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. validationResult = validateSTAGRecord(recordJson). If invalid, return {error: "invalid record", details: validationResult.errors}.
+
+Step 3. node = extractNode(recordJson).
+
+upsertNode(node).
+
+Step 4. if recordJson.event_node_id is not null: event = extractEvent(recordJson); upsertEvent(event).
+
+Step 5. partition = extractPartition(recordJson).
+
+upsertPartition(partition).
+
+Step 6. model = extractModel(recordJson).
+
+upsertModel(model).
+
+Step 7. revision = extractRevision(recordJson, provenance).
+
+upsertRevision(revision).
+
+Step 8. for each domainAnnotation in recordJson.domain_annotations: upsertDomainAnnotation(domainAnnotation).
+
+Step 9. annotationId = generateAnnotationId().
+
+insertAnnotation(annotationId, recordJson, node, event, partition, model, revision).
+
+Step 10. insertProvenance(annotationId, provenance).
+
+Step 11. insertAuditLog("create", "annotation", annotationId, provenance.annotator_id, "success", {recordJson: recordJson}).
+
+Step 12. return {annotation_id: annotationId, status: "created"}.
+
+7.2 Read Record
+function readRecord(annotationId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. annotation = selectAnnotation(annotationId).
+
+if annotation is null: return {error: "not found"}.
+
+Step 3. node = selectNode(annotation.node_id).
+
+event = annotation.event_node_id is not null ? selectEvent(annotation.event_node_id) : null.
+
+partition = selectPartition(annotation.partition_id, annotation.partition_version).
+
+model = selectModel(annotation.model_id).
+
+revision = selectRevision(annotation.revision_id).
+
+domainAnnotations = selectDomainAnnotations(annotation.node_id, annotation.partition_id, annotation.partition_version).
+
+provenance = selectProvenance(annotationId).
+
+Step 4. record = reconstructRecord(annotation, node, event, partition, model, revision, domainAnnotations, provenance).
+
+Step 5. insertAuditLog("read", "annotation", annotationId, auth.annotator_id, "success", null).
+
+Step 6. return {record: record}.
+
+7.3 Update Record
+function updateRecord(annotationId, recordJson, provenance, auth):
+
+Step 1. validateAuth(auth, "writer"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. existing = selectAnnotation(annotationId).
+
+if existing is null: return {error: "not found"}.
+
+Step 3. validationResult = validateSTAGRecord(recordJson). If invalid, return {error: "invalid record", details: validationResult.errors}.
+
+Step 4. newRevisionId = generateRevisionId().
+
+newRevision = {revision_id: newRevisionId, annotation_id: annotationId, supersedes: existing.revision_id, superseded_by: null, revision_date: now(), theory_version: recordJson.theory_version, annotator_id: provenance.annotator_id}.
+
+updateRevision(existing.revision_id, {superseded_by: newRevisionId}).
+
+insertRevision(newRevision).
+
+Step 5. updateAnnotation(annotationId, recordJson, newRevisionId).
+
+Step 6. insertProvenance(annotationId, provenance).
+
+Step 7. insertAuditLog("update", "annotation", annotationId, provenance.annotator_id, "success", {recordJson: recordJson}).
+
+Step 8. return {annotation_id: annotationId, revision_id: newRevisionId, status: "updated"}.
+
+7.4 Delete Record
+function deleteRecord(annotationId, provenance, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. existing = selectAnnotation(annotationId).
+
+if existing is null: return {error: "not found"}.
+
+Step 3. if config.softDelete: updateAnnotation(annotationId, {deleted_at: now()}).
+
+else: deleteAnnotation(annotationId).
+
+Step 4. insertAuditLog("delete", "annotation", annotationId, provenance.annotator_id, "success", null).
+
+Step 5. return {annotation_id: annotationId, status: "deleted"}.
+
+7.5 Query Records
+function queryRecords(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. sql = buildQuerySQL(query).
+
+Step 3. results = executeSQL(sql).
+
+Step 4. records = results.map(row => selectAnnotation(row.annotation_id)).
+
+Step 5. insertAuditLog("query", "annotation", null, auth.annotator_id, "success", {query: query}).
+
+Step 6. return {records: records, count: records.length, pagination: {offset: query.offset, limit: query.limit}}.
+
+7.6 Aggregate Records
+function aggregateRecords(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. sql = buildAggregateSQL(query).
+
+Step 3. results = executeSQL(sql).
+
+Step 4. insertAuditLog("aggregate", "annotation", null, auth.annotator_id, "success", {query: query}).
+
+Step 5. return {results: results}.
+
+7.7 Full-Text Search
+function fullTextSearch(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. sql = buildFullTextSQL(query).
+
+Step 3. results = executeSQL(sql).
+
+Step 4. records = results.map(row => selectAnnotation(row.annotation_id)).
+
+Step 5. insertAuditLog("search", "annotation", null, auth.annotator_id, "success", {query: query}).
+
+Step 6. return {records: records, count: records.length}.
+
+7.8 Export Record
+function exportRecord(annotationId, format, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. record = readRecord(annotationId, auth).record.
+
+Step 3. if format == "json": output = record.
+
+else if format == "provo": output = exportToPROVO(record).output.
+
+else if format == "turtle": output = serializeToTurtle(record).
+
+Step 4. insertAuditLog("export", "annotation", annotationId, auth.annotator_id, "success", {format: format}).
+
+Step 5. return {output: output, format: format}.
+
+7.9 Bulk Import
+function bulkImport(file, provenance, auth):
+
+Step 1. validateAuth(auth, "writer"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. records = parseBulkFile(file).
+
+Step 3. results = [].
+
+for record in records:
+
+result = createRecord(record, provenance, auth).
+
+results.push(result).
+
+Step 4. insertAuditLog("bulk_import", "annotation", null, provenance.annotator_id, "success", {count: records.length}).
+
+Step 5. return {results: results, count: results.length}.
+
+7.10 Bulk Export
+function bulkExport(query, format, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. records = queryRecords(query, auth).records.
+
+Step 3. if format == "json": output = records.
+
+else if format == "jsonl": output = records.map(r => JSON.stringify(r)).join("\n").
+
+else if format == "provo": output = records.map(r => exportToPROVO(r).output).join("\n").
+
+Step 4. insertAuditLog("bulk_export", "annotation", null, auth.annotator_id, "success", {count: records.length}).
+
+Step 5. return {output: output, count: records.length}.
+
+7.11 Audit Log
+function auditLog(query, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. sql = buildAuditSQL(query).
+
+Step 3. results = executeSQL(sql).
+
+Step 4. return {results: results}.
+
+7.12 Backup
+function backup(auth, options):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. if options.format == "sql": output = dumpDatabaseSQL().
+
+else if options.format == "json": output = dumpDatabaseJSON().
+
+Step 3. insertAuditLog("backup", "database", null, auth.annotator_id, "success", {format: options.format}).
+
+Step 4. return {output: output, format: options.format}.
+
+7.13 Restore
+function restore(file, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. loadDatabase(file).
+
+Step 3. insertAuditLog("restore", "database", null, auth.annotator_id, "success", {file: file}).
+
+Step 4. return {status: "restored"}.
+
+Data Model / JSON Schema for Internal State
+The database's internal state is the set of tables. The API's internal state is a request object and a response object.
+
+Request object:
+
+operation (create, read, update, delete, query, aggregate, search, export, import, backup, restore)
+
+resource (annotation, node, event, partition, model, revision, domain_annotation, database)
+
+record_id (string or null)
+
+record_json (JSON or null)
+
+query (JSON or null)
+
+auth (object: annotator_id, api_key, role)
+
+Response object:
+
+status (success, failure)
+
+result (JSON or null)
+
+error (string or null)
+
+audit_id (string)
+
+Architecture
+Module breakdown:
+
+Database Schema. The tables and indexes.
+
+Record Loader. Reads and validates records.
+
+Record Writer. Writes records.
+
+Record Reader. Reads records.
+
+Record Updater. Updates records.
+
+Record Deleter. Deletes records.
+
+Query Engine. Executes queries.
+
+Full-Text Search Engine. Executes full-text search.
+
+Aggregation Engine. Executes aggregation queries.
+
+Exporter. Exports records.
+
+Importer. Imports records.
+
+Bulk Import and Export. Bulk operations.
+
+REST API. HTTP endpoints.
+
+GraphQL API. GraphQL endpoint.
+
+Command-Line Interface. Administration.
+
+Authentication and Authorization. Access control.
+
+Audit Logging. Logs operations.
+
+Backup and Restore. Database backup and restore.
+
+Web Interface. Browsing and querying.
+
+Migration Manager. Database migrations.
+
+Data flow:
+
+API requests go to the REST or GraphQL API. The API calls the record loader, writer, reader, updater, deleter, query engine, search engine, aggregation engine, exporter, or importer. The database schema stores the data. The audit logging records every operation. The authentication and authorization check access. The backup and restore handle backup. The web interface provides browsing.
+
+Technology Stack
+Recommended for the database:
+
+Database: PostgreSQL 15+ (preferred for full-text search and JSON support) or SQLite 3.40+ (for single-user deployments).
+
+Language: Python 3.11+ or Node.js 20+.
+
+ORM: SQLAlchemy (Python) or Prisma (JS).
+
+Migrations: Alembic (Python) or Prisma Migrate (JS).
+
+Full-text search: PostgreSQL tsvector (preferred) or SQLite FTS5.
+
+Recommended for the REST API:
+
+Framework: FastAPI (Python) or Express (JS).
+
+Authentication: FastAPI Users (Python) or Passport (JS).
+
+Recommended for the GraphQL API:
+
+Framework: Strawberry (Python) or Apollo Server (JS).
+
+Recommended for the command-line interface:
+
+Framework: Click (Python) or Commander (JS).
+
+Recommended for the web interface:
+
+Frontend: React or Svelte.
+
+Backend: the same as the REST API.
+
+Recommended for deployment:
+
+Containerization: Docker.
+
+Orchestration: Docker Compose (single-node) or Kubernetes (multi-node).
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The STAG schema (Artifact 2, Appendix B.1).
+
+The STAG codebook (Artifact 2, Appendices A.1 through A.11).
+
+The PROV-O exporter (App 3).
+
+UI/UX Specification
+REST API:
+
+Base URL: https://api.example.com/v1.
+
+Authentication: Bearer token in the Authorization header.
+
+Endpoints as in Module 13.
+
+Responses in JSON.
+
+HTTP status codes: 200 for success, 201 for created, 204 for deleted, 400 for bad request, 401 for unauthorized, 403 for forbidden, 404 for not found, 409 for conflict, 422 for unprocessable entity, 500 for internal server error.
+
+GraphQL API:
+
+Endpoint: https://api.example.com/graphql.
+
+Schema exposes the entities and their relationships.
+
+Queries and mutations for CRUD operations.
+
+Command-line interface:
+
+Usage: stag-db [command] [options].
+
+Commands: init, migrate, backup, restore, import, export, query, aggregate, audit.
+
+Web interface:
+
+A browsable list of records, nodes, events, partitions, models, revisions, and domain annotations.
+
+A search box for full-text search.
+
+A filter panel for querying by label, anchoring status, partition, domain, annotator, and date range.
+
+An aggregation view for counts.
+
+A detail view for each record.
+
+Validation Engine Design
+The database validates the following:
+
+Validation 1. Record validity. Every record is validated against the STAG JSON Schema and the thirty-two semantic rules before it is stored.
+
+Validation 2. Referential integrity. Every foreign key reference must resolve to an existing record.
+
+Validation 3. Supersession acyclicity. The revision chain must be acyclic.
+
+Validation 4. Partition consistency. Every domain annotation must belong to the partition identified by partition_id and partition_version.
+
+Validation 5. Node identity consistency. Every node must have a unique node_id and a consistent tuple (S, M, G).
+
+Validation 6. Provenance completeness. Every record must have a provenance record.
+
+Validation 7. Audit completeness. Every operation must have an audit log entry.
+
+Testing Strategy
+Unit tests:
+
+Database Schema for each table and index.
+
+Record Loader for valid and invalid records.
+
+Record Writer for each table.
+
+Record Reader for each record type.
+
+Record Updater for revisions.
+
+Record Deleter for soft and hard deletes.
+
+Query Engine for each query field.
+
+Full-Text Search Engine for each search term.
+
+Aggregation Engine for each aggregation dimension.
+
+Exporter for each format.
+
+Importer for each format.
+
+Bulk Import and Export for each format.
+
+REST API for each endpoint.
+
+GraphQL API for each query and mutation.
+
+Command-Line Interface for each command.
+
+Authentication and Authorization for each role.
+
+Audit Logging for each operation.
+
+Backup and Restore for each format.
+
+Web Interface for each view.
+
+Migration Manager for each migration.
+
+Integration tests:
+
+Create a record via the REST API. Read it back. Verify the record is complete.
+
+Create a record via the GraphQL API. Read it back. Verify the record is complete.
+
+Update a record. Verify the revision chain.
+
+Delete a record. Verify the audit log.
+
+Query records by each field. Verify the results.
+
+Aggregate records by each dimension. Verify the counts.
+
+Search records by full-text search. Verify the results.
+
+Export a record as JSON, PROV-O, and Turtle. Verify the output.
+
+Bulk import records. Verify the records are stored.
+
+Bulk export records. Verify the output.
+
+Backup the database. Restore the database. Verify the data is identical.
+
+Worked-example tests:
+
+Store the STAG worked examples (Artifact 1, Section 11). Verify the records are stored and retrievable.
+
+Store the Null-Model Protocol worked examples (Section 11). Verify the records are stored and retrievable.
+
+Regression tests:
+
+Record determinism.
+
+Query consistency.
+
+Aggregation consistency.
+
+Audit log consistency.
+
+Build Phases
+Phase 1. Database Schema. Create the tables and indexes.
+
+Phase 2. Record Loader. Read and validate records.
+
+Phase 3. Record Writer. Write records.
+
+Phase 4. Record Reader. Read records.
+
+Phase 5. Record Updater. Update records.
+
+Phase 6. Record Deleter. Delete records.
+
+Phase 7. Query Engine. Execute queries.
+
+Phase 8. Full-Text Search Engine. Execute full-text search.
+
+Phase 9. Aggregation Engine. Execute aggregation queries.
+
+Phase 10. Exporter. Export records.
+
+Phase 11. Importer. Import records.
+
+Phase 12. Bulk Import and Export. Bulk operations.
+
+Phase 13. REST API. HTTP endpoints.
+
+Phase 14. GraphQL API. GraphQL endpoint.
+
+Phase 15. Command-Line Interface. Administration.
+
+Phase 16. Authentication and Authorization. Access control.
+
+Phase 17. Audit Logging. Log operations.
+
+Phase 18. Backup and Restore. Database backup and restore.
+
+Phase 19. Web Interface. Browsing and querying.
+
+Phase 20. Migration Manager. Database migrations.
+
+Phase 21. Worked-example tests.
+
+Phase 22. Integration testing and hardening.
+
+Phase 23. Packaging and deployment.
+
+Dependencies
+Python path:
+
+SQLAlchemy (ORM).
+
+Alembic (migrations).
+
+FastAPI (REST API).
+
+Strawberry (GraphQL API).
+
+FastAPI Users (authentication).
+
+Click (command-line).
+
+psycopg2 (PostgreSQL driver).
+
+sqlite3 (SQLite driver, standard library).
+
+jsonschema (schema validation).
+
+pytest (testing).
+
+Node.js path:
+
+Prisma (ORM and migrations).
+
+Express (REST API).
+
+Apollo Server (GraphQL API).
+
+Passport (authentication).
+
+Commander (command-line).
+
+pg (PostgreSQL driver).
+
+better-sqlite3 (SQLite driver).
+
+ajv (schema validation).
+
+Vitest (testing).
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The STAG schema (Artifact 2, Appendix B.1).
+
+The STAG codebook (Artifact 2, Appendices A.1 through A.11).
+
+The PROV-O exporter (App 3).
+
+Deployment Notes
+Database:
+
+PostgreSQL for multi-user deployments.
+
+SQLite for single-user deployments.
+
+Backup and restore via pg_dump and pg_restore (PostgreSQL) or the SQLite backup API.
+
+REST API:
+
+Deploy with Docker. Stateless. Scale horizontally.
+
+Use a reverse proxy for TLS.
+
+Log every request for audit.
+
+GraphQL API:
+
+Deploy alongside the REST API.
+
+Use a query depth limit and a query complexity limit to prevent abuse.
+
+Command-line interface:
+
+Package as a standalone executable (PyInstaller or pkg).
+
+Distribute via pip, npm, or a direct download.
+
+Web interface:
+
+Deploy the frontend as a static bundle.
+
+Backend with FastAPI or Express.
+
+Reproducibility:
+
+Record the STAG schema version and the database version.
+
+Record the provenance for every record.
+
+Provide a version pin for the schemas and codebook.
+
+Open Questions to Resolve Before Building
+Question 1. Which runtime first? Python or Node.js. Decision affects the ORM, the API framework, and the packaging.
+
+Question 2. Which database first? PostgreSQL or SQLite. Decision affects the full-text search implementation and the deployment model.
+
+Question 3. How should the database handle the record_json field? Options: store the full JSON record in a JSONB column, or reconstruct it from the normalized tables. Decision needed: the current design stores both for performance.
+
+Question 4. How should the database handle the not_determinable flag propagation? The STAG specification specifies that not_determinable propagates from the entailment basis to the intervention classification to the cross-domain counterfactual dependence. Decision needed: does the database check the propagation automatically, or trust the record?
+
+Question 5. How should the database handle versioned records? Options: every update creates a new revision, or every update creates a new record. Decision needed.
+
+Question 6. How should the database handle the audit log retention? Options: keep forever, keep for a retention period, or allow configuration. Decision needed.
+
+Question 7. Should the database support multiple tenants? Options: single tenant, or multi-tenant with tenant isolation. Decision needed.
+
+Question 8. Should the database support federation with other STAG databases? Decision needed.
+
+Question 9. Should the database integrate with the STAG schema library (App 17) and the Null-Model Protocol library (App 18)? Decision needed: shared schema registry, or independent.
+
+Question 10. How should the database handle the SHACL shapes that are drafts? The documents state that SHACL validation has not been run. Decision needed: ship the draft shapes as-is, or mark them experimental.
+
+End of build specification for App 20
