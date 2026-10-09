@@ -1,0 +1,730 @@
+Build Specification — App 11: Effective-Null Builder
+Completeness status: COMPLETE. All sections delivered in one pass. No truncation. Formatted for copy-paste into another conversation window. No tables, no boxes.
+
+What It Is
+A library or command-line tool that constructs the effective null after selection and measurement. It applies a base null, a selection function, and a measurement kernel in the specified order, renormalises, returns the effective null, and warns when it has atoms. It takes in a base null, a selection function, a measurement kernel, and the order, and puts out the effective null and its continuity status. It is for anyone whose pipeline includes selection or measurement error.
+
+Core Requirements
+Functional requirements:
+
+Accept a base null density.
+
+Accept a selection function.
+
+Accept a measurement kernel.
+
+Accept the order of selection and measurement.
+
+Apply the base null, the selection function, and the measurement kernel in the specified order.
+
+Renormalise the effective null over the support.
+
+Return the effective null as a callable density and as a cumulative distribution function.
+
+Warn when the effective null has atoms.
+
+Warn when the effective null has discontinuities.
+
+Warn when the effective null is not continuous, which removes the distribution-free shortcut of Section 3 of the Null-Model Protocol paper.
+
+Support the following base null types: uniform, parametric (normal, exponential, log-normal, power law, gamma, beta), mixture, empirical, and kernel density estimate (KDE).
+
+Support the following selection function types: analytic (closed-form), tabulated (interpolated), and stepwise.
+
+Support the following measurement kernel types: Gaussian (homoscedastic), Gaussian (heteroscedastic), uniform, exponential, and user-supplied.
+
+Support the order "selection on true values, then measurement" (the observed density is proportional to (p_0 * s) convolved with K).
+
+Support the order "selection on measured values, then measurement" (the observed density is proportional to (p_0 convolved with K) * s).
+
+Compute the effective null's probability mass over any window w.
+
+Report the effective null's continuity status: continuous, continuous_with_discontinuities, atomic, or discrete.
+
+Non-functional requirements:
+
+Deterministic: same inputs produce same outputs.
+
+No network dependency.
+
+Fast: compute an effective null in under one second for typical inputs.
+
+Versioned: the effective null records the schema version and the builder version.
+
+Reproducible: the effective null records all inputs and the computation order.
+
+Input Specification
+Input 1. Base null density. Required. One of: uniform, parametric, mixture, empirical, KDE.
+
+Input 2. Selection function. Optional. Required if selection effects are present.
+
+Input 3. Measurement kernel. Optional. Required if measurement uncertainty is present.
+
+Input 4. Order of selection and measurement. Required if both selection and measurement are present. Values: selection_on_true_then_measurement, selection_on_measured.
+
+Input 5. Support. Required. The support [a, b] over which the effective null is defined.
+
+Input 6. Renormalisation rule. Required. Values: renormalise_over_support (default), truncate.
+
+Input 7. Continuity check tolerance. Optional. The tolerance for detecting atoms and discontinuities. Default 1e-6.
+
+Input 8. Output grid. Optional. The grid of points at which to evaluate the effective null. Default: 1000 points over the support.
+
+Input 9. Schema version. Required. Selects the correct field interpretation.
+
+Output Specification
+Output 1. Effective null density. A callable density function, plus an array of values on the output grid.
+
+Output 2. Effective null cumulative distribution function. A callable CDF, plus an array of values on the output grid.
+
+Output 3. Continuity status. Text. One of: continuous, continuous_with_discontinuities, atomic, discrete.
+
+Output 4. Atom list. Array of atom objects. Each atom has a location and a mass.
+
+Output 5. Discontinuity list. Array of discontinuity objects. Each has a location and a jump size.
+
+Output 6. Probability mass over a window. A callable that computes the integral of the effective null over any window w.
+
+Output 7. Warnings. Array of warning objects. Each warning has a code, a message, and the offending field.
+
+Output 8. Reproducibility record. JSON. The schema version, builder version, all inputs, and the computation order.
+
+Module-by-Module Specification
+Module 1: Base Null Loader
+Reads the base null density. Supports uniform, parametric, mixture, empirical, and KDE.
+
+For uniform: reads the support [a, b]. The density is 1 / (b - a) on [a, b] and 0 elsewhere.
+
+For parametric: reads the family and the parameters. Supported families: normal, exponential, log-normal, power law, gamma, beta.
+
+For mixture: reads the components and their weights. Each component is a base null.
+
+For empirical: reads a sample. The density is a step function over the empirical distribution, or a smoothed version.
+
+For KDE: reads a sample and a bandwidth rule. The density is the kernel density estimate.
+
+Module 2: Selection Function Loader
+Reads the selection function. Supports analytic, tabulated, and stepwise.
+
+For analytic: reads a closed-form expression or a named function with parameters.
+
+For tabulated: reads a table of (x, s(x)) pairs. The function is interpolated.
+
+For stepwise: reads a set of intervals with constant s(x) in each interval.
+
+Module 3: Measurement Kernel Loader
+Reads the measurement kernel. Supports Gaussian (homoscedastic), Gaussian (heteroscedastic), uniform, exponential, and user-supplied.
+
+For Gaussian (homoscedastic): reads the standard deviation sigma.
+
+For Gaussian (heteroscedastic): reads a function sigma(x) or a table of (x, sigma) pairs.
+
+For uniform: reads the half-width delta.
+
+For exponential: reads the rate lambda.
+
+For user-supplied: reads a callable kernel K(x, y).
+
+Module 4: Order Resolver
+Reads the order of selection and measurement.
+
+For selection_on_true_then_measurement: the effective null is proportional to (p_0 * s) convolved with K.
+
+For selection_on_measured: the effective null is proportional to (p_0 convolved with K) * s.
+
+Module 5: Effective Null Constructor
+Applies the base null, the selection function, and the measurement kernel in the specified order.
+
+For selection_on_true_then_measurement:
+
+Step 1. Compute p_0 * s over the support.
+
+Step 2. Convolve with K.
+
+Step 3. Renormalise over the support.
+
+For selection_on_measured:
+
+Step 1. Convolve p_0 with K.
+
+Step 2. Multiply by s.
+
+Step 3. Renormalise over the support.
+
+The effective null is returned as a callable density function and as a cumulative distribution function.
+
+Module 6: Continuity Checker
+Checks the effective null for continuity.
+
+A density is continuous if it has no jumps larger than the tolerance and no atoms larger than the tolerance.
+
+A density is continuous_with_discontinuities if it has jumps larger than the tolerance but no atoms larger than the tolerance.
+
+A density is atomic if it has atoms larger than the tolerance but is not purely discrete.
+
+A density is discrete if it is supported on a countable set.
+
+The checker reports the continuity status and the list of atoms and discontinuities.
+
+Module 7: Window Mass Calculator
+Computes the integral of the effective null over any window w. The integral is computed by numerical integration over the output grid, or by the cumulative distribution function if available.
+
+Module 8: Warning Generator
+Generates warnings for the following conditions:
+
+The effective null has atoms, which removes the distribution-free shortcut of Section 3 of the Null-Model Protocol paper.
+
+The effective null has discontinuities.
+
+The effective null is not continuous, which requires full-pipeline simulation (no distribution-free shortcut).
+
+The selection function is not bounded away from zero, which may cause the renormalisation to fail.
+
+The measurement kernel has a bandwidth that is comparable to the gap width, which may blur a real gap.
+
+The base null is a KDE and the bandwidth is comparable to the gap width, which may leak density into the gap (Artifact 1, Section 5.2 heuristic: treat the KDE null as unreliable if h exceeds about g_min/3).
+
+Module 9: Reproducibility Recorder
+Records the schema version, builder version, all inputs, and the computation order.
+
+Module 10: Command-Line Interface
+Parses arguments. Invokes Modules 1 through 9. Writes the effective null and the continuity status to a file.
+
+Module 11: Library API
+Provides the same functionality as the command-line tool, as a library.
+
+Full Computation Specification
+6.1 Base Null
+The base null p_0 is a density on the support [a, b]. It must integrate to 1 over the support.
+
+For uniform: p_0(x) = 1 / (b - a) on [a, b], 0 elsewhere.
+
+For normal: p_0(x) = (1 / (sigma * sqrt(2 * pi))) * exp(-(x - mu)^2 / (2 * sigma^2)), truncated to [a, b] and renormalised.
+
+For exponential: p_0(x) = lambda * exp(-lambda * x), truncated to [a, b] and renormalised.
+
+For log-normal: p_0(x) = (1 / (x * sigma * sqrt(2 * pi))) * exp(-(log(x) - mu)^2 / (2 * sigma^2)), truncated to [a, b] and renormalised.
+
+For power law: p_0(x) = (alpha - 1) * x^(-alpha) / (a^(1 - alpha) - b^(1 - alpha)), on [a, b].
+
+For gamma: p_0(x) = (x^(k - 1) * exp(-x / theta)) / (theta^k * Gamma(k)), truncated to [a, b] and renormalised.
+
+For beta: p_0(x) = (x^(alpha - 1) * (1 - x)^(beta - 1)) / B(alpha, beta), on [0, 1], or scaled to [a, b].
+
+For mixture: p_0(x) = sum over i of w_i * p_i(x), where the w_i sum to 1 and each p_i is a base null.
+
+For empirical: p_0(x) is a step function over the empirical distribution, or a smoothed version.
+
+For KDE: p_0(x) = (1 / (n * h)) * sum over i of K((x - x_i) / h), where h is the bandwidth.
+
+6.2 Selection Function
+The selection function s(x) is the probability that an observation at x enters the sample. It is in [0, 1] and may be zero on some regions.
+
+For analytic: s(x) is a closed-form expression.
+
+For tabulated: s(x) is interpolated from a table.
+
+For stepwise: s(x) is constant on each interval.
+
+6.3 Measurement Kernel
+The measurement kernel K(x, y) is the probability density of observing x given a true value y. It integrates to 1 over x for each y.
+
+For Gaussian (homoscedastic): K(x, y) = (1 / (sigma * sqrt(2 * pi))) * exp(-(x - y)^2 / (2 * sigma^2)).
+
+For Gaussian (heteroscedastic): K(x, y) = (1 / (sigma(y) * sqrt(2 * pi))) * exp(-(x - y)^2 / (2 * sigma(y)^2)).
+
+For uniform: K(x, y) = 1 / (2 * delta) if |x - y| <= delta, else 0.
+
+For exponential: K(x, y) = lambda * exp(-lambda * (x - y)) if x >= y, else 0.
+
+For user-supplied: K(x, y) is a callable.
+
+6.4 Effective Null Construction
+For selection_on_true_then_measurement:
+
+Step 1. Compute f(x) = p_0(x) * s(x) for all x in the support.
+
+Step 2. Compute g(x) = integral over y of f(y) * K(x, y) dy. This is the convolution of f with K.
+
+Step 3. Compute the normalisation constant Z = integral over x of g(x) dx over the support.
+
+Step 4. The effective null is g(x) / Z for all x in the support.
+
+For selection_on_measured:
+
+Step 1. Compute h(x) = integral over y of p_0(y) * K(x, y) dy. This is the convolution of p_0 with K.
+
+Step 2. Compute g(x) = h(x) * s(x) for all x in the support.
+
+Step 3. Compute the normalisation constant Z = integral over x of g(x) dx over the support.
+
+Step 4. The effective null is g(x) / Z for all x in the support.
+
+6.5 Continuity Check
+A density is continuous if for all x in the support, the limit from the left equals the limit from the right, and there are no atoms.
+
+An atom at x is a point mass. In a continuous density, the mass at any single point is zero. If the effective null has a point mass at x, then the density is atomic.
+
+A discontinuity at x is a jump in the density. The jump size is the absolute difference between the limit from the left and the limit from the right.
+
+The continuity checker evaluates the density on the output grid and computes the jumps between adjacent grid points. If any jump exceeds the tolerance, the density is discontinuous. If any grid point has a mass exceeding the tolerance, the density is atomic.
+
+6.6 Window Mass
+The window mass over a window w = [w_lo, w_hi] is the integral of the effective null over w. It is computed by numerical integration, or by the cumulative distribution function if available.
+
+6.7 Warnings
+Warnings are generated for the conditions listed in Module 8.
+
+6.8 The Distribution-Free Shortcut
+If the effective null is continuous, and the observations are independent and identically distributed from the effective null, and the support is fixed (S1), and the statistic Lambda is computed with P_0 taken from the effective null, then the null distribution of Lambda_max is distribution-free (Section 3 of the Null-Model Protocol paper).
+
+If the effective null is not continuous, the distribution-free shortcut does not apply, and full-pipeline simulation must be used.
+
+The effective-null builder reports the continuity status so the analyst knows whether the shortcut applies.
+
+Core Logic as Executable Pseudocode
+7.1 Main Flow
+function buildEffectiveNull(baseNull, selectionFunction, measurementKernel, order, support, options):
+
+Step 1. validateInputs(baseNull, selectionFunction, measurementKernel, order, support).
+
+Step 2. if order == "selection_on_true_then_measurement":
+
+f = multiply(baseNull, selectionFunction).
+
+g = convolve(f, measurementKernel).
+
+else if order == "selection_on_measured":
+
+h = convolve(baseNull, measurementKernel).
+
+g = multiply(h, selectionFunction).
+
+else: return {error: "unknown order"}.
+
+Step 3. Z = integrate(g, support).
+
+effectiveNull = divide(g, Z).
+
+Step 4. continuityStatus = checkContinuity(effectiveNull, support, options.continuityTolerance).
+
+Step 5. warnings = generateWarnings(baseNull, selectionFunction, measurementKernel, continuityStatus, options).
+
+Step 6. record = buildRecord(baseNull, selectionFunction, measurementKernel, order, support, effectiveNull, continuityStatus, warnings).
+
+Step 7. return {effectiveNull, continuityStatus, warnings, record}.
+
+7.2 Multiply
+function multiply(baseNull, selectionFunction):
+
+result = {}.
+
+for x in baseNull.grid:
+
+result[x] = baseNull.value(x) * selectionFunction.value(x).
+
+return result.
+
+7.3 Convolve
+function convolve(density, kernel):
+
+result = {}.
+
+for x in density.grid:
+
+integral = 0.
+
+for y in density.grid:
+
+integral = integral + density.value(y) * kernel.value(x, y) * density.gridSpacing.
+
+result[x] = integral.
+
+return result.
+
+7.4 Integrate
+function integrate(density, support):
+
+integral = 0.
+
+for x in density.grid:
+
+if x >= support.lo and x <= support.hi:
+
+integral = integral + density.value(x) * density.gridSpacing.
+
+return integral.
+
+7.5 Divide
+function divide(density, Z):
+
+result = {}.
+
+for x in density.grid:
+
+result[x] = density.value(x) / Z.
+
+return result.
+
+7.6 Check Continuity
+function checkContinuity(density, support, tolerance):
+
+atoms = [].
+
+discontinuities = [].
+
+for x in density.grid:
+
+if density.value(x) > tolerance and isPointMass(density, x):
+
+atoms.push({location: x, mass: density.value(x)}).
+
+for adjacent x1, x2 in density.grid:
+
+jump = abs(density.value(x2) - density.value(x1)).
+
+if jump > tolerance:
+
+discontinuities.push({location: (x1 + x2) / 2, jump: jump}).
+
+if atoms.length > 0 and discontinuities.length > 0: return "atomic".
+
+if atoms.length > 0: return "atomic".
+
+if discontinuities.length > 0: return "continuous_with_discontinuities".
+
+return "continuous".
+
+7.7 Generate Warnings
+function generateWarnings(baseNull, selectionFunction, measurementKernel, continuityStatus, options):
+
+warnings = [].
+
+if continuityStatus == "atomic": warnings.push({code: "ATOMIC_EFFECTIVE_NULL", message: "effective null has atoms; distribution-free shortcut does not apply"}).
+
+if continuityStatus == "continuous_with_discontinuities": warnings.push({code: "DISCONTINUOUS_EFFECTIVE_NULL", message: "effective null has discontinuities"}).
+
+if continuityStatus == "discrete": warnings.push({code: "DISCRETE_EFFECTIVE_NULL", message: "effective null is discrete"}).
+
+if selectionFunction != null and minValue(selectionFunction) == 0: warnings.push({code: "SELECTION_ZERO_REGION", message: "selection function is zero on some region; renormalisation may fail"}).
+
+if measurementKernel != null and measurementKernel.bandwidth > options.gap_width / 3: warnings.push({code: "KERNEL_BANDWIDTH_LARGE", message: "measurement kernel bandwidth is comparable to the gap width; may blur a real gap"}).
+
+if baseNull.type == "KDE" and baseNull.bandwidth > options.gap_width / 3: warnings.push({code: "KDE_BANDWIDTH_LARGE", message: "KDE bandwidth exceeds about g_min/3; treat the KDE null as unreliable (Artifact 1, Section 5.2)"}).
+
+return warnings.
+
+7.8 Build Record
+function buildRecord(baseNull, selectionFunction, measurementKernel, order, support, effectiveNull, continuityStatus, warnings):
+
+return {schema_version: options.schemaVersion, builder_version: options.builderVersion, base_null: baseNull, selection_function: selectionFunction, measurement_kernel: measurementKernel, order: order, support: support, effective_null_grid: effectiveNull.grid, effective_null_values: effectiveNull.values, continuity_status: continuityStatus, atoms: continuityStatus == "atomic" ? effectiveNull.atoms : [], discontinuities: continuityStatus == "continuous_with_discontinuities" ? effectiveNull.discontinuities : [], warnings: warnings}.
+
+Data Model / JSON Schema for Internal State
+The builder's internal state is an effective null object.
+
+Effective null object:
+
+schema_version (string)
+
+builder_version (string)
+
+base_null (object: type, parameters)
+
+selection_function (object or null: type, parameters)
+
+measurement_kernel (object or null: type, parameters)
+
+order (selection_on_true_then_measurement, selection_on_measured)
+
+support (object: lo, hi)
+
+effective_null_grid (array of numbers)
+
+effective_null_values (array of numbers)
+
+continuity_status (continuous, continuous_with_discontinuities, atomic, discrete)
+
+atoms (array of atom objects)
+
+discontinuities (array of discontinuity objects)
+
+warnings (array of warning objects)
+
+Each atom object:
+
+location (number)
+
+mass (number)
+
+Each discontinuity object:
+
+location (number)
+
+jump (number)
+
+Architecture
+Module breakdown:
+
+Base Null Loader. Reads the base null density.
+
+Selection Function Loader. Reads the selection function.
+
+Measurement Kernel Loader. Reads the measurement kernel.
+
+Order Resolver. Reads the order of selection and measurement.
+
+Effective Null Constructor. Applies the base null, the selection function, and the measurement kernel.
+
+Continuity Checker. Checks the effective null for continuity.
+
+Window Mass Calculator. Computes the integral of the effective null over any window.
+
+Warning Generator. Generates warnings.
+
+Reproducibility Recorder. Records the schema version, builder version, all inputs, and the computation order.
+
+Command-Line Interface. Parses arguments.
+
+Library API. Provides the same functionality as a library.
+
+Data flow:
+
+Base null, selection function, and measurement kernel go to the loaders. Order Resolver reads the order. Effective Null Constructor applies the operations. Continuity Checker checks. Warning Generator generates warnings. Reproducibility Recorder records. Command-Line Interface or Library API delivers the output.
+
+Technology Stack
+Recommended for the library:
+
+Language: Python 3.11+ or Julia 1.9+ or Rust 1.70+.
+
+Numeric computation: NumPy or SciPy (Python) or standard library (Julia or Rust).
+
+Convolution: SciPy's convolve or fftconvolve (Python) or DSP (Julia) or ndarray (Rust).
+
+Integration: SciPy's integrate (Python) or QuadGK (Julia) or quad (Rust).
+
+JSON handling: standard library.
+
+Testing: pytest (Python) or Test (Julia) or cargo test (Rust).
+
+Recommended for the command-line tool:
+
+CLI framework: argparse or click (Python) or ArgParse (Julia) or clap (Rust).
+
+Output: JSON to stdout, errors to stderr.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The effective null conforms to the schema derived from the Null-Model Protocol paper.
+
+UI/UX Specification
+Library API:
+
+buildEffectiveNull(baseNull, selectionFunction, measurementKernel, order, support, options) returns {effectiveNull, continuityStatus, warnings, record}.
+
+effectiveNull.density(x) returns the density at x.
+
+effectiveNull.cdf(x) returns the cumulative distribution function at x.
+
+effectiveNull.mass(w) returns the probability mass over the window w.
+
+effectiveNull.continuityStatus returns the continuity status.
+
+effectiveNull.atoms returns the list of atoms.
+
+effectiveNull.discontinuities returns the list of discontinuities.
+
+Command-line interface:
+
+Usage: effective-null-builder --base-null FILE --selection FILE --measurement FILE --order ORDER --support LO HI --output FILE [--schema-version VERSION] [--grid-size N] [--tolerance T].
+
+Output on success: the effective null values on the grid, the continuity status, and the warnings.
+
+Output on error: the error message and exit code 2.
+
+Validation Engine Design
+The builder validates the following:
+
+Validation 1. Base null validity. The base null density integrates to 1 over the support.
+
+Validation 2. Selection function validity. The selection function is in [0, 1] over the support.
+
+Validation 3. Measurement kernel validity. The measurement kernel integrates to 1 over x for each y.
+
+Validation 4. Order validity. The order is one of the two permitted values.
+
+Validation 5. Support validity. The support is [a, b] with a < b.
+
+Validation 6. Renormalisation validity. The renormalisation constant Z is positive and finite.
+
+Validation 7. Continuity. The effective null's continuity status is reported.
+
+Testing Strategy
+Unit tests:
+
+Base Null Loader for each family.
+
+Selection Function Loader for each type.
+
+Measurement Kernel Loader for each type.
+
+Order Resolver for each order.
+
+Effective Null Constructor for each combination of base null, selection function, and measurement kernel.
+
+Continuity Checker for continuous, discontinuous, atomic, and discrete cases.
+
+Window Mass Calculator for various windows.
+
+Warning Generator for each warning code.
+
+Integration tests:
+
+Build an effective null with a uniform base null, a selection function s(x) = x, and a Gaussian measurement kernel. Verify the effective null against the analytic result.
+
+Build an effective null with a uniform base null, no selection, and a Gaussian measurement kernel. Verify the effective null is the convolution of the uniform with the Gaussian.
+
+Build an effective null with a uniform base null, a selection function s(x) = x, and no measurement. Verify the effective null is proportional to x.
+
+Build an effective null with a uniform base null, no selection, and no measurement. Verify the effective null is the uniform.
+
+Build an effective null with a discrete measurement kernel. Verify the continuity status is atomic or discrete.
+
+Worked-example tests:
+
+Artifact 1, Section 9.2 (selection function s(x) = x with underlying population uniform on [0, 1]): the effective null should have density 2x, whose cumulative distribution function is x^2. The continuity status should be continuous.
+
+Artifact 1, Section 9.3 (uniform null, S2, n = 40, Gaussian noise on a unit range): the effective null should be the convolution of the uniform with the Gaussian. The continuity status should be continuous. The 95th percentile of Lambda_max should be 13.95 for noise standard deviation 0.01 and 13.77 for 0.03.
+
+Regression tests:
+
+Effective null determinism.
+
+Continuity check consistency.
+
+Warning generation consistency.
+
+Build Phases
+Phase 1. Base Null Loader. Read and validate the base null density.
+
+Phase 2. Selection Function Loader. Read and validate the selection function.
+
+Phase 3. Measurement Kernel Loader. Read and validate the measurement kernel.
+
+Phase 4. Order Resolver. Read the order.
+
+Phase 5. Effective Null Constructor. Apply the operations.
+
+Phase 6. Continuity Checker. Check the effective null.
+
+Phase 7. Window Mass Calculator. Compute the integral over windows.
+
+Phase 8. Warning Generator. Generate warnings.
+
+Phase 9. Reproducibility Recorder. Record the schema version, builder version, inputs, and order.
+
+Phase 10. Command-Line Interface.
+
+Phase 11. Library API.
+
+Phase 12. Worked-example tests.
+
+Phase 13. Integration testing and hardening.
+
+Phase 14. Packaging.
+
+Dependencies
+Python path:
+
+NumPy (numeric computation).
+
+SciPy (convolution, integration, special functions).
+
+argparse or click (command-line).
+
+jsonschema (validation).
+
+pytest (testing).
+
+Julia path:
+
+Standard library (numeric computation).
+
+DSP (convolution).
+
+QuadGK (integration).
+
+SpecialFunctions (special functions).
+
+JSON (JSON handling).
+
+ArgParse (command-line).
+
+Test (testing).
+
+Rust path:
+
+ndarray or nalgebra (numeric computation).
+
+rustfft (convolution via FFT).
+
+quad (integration).
+
+special (special functions).
+
+serde_json (JSON handling).
+
+clap (command-line).
+
+cargo test (testing).
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The effective null conforms to the schema derived from the Null-Model Protocol paper.
+
+Deployment Notes
+Library:
+
+Publish to PyPI (Python), Julia's General Registry (Julia), or crates.io (Rust).
+
+Semantic versioning.
+
+Bundle the schema and the loader inside the package.
+
+Command-line tool:
+
+Package as a standalone executable (PyInstaller for Python, PackageCompiler for Julia, cargo build for Rust).
+
+Distribute alongside the library.
+
+Reproducibility:
+
+Record all inputs and the computation order in the effective null object.
+
+Provide a version pin for the construction logic.
+
+Open Questions to Resolve Before Building
+Question 1. Which runtime first? Python, Julia, or Rust. Decision affects the numeric library and the packaging.
+
+Question 2. How should the builder handle the case where the selection function is zero on a region? Options: exclude the region from the support, warn, or fail. Decision needed.
+
+Question 3. How should the builder handle the case where the measurement kernel has a bandwidth that is comparable to the gap width? Options: warn, fail, or require a justification. Decision needed.
+
+Question 4. How should the builder handle the case where the base null is a KDE and the bandwidth exceeds about g_min/3? Artifact 1, Section 5.2 says to treat the KDE null as unreliable. Decision needed: warn, fail, or require a parametric null as primary.
+
+Question 5. How should the builder handle the case where the effective null has atoms? Options: warn, fail, or require jittering. Decision needed.
+
+Question 6. How should the builder handle the case where the effective null is discrete? Options: warn, fail, or require a discrete analogue. Decision needed.
+
+Question 7. Should the builder support numerical integration over an unbounded support? The Null-Model Protocol paper assumes a bounded support. Decision needed.
+
+Question 8. Should the builder support time-varying selection functions or measurement kernels? Decision needed.
+
+Question 9. Should the builder integrate with the Pipeline Specification Wizard (App 8) and the Full-Pipeline Simulator (App 9)? Decision needed: shared schema registry, or independent.
+
+Question 10. How should the builder report the continuity status? The Null-Model Protocol paper distinguishes continuous, atomic, and discrete. Decision needed: report the four statuses (continuous, continuous_with_discontinuities, atomic, discrete), or the three from the paper.
+
+End of build specification for App 11.
