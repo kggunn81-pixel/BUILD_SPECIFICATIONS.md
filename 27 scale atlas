@@ -1,0 +1,1517 @@
+27: The Scale Atlas
+Completeness status: COMPLETE. All sections delivered in one pass. No truncation. Formatted for copy-paste into another conversation window. No tables, no boxes.
+
+What It Is
+A provenance-aware, versioned, structured map of the characteristic scales in every scientific field. A characteristic scale is a value of a physical or abstract quantity at which the appropriate description of a system changes: the scale at which new degrees of freedom appear, the scale at which a symmetry breaks, the scale at which a new collective behaviour emerges, the scale at which a new approximation scheme becomes necessary. The Scale Atlas records each scale with its value, its source, its uncertainty, the description below the scale, the description above the scale, and the relations between scales. It reuses the STAG Schema Library (App 17), the Scale-Separation Record Calculator (App 4), the Provenance-Aware Annotation Database (App 20), the STAG Graph Viewer (App 5), the PROV-O Exporter (App 3), the Revision History Viewer (App 7), and the Numerical Verification Tool (App 22). It is for physicists, biologists, economists, philosophers of science, and anyone who works across scales or wants to know where the boundaries between descriptions lie.
+
+Core Requirements
+Functional requirements:
+
+Accept deposits of characteristic scales from users.
+
+Store each scale with its value, its units, its source, its uncertainty, and its provenance.
+
+Record the field and subfield of the scale.
+
+Record the description below the scale, the description at the scale, and the description above the scale.
+
+Record the criterion that fires at the scale: change of degrees of freedom, change of symmetry, change of approximation scheme, change of collective variables, or other.
+
+Record the relations between scales: which scales are above, below, or adjacent to a given scale, and which scales are related in other ways.
+
+Record the reference in which the scale is defined or measured.
+
+Record the uncertainty in the scale value, in the form of a confidence interval or a standard deviation.
+
+Record the date of the measurement or the definition.
+
+Enforce provenance completeness: every deposit has a depositor, a date, a source, and a tool version.
+
+Enforce versioning: every deposit has a version, and updates create new versions.
+
+Enforce supersession acyclicity.
+
+Support querying by scale ID, scale name, field, subfield, scale value, scale units, criterion, depositor, deposit date, and keywords.
+
+Support full-text search of the scale description and the notes.
+
+Support aggregation queries: count by field, by subfield, by criterion, by year, by depositor, by order of magnitude.
+
+Support exporting a scale as JSON, PROV-O, and Turtle.
+
+Support importing a scale from JSON.
+
+Support bulk import and bulk export.
+
+Support a REST API for CRUD operations.
+
+Support a GraphQL API for flexible queries.
+
+Support a command-line interface for administration.
+
+Support authentication and authorization.
+
+Support audit logging.
+
+Support backup and restore.
+
+Support a web interface for depositing, browsing, and querying.
+
+Support moderation: scales can be marked as pending, approved, or rejected.
+
+Support linking a scale to a STAG annotation if the scale has one.
+
+Support linking a scale to a numerical verification result if the scale value has been verified.
+
+Support linking a scale to a Physics Knowledge Library work if the scale is defined in a deposited work.
+
+Support the scale hierarchy: a visualisation of the scales as a hierarchy, from smallest to largest, with the relations between them.
+
+Support the field map: a visualisation of the scales by field, showing where the scales cluster and where they are isolated.
+
+Support the order-of-magnitude view: a visualisation of the scales by order of magnitude, showing the range that each field covers.
+
+Non-functional requirements:
+
+Deterministic: same inputs produce same outputs.
+
+Fast: query a typical scale in under 100 milliseconds; aggregate over 10,000 scales in under one second.
+
+Scalable: support up to 10^6 scales.
+
+Versioned: the atlas records the STAG schema version, the scale schema version, and the atlas version.
+
+Reproducible: the atlas records the provenance for every deposit.
+
+Portable: works on Linux, macOS, and Windows.
+
+Well-documented: API documentation, scale schema documentation, and user guide.
+
+Input Specification
+Input 1. Scale deposit. Required for create and update operations. A deposit object conforming to the scale schema.
+
+Input 2. Files. Optional. One or more files (PDF, LaTeX, plain text, structured data) supporting the scale.
+
+Input 3. Provenance record. Required for create and update operations. The depositor ID, the timestamp, the source, and the tool version.
+
+Input 4. STAG annotation. Optional. A STAG record describing the scale as a scale-transition claim.
+
+Input 5. Numerical verification result. Optional. A numerical verification result checking the reported scale value.
+
+Input 6. Work reference. Optional. A reference to a work in the Physics Knowledge Library where the scale is defined.
+
+Input 7. Query. Required for read operations. A query object with fields for scale ID, scale name, field, subfield, scale value, scale units, criterion, depositor, deposit date, and keywords.
+
+Input 8. Aggregation query. Required for aggregation operations. A query object with fields for the aggregation dimension and the filter.
+
+Input 9. Authentication credentials. Required for authenticated operations.
+
+Input 10. Bulk import file. Optional. A file containing multiple scales in JSON or JSON Lines format.
+
+Input 11. Bulk export query. Optional. A query object selecting the scales to export.
+
+Output Specification
+Output 1. Scale record. JSON. The scale as stored, including its value, source, uncertainty, and provenance.
+
+Output 2. PROV-O serialization. Turtle or JSON-LD. The scale mapped to PROV-O.
+
+Output 3. Turtle serialization. Turtle. The scale as an RDF graph.
+
+Output 4. Query result. JSON. The list of scales matching the query, with pagination.
+
+Output 5. Aggregation result. JSON. The counts by the aggregation dimension.
+
+Output 6. Full-text search result. JSON. The list of scales matching the search query.
+
+Output 7. Scale hierarchy. JSON or a rendered graph. The scales as a hierarchy, from smallest to largest.
+
+Output 8. Field map. JSON or a rendered graph. The scales by field.
+
+Output 9. Order-of-magnitude view. JSON or a rendered view. The scales by order of magnitude.
+
+Output 10. Related scales. JSON. The scales related to a given one.
+
+Output 11. Bulk export file. JSON or JSON Lines. The scales matching the bulk export query.
+
+Output 12. Audit log entry. JSON. The operation, the scale ID, the depositor, the timestamp, and the result.
+
+Output 13. API response. JSON. The result of the API operation, with HTTP status.
+
+Output 14. GraphQL response. JSON. The result of the GraphQL query.
+
+Output 15. Backup file. A database dump or a JSON archive.
+
+Module-by-Module Specification
+Module 1: Scale Schema
+The scale schema defines the structure of a scale deposit. It has the following fields:
+
+scale_id (string, required)
+
+scale_name (string, required)
+
+description (string, required)
+
+field (string, required)
+
+subfield (string, optional)
+
+scale_value (number, required)
+
+scale_units (string, required)
+
+scale_uncertainty (object: type, lower, upper, standard_deviation)
+
+scale_source (string, required)
+
+scale_source_reference (string, required)
+
+scale_criterion (enum: delta_dof, delta_sym, delta_app, delta_eft, delta_col, delta_bind, expert, other)
+
+description_below (string, required)
+
+description_at (string, required)
+
+description_above (string, required)
+
+order_of_magnitude (integer, optional)
+
+related_scales (array of scale relations)
+
+stag_annotation (object, optional)
+
+numerical_verification_result (object, optional)
+
+work_reference (string, optional)
+
+deposit_date (ISO8601, required)
+
+depositor_id (string, required)
+
+depositor_affiliation (string, optional)
+
+provenance (object: source, tool_version, notes)
+
+keywords (array of strings, optional)
+
+notes (string, optional)
+
+moderation_status (enum: pending, approved, rejected; default pending)
+
+version (integer; default 1)
+
+supersedes (string, optional)
+
+superseded_by (string, optional)
+
+Module 2: Database Schema
+The database has the following tables:
+
+scale. Holds the scale records. Fields: scale_id (primary key), scale_name, description, field, subfield, scale_value, scale_units, scale_uncertainty, scale_source, scale_source_reference, scale_criterion, description_below, description_at, description_above, order_of_magnitude, deposit_date, depositor_id, depositor_affiliation, provenance, keywords, notes, moderation_status, version, supersedes, superseded_by, created_at, updated_at.
+
+scale_relation. Holds the scale relations. Fields: relation_id (primary key), scale_id (foreign key to scale), related_scale_id (foreign key to scale), relation_type (above, below, adjacent, same_order, related, independent), relation_note, created_at.
+
+stag_link. Holds the STAG links. Fields: link_id (primary key), scale_id (foreign key to scale), annotation_id, created_at.
+
+verification_link. Holds the numerical verification links. Fields: link_id (primary key), scale_id (foreign key to scale), verification_id, created_at.
+
+work_link. Holds the work links. Fields: link_id (primary key), scale_id (foreign key to scale), work_id, created_at.
+
+provenance. Holds the provenance records. Fields: provenance_id (primary key), scale_id (foreign key to scale), depositor_id, depositor_affiliation, timestamp, source, tool_version, operation (create, update, delete), created_at.
+
+audit_log. Holds the audit log entries. Fields: audit_id (primary key), operation, record_type, record_id, depositor_id, timestamp, result, details, created_at.
+
+moderation. Holds the moderation records. Fields: moderation_id (primary key), scale_id (foreign key to scale), moderator_id, moderation_status, moderation_date, moderation_notes, created_at.
+
+Module 3: Scale Loader
+Reads a scale deposit from a JSON file or an API request. Validates it against the scale schema. Validates any STAG annotation against the STAG schema. Validates any numerical verification result against the verification schema. Rejects malformed deposits with an error.
+
+Module 4: Scale Writer
+Writes a scale deposit to the database. Inserts into the scale, scale_relation, stag_link, verification_link, work_link, provenance, and moderation tables. Enforces referential integrity.
+
+Module 5: Scale Reader
+Reads a scale deposit from the database. Joins the tables to reconstruct the full deposit. Returns the deposit as JSON.
+
+Module 6: Scale Updater
+Updates a scale deposit. Creates a new version. Inserts a new provenance record. Updates the scale table.
+
+Module 7: Scale Deleter
+Deletes a scale deposit. Marks it as deleted (soft delete) or removes it (hard delete, based on configuration). Inserts an audit log entry.
+
+Module 8: Query Engine
+Executes queries against the database. Supports queries by scale ID, scale name, field, subfield, scale value, scale units, criterion, depositor, deposit date, and keywords. Supports pagination.
+
+Module 9: Full-Text Search Engine
+Executes full-text search against the scale description and the notes. Uses the database's full-text search capabilities.
+
+Module 10: Aggregation Engine
+Executes aggregation queries. Supports counts by field, by subfield, by criterion, by year, by depositor, and by order of magnitude.
+
+Module 11: Exporter
+Exports a scale as JSON, PROV-O, and Turtle. Uses the PROV-O exporter (App 3) for the PROV-O and Turtle formats.
+
+Module 12: Importer
+Imports a scale from JSON. Uses the scale loader and the scale writer.
+
+Module 13: Bulk Import and Export
+Imports multiple scales from a JSON or JSON Lines file. Exports multiple scales to a JSON or JSON Lines file.
+
+Module 14: REST API
+Provides the REST API. Endpoints:
+
+GET /scales. List scales with pagination and filters.
+
+GET /scales/{id}. Get a scale by ID.
+
+POST /scales. Create a scale.
+
+PUT /scales/{id}. Update a scale.
+
+DELETE /scales/{id}. Delete a scale.
+
+GET /scales/{id}/provo. Get a scale as PROV-O.
+
+GET /scales/{id}/turtle. Get a scale as Turtle.
+
+GET /scales/{id}/related. Get the scales related to this one.
+
+GET /scales/{id}/above. Get the scales above this one.
+
+GET /scales/{id}/below. Get the scales below this one.
+
+GET /scales/{id}/same-order. Get the scales in the same order of magnitude.
+
+GET /scales/{id}/stag. Get the STAG annotation linked to this scale.
+
+GET /scales/{id}/verification. Get the numerical verification result linked to this scale.
+
+GET /scales/{id}/work. Get the work linked to this scale.
+
+GET /scales/by-field/{field}. Get the scales for a given field.
+
+GET /scales/by-criterion/{criterion}. Get the scales for a given criterion.
+
+POST /query. Execute a query.
+
+POST /aggregate. Execute an aggregation query.
+
+POST /search. Execute a full-text search.
+
+GET /hierarchy. Get the scale hierarchy.
+
+GET /field-map. Get the field map.
+
+GET /order-of-magnitude. Get the order-of-magnitude view.
+
+POST /bulk/import. Bulk import scales.
+
+POST /bulk/export. Bulk export scales.
+
+POST /moderate/{id}. Moderate a scale (approve or reject).
+
+GET /audit. List audit log entries.
+
+Module 15: GraphQL API
+Provides the GraphQL API. The schema exposes the same entities as the REST API, with the ability to traverse the relationships between them (scale to related scales, scale to STAG annotation, scale to verification result, scale to work).
+
+Module 16: Command-Line Interface
+Provides the command-line interface for administration:
+
+db init. Initialize the database.
+
+db migrate. Run migrations.
+
+db backup. Backup the database.
+
+db restore. Restore the database.
+
+db import. Import scales.
+
+db export. Export scales.
+
+db query. Execute a query.
+
+db aggregate. Execute an aggregation query.
+
+db moderate. Moderate a scale.
+
+db audit. List audit log entries.
+
+Module 17: Authentication and Authorization
+Provides authentication (API keys, OAuth, or JWT) and authorization (role-based access control: reader, depositor, moderator, admin).
+
+Module 18: Audit Logging
+Logs every operation (create, update, delete, query, moderate) with the depositor, the timestamp, the result, and the details.
+
+Module 19: Backup and Restore
+Provides backup and restore. Backup produces a database dump or a JSON archive. Restore loads the backup.
+
+Module 20: Web Interface
+Provides a web interface for depositing, browsing, and querying. Displays scales, their values, their sources, their descriptions below and above, their related scales, their STAG annotations, and their verification results. Provides a search box, a filter panel, an aggregation view, a scale hierarchy, a field map, an order-of-magnitude view, and a deposit form.
+
+Module 21: Moderation Workflow
+Provides a moderation workflow. Scales are created with moderation_status = pending. A moderator can approve or reject a scale. The moderation status is recorded in the moderation table.
+
+Module 22: Scale Hierarchy
+Produces a visualisation of the scales as a hierarchy, from smallest to largest. Each scale is a node. The relations above and below are edges. The hierarchy shows the chain of descriptions from the smallest scale to the largest.
+
+Module 23: Field Map
+Produces a visualisation of the scales by field. Fields are axes or regions. Scales are points. The map shows where the scales cluster and where they are isolated.
+
+Module 24: Order-of-Magnitude View
+Produces a visualisation of the scales by order of magnitude. Each order of magnitude is a band. Scales are points within the bands. The view shows the range that each field covers and where fields overlap.
+
+Module 25: Related-Scale Finder
+Finds scales that are related to a given one. Uses the scale_relation table and the scale value to find scales that are above, below, adjacent, in the same order of magnitude, related, or independent.
+
+Module 26: Migration Manager
+Manages database migrations. Each scale schema version has a migration script. Migrations are applied in order.
+
+Full Scale Specification
+6.1 Scale Record
+The scale table holds the scale records. Each scale record has:
+
+scale_id (string, primary key)
+
+scale_name (string)
+
+description (string)
+
+field (string)
+
+subfield (string or null)
+
+scale_value (number)
+
+scale_units (string)
+
+scale_uncertainty (JSON: type, lower, upper, standard_deviation)
+
+scale_source (string)
+
+scale_source_reference (string)
+
+scale_criterion (delta_dof, delta_sym, delta_app, delta_eft, delta_col, delta_bind, expert, other)
+
+description_below (string)
+
+description_at (string)
+
+description_above (string)
+
+order_of_magnitude (integer or null)
+
+deposit_date (ISO8601)
+
+depositor_id (string)
+
+depositor_affiliation (string or null)
+
+provenance (JSON: source, tool_version, notes)
+
+keywords (array of strings or null)
+
+notes (string or null)
+
+moderation_status (pending, approved, rejected)
+
+version (integer)
+
+supersedes (string or null)
+
+superseded_by (string or null)
+
+created_at (ISO8601)
+
+updated_at (ISO8601)
+
+6.2 Scale Relation Record
+The scale_relation table holds the scale relations. Each scale relation record has:
+
+relation_id (string, primary key)
+
+scale_id (string, foreign key to scale)
+
+related_scale_id (string, foreign key to scale)
+
+relation_type (above, below, adjacent, same_order, related, independent)
+
+relation_note (string or null)
+
+created_at (ISO8601)
+
+6.3 STAG Link Record
+The stag_link table holds the STAG links. Each STAG link record has:
+
+link_id (string, primary key)
+
+scale_id (string, foreign key to scale)
+
+annotation_id (string)
+
+created_at (ISO8601)
+
+6.4 Verification Link Record
+The verification_link table holds the numerical verification links. Each verification link record has:
+
+link_id (string, primary key)
+
+scale_id (string, foreign key to scale)
+
+verification_id (string)
+
+created_at (ISO8601)
+
+6.5 Work Link Record
+The work_link table holds the work links. Each work link record has:
+
+link_id (string, primary key)
+
+scale_id (string, foreign key to scale)
+
+work_id (string)
+
+created_at (ISO8601)
+
+6.6 Provenance Record
+The provenance table holds the provenance records. Each provenance record has:
+
+provenance_id (string, primary key)
+
+scale_id (string, foreign key to scale)
+
+depositor_id (string)
+
+depositor_affiliation (string or null)
+
+timestamp (ISO8601)
+
+source (string)
+
+tool_version (string)
+
+operation (create, update, delete)
+
+created_at (ISO8601)
+
+6.7 Audit Log Record
+The audit_log table holds the audit log entries. Each audit log entry has:
+
+audit_id (string, primary key)
+
+operation (create, update, delete, query, moderate)
+
+record_type (scale, scale_relation)
+
+record_id (string)
+
+depositor_id (string)
+
+timestamp (ISO8601)
+
+result (success, failure)
+
+details (JSON)
+
+created_at (ISO8601)
+
+6.8 Moderation Record
+The moderation table holds the moderation records. Each moderation record has:
+
+moderation_id (string, primary key)
+
+scale_id (string, foreign key to scale)
+
+moderator_id (string)
+
+moderation_status (pending, approved, rejected)
+
+moderation_date (ISO8601)
+
+moderation_notes (string or null)
+
+created_at (ISO8601)
+
+6.9 Referential Integrity
+The database enforces the following referential integrity constraints:
+
+Every scale_relation.scale_id and scale_relation.related_scale_id must exist in scale.
+
+Every stag_link.scale_id must exist in scale.
+
+Every verification_link.scale_id must exist in scale.
+
+Every work_link.scale_id must exist in scale.
+
+Every provenance.scale_id must exist in scale.
+
+Every moderation.scale_id must exist in scale.
+
+The version chain (supersedes and superseded_by) must be acyclic.
+
+The scale-relation relation must be symmetric where appropriate: if A is above B, B must be below A; if A is adjacent to B, B must be adjacent to A.
+
+6.10 Indexes
+The database has indexes on:
+
+scale.scale_id
+
+scale.scale_name
+
+scale.field
+
+scale.subfield
+
+scale.scale_value
+
+scale.scale_units
+
+scale.scale_criterion
+
+scale.order_of_magnitude
+
+scale.depositor_id
+
+scale.moderation_status
+
+scale.keywords
+
+scale_relation.scale_id
+
+scale_relation.related_scale_id
+
+scale_relation.relation_type
+
+stag_link.scale_id
+
+verification_link.scale_id
+
+work_link.scale_id
+
+provenance.scale_id
+
+provenance.depositor_id
+
+audit_log.operation
+
+audit_log.record_id
+
+moderation.scale_id
+
+moderation.moderation_status
+
+Full-text search indexes on the description and the notes.
+
+Core Logic as Executable Pseudocode
+7.1 Create Scale
+function createScale(scale, files, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. validationResult = validateScale(scale). If invalid, return {error: "invalid scale", details: validationResult.errors}.
+
+Step 3. if scale.stag_annotation is not null: result = validateSTAGRecord(scale.stag_annotation); if invalid, return {error: "invalid STAG annotation", details: result.errors}.
+
+Step 4. if scale.numerical_verification_result is not null: validation = validateVerificationResult(scale.numerical_verification_result); if invalid, return {error: "invalid verification result", details: validation.errors}.
+
+Step 5. if scale.work_reference is not null: work = lookupWork(scale.work_reference); if work is null: scale.work_reference_unresolved = true.
+
+Step 6. scaleId = generateScaleId().
+
+scale.scale_id = scaleId.
+
+scale.version = 1.
+
+scale.moderation_status = "pending".
+
+scale.deposit_date = now().
+
+scale.depositor_id = auth.depositor_id.
+
+scale.depositor_affiliation = auth.depositor_affiliation.
+
+scale.provenance = {source: provenance.source, tool_version: provenance.tool_version, notes: provenance.notes}.
+
+scale.order_of_magnitude = floor(log10(abs(scale.scale_value))).
+
+Step 7. insertScale(scale).
+
+Step 8. for relation in scale.related_scales: insertScaleRelation(scaleId, relation.related_scale_id, relation.relation_type, relation.relation_note).
+
+insertScaleRelation(relation.related_scale_id, scaleId, inverseRelation(relation.relation_type), relation.relation_note).
+
+Step 9. if scale.stag_annotation is not null: insertSTAGLink(scaleId, scale.stag_annotation.annotation_id).
+
+Step 10. if scale.numerical_verification_result is not null: insertVerificationLink(scaleId, scale.numerical_verification_result.verification_id).
+
+Step 11. if scale.work_reference is not null: insertWorkLink(scaleId, scale.work_reference).
+
+Step 12. insertProvenance(scaleId, auth.depositor_id, auth.depositor_affiliation, provenance.source, provenance.tool_version, "create").
+
+Step 13. insertModeration(scaleId, null, "pending", null, null).
+
+Step 14. insertAuditLog("create", "scale", scaleId, auth.depositor_id, "success", {scale: scale}).
+
+Step 15. return {scale_id: scaleId, status: "created"}.
+
+7.2 Read Scale
+function readScale(scaleId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. scale = selectScale(scaleId).
+
+if scale is null: return {error: "not found"}.
+
+Step 3. relations = selectScaleRelations(scaleId).
+
+stagLink = selectSTAGLink(scaleId).
+
+verificationLink = selectVerificationLink(scaleId).
+
+workLink = selectWorkLink(scaleId).
+
+provenance = selectProvenance(scaleId).
+
+moderation = selectModeration(scaleId).
+
+Step 4. deposit = reconstructScale(scale, relations, stagLink, verificationLink, workLink, provenance, moderation).
+
+Step 5. insertAuditLog("read", "scale", scaleId, auth.depositor_id, "success", null).
+
+Step 6. return {deposit: deposit}.
+
+7.3 Update Scale
+function updateScale(scaleId, scale, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. existing = selectScale(scaleId).
+
+if existing is null: return {error: "not found"}.
+
+Step 3. validationResult = validateScale(scale). If invalid, return {error: "invalid scale", details: validationResult.errors}.
+
+Step 4. newVersion = existing.version + 1.
+
+updateScale(scaleId, {version: newVersion, supersedes: existing.version, superseded_by: null}).
+
+Step 5. insertProvenance(scaleId, auth.depositor_id, auth.depositor_affiliation, provenance.source, provenance.tool_version, "update").
+
+Step 6. insertAuditLog("update", "scale", scaleId, auth.depositor_id, "success", {scale: scale}).
+
+Step 7. return {scale_id: scaleId, version: newVersion, status: "updated"}.
+
+7.4 Delete Scale
+function deleteScale(scaleId, provenance, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. existing = selectScale(scaleId).
+
+if existing is null: return {error: "not found"}.
+
+Step 3. if config.softDelete: updateScale(scaleId, {deleted_at: now()}).
+
+else: deleteScale(scaleId).
+
+Step 4. insertAuditLog("delete", "scale", scaleId, auth.depositor_id, "success", null).
+
+Step 5. return {scale_id: scaleId, status: "deleted"}.
+
+7.5 Query Scales
+function queryScales(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. sql = buildQuerySQL(query).
+
+Step 3. results = executeSQL(sql).
+
+Step 4. scales = results.map(row => selectScale(row.scale_id)).
+
+Step 5. insertAuditLog("query", "scale", null, auth.depositor_id, "success", {query: query}).
+
+Step 6. return {scales: scales, count: scales.length, pagination: {offset: query.offset, limit: query.limit}}.
+
+7.6 Aggregate Scales
+function aggregateScales(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. sql = buildAggregateSQL(query).
+
+Step 3. results = executeSQL(sql).
+
+Step 4. insertAuditLog("aggregate", "scale", null, auth.depositor_id, "success", {query: query}).
+
+Step 5. return {results: results}.
+
+7.7 Full-Text Search
+function fullTextSearch(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. sql = buildFullTextSQL(query).
+
+Step 3. results = executeSQL(sql).
+
+Step 4. scales = results.map(row => selectScale(row.scale_id)).
+
+Step 5. insertAuditLog("search", "scale", null, auth.depositor_id, "success", {query: query}).
+
+Step 6. return {scales: scales, count: scales.length}.
+
+7.8 Export Scale
+function exportScale(scaleId, format, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. deposit = readScale(scaleId, auth).deposit.
+
+Step 3. if format == "json": output = deposit.
+
+else if format == "provo": output = exportToPROVO(deposit).output.
+
+else if format == "turtle": output = serializeToTurtle(deposit).
+
+Step 4. insertAuditLog("export", "scale", scaleId, auth.depositor_id, "success", {format: format}).
+
+Step 5. return {output: output, format: format}.
+
+7.9 Bulk Import
+function bulkImport(file, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. scales = parseBulkFile(file).
+
+Step 3. results = [].
+
+for scale in scales:
+
+result = createScale(scale, scale.files, provenance, auth).
+
+results.push(result).
+
+Step 4. insertAuditLog("bulk_import", "scale", null, auth.depositor_id, "success", {count: scales.length}).
+
+Step 5. return {results: results, count: results.length}.
+
+7.10 Bulk Export
+function bulkExport(query, format, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. scales = queryScales(query, auth).scales.
+
+Step 3. if format == "json": output = scales.
+
+else if format == "jsonl": output = scales.map(s => JSON.stringify(s)).join("\n").
+
+else if format == "provo": output = scales.map(s => exportToPROVO(s).output).join("\n").
+
+Step 4. insertAuditLog("bulk_export", "scale", null, auth.depositor_id, "success", {count: scales.length}).
+
+Step 5. return {output: output, count: scales.length}.
+
+7.11 Moderate Scale
+function moderateScale(scaleId, moderationStatus, moderationNotes, auth):
+
+Step 1. validateAuth(auth, "moderator"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. existing = selectScale(scaleId).
+
+if existing is null: return {error: "not found"}.
+
+Step 3. updateScale(scaleId, {moderation_status: moderationStatus}).
+
+insertModeration(scaleId, auth.depositor_id, moderationStatus, moderationNotes, now()).
+
+Step 4. insertAuditLog("moderate", "scale", scaleId, auth.depositor_id, "success", {status: moderationStatus, notes: moderationNotes}).
+
+Step 5. return {scale_id: scaleId, status: moderationStatus}.
+
+7.12 Find Related Scales
+function findRelatedScales(scaleId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. scale = selectScale(scaleId).
+
+if scale is null: return {error: "not found"}.
+
+Step 3. relations = selectScaleRelations(scaleId).
+
+above = relations.filter(r => r.relation_type == "above").
+
+below = relations.filter(r => r.relation_type == "below").
+
+adjacent = relations.filter(r => r.relation_type == "adjacent").
+
+sameOrder = relations.filter(r => r.relation_type == "same_order").
+
+related = relations.filter(r => r.relation_type == "related").
+
+Step 4. return {above: above, below: below, adjacent: adjacent, same_order: sameOrder, related: related}.
+
+7.13 Scale Hierarchy
+function scaleHierarchy(auth, options):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. scales = selectAllScales().
+
+Step 3. sorted = scales.sortBy(s => s.scale_value).
+
+Step 4. hierarchy = {nodes: [], edges: []}.
+
+for scale in sorted:
+
+hierarchy.nodes.push({scale_id: scale.scale_id, scale_name: scale.scale_name, scale_value: scale.scale_value, order_of_magnitude: scale.order_of_magnitude, field: scale.field}).
+
+for relation in selectAllScaleRelations():
+
+if relation.relation_type == "above" or relation.relation_type == "adjacent":
+
+hierarchy.edges.push({from: relation.scale_id, to: relation.related_scale_id, type: relation.relation_type}).
+
+Step 5. return {hierarchy: hierarchy}.
+
+7.14 Field Map
+function fieldMap(auth, options):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. scales = selectAllScales().
+
+Step 3. map = {fields: [], scales: []}.
+
+for scale in scales:
+
+if scale.field not in map.fields: map.fields.push(scale.field).
+
+map.scales.push({scale_id: scale.scale_id, field: scale.field, scale_value: scale.scale_value, subfield: scale.subfield}).
+
+Step 4. return {map: map}.
+
+7.15 Order-of-Magnitude View
+function orderOfMagnitudeView(auth, options):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. scales = selectAllScales().
+
+Step 3. view = {orders: {}, fields: []}.
+
+for scale in scales:
+
+order = scale.order_of_magnitude.
+
+if order not in view.orders: view.orders[order] = [].
+
+view.orders[order].push({scale_id: scale.scale_id, field: scale.field, scale_value: scale.scale_value}).
+
+if scale.field not in view.fields: view.fields.push(scale.field).
+
+Step 4. return {view: view}.
+
+7.16 Audit Log
+function auditLog(query, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. sql = buildAuditSQL(query).
+
+Step 3. results = executeSQL(sql).
+
+Step 4. return {results: results}.
+
+7.17 Backup
+function backup(auth, options):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. if options.format == "sql": output = dumpDatabaseSQL().
+
+else if options.format == "json": output = dumpDatabaseJSON().
+
+Step 3. insertAuditLog("backup", "database", null, auth.depositor_id, "success", {format: options.format}).
+
+Step 4. return {output: output, format: options.format}.
+
+7.18 Restore
+function restore(file, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return {error: "unauthorized"}.
+
+Step 2. loadDatabase(file).
+
+Step 3. insertAuditLog("restore", "database", null, auth.depositor_id, "success", {file: file}).
+
+Step 4. return {status: "restored"}.
+
+Data Model / JSON Schema for Internal State
+The atlas's internal state is the set of tables. The API's internal state is a request object and a response object.
+
+Request object:
+
+operation (create, read, update, delete, query, aggregate, search, export, import, moderate, backup, restore)
+
+resource (scale, scale_relation, database)
+
+record_id (string or null)
+
+record_json (JSON or null)
+
+query (JSON or null)
+
+auth (object: depositor_id, api_key, role)
+
+Response object:
+
+status (success, failure)
+
+result (JSON or null)
+
+error (string or null)
+
+audit_id (string)
+
+Architecture
+Module breakdown:
+
+Scale Schema. The scale schema.
+
+Database Schema. The tables and indexes.
+
+Scale Loader. Reads and validates scales.
+
+Scale Writer. Writes scales.
+
+Scale Reader. Reads scales.
+
+Scale Updater. Updates scales.
+
+Scale Deleter. Deletes scales.
+
+Query Engine. Executes queries.
+
+Full-Text Search Engine. Executes full-text search.
+
+Aggregation Engine. Executes aggregation queries.
+
+Exporter. Exports scales.
+
+Importer. Imports scales.
+
+Bulk Import and Export. Bulk operations.
+
+REST API. HTTP endpoints.
+
+GraphQL API. GraphQL endpoint.
+
+Command-Line Interface. Administration.
+
+Authentication and Authorization. Access control.
+
+Audit Logging. Logs operations.
+
+Backup and Restore. Database backup and restore.
+
+Web Interface. Depositing, browsing, querying.
+
+Moderation Workflow. Moderation of scales.
+
+Scale Hierarchy. Visualises scales as a hierarchy.
+
+Field Map. Visualises scales by field.
+
+Order-of-Magnitude View. Visualises scales by order of magnitude.
+
+Related-Scale Finder. Finds related scales.
+
+Migration Manager. Database migrations.
+
+Data flow:
+
+API requests go to the REST or GraphQL API. The API calls the scale loader, writer, reader, updater, deleter, query engine, search engine, aggregation engine, exporter, or importer. The database schema stores the data. The audit logging records every operation. The authentication and authorization check access. The moderation workflow handles moderation. The scale hierarchy, field map, and order-of-magnitude view visualise. The related-scale finder finds relations. The backup and restore handle backup. The web interface provides depositing, browsing, and querying.
+
+Technology Stack
+Recommended for the database:
+
+Database: PostgreSQL 15+ or SQLite 3.40+.
+
+Language: Python 3.11+ or Node.js 20+.
+
+ORM: SQLAlchemy (Python) or Prisma (JS).
+
+Migrations: Alembic (Python) or Prisma Migrate (JS).
+
+Full-text search: PostgreSQL tsvector or SQLite FTS5.
+
+Recommended for the REST API:
+
+Framework: FastAPI (Python) or Express (JS).
+
+Authentication: FastAPI Users (Python) or Passport (JS).
+
+Recommended for the GraphQL API:
+
+Framework: Strawberry (Python) or Apollo Server (JS).
+
+Recommended for the command-line interface:
+
+Framework: Click (Python) or Commander (JS).
+
+Recommended for the web interface:
+
+Frontend: React or Svelte.
+
+Backend: the same as the REST API.
+
+Recommended for deployment:
+
+Containerization: Docker.
+
+Orchestration: Docker Compose or Kubernetes.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The STAG schema (Artifact 2, Appendix B.1).
+
+The PROV-O exporter (App 3).
+
+The STAG schema library (App 17).
+
+The scale-separation record calculator (App 4).
+
+The provenance database (App 20).
+
+The STAG graph viewer (App 5).
+
+The revision history viewer (App 7).
+
+The numerical verification tool (App 22).
+
+The Physics Knowledge Library (App 23).
+
+UI/UX Specification
+REST API:
+
+Base URL: https://api.example.com/v1.
+
+Authentication: Bearer token in the Authorization header.
+
+Endpoints as in Module 14.
+
+Responses in JSON.
+
+HTTP status codes: 200 for success, 201 for created, 204 for deleted, 400 for bad request, 401 for unauthorized, 403 for forbidden, 404 for not found, 409 for conflict, 422 for unprocessable entity, 500 for internal server error.
+
+GraphQL API:
+
+Endpoint: https://api.example.com/graphql.
+
+Schema exposes the entities and their relationships.
+
+Queries and mutations for CRUD operations.
+
+Command-line interface:
+
+Usage: scale-atlas [command] [options].
+
+Commands: init, migrate, backup, restore, import, export, query, aggregate, moderate, audit.
+
+Web interface:
+
+A browsable list of scales.
+
+A deposit form for adding a new scale.
+
+A search box for full-text search.
+
+A filter panel for querying by field, subfield, scale value, criterion, depositor, and date.
+
+An aggregation view for counts.
+
+A scale hierarchy for visualisation.
+
+A field map for visualisation.
+
+An order-of-magnitude view for visualisation.
+
+A detail view for each scale, showing the description below, at, and above the scale, the related scales, the STAG annotation, the verification result, and the work reference.
+
+A moderation view for moderators.
+
+Validation Engine Design
+The atlas validates the following:
+
+Validation 1. Scale validity. Every scale is validated against the scale schema before it is stored.
+
+Validation 2. STAG annotation validity. Every STAG annotation is validated against the STAG schema and the thirty-two semantic rules.
+
+Validation 3. Numerical verification result validity. Every numerical verification result is validated against the verification schema.
+
+Validation 4. Referential integrity. Every foreign key reference must resolve to an existing record.
+
+Validation 5. Version chain acyclicity. The version chain must be acyclic.
+
+Validation 6. Scale-relation symmetry. The scale-relation relation must be symmetric where appropriate.
+
+Validation 7. Work resolution. Every work_reference must resolve to a work in the Physics Knowledge Library, or be flagged as unresolved.
+
+Validation 8. Provenance completeness. Every scale must have a provenance record.
+
+Validation 9. Audit completeness. Every operation must have an audit log entry.
+
+Validation 10. Moderation completeness. Every scale must have a moderation record.
+
+Validation 11. Order-of-magnitude consistency. The order_of_magnitude must be consistent with the scale_value.
+
+Testing Strategy
+Unit tests:
+
+Scale Schema for valid and invalid scales.
+
+Database Schema for each table and index.
+
+Scale Loader for valid and invalid scales.
+
+Scale Writer for each table.
+
+Scale Reader for each scale type.
+
+Scale Updater for versioning.
+
+Scale Deleter for soft and hard deletes.
+
+Query Engine for each query field.
+
+Full-Text Search Engine for each search term.
+
+Aggregation Engine for each aggregation dimension.
+
+Exporter for each format (JSON, PROV-O, Turtle).
+
+Importer for each format.
+
+Bulk Import and Export for each format.
+
+REST API for each endpoint.
+
+GraphQL API for each query and mutation.
+
+Command-Line Interface for each command.
+
+Authentication and Authorization for each role.
+
+Audit Logging for each operation.
+
+Backup and Restore for each format.
+
+Web Interface for each view.
+
+Moderation Workflow for each moderation status.
+
+Scale Hierarchy for the hierarchy structure.
+
+Field Map for the map structure.
+
+Order-of-Magnitude View for the view structure.
+
+Related-Scale Finder for each relation type.
+
+Migration Manager for each migration.
+
+Integration tests:
+
+Create a scale via the REST API. Read it back. Verify the scale is complete.
+
+Create a scale via the GraphQL API. Read it back. Verify the scale is complete.
+
+Update a scale. Verify the version chain.
+
+Delete a scale. Verify the audit log.
+
+Query scales by each field. Verify the results.
+
+Aggregate scales by each dimension. Verify the counts.
+
+Search scales by full-text search. Verify the results.
+
+Export a scale as JSON, PROV-O, and Turtle. Verify the output.
+
+Bulk import scales. Verify the scales are stored.
+
+Bulk export scales. Verify the output.
+
+Backup the database. Restore the database. Verify the data is identical.
+
+Moderate a scale. Verify the moderation status.
+
+Find related scales. Verify the relations.
+
+Generate the scale hierarchy. Verify the hierarchy.
+
+Generate the field map. Verify the map.
+
+Generate the order-of-magnitude view. Verify the view.
+
+Worked-example tests:
+
+Deposit the Planck length scale (10^-35 m). Verify the deposit is stored.
+
+Deposit the QCD confinement scale (approximately 200 MeV). Verify the deposit is stored.
+
+Deposit the electroweak scale (approximately 246 GeV). Verify the deposit is stored.
+
+Deposit the atomic scale (10^-10 m). Verify the deposit is stored.
+
+Deposit the biological cell scale (10^-5 m). Verify the deposit is stored.
+
+Deposit the human scale (1 m). Verify the deposit is stored.
+
+Deposit the astronomical unit (1.5 x 10^11 m). Verify the deposit is stored.
+
+Deposit the galaxy scale (10^21 m). Verify the deposit is stored.
+
+Deposit the Hubble scale (10^26 m). Verify the deposit is stored.
+
+Deposit the economic scale of a national economy (10^12 USD). Verify the deposit is stored.
+
+Regression tests:
+
+Scale determinism.
+
+Query consistency.
+
+Aggregation consistency.
+
+Audit log consistency.
+
+Moderation consistency.
+
+Scale-relation symmetry.
+
+Order-of-magnitude consistency.
+
+Build Phases
+Phase 1. Scale Schema. Define the scale schema.
+
+Phase 2. Database Schema. Create the tables and indexes.
+
+Phase 3. Scale Loader. Read and validate scales.
+
+Phase 4. Scale Writer. Write scales.
+
+Phase 5. Scale Reader. Read scales.
+
+Phase 6. Scale Updater. Update scales.
+
+Phase 7. Scale Deleter. Delete scales.
+
+Phase 8. Query Engine. Execute queries.
+
+Phase 9. Full-Text Search Engine. Execute full-text search.
+
+Phase 10. Aggregation Engine. Execute aggregation queries.
+
+Phase 11. Exporter. Export scales.
+
+Phase 12. Importer. Import scales.
+
+Phase 13. Bulk Import and Export. Bulk operations.
+
+Phase 14. REST API. HTTP endpoints.
+
+Phase 15. GraphQL API. GraphQL endpoint.
+
+Phase 16. Command-Line Interface. Administration.
+
+Phase 17. Authentication and Authorization. Access control.
+
+Phase 18. Audit Logging. Log operations.
+
+Phase 19. Backup and Restore. Database backup and restore.
+
+Phase 20. Web Interface. Depositing, browsing, querying.
+
+Phase 21. Moderation Workflow. Moderation of scales.
+
+Phase 22. Scale Hierarchy. Visualises scales as a hierarchy.
+
+Phase 23. Field Map. Visualises scales by field.
+
+Phase 24. Order-of-Magnitude View. Visualises scales by order of magnitude.
+
+Phase 25. Related-Scale Finder. Finds related scales.
+
+Phase 26. Migration Manager. Database migrations.
+
+Phase 27. Worked-example tests.
+
+Phase 28. Integration testing and hardening.
+
+Phase 29. Packaging and deployment.
+
+Dependencies
+Python path:
+
+SQLAlchemy (ORM).
+
+Alembic (migrations).
+
+FastAPI (REST API).
+
+Strawberry (GraphQL API).
+
+FastAPI Users (authentication).
+
+Click (command-line).
+
+psycopg2 (PostgreSQL driver).
+
+sqlite3 (SQLite driver, standard library).
+
+jsonschema (schema validation).
+
+hashlib (hash computation, standard library).
+
+json (JSON handling, standard library).
+
+math (order-of-magnitude computation, standard library).
+
+pytest (testing).
+
+Node.js path:
+
+Prisma (ORM and migrations).
+
+Express (REST API).
+
+Apollo Server (GraphQL API).
+
+Passport (authentication).
+
+Commander (command-line).
+
+pg (PostgreSQL driver).
+
+better-sqlite3 (SQLite driver).
+
+ajv (schema validation).
+
+crypto (hash computation, standard library).
+
+JSON (standard library).
+
+Math (order-of-magnitude computation, standard library).
+
+Vitest (testing).
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The STAG schema (Artifact 2, Appendix B.1).
+
+The PROV-O exporter (App 3).
+
+The STAG schema library (App 17).
+
+The scale-separation record calculator (App 4).
+
+The provenance database (App 20).
+
+The STAG graph viewer (App 5).
+
+The revision history viewer (App 7).
+
+The numerical verification tool (App 22).
+
+The Physics Knowledge Library (App 23).
+
+Deployment Notes
+Database:
+
+PostgreSQL for multi-user deployments.
+
+SQLite for single-user deployments.
+
+Backup and restore via pg_dump and pg_restore (PostgreSQL) or the SQLite backup API.
+
+REST API:
+
+Deploy with Docker. Stateless. Scale horizontally.
+
+Use a reverse proxy for TLS.
+
+Log every request for audit.
+
+GraphQL API:
+
+Deploy alongside the REST API.
+
+Use a query depth limit and a query complexity limit to prevent abuse.
+
+Command-line interface:
+
+Package as a standalone executable (PyInstaller or pkg).
+
+Distribute via pip, npm, or a direct download.
+
+Web interface:
+
+Deploy the frontend as a static bundle.
+
+Backend with FastAPI or Express.
+
+Reproducibility:
+
+Record the STAG schema version, the scale schema version, and the atlas version.
+
+Record the provenance for every deposit.
+
+Provide a version pin for the schemas and codebook.
+
+Open Questions to Resolve Before Building
+Question 1. Which runtime first? Python or Node.js. Decision affects the ORM, the API framework, and the packaging.
+
+Question 2. Which database first? PostgreSQL or SQLite. Decision affects the full-text search implementation and the deployment model.
+
+Question 3. How should the atlas handle the scale criterion? Options: a fixed set of seven values (delta_dof, delta_sym, delta_app, delta_eft, delta_col, delta_bind, expert), or an open set. Decision needed.
+
+Question 4. How should the atlas handle the scale uncertainty? Options: a confidence interval, a standard deviation, or both. Decision needed.
+
+Question 5. How should the atlas handle the scale-relation relation? Options: manual entry, or automatic detection based on the scale value and the criterion. Decision needed.
+
+Question 6. How should the atlas handle the order-of-magnitude computation? Options: base 10, or a per-field base. Decision needed.
+
+Question 7. How should the atlas handle the moderation workflow? Options: scales are pending until approved, auto-approved, or require a moderator. Decision needed.
+
+Question 8. How should the atlas handle the STAG annotation? Options: required for every scale, optional for every scale, or optional depending on the criterion. Decision needed.
+
+Question 9. How should the atlas handle the numerical verification result? Options: required for every scale, optional for every scale, or optional depending on the source kind. Decision needed.
+
+Question 10. How should the atlas handle the work reference? Options: required for every scale, optional for every scale, or optional depending on the field. Decision needed.
+
+Question 11. How should the atlas handle the scale hierarchy? Options: a linear chain, a tree, a network graph, or all three. Decision needed.
+
+Question 12. How should the atlas handle the field map? Options: a scatter plot of field versus scale value, a cluster map, or both. Decision needed.
+
+Question 13. How should the atlas handle the order-of-magnitude view? Options: a band view, a histogram, or both. Decision needed.
+
+Question 14. Should the atlas integrate with the STAG schema library (App 17), the scale-separation record calculator (App 4), the provenance database (App 20), the STAG graph viewer (App 5), the revision history viewer (App 7), the numerical verification tool (App 22), and the Physics Knowledge Library (App 23)? Decision needed: shared schema registry, or independent.
+
+Question 15. Should the atlas support federation with other instances of itself? Decision needed.
+
+Question 16. How should the atlas handle the deposit of a scale that is already in the atlas? Options: reject the deposit, create a new version, or create a separate record with a cross-reference. Decision needed.
+
+Question 17. Should the atlas support bulk deposit via a folder upload? Decision needed.
+
+Question 18. Should the atlas support a scale-prediction tool that estimates the scale value from the description below and above? Decision needed.
+
+End of build specification for App 27, the Scale Atlas.
