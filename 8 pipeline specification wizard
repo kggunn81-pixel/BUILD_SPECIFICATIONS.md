@@ -1,0 +1,831 @@
+Build Specification — App 8: Pipeline Specification Wizard
+Completeness status: COMPLETE. All sections delivered in one pass. No truncation. Formatted for copy-paste into another conversation window. No tables, no boxes.
+
+What It Is
+An application that produces a machine-readable pipeline specification for the Null-Model Protocol. It walks the analyst through the pre-specification checklist in Appendix A of the Null-Model Protocol paper and refuses to finish until each item is stated. It takes in the analyst's answers and puts out a pipeline specification file the simulator can read. It is for anyone about to run the protocol.
+
+Core Requirements
+Functional requirements:
+
+Walk the analyst through the pre-specification checklist from Appendix A of the Null-Model Protocol paper.
+
+Refuse to finish until each required item is stated.
+
+Enforce the order of specification.
+
+Enforce consistency between fields (for example, if selection is declared, the selection function must be specified).
+
+Produce a machine-readable pipeline specification file in JSON.
+
+Produce a human-readable summary of the specification.
+
+Validate the specification against a schema.
+
+Support saving and loading of partial specifications.
+
+Support the analyst returning to a partial specification.
+
+Record the analyst's answers with the timestamp and the tool version.
+
+Warn the analyst about items that are commonly overlooked (selection effects, measurement uncertainty, dependence structure, support rule).
+
+Non-functional requirements:
+
+Deterministic: same answers produce same specification.
+
+No network dependency.
+
+Fast: produce a specification in under one minute of interaction.
+
+Versioned: the specification records the schema version and the checklist version.
+
+Reproducible: the specification records all answers and the checklist version.
+
+Input Specification
+Input 1. Analyst's answers. Required. The answers are collected interactively.
+
+Input 2. Partial specification. Optional. A previously saved partial specification to resume from.
+
+Input 3. Schema version. Required. Selects the correct checklist version.
+
+Input 4. Output file path. Required. Where to save the specification.
+
+Input 5. Output format. Optional. Values: json (default), yaml, text.
+
+Input 6. Strictness mode. Optional. Values: strict (all items required, default), advisory (items can be left as not_determinable with a justification).
+
+Output Specification
+Output 1. Pipeline specification file. JSON, YAML, or text. Conforming to the schema.
+
+Output 2. Human-readable summary. Text. The specification in readable form.
+
+Output 3. Completeness report. JSON. Which items are stated, which are missing, which are not_determinable.
+
+Output 4. Warnings. Array of warning objects. Items that are commonly overlooked or inconsistent.
+
+Output 5. Checklist version. String. The version of the checklist used.
+
+Output 6. Tool version. String. The version of the wizard.
+
+Output 7. Timestamp. ISO8601. When the specification was saved.
+
+Module-by-Module Specification
+Module 1: Checklist Loader
+Loads the pre-specification checklist from Appendix A of the Null-Model Protocol paper. The checklist has the following items, in order:
+
+Item 1. Scientific question and population.
+
+Item 2. Selection effects, including whether n is fixed or random and the order of selection and measurement.
+
+Item 3. Measurement uncertainty, in the form of a kernel, or a justification for neglecting it.
+
+Item 4. Dependence structure and any clustering step, including algorithm, settings, and how each is reproduced in the simulation.
+
+Item 5. Transformation, and its justification.
+
+Item 6. Jittering scale, if Section 5.3 applies, with the rule for determining that scale.
+
+Item 7. Support rule, whether S1, S2, or S3, including padding and any external procedure.
+
+Item 8. Null model, including density, parameters, provenance, and the bandwidth rule if a KDE.
+
+Item 9. Effective null after selection and measurement.
+
+Item 10. Scan family, whether adjacent, pair, or fixed.
+
+Item 11. g_min as a ratio of scales, together with whether it is in data or probability units.
+
+Item 12. P_max, if the pair family is used.
+
+Item 13. Boundary convention, whether B1 or B2.
+
+Item 14. Empty-W convention.
+
+Item 15. Tie-breaking rule.
+
+Item 16. Gap-selection rule.
+
+Item 17. Nuisance-estimation procedure, including the gap-exclusion loop, the truncated-likelihood treatment, and the iteration count.
+
+Item 18. Tail definition, whether >= or >.
+
+Item 19. N, the target tail probability, and the Monte Carlo uncertainty.
+
+Item 20. Multiplicity procedure, including how multiple nulls are handled.
+
+Module 2: Panel Renderer
+Renders the checklist as a sequence of panels. Each panel corresponds to one item. The analyst fills in the panel and proceeds to the next.
+
+Module 3: Field Validator
+Validates each field as the analyst fills it in. Checks that the field is present if required. Checks that the value is in the permitted set. Checks consistency with other fields.
+
+Module 4: Consistency Checker
+Checks consistency between fields. Examples:
+
+If selection effects are declared, the selection function must be specified.
+
+If measurement uncertainty is declared, the measurement kernel must be specified.
+
+If the scan family is pair, P_max must be specified.
+
+If the scan family is fixed, the fixed windows must be specified.
+
+If the support rule is S2, the padding rule must be specified.
+
+If the support rule is S3, the external procedure must be specified.
+
+If the null model is a KDE, the bandwidth rule must be specified.
+
+If the effective null has atoms, the jittering prescription must be specified or the analysis must be flagged as not distribution-free.
+
+Module 5: Warning Generator
+Generates warnings for items that are commonly overlooked or inconsistent. Examples:
+
+Selection effects declared but no selection function.
+
+Measurement uncertainty declared but no kernel.
+
+Dependence structure declared but no simulation procedure.
+
+Support rule is S2 but no padding rule.
+
+Null model is a KDE but no bandwidth rule.
+
+Effective null has atoms but no jittering prescription.
+
+N is below the recommended minimum for the target tail.
+
+Tail definition is > but no declaration.
+
+Multiplicity procedure not stated.
+
+Module 6: Specification Builder
+Assembles the pipeline specification file. Conforms to the schema.
+
+Module 7: Report Formatter
+Produces the human-readable summary, the completeness report, and the warnings.
+
+Module 8: Save and Load
+Saves the specification to a file. Loads a partial specification to resume from.
+
+Module 9: Command-Line Interface
+Parses arguments. Invokes Modules 1 through 8. Runs the wizard interactively or loads a partial specification and resumes.
+
+Module 10: Graphical Interface (optional)
+A window with the checklist panels. Real-time validation and warnings.
+
+Full Checklist Specification
+The checklist is the pre-specification checklist from Appendix A of the Null-Model Protocol paper. Each item is a field in the specification.
+
+Item 1: Scientific question and population
+Field: scientific_question.
+
+Type: string.
+
+Description: the scientific question and the population being studied.
+
+Required: yes.
+
+Item 2: Selection effects
+Fields: selection_effects_declared (boolean), selection_function (string or null), selection_n_fixed (boolean or null), selection_order (string or null).
+
+Description: whether selection effects are present, the selection function, whether n is fixed or random under thinning, and the order of selection and measurement.
+
+Required: yes.
+
+Item 3: Measurement uncertainty
+Fields: measurement_uncertainty_declared (boolean), measurement_kernel (string or null), measurement_justification (string or null).
+
+Description: whether measurement uncertainty is present, the kernel, or a justification for neglecting it.
+
+Required: yes.
+
+Item 4: Dependence structure and clustering
+Fields: dependence_declared (boolean), dependence_structure (string or null), clustering_step (string or null), clustering_settings (string or null), clustering_reproduction (string or null).
+
+Description: the dependence structure and any clustering step, including algorithm, settings, and how each is reproduced in the simulation.
+
+Required: yes.
+
+Item 5: Transformation
+Fields: transformation (string), transformation_justification (string).
+
+Description: the transformation applied to the data, and its justification.
+
+Required: yes.
+
+Item 6: Jittering scale
+Fields: jittering_applied (boolean), jittering_scale (string or null), jittering_rule (string or null).
+
+Description: whether jittering is applied, the scale, and the rule for determining it.
+
+Required: if Section 5.3 of the Null-Model Protocol applies.
+
+Item 7: Support rule
+Fields: support_rule (S1, S2, S3), support_details (string), support_padding (string or null), support_external_procedure (string or null).
+
+Description: the support rule, its details, padding, and any external procedure.
+
+Required: yes.
+
+Item 8: Null model
+Fields: null_model (string), null_density (string), null_parameters (object or null), null_provenance (string), null_bandwidth_rule (string or null).
+
+Description: the null model, its density, parameters, provenance, and the bandwidth rule if a KDE.
+
+Required: yes.
+
+Item 9: Effective null
+Fields: effective_null (string), effective_null_continuity (boolean).
+
+Description: the effective null after selection and measurement, and whether it is continuous.
+
+Required: yes.
+
+Item 10: Scan family
+Fields: scan_family (adjacent, pair, fixed).
+
+Description: the scan family.
+
+Required: yes.
+
+Item 11: g_min
+Fields: g_min_value (number), g_min_units (data, probability).
+
+Description: the minimum gap width as a ratio of scales, and whether it is in data or probability units.
+
+Required: yes.
+
+Item 12: P_max
+Fields: p_max (number or null).
+
+Description: the maximum window probability, if the pair family is used.
+
+Required: if the scan family is pair.
+
+Item 13: Boundary convention
+Fields: boundary_convention (B1, B2).
+
+Description: the boundary convention.
+
+Required: yes.
+
+Item 14: Empty-W convention
+Fields: empty_w_convention (no_candidate, zero).
+
+Description: the empty-W convention.
+
+Required: yes.
+
+Item 15: Tie-breaking rule
+Fields: tie_breaking_rule (string).
+
+Description: the tie-breaking rule.
+
+Required: yes.
+
+Item 16: Gap-selection rule
+Fields: gap_selection_rule (string).
+
+Description: the gap-selection rule.
+
+Required: yes.
+
+Item 17: Nuisance-estimation procedure
+Fields: nuisance_estimation (string), gap_exclusion_loop (boolean), truncated_likelihood (string or null), iteration_count (integer).
+
+Description: the nuisance-estimation procedure, including the gap-exclusion loop, the truncated-likelihood treatment, and the iteration count.
+
+Required: yes.
+
+Item 18: Tail definition
+Fields: tail_definition (>=, >).
+
+Description: the tail definition.
+
+Required: yes.
+
+Item 19: N and target tail
+Fields: N (integer), target_tail (number), monte_carlo_uncertainty (number).
+
+Description: N, the target tail probability, and the Monte Carlo uncertainty.
+
+Required: yes.
+
+Item 20: Multiplicity procedure
+Fields: multiplicity_procedure (string), multiple_nulls_handling (string or null).
+
+Description: the multiplicity procedure, including how multiple nulls are handled.
+
+Required: yes.
+
+Core Logic as Executable Pseudocode
+7.1 Main Flow
+function runWizard(options):
+
+Step 1. checklist = loadChecklist(options.schemaVersion).
+
+Step 2. if options.partialSpecification: answers = loadPartialSpecification(options.partialSpecification).
+
+else: answers = {}.
+
+Step 3. for item in checklist.items:
+
+panel = renderPanel(item, answers).
+
+response = collectResponse(panel).
+
+validation = validateField(item, response).
+
+if not validation.valid: displayError(validation.errors); repeat step 3.
+
+answers[item.field] = response.
+
+Step 4. consistency = checkConsistency(answers).
+
+if not consistency.valid: displayError(consistency.errors); return to the offending panel.
+
+Step 5. warnings = generateWarnings(answers).
+
+Step 6. specification = buildSpecification(answers, checklist.version).
+
+Step 7. saveSpecification(specification, options.outputFilePath, options.outputFormat).
+
+Step 8. report = formatReport(specification, warnings, checklist.version, options.toolVersion, timestamp).
+
+Step 9. return {specification, report, warnings}.
+
+7.2 Validate Field
+function validateField(item, response):
+
+if item.required and response == null: return {valid: false, errors: ["field is required"]}.
+
+if item.permittedValues and response not in item.permittedValues: return {valid: false, errors: ["value not in permitted set"]}.
+
+if item.type == "number" and not isNumber(response): return {valid: false, errors: ["value must be a number"]}.
+
+if item.type == "boolean" and not isBoolean(response): return {valid: false, errors: ["value must be a boolean"]}.
+
+return {valid: true}.
+
+7.3 Check Consistency
+function checkConsistency(answers):
+
+errors = [].
+
+if answers.selection_effects_declared and answers.selection_function == null:
+
+errors.push({field: "selection_function", message: "selection effects declared but no selection function specified"}).
+
+if answers.measurement_uncertainty_declared and answers.measurement_kernel == null and answers.measurement_justification == null:
+
+errors.push({field: "measurement_kernel", message: "measurement uncertainty declared but no kernel or justification specified"}).
+
+if answers.dependence_declared and answers.dependence_structure == null:
+
+errors.push({field: "dependence_structure", message: "dependence declared but no structure specified"}).
+
+if answers.scan_family == "pair" and answers.p_max == null:
+
+errors.push({field: "p_max", message: "pair family used but no P_max specified"}).
+
+if answers.scan_family == "fixed" and answers.fixed_windows == null:
+
+errors.push({field: "fixed_windows", message: "fixed family used but no fixed windows specified"}).
+
+if answers.support_rule == "S2" and answers.support_padding == null:
+
+errors.push({field: "support_padding", message: "S2 support used but no padding rule specified"}).
+
+if answers.support_rule == "S3" and answers.support_external_procedure == null:
+
+errors.push({field: "support_external_procedure", message: "S3 support used but no external procedure specified"}).
+
+if answers.null_model == "KDE" and answers.null_bandwidth_rule == null:
+
+errors.push({field: "null_bandwidth_rule", message: "KDE null used but no bandwidth rule specified"}).
+
+if answers.effective_null_continuity == false and answers.jittering_applied == false:
+
+errors.push({field: "jittering_applied", message: "effective null has atoms but no jittering prescription specified"}).
+
+return {valid: errors.length == 0, errors: errors}.
+
+7.4 Generate Warnings
+function generateWarnings(answers):
+
+warnings = [].
+
+if answers.selection_effects_declared and answers.selection_function == null:
+
+warnings.push({code: "NO_SELECTION_FUNCTION", message: "selection effects declared but no selection function"}).
+
+if answers.measurement_uncertainty_declared and answers.measurement_kernel == null:
+
+warnings.push({code: "NO_MEASUREMENT_KERNEL", message: "measurement uncertainty declared but no kernel"}).
+
+if answers.dependence_declared and answers.dependence_structure == null:
+
+warnings.push({code: "NO_DEPENDENCE_STRUCTURE", message: "dependence declared but no simulation procedure"}).
+
+if answers.support_rule == "S2" and answers.support_padding == null:
+
+warnings.push({code: "NO_SUPPORT_PADDING", message: "S2 support used but no padding rule"}).
+
+if answers.null_model == "KDE" and answers.null_bandwidth_rule == null:
+
+warnings.push({code: "NO_BANDWIDTH_RULE", message: "KDE null used but no bandwidth rule"}).
+
+if answers.effective_null_continuity == false and answers.jittering_applied == false:
+
+warnings.push({code: "NO_JITTERING_PRESCRIPTION", message: "effective null has atoms but no jittering prescription"}).
+
+if answers.N < recommendedN(answers.target_tail):
+
+warnings.push({code: "N_BELOW_RECOMMENDED", message: "N is below the recommended minimum for the target tail"}).
+
+if answers.tail_definition == ">" and not answers.tail_definition_declared:
+
+warnings.push({code: "TAIL_DEFINITION_NOT_DECLARED", message: "tail definition is > but no declaration"}).
+
+if answers.multiplicity_procedure == null:
+
+warnings.push({code: "NO_MULTIPLICITY_PROCEDURE", message: "multiplicity procedure not stated"}).
+
+return warnings.
+
+7.5 Build Specification
+function buildSpecification(answers, checklistVersion):
+
+return {checklist_version: checklistVersion, tool_version: toolVersion, timestamp: now(), scientific_question: answers.scientific_question, selection_effects_declared: answers.selection_effects_declared, selection_function: answers.selection_function, selection_n_fixed: answers.selection_n_fixed, selection_order: answers.selection_order, measurement_uncertainty_declared: answers.measurement_uncertainty_declared, measurement_kernel: answers.measurement_kernel, measurement_justification: answers.measurement_justification, dependence_declared: answers.dependence_declared, dependence_structure: answers.dependence_structure, clustering_step: answers.clustering_step, clustering_settings: answers.clustering_settings, clustering_reproduction: answers.clustering_reproduction, transformation: answers.transformation, transformation_justification: answers.transformation_justification, jittering_applied: answers.jittering_applied, jittering_scale: answers.jittering_scale, jittering_rule: answers.jittering_rule, support_rule: answers.support_rule, support_details: answers.support_details, support_padding: answers.support_padding, support_external_procedure: answers.support_external_procedure, null_model: answers.null_model, null_density: answers.null_density, null_parameters: answers.null_parameters, null_provenance: answers.null_provenance, null_bandwidth_rule: answers.null_bandwidth_rule, effective_null: answers.effective_null, effective_null_continuity: answers.effective_null_continuity, scan_family: answers.scan_family, g_min_value: answers.g_min_value, g_min_units: answers.g_min_units, p_max: answers.p_max, boundary_convention: answers.boundary_convention, empty_w_convention: answers.empty_w_convention, tie_breaking_rule: answers.tie_breaking_rule, gap_selection_rule: answers.gap_selection_rule, nuisance_estimation: answers.nuisance_estimation, gap_exclusion_loop: answers.gap_exclusion_loop, truncated_likelihood: answers.truncated_likelihood, iteration_count: answers.iteration_count, tail_definition: answers.tail_definition, N: answers.N, target_tail: answers.target_tail, monte_carlo_uncertainty: answers.monte_carlo_uncertainty, multiplicity_procedure: answers.multiplicity_procedure, multiple_nulls_handling: answers.multiple_nulls_handling}.
+
+7.6 Recommended N
+function recommendedN(targetTail):
+
+if targetTail >= 0.05: return 1900.
+
+if targetTail >= 0.01: return 10000.
+
+if targetTail >= 0.001: return 100000.
+
+if targetTail >= 0.0001: return 1000000.
+
+if targetTail >= 0.00001: return 10000000.
+
+return 100000000.
+
+Data Model / JSON Schema for Internal State
+The wizard's internal state is the pipeline specification object. Top-level keys:
+
+checklist_version (string)
+
+tool_version (string)
+
+timestamp (ISO8601)
+
+scientific_question (string)
+
+selection_effects_declared (boolean)
+
+selection_function (string or null)
+
+selection_n_fixed (boolean or null)
+
+selection_order (string or null)
+
+measurement_uncertainty_declared (boolean)
+
+measurement_kernel (string or null)
+
+measurement_justification (string or null)
+
+dependence_declared (boolean)
+
+dependence_structure (string or null)
+
+clustering_step (string or null)
+
+clustering_settings (string or null)
+
+clustering_reproduction (string or null)
+
+transformation (string)
+
+transformation_justification (string)
+
+jittering_applied (boolean)
+
+jittering_scale (string or null)
+
+jittering_rule (string or null)
+
+support_rule (S1, S2, S3)
+
+support_details (string)
+
+support_padding (string or null)
+
+support_external_procedure (string or null)
+
+null_model (string)
+
+null_density (string)
+
+null_parameters (object or null)
+
+null_provenance (string)
+
+null_bandwidth_rule (string or null)
+
+effective_null (string)
+
+effective_null_continuity (boolean)
+
+scan_family (adjacent, pair, fixed)
+
+g_min_value (number)
+
+g_min_units (data, probability)
+
+p_max (number or null)
+
+boundary_convention (B1, B2)
+
+empty_w_convention (no_candidate, zero)
+
+tie_breaking_rule (string)
+
+gap_selection_rule (string)
+
+nuisance_estimation (string)
+
+gap_exclusion_loop (boolean)
+
+truncated_likelihood (string or null)
+
+iteration_count (integer)
+
+tail_definition (>=, >)
+
+N (integer)
+
+target_tail (number)
+
+monte_carlo_uncertainty (number)
+
+multiplicity_procedure (string)
+
+multiple_nulls_handling (string or null)
+
+Architecture
+Module breakdown:
+
+Checklist Loader. Loads the pre-specification checklist.
+
+Panel Renderer. Renders the checklist as panels.
+
+Field Validator. Validates each field.
+
+Consistency Checker. Checks consistency between fields.
+
+Warning Generator. Generates warnings.
+
+Specification Builder. Assembles the specification.
+
+Report Formatter. Produces the summary, completeness report, and warnings.
+
+Save and Load. Saves and loads partial specifications.
+
+Command-Line Interface. Argument parsing.
+
+Graphical Interface (optional). Interactive window.
+
+Data flow:
+
+Checklist Loader loads the checklist. Panel Renderer renders each item. Field Validator validates. Consistency Checker checks. Warning Generator generates warnings. Specification Builder assembles. Report Formatter produces output. Save and Load saves.
+
+Technology Stack
+Recommended for the command-line tool:
+
+Language: Python 3.11+ or Node.js 20+.
+
+Interactive input: readline (Python) or inquirer.js (JS).
+
+JSON handling: standard library.
+
+YAML handling: PyYAML (Python) or js-yaml (JS).
+
+Schema validation: jsonschema (Python) or ajv (JS).
+
+CLI framework: argparse (Python) or commander (JS).
+
+Testing: pytest (Python) or Vitest (JS).
+
+Recommended for the graphical interface:
+
+Python: PyQt6 or Tkinter.
+
+JavaScript: React or Svelte.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The specification conforms to the schema derived from Appendix A of the Null-Model Protocol paper.
+
+UI/UX Specification
+Command-line interface:
+
+Usage: null-model-wizard [--schema-version VERSION] [--resume FILE] [--output FILE] [--format json|yaml|text] [--strictness strict|advisory].
+
+Interactive: the wizard prompts for each item in order. The analyst types the answer. The wizard validates and moves to the next item.
+
+Output on success: the specification file and the summary.
+
+Output on error: the error message and the offending item.
+
+Graphical interface (optional):
+
+A window with the checklist panels. Each panel has a form with the fields for that item.
+
+Real-time validation and warnings.
+
+Next and Previous buttons to navigate.
+
+Save and Load buttons.
+
+Summary panel on the right.
+
+Validation Engine Design
+The wizard validates the following:
+
+Validation 1. Field presence. All required fields must be present.
+
+Validation 2. Field value. All values must be in the permitted set.
+
+Validation 3. Field type. All values must be of the correct type.
+
+Validation 4. Consistency. All consistency checks must pass.
+
+Validation 5. Schema. The assembled specification must conform to the schema.
+
+Validation 6. Completeness. All items must be stated (in strict mode) or stated or marked as not_determinable with a justification (in advisory mode).
+
+Testing Strategy
+Unit tests:
+
+Checklist Loader for each version.
+
+Field Validator for each field type.
+
+Consistency Checker for each consistency rule.
+
+Warning Generator for each warning code.
+
+Specification Builder for a complete specification.
+
+Report Formatter for the summary, the completeness report, and the warnings.
+
+Save and Load for round-trip fidelity.
+
+Integration tests:
+
+Run the wizard to completion. Verify the specification.
+
+Run the wizard with a partial specification. Verify the resume.
+
+Run the wizard with a missing field. Verify the error.
+
+Run the wizard with an inconsistent field. Verify the error.
+
+Run the wizard with a warning-triggering field. Verify the warning.
+
+Worked-example tests:
+
+A complete specification for a uniform null with S2 support and W_adj.
+
+A complete specification for a non-uniform null with S1 support and W_pair.
+
+A complete specification with selection effects and measurement uncertainty.
+
+A complete specification with dependence structure and clustering.
+
+Regression tests:
+
+Checklist version compatibility.
+
+Specification schema compatibility.
+
+Wizard determinism.
+
+Build Phases
+Phase 1. Checklist Loader. Load the pre-specification checklist.
+
+Phase 2. Panel Renderer. Render the checklist as panels.
+
+Phase 3. Field Validator. Validate each field.
+
+Phase 4. Consistency Checker. Check consistency between fields.
+
+Phase 5. Warning Generator. Generate warnings.
+
+Phase 6. Specification Builder. Assemble the specification.
+
+Phase 7. Report Formatter. Produce the summary and warnings.
+
+Phase 8. Save and Load. Save and load partial specifications.
+
+Phase 9. Command-Line Interface.
+
+Phase 10. Graphical Interface (optional).
+
+Phase 11. Worked-example tests.
+
+Phase 12. Integration testing and hardening.
+
+Phase 13. Packaging.
+
+Dependencies
+Python path:
+
+argparse (command-line, standard library).
+
+json (JSON handling, standard library).
+
+PyYAML (YAML handling).
+
+jsonschema (schema validation).
+
+readline (interactive input, standard library).
+
+PyQt6 or Tkinter (optional graphical interface).
+
+pytest (testing).
+
+Node.js path:
+
+commander (command-line).
+
+JSON (standard library).
+
+js-yaml (YAML handling).
+
+ajv (schema validation).
+
+inquirer.js (interactive input).
+
+React or Svelte (optional graphical interface).
+
+Vitest (testing).
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The specification conforms to the schema derived from Appendix A of the Null-Model Protocol paper.
+
+Deployment Notes
+Command-line tool:
+
+Package as a standalone executable (PyInstaller or pkg).
+
+Distribute via pip, npm, or a direct download.
+
+No server required.
+
+Graphical interface:
+
+Package as a desktop application.
+
+Distribute via the platform's app store or a direct download.
+
+No server required.
+
+Reproducibility:
+
+Record all answers in the specification file.
+
+Record the checklist version and the tool version.
+
+Open Questions to Resolve Before Building
+Question 1. Which runtime first? Python or Node.js. Decision affects the interactive input library and the packaging.
+
+Question 2. What is the default strictness mode? Options: strict (all items required), advisory (items can be not_determinable with a justification). The Null-Model Protocol paper does not specify. Decision needed.
+
+Question 3. How should the wizard handle items that are not applicable to the analyst's situation? Options: require a not_applicable marker with a justification, or allow the item to be skipped. Decision needed.
+
+Question 4. How should the wizard handle the not_determinable marker? The Null-Model Protocol paper uses not_determinable in the STAG framework, but not in the pipeline specification. Decision needed: include a not_determinable marker, or require a value.
+
+Question 5. Should the wizard support multiple specifications in one session? Decision needed.
+
+Question 6. Should the wizard support importing a specification from the simulator's output (App 9)? Decision needed.
+
+Question 7. How should the wizard handle the case where the analyst changes an earlier answer after filling in a later answer? Options: re-validate all consistency checks, or only re-validate the affected checks. Decision needed.
+
+Question 8. Should the wizard integrate with the STAG annotation editor (App 1) and the validator (App 2)? Decision needed: shared schema registry, or independent.
+
+Question 9. How should the wizard report the completeness of the specification? Options: a percentage, a count of stated items, or a list of missing items. Decision needed.
+
+Question 10. How should the wizard handle the recommended N calculation? Options: compute it from the target tail, or require the analyst to state N and warn if it is below the recommended minimum. Decision needed.
+
+End of build specification for App 8.
