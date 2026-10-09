@@ -1,0 +1,642 @@
+Build Specification — App 13: Gap-Score Reporter
+
+Completeness status: COMPLETE. All sections delivered in one pass. No truncation. Formatted for copy-paste into another conversation window. No tables, no boxes.
+
+What It Is
+
+A descriptive-only tool for screening candidate gaps. It computes the Gap Score from Appendix B of the Null-Model Protocol paper for a set of candidate gaps and states clearly that it is not calibrated and must not be used for inference. It takes in a dataset, a set of candidate gaps, and an expected density, and puts out a table of Gap Scores with the inference warning. It is for exploratory screening.
+
+Core Requirements
+
+Functional requirements:
+
+Accept a dataset.
+
+Accept a set of candidate gaps. Each candidate gap is a window with a lower bound and an upper bound.
+
+Accept an expected density. The expected density may be uniform, parametric, or estimated from the data.
+
+Compute the expected count for each candidate gap: E_exp = expected density times the gap width.
+
+Compute the observed occupancy for each candidate gap: F = number of observations in the window.
+
+Compute the Gap Score for each candidate gap: GS = (E_exp - F) / sqrt(E_exp).
+
+Report the Gap Score as a signed, Poisson-scaled discrepancy: positive for deficits, negative for surpluses.
+
+Report the Gap Score alongside the expected count, the observed occupancy, and the gap width.
+
+Report the Gap Score alongside the two-bin Pearson statistic and the likelihood-ratio statistic Lambda(w) for comparison, with the explicit note that these are not interchangeable.
+
+State clearly that the Gap Score is not calibrated and must not be used for inference.
+
+State clearly that the Gap Score does not account for scanning.
+
+State clearly that the Gap Score does not propagate uncertainty in the estimated expected density.
+
+State clearly that the Gap Score should not be compared with Lambda values or read against chi-squared critical values.
+
+Support the command-line interface and the graphical interface.
+
+Non-functional requirements:
+
+Deterministic: same inputs produce same outputs.
+
+No network dependency.
+
+Fast: compute Gap Scores in under one second.
+
+Versioned: the tool records the formula version and the tool version.
+
+Reproducible: the tool records the inputs and the outputs.
+
+Input Specification
+
+Input 1. Dataset. Required. A dataset in CSV, JSON, or plain text format.
+
+Input 2. Candidate gaps. Required. A set of windows, each with a lower bound and an upper bound. May be provided as a file or as command-line arguments.
+
+Input 3. Expected density. Required. One of: uniform, parametric, or estimated from the data.
+
+For uniform: reads the support [a, b]. The density is 1 / (b - a) on [a, b] and 0 elsewhere.
+
+For parametric: reads the family and the parameters.
+
+For estimated from the data: reads the estimator and its parameters. The estimator may be a KDE with a bandwidth rule, or a parametric fit.
+
+Input 4. Output format. Optional. Values: text (default), json, csv.
+
+Input 5. Schema version. Optional. Selects the correct formula version.
+
+Input 6. Comparison mode. Optional. Boolean. If true, also computes the two-bin Pearson statistic and the likelihood-ratio statistic Lambda(w) for comparison.
+
+Output Specification
+
+Output 1. Gap Score table. Text, JSON, or CSV. For each candidate gap: the lower bound, the upper bound, the gap width, the expected count, the observed occupancy, and the Gap Score.
+
+Output 2. Comparison table (if comparison mode is true). For each candidate gap: the two-bin Pearson statistic and the likelihood-ratio statistic Lambda(w).
+
+Output 3. Inference warning. Text. A clear statement that the Gap Score is not calibrated, does not account for scanning, does not propagate uncertainty, and must not be used for inference.
+
+Output 4. Summary report. Text. The number of candidate gaps, the number with positive Gap Scores (deficits), the number with negative Gap Scores (surpluses).
+
+Output 5. Reproducibility record. JSON. The formula version, tool version, inputs, and outputs.
+
+Module-by-Module Specification
+
+Module 1: Dataset Loader
+Reads the dataset. Validates it for format and completeness. Applies the transformation if specified.
+
+Module 2: Candidate Gap Loader
+Reads the set of candidate gaps. Each gap is a window with a lower bound and an upper bound. Validates that each gap has a lower bound less than its upper bound. Validates that each gap lies within the support.
+
+Module 3: Expected Density Loader
+Reads the expected density. Supports uniform, parametric, and estimated from the data.
+
+For uniform: reads the support [a, b].
+
+For parametric: reads the family and the parameters.
+
+For estimated from the data: reads the estimator and its parameters. The estimator may be a KDE with a bandwidth rule, or a parametric fit.
+
+Module 4: Expected Count Calculator
+Computes the expected count for each candidate gap: E_exp = expected density times the gap width.
+
+For uniform: E_exp = (b - a) / (b - a) times the gap width, which simplifies to the gap width divided by the support width, times the total number of observations n.
+
+For parametric: E_exp = integral of the parametric density over the gap times n.
+
+For estimated from the data: E_exp = integral of the estimated density over the gap times n.
+
+Module 5: Observed Occupancy Calculator
+Computes the observed occupancy for each candidate gap: F = number of observations in the window.
+
+Module 6: Gap Score Calculator
+Computes the Gap Score for each candidate gap: GS = (E_exp - F) / sqrt(E_exp).
+
+The Gap Score is positive for deficits (fewer observations than expected) and negative for surpluses (more observations than expected).
+
+Module 7: Comparison Calculator
+If comparison mode is true, computes the two-bin Pearson statistic and the likelihood-ratio statistic Lambda(w) for each candidate gap.
+
+The two-bin Pearson statistic is GS^2 / (1 - P), where P is the null probability of the window.
+
+The likelihood-ratio statistic Lambda(w) is defined in Section 4.1 of the Null-Model Protocol paper:
+
+Lambda(w) = 2 * [ n_w * log(n_w / (n * P)) + (n - n_w) * log((n - n_w) / (n * (1 - P))) ] when n_w < n * P, and Lambda(w) = 0 otherwise.
+
+For a complete gap (n_w = 0), Lambda(w) = -2n * log(1 - P).
+
+Module 8: Inference Warning Generator
+Generates the inference warning. The warning states:
+
+The Gap Score is not calibrated and must not be used for inference.
+
+The Gap Score does not account for scanning.
+
+The Gap Score does not propagate uncertainty in the estimated expected density.
+
+The Gap Score should not be compared with Lambda values or read against chi-squared critical values.
+
+The Gap Score is a descriptive summary only; it is not part of the reported statistic or the validation programme of the Null-Model Protocol.
+
+Module 9: Report Formatter
+Produces the text, JSON, and CSV reports.
+
+Module 10: Reproducibility Recorder
+Records the formula version, tool version, inputs, and outputs.
+
+Module 11: Command-Line Interface
+Parses arguments. Invokes Modules 1 through 10. Prints the report to stdout.
+
+Module 12: Graphical Interface (optional)
+A small window with fields for the dataset, the candidate gaps, and the expected density. Displays the Gap Score table, the comparison table, and the inference warning.
+
+Full Computation Specification
+
+6.1 Gap Score
+The Gap Score is defined in Appendix B of the Null-Model Protocol paper:
+
+GS = (E_exp - F) / sqrt(E_exp).
+
+E_exp is the estimated expected density multiplied by the gap width.
+
+F is the observed occupancy.
+
+The Gap Score is a signed, Poisson-scaled discrepancy: positive for deficits, negative for surpluses.
+
+6.2 Two-Bin Pearson Statistic
+For a single window with null probability P, the two-bin Pearson statistic equals GS^2 / (1 - P).
+
+6.3 Likelihood-Ratio Statistic
+The likelihood-ratio statistic Lambda(w) agrees with the Pearson statistic only when the observed count is close to its expectation.
+
+For modest deficits, Lambda is approximately GS^2 / (1 - P).
+
+For a complete gap (n_w = 0), the observed count is zero, which is far from the expectation n * P, and the two measures differ by roughly a factor of two even for small P:
+
+Lambda = -2n * log(1 - P) is approximately 2n * P.
+
+GS^2 is n * P.
+
+In the example of Section 11.1 of the Null-Model Protocol paper, GS^2 = 8.1 against Lambda = 19.5.
+
+6.4 The Warning
+The tool states clearly that:
+
+GS values should not be compared with Lambda values.
+
+GS values should not be read against chi-squared critical values.
+
+The Gap Score is not part of the reported statistic or the validation programme of the Null-Model Protocol.
+
+The protocol replaces the inferential role of the Gap Score, not its descriptive use.
+
+6.5 Example
+For a candidate gap with expected count E_exp = 8.1 and observed occupancy F = 0:
+
+GS = (8.1 - 0) / sqrt(8.1) = 8.1 / 2.846 = 2.846.
+
+GS^2 = 8.1.
+
+For the same gap, if the null probability P = 0.32353 and n = 25:
+
+Lambda(w) = -2 * 25 * log(1 - 0.32353) = -50 * log(0.67647) = -50 * (-0.3909) = 19.54.
+
+The ratio Lambda / GS^2 = 19.54 / 8.1 = 2.41.
+
+Core Logic as Executable Pseudocode
+
+7.1 Main Flow
+function runGapScoreReporter(data, candidateGaps, expectedDensity, options):
+
+Step 1. validateData(data). If invalid, return {error: "invalid data"}.
+
+Step 2. validateCandidateGaps(candidateGaps, data.support). If invalid, return {error: "invalid candidate gaps"}.
+
+Step 3. validateExpectedDensity(expectedDensity, data.support). If invalid, return {error: "invalid expected density"}.
+
+Step 4. results = [].
+
+for gap in candidateGaps:
+
+expectedCount = computeExpectedCount(expectedDensity, gap, data.n).
+
+observedOccupancy = countObservationsInWindow(data, gap).
+
+gapScore = computeGapScore(expectedCount, observedOccupancy).
+
+result = {lower: gap.lower, upper: gap.upper, width: gap.upper - gap.lower, expected_count: expectedCount, observed_occupancy: observedOccupancy, gap_score: gapScore}.
+
+if options.comparisonMode:
+
+P = computeNullProbability(expectedDensity, gap).
+
+pearson = computePearson(gapScore, P).
+
+lambda = computeLambda(data.n, observedOccupancy, P).
+
+result.pearson = pearson.
+
+result.lambda = lambda.
+
+results.push(result).
+
+Step 5. warning = generateInferenceWarning().
+
+Step 6. summary = generateSummary(results).
+
+Step 7. report = formatReport(results, warning, summary, options.outputFormat).
+
+Step 8. record = buildReproducibilityRecord(data, candidateGaps, expectedDensity, results).
+
+Step 9. return {results, warning, summary, report, record}.
+
+7.2 Compute Expected Count
+function computeExpectedCount(expectedDensity, gap, n):
+
+if expectedDensity.type == "uniform":
+
+return n * (gap.upper - gap.lower) / (expectedDensity.support.hi - expectedDensity.support.lo).
+
+else if expectedDensity.type == "parametric":
+
+return n * integrate(expectedDensity.density, gap.lower, gap.upper).
+
+else if expectedDensity.type == "estimated":
+
+return n * integrate(expectedDensity.density, gap.lower, gap.upper).
+
+7.3 Count Observations in Window
+function countObservationsInWindow(data, gap):
+
+count = 0.
+
+for x in data.values:
+
+if x >= gap.lower and x <= gap.upper: count = count + 1.
+
+return count.
+
+7.4 Compute Gap Score
+function computeGapScore(expectedCount, observedOccupancy):
+
+if expectedCount <= 0: return null.
+
+return (expectedCount - observedOccupancy) / sqrt(expectedCount).
+
+7.5 Compute Pearson
+function computePearson(gapScore, P):
+
+if P >= 1: return null.
+
+return gapScore^2 / (1 - P).
+
+7.6 Compute Lambda
+function computeLambda(n, n_w, P):
+
+if n_w >= n * P: return 0.
+
+if n_w == 0: return -2 * n * log(1 - P).
+
+return 2 * (n_w * log(n_w / (n * P)) + (n - n_w) * log((n - n_w) / (n * (1 - P)))).
+
+7.7 Generate Inference Warning
+function generateInferenceWarning():
+
+return {text: "The Gap Score is a descriptive summary only. It is not calibrated, does not account for scanning, does not propagate uncertainty in the estimated expected density, and must not be used for inference. Do not compare Gap Score values with Lambda values or read them against chi-squared critical values. The Null-Model Protocol replaces the inferential role of the Gap Score, not its descriptive use.", codes: ["NOT_CALIBRATED", "NO_SCANNING_ACCOUNTING", "NO_UNCERTAINTY_PROPAGATION", "NOT_FOR_INFERENCE"]}.
+
+7.8 Generate Summary
+function generateSummary(results):
+
+deficits = count(r in results where r.gap_score > 0).
+
+surpluses = count(r in results where r.gap_score < 0).
+
+zeros = count(r in results where r.gap_score == 0).
+
+return {total: length(results), deficits: deficits, surpluses: surpluses, zeros: zeros}.
+
+7.9 Format Report
+function formatReport(results, warning, summary, format):
+
+if format == "text": return formatText(results, warning, summary).
+
+else if format == "json": return formatJSON(results, warning, summary).
+
+else if format == "csv": return formatCSV(results).
+
+7.10 Build Reproducibility Record
+function buildReproducibilityRecord(data, candidateGaps, expectedDensity, results):
+
+return {formula_version: options.formulaVersion, tool_version: options.toolVersion, data_hash: hash(data), candidate_gaps: candidateGaps, expected_density: expectedDensity, results: results, timestamp: now()}.
+
+Data Model / JSON Schema for Internal State
+
+The reporter's internal state is a result object.
+
+Result object:
+
+formula_version (string)
+
+tool_version (string)
+
+data_hash (string)
+
+candidate_gaps (array of gap objects)
+
+expected_density (object)
+
+results (array of result entry objects)
+
+warning (object)
+
+summary (object)
+
+timestamp (ISO8601)
+
+Each gap object:
+
+lower (number)
+
+upper (number)
+
+Each result entry object:
+
+lower (number)
+
+upper (number)
+
+width (number)
+
+expected_count (number)
+
+observed_occupancy (number)
+
+gap_score (number or null)
+
+pearson (number or null, if comparison mode)
+
+lambda (number or null, if comparison mode)
+
+Architecture
+
+Module breakdown:
+
+Dataset Loader. Reads and validates the dataset.
+
+Candidate Gap Loader. Reads and validates the candidate gaps.
+
+Expected Density Loader. Reads and validates the expected density.
+
+Expected Count Calculator. Computes the expected count for each gap.
+
+Observed Occupancy Calculator. Computes the observed occupancy for each gap.
+
+Gap Score Calculator. Computes the Gap Score for each gap.
+
+Comparison Calculator. Computes the two-bin Pearson statistic and the likelihood-ratio statistic.
+
+Inference Warning Generator. Generates the inference warning.
+
+Report Formatter. Produces the text, JSON, and CSV reports.
+
+Reproducibility Recorder. Records the formula version, tool version, inputs, and outputs.
+
+Command-Line Interface. Parses arguments.
+
+Graphical Interface (optional). Interactive window.
+
+Data flow:
+
+Dataset, candidate gaps, and expected density go to the loaders. Expected Count Calculator and Observed Occupancy Calculator compute. Gap Score Calculator computes. Comparison Calculator computes if comparison mode is true. Inference Warning Generator generates. Report Formatter produces output. Reproducibility Recorder records.
+
+Technology Stack
+
+Recommended for the command-line tool:
+
+Language: Python 3.11+ or Node.js 20+.
+
+Numeric computation: NumPy or SciPy (Python) or Math (JS).
+
+JSON handling: standard library.
+
+CSV handling: standard library.
+
+CLI framework: argparse (Python) or commander (JS).
+
+Testing: pytest (Python) or Vitest (JS).
+
+Recommended for the graphical interface:
+
+Python: PyQt6 or Tkinter.
+
+JavaScript: React or Svelte.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The result conforms to the schema derived from Appendix B of the Null-Model Protocol paper.
+
+UI/UX Specification
+
+Command-line interface:
+
+Usage: gap-score-reporter --data FILE --gaps FILE --expected-density FILE [--format text|json|csv] [--comparison] [--schema-version VERSION].
+
+Output on success: the Gap Score table, the inference warning, and the summary.
+
+Output on error: the error message and exit code 2.
+
+Graphical interface (optional):
+
+Fields for the dataset, the candidate gaps, and the expected density.
+
+Real-time display of the Gap Score table, the comparison table, and the inference warning.
+
+The inference warning is displayed prominently at the top of the window.
+
+Validation Engine Design
+
+The reporter validates the following:
+
+Validation 1. Dataset validity. The dataset is in a supported format and is not empty.
+
+Validation 2. Candidate gaps validity. Each gap has a lower bound less than its upper bound, and each gap lies within the support.
+
+Validation 3. Expected density validity. The expected density integrates to 1 over the support.
+
+Validation 4. Expected count positivity. The expected count for each gap is positive.
+
+Validation 5. Comparison validity. The comparison mode requires the null probability P for each gap.
+
+Testing Strategy
+
+Unit tests:
+
+Dataset Loader for each format.
+
+Candidate Gap Loader for valid and invalid gaps.
+
+Expected Density Loader for each type.
+
+Expected Count Calculator for uniform, parametric, and estimated densities.
+
+Observed Occupancy Calculator.
+
+Gap Score Calculator for positive, negative, and zero scores.
+
+Comparison Calculator for the Pearson and Lambda statistics.
+
+Inference Warning Generator.
+
+Summary Generator.
+
+Report Formatter for text, JSON, and CSV.
+
+Integration tests:
+
+Compute Gap Scores for a set of candidate gaps with a uniform expected density.
+
+Compute Gap Scores for a set of candidate gaps with a parametric expected density.
+
+Compute Gap Scores for a set of candidate gaps with an estimated expected density.
+
+Compute the comparison table with the Pearson and Lambda statistics.
+
+Verify the inference warning is always present.
+
+Worked-example tests:
+
+Appendix B of the Null-Model Protocol paper: for a complete gap with E_exp = 8.1 and F = 0, GS = 2.846 and GS^2 = 8.1.
+
+Section 11.1 of the Null-Model Protocol paper: for the same gap with P = 0.32353 and n = 25, Lambda = 19.54, and Lambda / GS^2 = 2.41.
+
+Regression tests:
+
+Gap Score determinism.
+
+Warning consistency.
+
+Summary consistency.
+
+Build Phases
+
+Phase 1. Dataset Loader. Read and validate the dataset.
+
+Phase 2. Candidate Gap Loader. Read and validate the candidate gaps.
+
+Phase 3. Expected Density Loader. Read and validate the expected density.
+
+Phase 4. Expected Count Calculator. Compute the expected count.
+
+Phase 5. Observed Occupancy Calculator. Compute the observed occupancy.
+
+Phase 6. Gap Score Calculator. Compute the Gap Score.
+
+Phase 7. Comparison Calculator. Compute the Pearson and Lambda statistics.
+
+Phase 8. Inference Warning Generator. Generate the inference warning.
+
+Phase 9. Report Formatter. Produce the text, JSON, and CSV reports.
+
+Phase 10. Reproducibility Recorder. Record the formula version, tool version, inputs, and outputs.
+
+Phase 11. Command-Line Interface.
+
+Phase 12. Graphical Interface (optional).
+
+Phase 13. Worked-example tests.
+
+Phase 14. Integration testing and hardening.
+
+Phase 15. Packaging.
+
+Dependencies
+
+Python path:
+
+NumPy (numeric computation).
+
+SciPy (integration, special functions).
+
+argparse (command-line, standard library).
+
+json (JSON handling, standard library).
+
+csv (CSV handling, standard library).
+
+PyQt6 or Tkinter (optional graphical interface).
+
+pytest (testing).
+
+Node.js path:
+
+Math (standard library).
+
+commander (command-line).
+
+JSON (standard library).
+
+csv-stringify (CSV handling).
+
+React or Svelte (optional graphical interface).
+
+Vitest (testing).
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The result conforms to the schema derived from Appendix B of the Null-Model Protocol paper.
+
+Deployment Notes
+
+Command-line tool:
+
+Package as a standalone executable (PyInstaller or pkg).
+
+Distribute via pip, npm, or a direct download.
+
+No server required.
+
+Graphical interface:
+
+Package as a desktop application.
+
+Distribute via the platform's app store or a direct download.
+
+No server required.
+
+Reproducibility:
+
+Record the formula version and the tool version.
+
+Provide a version pin for the formula.
+
+Always display the inference warning.
+
+Open Questions to Resolve Before Building
+
+Question 1. Which runtime first? Python or Node.js. Decision affects the numeric library and the packaging.
+
+Question 2. How should the tool handle the case where the expected count is zero? Options: return null for the Gap Score, warn, or fail. Decision needed.
+
+Question 3. How should the tool handle the case where the expected density is estimated from the same data used for the candidate gaps? The Null-Model Protocol paper says the estimation must exclude the gap region procedurally. Decision needed: does the tool enforce this, or trust the analyst?
+
+Question 4. How should the tool handle the case where the candidate gap is the entire support? Options: fail, warn, or compute the Gap Score. Decision needed.
+
+Question 5. Should the tool support candidate gaps that are not contiguous? Decision needed.
+
+Question 6. Should the tool support candidate gaps with overlapping windows? Decision needed.
+
+Question 7. How should the tool report the comparison table? Options: include the Pearson and Lambda statistics in the same table, or in a separate table. Decision needed.
+
+Question 8. Should the tool integrate with the Pipeline Specification Wizard (App 8) and the Full-Pipeline Simulator (App 9)? Decision needed: shared schema registry, or independent.
+
+Question 9. How should the tool report the inference warning? Options: a fixed text block, a list of codes, or both. Decision needed.
+
+Question 10. How should the tool handle the case where the dataset has ties? Options: apply the tie-breaking rule, or use a pre-specified tie-breaking procedure. Decision needed.
+
+End of build specification for App 13.
