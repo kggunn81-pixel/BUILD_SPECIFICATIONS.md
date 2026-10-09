@@ -1,0 +1,1652 @@
+Build Specification — App 35: The Argument Mapper for Students
+Completeness status: COMPLETE. All sections delivered in one pass. No truncation. Formatted for copy-paste. Long lists are broken into short lines.
+
+1. What It Is
+A tool that lets a student map out an argument. The student records the premises, the conclusions, the assumptions, the counterarguments, and the responses. The Argument Mapper records each argument as a graph: the premises support the conclusion, the assumptions are unstated premises, the counterarguments attack the conclusion or a premise, and the responses defend against the counterarguments. It is the practice tool for argumentation.
+
+It reuses:
+
+the STAG Annotation Editor (App 1)
+
+the STAG Schema Library (App 17)
+
+the STAG Graph Viewer (App 5)
+
+the Provenance-Aware Annotation Database (App 20)
+
+the Revision History Viewer (App 7)
+
+the Learning Provenance System (App 33)
+
+the Autofill Library Service (App 49)
+
+It is for students, teachers, tutors, and anyone who teaches or learns argumentation.
+
+2. Core Requirements
+Functional requirements:
+
+Accept deposits of arguments from users.
+
+Store each argument with its name, its conclusion, its premises, and its provenance.
+
+Record the premises: the statements that support the conclusion.
+
+Record the assumptions: the unstated premises the argument relies on.
+
+Record the conclusion: the statement the argument tries to establish.
+
+Record the counterarguments: the arguments that attack the conclusion or a premise.
+
+Record the responses: the defenses against the counterarguments.
+
+Record the argument type: deductive, inductive, abductive, analogical, causal, or other.
+
+Record the argument strength: strong, moderate, weak, or uncertain.
+
+Record the validity of the argument: valid, invalid, or not_assessed.
+
+Record the soundness of the argument: sound, unsound, or not_assessed.
+
+Record the fallacies: any logical fallacies present in the argument.
+
+Record the student's assessment of each part.
+
+Enforce provenance completeness.
+
+Enforce versioning.
+
+Enforce supersession acyclicity.
+
+Support querying by argument ID, name, subject, topic, argument type, strength, validity, soundness, student, date, and keywords.
+
+Support full-text search of the argument description, the premises, the conclusion, and the notes.
+
+Support aggregation queries: count by subject, by argument type, by strength, by validity, by student, by year.
+
+Support exporting an argument as JSON, PROV-O, and Turtle.
+
+Support importing an argument from JSON.
+
+Support bulk import and bulk export.
+
+Support a REST API for CRUD operations.
+
+Support a GraphQL API for flexible queries.
+
+Support a command-line interface for administration.
+
+Support authentication and authorization.
+
+Support audit logging.
+
+Support backup and restore.
+
+Support a web interface.
+
+Support moderation.
+
+Support linking an argument to a Learning Provenance System record if the argument involves a learned concept.
+
+Support linking an argument to a Physics Knowledge Library work if the argument is described in a deposited work.
+
+Support the argument graph: a visualisation of the premises, the conclusion, the assumptions, the counterarguments, and the responses.
+
+Support the argument comparison view: a visualisation that compares two or more arguments for the same conclusion.
+
+Support the fallacy map: a visualisation of the fallacies present in an argument.
+
+Support the student progress view: a visualisation of the student's argumentation skills over time.
+
+Non-functional requirements:
+
+Deterministic.
+
+Fast: query a typical argument in under 100 milliseconds.
+
+Scalable: support up to 10^6 arguments.
+
+Versioned: the mapper records the STAG schema version, the argument schema version, and the mapper version.
+
+Reproducible.
+
+Portable.
+
+Well-documented.
+
+3. Input Specification
+Input 1. Argument deposit. Required. A deposit object conforming to the argument schema.
+
+Input 2. Files. Optional. Notes, examples, or the source text the argument is about.
+
+Input 3. Provenance record. Required.
+
+Input 4. Learning record reference. Optional. A reference to a Learning Provenance System record.
+
+Input 5. Work reference. Optional.
+
+Input 6. Query.
+
+Input 7. Aggregation query.
+
+Input 8. Authentication credentials.
+
+Input 9. Bulk import file.
+
+Input 10. Bulk export query.
+
+4. Output Specification
+Output 1. Argument record. JSON.
+
+Output 2. PROV-O serialization.
+
+Output 3. Turtle serialization.
+
+Output 4. Query result. JSON.
+
+Output 5. Aggregation result. JSON.
+
+Output 6. Full-text search result. JSON.
+
+Output 7. Argument graph. JSON or a rendered graph.
+
+Output 8. Argument comparison view. JSON or a rendered graph.
+
+Output 9. Fallacy map. JSON or a rendered map.
+
+Output 10. Student progress view. JSON or a rendered view.
+
+Output 11. Related arguments. JSON.
+
+Output 12. Bulk export file.
+
+Output 13. Audit log entry. JSON.
+
+Output 14. API response. JSON.
+
+Output 15. GraphQL response. JSON.
+
+Output 16. Backup file.
+
+5. Module-by-Module Specification
+Module 1. Argument Schema.
+
+Defines the structure of an argument deposit.
+
+Module 2. Database Schema.
+
+The tables and indexes.
+
+Module 3. Argument Loader.
+
+Reads and validates an argument deposit.
+
+Module 4. Argument Writer.
+
+Writes an argument deposit to the database.
+
+Module 5. Argument Reader.
+
+Reads an argument deposit from the database.
+
+Module 6. Argument Updater.
+
+Updates an argument deposit.
+
+Module 7. Argument Deleter.
+
+Deletes an argument deposit.
+
+Module 8. Query Engine.
+
+Executes queries.
+
+Module 9. Full-Text Search Engine.
+
+Executes full-text search.
+
+Module 10. Aggregation Engine.
+
+Executes aggregation queries.
+
+Module 11. Exporter.
+
+Exports an argument as JSON, PROV-O, and Turtle.
+
+Module 12. Importer.
+
+Imports an argument from JSON.
+
+Module 13. Bulk Import and Export.
+
+Bulk operations.
+
+Module 14. REST API.
+
+HTTP endpoints.
+
+Module 15. GraphQL API.
+
+GraphQL endpoint.
+
+Module 16. Command-Line Interface.
+
+Administration commands.
+
+Module 17. Authentication and Authorization.
+
+Access control.
+
+Module 18. Audit Logging.
+
+Logs operations.
+
+Module 19. Backup and Restore.
+
+Database backup and restore.
+
+Module 20. Web Interface.
+
+Depositing, browsing, querying.
+
+Module 21. Moderation Workflow.
+
+Moderation of arguments.
+
+Module 22. Argument Graph.
+
+Visualises the premises, the conclusion, the assumptions, the counterarguments, and the responses.
+
+Module 23. Argument Comparison View.
+
+Compares two or more arguments for the same conclusion.
+
+Module 24. Fallacy Map.
+
+Visualises the fallacies present in an argument.
+
+Module 25. Student Progress View.
+
+Visualises the student's argumentation skills over time.
+
+Module 26. Related-Argument Finder.
+
+Finds arguments related to a given one.
+
+Module 27. Migration Manager.
+
+Database migrations.
+
+6. Full Argument Specification
+6.1 Argument Schema
+The argument schema defines the structure of an argument deposit.
+
+It has the following fields:
+
+argument_id. A string. Required.
+
+argument_name. A string. Required.
+
+argument_description. A string. Required.
+
+subject. A string. Required.
+
+topic. A string. Required.
+
+conclusion. An object. Required. It contains statement and confidence.
+
+premises. An array of premise objects. Required.
+
+assumptions. An array of assumption objects. Optional.
+
+counterarguments. An array of counterargument objects. Optional.
+
+responses. An array of response objects. Optional.
+
+argument_type. An enum. Required. The values are deductive, inductive, abductive, analogical, causal, other.
+
+argument_strength. An enum. Required. The values are strong, moderate, weak, uncertain.
+
+validity. An enum. Required. The values are valid, invalid, not_assessed.
+
+soundness. An enum. Required. The values are sound, unsound, not_assessed.
+
+fallacies. An array of fallacy objects. Optional.
+
+student_assessments. An array of assessment objects. Optional.
+
+student_id. A string. Required.
+
+date_created. A string in ISO8601 format. Required.
+
+date_last_reviewed. A string in ISO8601 format. Optional.
+
+learning_record_reference. A string. Optional.
+
+provenance. An object. Required.
+
+work_reference. A string. Optional.
+
+keywords. An array of strings. Optional.
+
+notes. A string. Optional.
+
+moderation_status. An enum. The values are pending, approved, rejected.
+
+version. An integer.
+
+supersedes. A string. Optional.
+
+superseded_by. A string. Optional.
+
+Each premise object has:
+
+premise_id. A string.
+
+statement. A string.
+
+premise_type. An enum. The values are fact, value, policy, definition, observation, other.
+
+confidence. An enum. The values are high, medium, low.
+
+support. An enum. The values are direct, indirect, background.
+
+notes. A string. Optional.
+
+Each assumption object has:
+
+assumption_id. A string.
+
+statement. A string.
+
+assumption_type. An enum. The values are factual, conceptual, normative, methodological, other.
+
+confidence. An enum. The values are high, medium, low.
+
+notes. A string. Optional.
+
+Each counterargument object has:
+
+counterargument_id. A string.
+
+statement. A string.
+
+target. An enum. The values are conclusion, premise, assumption, other.
+
+target_id. A string. Optional.
+
+counterargument_type. An enum. The values are rebuttal, undercutting, undermining, other.
+
+strength. An enum. The values are strong, moderate, weak.
+
+notes. A string. Optional.
+
+Each response object has:
+
+response_id. A string.
+
+statement. A string.
+
+target_counterargument_id. A string.
+
+response_type. An enum. The values are denial, distinction, counterexample, concession, other.
+
+strength. An enum. The values are strong, moderate, weak.
+
+notes. A string. Optional.
+
+Each fallacy object has:
+
+fallacy_id. A string.
+
+fallacy_name. A string.
+
+fallacy_description. A string.
+
+location. A string.
+
+notes. A string. Optional.
+
+Each assessment object has:
+
+assessment_id. A string.
+
+assessment_type. An enum. The values are self, peer, teacher.
+
+assessment_date. A string in ISO8601 format.
+
+assessor_id. A string.
+
+assessment_description. A string.
+
+rating. An enum. The values are excellent, good, adequate, weak, poor.
+
+notes. A string. Optional.
+
+6.2 Database Schema
+The database has the following tables.
+
+argument. Holds the argument records.
+
+Its fields are:
+
+argument_id
+
+argument_name
+
+argument_description
+
+subject
+
+topic
+
+conclusion
+
+argument_type
+
+argument_strength
+
+validity
+
+soundness
+
+student_id
+
+date_created
+
+date_last_reviewed
+
+learning_record_reference
+
+provenance
+
+keywords
+
+notes
+
+moderation_status
+
+version
+
+supersedes
+
+superseded_by
+
+created_at
+
+updated_at
+
+premise. Holds the premise records.
+
+Its fields are:
+
+premise_id
+
+argument_id
+
+statement
+
+premise_type
+
+confidence
+
+support
+
+notes
+
+created_at
+
+assumption. Holds the assumption records.
+
+Its fields are:
+
+assumption_id
+
+argument_id
+
+statement
+
+assumption_type
+
+confidence
+
+notes
+
+created_at
+
+counterargument. Holds the counterargument records.
+
+Its fields are:
+
+counterargument_id
+
+argument_id
+
+statement
+
+target
+
+target_id
+
+counterargument_type
+
+strength
+
+notes
+
+created_at
+
+response. Holds the response records.
+
+Its fields are:
+
+response_id
+
+argument_id
+
+statement
+
+target_counterargument_id
+
+response_type
+
+strength
+
+notes
+
+created_at
+
+fallacy. Holds the fallacy records.
+
+Its fields are:
+
+fallacy_id
+
+argument_id
+
+fallacy_name
+
+fallacy_description
+
+location
+
+notes
+
+created_at
+
+assessment. Holds the assessment records.
+
+Its fields are:
+
+assessment_id
+
+argument_id
+
+assessment_type
+
+assessment_date
+
+assessor_id
+
+assessment_description
+
+rating
+
+notes
+
+created_at
+
+learning_link. Holds the learning links.
+
+Its fields are:
+
+link_id
+
+argument_id
+
+learning_id
+
+created_at
+
+work_link. Holds the work links.
+
+Its fields are:
+
+link_id
+
+argument_id
+
+work_id
+
+created_at
+
+provenance. Holds the provenance records.
+
+Its fields are:
+
+provenance_id
+
+argument_id
+
+depositor_id
+
+depositor_affiliation
+
+timestamp
+
+source
+
+tool_version
+
+operation
+
+created_at
+
+audit_log. Holds the audit log entries.
+
+Its fields are:
+
+audit_id
+
+operation
+
+record_type
+
+record_id
+
+depositor_id
+
+timestamp
+
+result
+
+details
+
+created_at
+
+moderation. Holds the moderation records.
+
+Its fields are:
+
+moderation_id
+
+argument_id
+
+moderator_id
+
+moderation_status
+
+moderation_date
+
+moderation_notes
+
+created_at
+
+6.3 Referential Integrity
+Every premise.argument_id must exist in argument.
+
+Every assumption.argument_id must exist in argument.
+
+Every counterargument.argument_id must exist in argument.
+
+Every response.argument_id must exist in argument.
+
+Every fallacy.argument_id must exist in argument.
+
+Every assessment.argument_id must exist in argument.
+
+Every learning_link.argument_id must exist in argument.
+
+Every work_link.argument_id must exist in argument.
+
+Every provenance.argument_id must exist in argument.
+
+Every moderation.argument_id must exist in argument.
+
+The version chain must be acyclic.
+
+Every response.target_counterargument_id must exist in counterargument.
+
+6.4 Indexes
+The database has indexes on:
+
+argument.argument_id
+
+argument.argument_name
+
+argument.subject
+
+argument.topic
+
+argument.argument_type
+
+argument.argument_strength
+
+argument.validity
+
+argument.soundness
+
+argument.student_id
+
+argument.date_created
+
+argument.moderation_status
+
+argument.keywords
+
+premise.argument_id
+
+assumption.argument_id
+
+counterargument.argument_id
+
+response.argument_id
+
+response.target_counterargument_id
+
+fallacy.argument_id
+
+assessment.argument_id
+
+learning_link.argument_id
+
+work_link.argument_id
+
+provenance.argument_id
+
+provenance.depositor_id
+
+audit_log.operation
+
+audit_log.record_id
+
+moderation.argument_id
+
+moderation.moderation_status
+
+Full-text search indexes on the argument description, the premises, the conclusion, and the notes.
+
+7. Core Logic as Executable Pseudocode
+7.1 Create Argument
+function createArgument(argument, files, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Validate the argument against the schema. If invalid, return an error with the details.
+
+Step 3. If the learning record reference is present, look it up. If null, flag it as unresolved.
+
+Step 4. If the work reference is present, look it up. If null, flag it as unresolved.
+
+Step 5. Generate an argument ID. Set the fields: version 1, moderation_status pending, date_created now, student_id from auth, provenance from provenance.
+
+Step 6. Insert the argument.
+
+Step 7. Insert the premise records, the assumption records, the counterargument records, the response records, the fallacy records, and the assessment records.
+
+Step 8. Insert the learning link and the work link if present.
+
+Step 9. Insert the provenance.
+
+Step 10. Insert the moderation record.
+
+Step 11. Insert the audit log entry.
+
+Step 12. Return the argument_id and the status created.
+
+7.2 Read Argument
+function readArgument(argumentId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the argument. If null, return an error.
+
+Step 3. Read the premises, the assumptions, the counterarguments, the responses, the fallacies, the assessments, the links, the provenance, and the moderation.
+
+Step 4. Reconstruct the deposit.
+
+Step 5. Insert the audit log entry.
+
+Step 6. Return the deposit.
+
+7.3 Update Argument
+function updateArgument(argumentId, argument, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Read the existing argument. If null, return an error.
+
+Step 3. Validate the new argument.
+
+Step 4. Increment the version. Update the supersedes and superseded_by fields.
+
+Step 5. Insert a provenance record with operation update.
+
+Step 6. Insert an audit log entry.
+
+Step 7. Return the argument_id, the version, and the status updated.
+
+7.4 Delete Argument
+function deleteArgument(argumentId, provenance, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Read the existing argument. If null, return an error.
+
+Step 3. If soft delete, mark as deleted. Otherwise, remove.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the argument_id and the status deleted.
+
+7.5 Query Arguments
+function queryArguments(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the query.
+
+Step 3. Read the matching arguments.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the arguments, the count, and the pagination.
+
+7.6 Aggregate Arguments
+function aggregateArguments(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the aggregation.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the results.
+
+7.7 Full-Text Search
+function fullTextSearch(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the search.
+
+Step 3. Read the matching arguments.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the arguments and the count.
+
+7.8 Export Argument
+function exportArgument(argumentId, format, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the deposit.
+
+Step 3. If json, output the deposit. If provo, export to PROV-O. If turtle, serialize to Turtle.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the output and the format.
+
+7.9 Bulk Import
+function bulkImport(file, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Parse the file.
+
+Step 3. For each argument, call createArgument.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the results and the count.
+
+7.10 Bulk Export
+function bulkExport(query, format, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the matching arguments.
+
+Step 3. If json, output the list. If jsonl, output one line per argument. If provo, export each one.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the output and the count.
+
+7.11 Moderate Argument
+function moderateArgument(argumentId, moderationStatus, moderationNotes, auth):
+
+Step 1. validateAuth(auth, "moderator"). If not authorized, return an error.
+
+Step 2. Read the existing argument. If null, return an error.
+
+Step 3. Update the moderation status. Insert a moderation record.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the argument_id and the status.
+
+7.12 Argument Graph
+function argumentGraph(argumentId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the argument. If null, return an error.
+
+Step 3. Build the graph with the premises, the assumptions, the conclusion, the counterarguments, and the responses as nodes, and the support, attack, and defense relations as edges.
+
+Step 4. Return the graph.
+
+7.13 Argument Comparison View
+function argumentComparisonView(conclusionStatement, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read all arguments with the same conclusion.
+
+Step 3. Build the comparison by overlaying the premises, the assumptions, the counterarguments, and the responses.
+
+Step 4. Return the comparison.
+
+7.14 Fallacy Map
+function fallacyMap(argumentId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the argument. If null, return an error.
+
+Step 3. Build the map with the fallacies placed at their locations.
+
+Step 4. Return the map.
+
+7.15 Student Progress View
+function studentProgressView(studentId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read all arguments for the student.
+
+Step 3. Build the view with the argument strength, validity, and soundness over time.
+
+Step 4. Return the view.
+
+7.16 Find Related Arguments
+function findRelatedArguments(argumentId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the argument. If null, return an error.
+
+Step 3. Find arguments with the same conclusion, the same subject, or the same argument type.
+
+Step 4. Return the related arguments.
+
+7.17 Audit Log
+function auditLog(query, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Build and execute the query.
+
+Step 3. Return the results.
+
+7.18 Backup
+function backup(auth, options):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. If sql, dump as SQL. If json, dump as JSON.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the output and the format.
+
+7.19 Restore
+function restore(file, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Load the database from the file.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the status restored.
+
+8. Data Model
+The mapper's internal state is the set of tables. The API's internal state is a request object and a response object.
+
+Request object:
+
+operation
+
+resource
+
+record_id
+
+record_json
+
+query
+
+auth
+
+Response object:
+
+status
+
+result
+
+error
+
+audit_id
+
+9. Architecture
+Module breakdown:
+
+Argument Schema.
+
+Database Schema.
+
+Argument Loader.
+
+Argument Writer.
+
+Argument Reader.
+
+Argument Updater.
+
+Argument Deleter.
+
+Query Engine.
+
+Full-Text Search Engine.
+
+Aggregation Engine.
+
+Exporter.
+
+Importer.
+
+Bulk Import and Export.
+
+REST API.
+
+GraphQL API.
+
+Command-Line Interface.
+
+Authentication and Authorization.
+
+Audit Logging.
+
+Backup and Restore.
+
+Web Interface.
+
+Moderation Workflow.
+
+Argument Graph.
+
+Argument Comparison View.
+
+Fallacy Map.
+
+Student Progress View.
+
+Related-Argument Finder.
+
+Migration Manager.
+
+Data flow:
+
+API requests go to the REST or GraphQL API.
+
+The API calls the argument loader, writer, reader, updater, deleter, query engine, search engine, aggregation engine, exporter, or importer.
+
+The database schema stores the data.
+
+The audit logging records every operation.
+
+The authentication and authorization check access.
+
+The moderation workflow handles moderation.
+
+The argument graph, the argument comparison view, the fallacy map, and the student progress view visualise.
+
+The related-argument finder finds relations.
+
+The backup and restore handle backup.
+
+The web interface provides depositing, browsing, and querying.
+
+10. Technology Stack
+Recommended for the database:
+
+Database: PostgreSQL 15+ or SQLite 3.40+.
+
+Language: Python 3.11+ or Node.js 20+.
+
+ORM: SQLAlchemy or Prisma.
+
+Migrations: Alembic or Prisma Migrate.
+
+Full-text search: PostgreSQL tsvector or SQLite FTS5.
+
+Recommended for the REST API:
+
+Framework: FastAPI or Express.
+
+Authentication: FastAPI Users or Passport.
+
+Recommended for the GraphQL API:
+
+Framework: Strawberry or Apollo Server.
+
+Recommended for the command-line interface:
+
+Framework: Click or Commander.
+
+Recommended for the web interface:
+
+Frontend: React or Svelte.
+
+Backend: the same as the REST API.
+
+Recommended for deployment:
+
+Containerization: Docker.
+
+Orchestration: Docker Compose or Kubernetes.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The STAG schema (Artifact 2, Appendix B.1).
+
+The PROV-O exporter (App 3).
+
+The STAG schema library (App 17).
+
+The provenance database (App 20).
+
+The revision history viewer (App 7).
+
+The STAG Graph Viewer (App 5).
+
+The Learning Provenance System (App 33).
+
+The Autofill Library Service (App 49).
+
+11. UI/UX Specification
+REST API:
+
+Base URL: https://api.example.com/v1.
+
+Authentication: Bearer token.
+
+Endpoints:
+
+GET /arguments.
+
+GET /arguments/{id}.
+
+POST /arguments.
+
+PUT /arguments/{id}.
+
+DELETE /arguments/{id}.
+
+GET /arguments/{id}/provo.
+
+GET /arguments/{id}/turtle.
+
+GET /arguments/{id}/premises.
+
+GET /arguments/{id}/assumptions.
+
+GET /arguments/{id}/counterarguments.
+
+GET /arguments/{id}/responses.
+
+GET /arguments/{id}/fallacies.
+
+GET /arguments/{id}/assessments.
+
+GET /arguments/{id}/related.
+
+GET /arguments/{id}/learning-record.
+
+GET /arguments/{id}/work.
+
+GET /arguments/by-subject/{subject}.
+
+GET /arguments/by-student/{student_id}.
+
+GET /arguments/by-conclusion/{conclusion_statement}.
+
+GET /arguments/{id}/fallacy-map.
+
+GET /students/{student_id}/progress.
+
+POST /query.
+
+POST /aggregate.
+
+POST /search.
+
+POST /bulk/import.
+
+POST /bulk/export.
+
+POST /moderate/{id}.
+
+GET /audit.
+
+Responses in JSON.
+
+HTTP status codes: 200, 201, 204, 400, 401, 403, 404, 409, 422, 500.
+
+GraphQL API:
+
+Endpoint: https://api.example.com/graphql.
+
+Schema exposes the entities and their relationships.
+
+Command-line interface:
+
+Usage: argument-mapper [command] [options].
+
+Commands: init, migrate, backup, restore, import, export, query, aggregate, moderate, audit.
+
+Web interface:
+
+A browsable list of arguments.
+
+A deposit form.
+
+A search box.
+
+A filter panel.
+
+An aggregation view.
+
+An argument graph.
+
+An argument comparison view.
+
+A fallacy map.
+
+A student progress view.
+
+A detail view for each argument.
+
+A moderation view.
+
+12. Validation Engine Design
+The mapper validates the following.
+
+Validation 1. Argument validity. Every argument is validated against the schema.
+
+Validation 2. Referential integrity.
+
+Validation 3. Version chain acyclicity.
+
+Validation 4. Learning record resolution.
+
+Validation 5. Work resolution.
+
+Validation 6. Provenance completeness.
+
+Validation 7. Audit completeness.
+
+Validation 8. Moderation completeness.
+
+Validation 9. Response target consistency. Every response target must exist.
+
+Validation 10. Validity consistency. The validity must be consistent with the argument type.
+
+Validation 11. Soundness consistency. The soundness must be consistent with the validity and the premises.
+
+13. Testing Strategy
+Unit tests:
+
+Argument Schema for valid and invalid arguments.
+
+Database Schema for each table and index.
+
+Argument Loader.
+
+Argument Writer.
+
+Argument Reader.
+
+Argument Updater.
+
+Argument Deleter.
+
+Query Engine.
+
+Full-Text Search Engine.
+
+Aggregation Engine.
+
+Exporter.
+
+Importer.
+
+Bulk Import and Export.
+
+REST API.
+
+GraphQL API.
+
+Command-Line Interface.
+
+Authentication and Authorization.
+
+Audit Logging.
+
+Backup and Restore.
+
+Web Interface.
+
+Moderation Workflow.
+
+Argument Graph.
+
+Argument Comparison View.
+
+Fallacy Map.
+
+Student Progress View.
+
+Related-Argument Finder.
+
+Migration Manager.
+
+Integration tests:
+
+Create an argument. Read it back.
+
+Update an argument.
+
+Delete an argument.
+
+Query by each field.
+
+Aggregate by each dimension.
+
+Search by full text.
+
+Export as JSON, PROV-O, and Turtle.
+
+Bulk import and export.
+
+Backup and restore.
+
+Moderate an argument.
+
+Generate the argument graph.
+
+Generate the argument comparison view.
+
+Generate the fallacy map.
+
+Generate the student progress view.
+
+Worked-example tests:
+
+Deposit the argument for the existence of dark matter.
+
+Deposit the argument for anthropogenic climate change.
+
+Deposit the argument for the effectiveness of vaccines.
+
+Deposit the argument for the value of a university education.
+
+Deposit the argument for the existence of free will.
+
+Deposit the argument for the reliability of eyewitness testimony.
+
+Deposit the argument for the importance of biodiversity.
+
+Deposit the argument for the ethical treatment of animals.
+
+Regression tests:
+
+Argument determinism.
+
+Query consistency.
+
+Aggregation consistency.
+
+Audit log consistency.
+
+Moderation consistency.
+
+Response target consistency.
+
+Validity consistency.
+
+Soundness consistency.
+
+14. Build Phases
+Phase 1. Argument Schema.
+
+Phase 2. Database Schema.
+
+Phase 3. Argument Loader.
+
+Phase 4. Argument Writer.
+
+Phase 5. Argument Reader.
+
+Phase 6. Argument Updater.
+
+Phase 7. Argument Deleter.
+
+Phase 8. Query Engine.
+
+Phase 9. Full-Text Search Engine.
+
+Phase 10. Aggregation Engine.
+
+Phase 11. Exporter.
+
+Phase 12. Importer.
+
+Phase 13. Bulk Import and Export.
+
+Phase 14. REST API.
+
+Phase 15. GraphQL API.
+
+Phase 16. Command-Line Interface.
+
+Phase 17. Authentication and Authorization.
+
+Phase 18. Audit Logging.
+
+Phase 19. Backup and Restore.
+
+Phase 20. Web Interface.
+
+Phase 21. Moderation Workflow.
+
+Phase 22. Argument Graph.
+
+Phase 23. Argument Comparison View.
+
+Phase 24. Fallacy Map.
+
+Phase 25. Student Progress View.
+
+Phase 26. Related-Argument Finder.
+
+Phase 27. Migration Manager.
+
+Phase 28. Worked-example tests.
+
+Phase 29. Integration testing and hardening.
+
+Phase 30. Packaging and deployment.
+
+15. Dependencies
+Python path:
+
+SQLAlchemy.
+
+Alembic.
+
+FastAPI.
+
+Strawberry.
+
+FastAPI Users.
+
+Click.
+
+psycopg2.
+
+sqlite3.
+
+jsonschema.
+
+hashlib.
+
+json.
+
+pytest.
+
+Node.js path:
+
+Prisma.
+
+Express.
+
+Apollo Server.
+
+Passport.
+
+Commander.
+
+pg.
+
+better-sqlite3.
+
+ajv.
+
+crypto.
+
+JSON.
+
+Vitest.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The STAG schema (Artifact 2, Appendix B.1).
+
+The PROV-O exporter (App 3).
+
+The STAG schema library (App 17).
+
+The provenance database (App 20).
+
+The revision history viewer (App 7).
+
+The STAG Graph Viewer (App 5).
+
+The Learning Provenance System (App 33).
+
+The Autofill Library Service (App 49).
+
+16. Deployment Notes
+Database:
+
+PostgreSQL for multi-user deployments.
+
+SQLite for single-user deployments.
+
+Backup and restore via pg_dump and pg_restore or the SQLite backup API.
+
+REST API:
+
+Deploy with Docker. Stateless. Scale horizontally.
+
+Use a reverse proxy for TLS.
+
+Log every request for audit.
+
+GraphQL API:
+
+Deploy alongside the REST API.
+
+Use a query depth limit and a query complexity limit.
+
+Command-line interface:
+
+Package as a standalone executable.
+
+Distribute via pip, npm, or a direct download.
+
+Web interface:
+
+Deploy the frontend as a static bundle.
+
+Backend with FastAPI or Express.
+
+Reproducibility:
+
+Record the STAG schema version, the argument schema version, and the mapper version.
+
+Record the provenance for every deposit.
+
+Provide a version pin for the schemas and codebook.
+
+17. Open Questions to Resolve Before Building
+Question 1. Which runtime first? Python or Node.js.
+
+Question 2. Which database first? PostgreSQL or SQLite.
+
+Question 3. How should the mapper handle the subject and topic? A fixed taxonomy, or an open set.
+
+Question 4. How should the mapper handle the argument type? A fixed set, or an open set.
+
+Question 5. How should the mapper handle the argument strength? A fixed set of four values, or a continuous scale.
+
+Question 6. How should the mapper handle the fallacy type? A fixed set from a taxonomy, or an open set.
+
+Question 7. How should the mapper handle the assessment type? A fixed set, or an open set.
+
+Question 8. How should the mapper handle the relation between arguments? Manual entry, or automatic detection.
+
+Question 9. How should the mapper handle the moderation workflow? Pending until approved, auto-approved, or require a moderator.
+
+Question 10. How should the mapper handle the learning record reference? Required, optional, or optional depending on the argument type.
+
+Question 11. How should the mapper handle the work reference? Required, optional, or optional depending on the subject.
+
+Question 12. How should the mapper handle the argument graph? A directed graph, a tree, or both.
+
+Question 13. How should the mapper handle the argument comparison view? An overlay of premises and counterarguments, a side-by-side table, or both.
+
+Question 14. How should the mapper handle the fallacy map? A heat map, a list, or both.
+
+Question 15. How should the mapper handle the student progress view? A line plot, a radar chart, or both.
+
+Question 16. Should the mapper integrate with the STAG schema library (App 17), the provenance database (App 20), the revision history viewer (App 7), the STAG Graph Viewer (App 5), and the Learning Provenance System (App 33)?
+
+Question 17. Should the mapper support federation with other instances of itself?
+
+Question 18. How should the mapper handle the deposit of an argument that is already in the mapper? Reject, create a new version, or create a separate record with a cross-reference.
+
+Question 19. Should the mapper support autofill via App 49? If so, which library does it register?
+
+Question 20. Should the mapper support a teacher view that shows all students' arguments for a given conclusion?
+
+Question 21. Should the mapper support a classroom mode where students can compare their arguments with each other?
+
+End of build specification for App 35, the Argument Mapper for Students.
