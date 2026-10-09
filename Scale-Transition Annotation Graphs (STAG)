@@ -1,0 +1,1098 @@
+Artifact 1 — Main Paper
+Scale-Transition Annotation Graphs (STAG): A Methodological Framework and Scoping-Review Protocol for Annotating Scale-Dependent Organization
+Abstract
+Scientific descriptions of complex systems are distributed across scales, but no shared annotation standard records how those descriptions relate while preserving distinctions between derivation, representation, evidence, counterfactual dependence, and interpretation. We propose Scale-Transition Annotation Graphs (STAG), a specification and pre-registration rather than a validated framework. Nodes are tuples of system scope, model, and granularity; domain and regime are partition-relative annotation attributes; composite formation is represented by event nodes mapping to PROV-O prov:Activity. The framework separates a core tier of five rated fields from an extension tier containing optional fields, a scale-separation record, and seven derived display labels. The flagship label STAG-Discovered records a model-relative intervention result under four prerequisites that are necessary and sufficient for the label. A separate field, evidential_anchoring, records whether the annotation's evidence satisfies four further conditions and is reported alongside the label. The framework reports the anchoring status of every STAG-Discovered annotation and makes no claim that any annotation is currently anchored. We report one illustrative worked example that is a STAG-Discovered annotation and is not anchored, and we state why it is not anchored. The scoped search that would test the contribution claim has not been executed. No inter-rater reliability study has been performed. The companion codebook and schema are deposited as a separate artifact; the response to hostile readings is deposited as a second separate artifact.
+
+Keywords: effective field theory, renormalization group, multiscale modelling, annotation, provenance, counterfactual dependence, inter-rater reliability
+
+1. Introduction
+Scientific knowledge is organized by scale. A single physical system may be described using microscopic fields, composite particles, collective variables, or macroscopic structures. These descriptions are related by inter-theoretic transformations—coarse-graining, integration-out procedures, symmetry-breaking, and renormalization-group flows—but the relations themselves are rarely made explicit in a reusable, machine-readable form. This raises a foundational question in the philosophy of science: how should inter-scale relations be represented in a way that preserves distinctions between derivation, representation, evidence, counterfactual dependence, and interpretation, without collapsing differences in mechanism or evidential status?
+
+This question sits at the intersection of several philosophical and scientific traditions. The philosophy of inter-theoretic relations has long examined reduction, emergence, and asymptotic reasoning (Batterman 2002; Butterfield 2011; Wimsatt 2007; Dizadji-Bahmani et al. 2010). Theories of scientific representation have analyzed how models relate to target systems (Giere 1988; Frigg 2006; Suppes 1967). Formal ontology and knowledge representation have developed tools for entities, relations, and provenance (Arp et al. 2015; Smith et al. 2007). Mature physical traditions—effective field theory, renormalization-group methods, multiscale modelling—address parts of the problem within specific domains (Weinberg 1979; Wilson 1971; E 2011). Yet none of these traditions supplies a general representational infrastructure for recording how scale-dependent descriptions relate while preserving the distinctions listed above.
+
+STAG (Scale-Transition Annotation Graphs) proposes such an infrastructure. It is an annotation layer above domain-specific theories. The central claim is that claims about transitions between scale-dependent descriptions can be recorded, compared, and re-used across scientific domains in a common, provenance-aware structural language, without collapsing differences in mechanism, evidential status, and interpretive context. STAG answers by representing selected effective organizations as nodes and annotated relationships as transitions in a directed multigraph. Established theories remain responsible for physical derivation; STAG records how a transition claim is represented, classified, and evidenced.
+
+Three philosophical commitments define the scope. First, STAG does not identify levels of nature; it annotates candidate descriptive units and tests whether the annotations are reproducible. This is a methodological agnosticism about ontological strata: the framework records representational structure without committing to metaphysical levels. Second, STAG separates the annotation of a transition claim from any statistical inference about gaps in empirical distributions. Third, STAG is a specification whose usefulness is an empirical question. It is offered as a formal methodology in the tradition of Suppes (1967): a precise, testable framework whose adequacy is to be assessed by application.
+
+The framework was previously referred to informally as "Assembly Graphs." That name conflicts with established terminology in genomics and sequence bioinformatics. The framework is now named Scale-Transition Annotation Graphs (STAG); the word "assembly" is retained only as a descriptive term for cases involving composite formation. The framework does not separately define "scale transition." The four prerequisites in Section 7.5 are the sole operational criteria for STAG-Discovered.
+
+1.1 Scope and nature of the contribution
+The paper's contribution is a structured annotation language for recording scale-transition claims in a way that preserves distinctions between derivation, representation, evidence, counterfactual dependence, and interpretation. The language is designed to be internally consistent, with fields stated with sufficient precision to be applied by a second annotator, and with evidential distinctions reported alongside the annotation rather than folded into it.
+
+The paper is offered as a specification and pre-registration protocol, not as a validated empirical instrument. Its contribution is representational and methodological rather than empirical. The framework's internal distinctions are proposed as useful analytic categories for annotation, not as claims about natural kinds. The validation programme is a plan for future empirical work. The flagship label (STAG-Discovered) is defined with operational criteria, but the paper does not assert that any annotation currently satisfies the stronger evidential status defined in Section 1.2.
+
+The framework's predicates are stated as operational definitions for annotation purposes, not as formally well-founded metaphysical categories. The entailment basis is a classification scheme for annotation, not a decision procedure for logical entailment. The graph formalism is a labelled directed multigraph, chosen for its simplicity and compatibility with existing provenance standards. The framework's conventions are chosen for their utility in annotation.
+
+1.2 The two statuses: STAG-Discovered and evidential anchoring
+The framework separates two statuses for a transition annotation. They are reported side by side and they carry different content.
+
+STAG-Discovered is assigned to an annotation that satisfies the four prerequisites of Section 7.5. It records that, within a declared model and partition, a specified intervention on a specified contribution materially changes a specified outcome, and that a scale-separation record is present with a ratio at or above the declared minimum. The status is a substantive classification of the annotation. It is not a claim about the quality of the evidence behind the annotation.
+
+Evidential anchoring is a distinct and stronger status. The word "anchored" is used in preference to "supported" because "supported" has a statistical meaning in the validation programme. A STAG-Discovered annotation is evidentially anchored if and only if all four of the conditions below hold.
+
+Condition (a), prerequisite evidence. Each of the four prerequisites of Section 7.5 is satisfied, and the evidence supporting each prerequisite is appropriate for that prerequisite. For the effective-description-change prerequisite, the evidence is formal application of one or more of the criteria in Section 4.1 to the model. For the non-definitional prerequisite, the evidence is the absence of a citable entailment result settling the outcome, with the search for such a result recorded. For the material-change prerequisite, the evidence is a computation performed by the annotator, or a specific citation to a study of the annotated model at the annotated parameters, with citation_scope = annotated_model. For the scale-separation prerequisite, the evidence is a scale-separation record satisfying the requirement stated in Section 7.5.
+
+Condition (b), control-parameter robustness. The scale-separation ratio exceeds the declared minimum throughout the pre-registered control-parameter band, and the band is externally anchored. The band is externally anchored if it is read from an external source. The band is recorded as band_source = external_reference with band_source_citation populated. If band_source = analyst_chosen, condition (b) is not satisfied.
+
+Condition (c), evidence independence. The material-change evidence is independent of the assumptions used to fix node identity, the regime attribute, and the effective-description-change classification. The annotation records independence_of_material_change_evidence with value independent, shared_assumption, or not_assessed. Evidential anchoring requires independent.
+
+Condition (d), test-result independence. The material-change result is not entailed by applying the material-change test's classification scheme to the assumptions used to compute the result. The annotation records material_change_test_result_independence with value independent, shared_assumption, or not_assessed. Evidential anchoring requires independent.
+
+Prerequisite satisfaction is a condition on the annotation. Evidential anchoring is a condition on the evidence supporting the annotation's satisfaction of the prerequisites. A STAG-Discovered annotation can fail to be evidentially anchored. The annotation records the anchoring status in the field evidential_anchoring_status. The display layer reports the same value under the field evidential_anchoring. The framework does not claim that any annotation is currently anchored.
+
+The four anchoring conditions are not of the same logical type. Condition (a) is a condition on the annotation record. Condition (b) is a condition on the annotated system and the band. Condition (c) is a condition on the relation between the material-change evidence and the assumptions that fix other fields. Condition (d) is a condition on the relation between the material-change test and its result. The framework reports the four conditions individually and does not combine them into a single score.
+
+Three target profiles are stated for the anchoring status, in decreasing order of evidential strength.
+
+Profile (i), measured-measured. A system with an externally measured microscopic scale and an externally measured collective scale, in a regime where the ratio exceeds the minimum across an externally anchored band.
+
+Profile (ii), measured-inferred. A system with an externally measured microscopic scale and a collective scale inferred from external data via a model that does not take the annotated model as input. The inference source is recorded in the sub-field scale_inference_source.
+
+Profile (iii), synthetic. A synthetic construction with two independently specified scales, where neither scale is a function of the annotated model's control parameters, and where a robustness band is declared.
+
+1.3 Display labels
+The display labels are STAG-Discovered, STAG-Definitional, STAG-None, STAG-Intra, STAG-Intra-Definitional, STAG-Intra-Non_definitional, and STAG-Unclassified. In space-limited tables they may be abbreviated STAG-DISC, STAG-DEF, STAG-NONE, STAG-INTRA, STAG-INTRA-DEF, STAG-INTRA-ND, and STAG-UNC.
+
+STAG-Intra is the label used when no intervention has been attempted on an intra-domain transition, that is, when intervention_classification = Not_applicable. The other two intra-domain labels are STAG-Intra-Definitional and STAG-Intra-Non_definitional.
+
+The display record always contains the derived field evidential_anchoring. Its permitted values are anchored, anchored_with_stated_limitations, candidate, preliminary, not_assessed, and not_applicable. For STAG-Discovered annotations, the value is a copy of evidential_anchoring_status. For all other labels, the value is not_applicable. A STAG-Discovered display label is never reported without the anchoring marker.
+
+The field evidential_anchoring_status is the annotation-record name and evidential_anchoring is the display-layer name. The two names carry the same permitted values and the same content. The annotation record uses the longer name; the display record uses the shorter name.
+
+1.4 Status, intended venue, and companion artifacts
+This is a methodological and scoping-review protocol proposal. No empirical validation has been performed. Because the paper presents a specification and a pre-registration, its appropriate venue class is a registered-report, protocol, or philosophy-of-science outlet, for example Synthese, The British Journal for the Philosophy of Science, European Journal for Philosophy of Science, or Erkenntnis. The paper is not directed at a methods journal that expects empirical results.
+
+Two companion artifacts accompany the main paper. The codebook and schema (Artifact 2) contains the operational instrument, the field list, the permitted value sets, and the semantic validation rules. The response to hostile readings (Artifact 3) contains the framework's replies to objections that a hostile referee may raise and that are not part of the specification itself. The main paper defers to the codebook and schema for field-by-field specifications and to the response for extended discussion of objections.
+
+The companion statistical protocol is a separate document in preparation. Its separation from the annotation framework is a deliberate methodological choice: the framework records a transition claim and its evidential status; the statistical protocol tests for empirical gaps.
+
+1.5 Proposed contribution and scoping-review decision rules
+The proposed contribution is the integration of effective field theory, renormalization-group methods, multiscale modelling, ontology, and formal causal modelling into a single versionable, provenance-aware annotation architecture. This is a conditional contribution, asserted subject to confirmation by the scoped search.
+
+The scoped literature search is described in Supplementary Material D. Its protocol, including search terms, databases, inclusion criteria, a PRISMA-like flow, and a coding manual for the four features below, is drafted and will be deposited with the pre-registration. The comparison against PROV-O, Nanopublications, MIRIAM, SBML, SBGN, BioPAX, EMMO, CMIP/ES-DOC, BFO, and relevant multiscale modelling frameworks is a draft whose entries will be confirmed against the executed search. The search has not been executed.
+
+The four features are operationalized as follows. Feature (a), scale-dependent effective-description criteria: present if and only if the candidate system specifies a machine-readable or formally stated criterion for when a description at one scale is replaced by a description at another, not merely a nesting or part-of relation. Feature (b), threshold provenance by parameter source: present if and only if the candidate system specifies, for each threshold or scale boundary, a recorded origin from among theoretical, empirical, and conventional, with a source field and a rule for combining origins. Feature (c), model-relative counterfactual dependence: present if and only if the candidate system specifies an intervention on a declared model plus a material-change test, evaluated relative to a declared domain partition. Feature (d), multi-label status tracking: present if and only if the candidate system specifies independent, simultaneously recordable statuses for physical claim, graph mapping, and implementation, with revision provenance. Each feature is coded present, partial, or absent, with a justification field and a second-coder check.
+
+Three outcomes are pre-registered. Outcome (i). If the search finds no system combining features (a) through (d), the conditional contribution is supported, subject to the search's scope limitations. Outcome (ii). If the search finds a system with one or more but not all features, the conditional contribution narrows to the integration of the missing features. Outcome (iii). If the search finds a system combining all four features, the conditional contribution is retracted and the paper is restructured as a comparison and extension proposal.
+
+1.6 Core tier, extension tier, and design rationale
+The core tier contains the minimum annotation required to record a transition claim reproducibly. The five core-tier fields are the regime attribute of Section 5.2, the node-identity decision of Section 5.1, the effective-description change of Section 4.2, the intervention classification of Section 7.1, and the cross-domain counterfactual dependence of Section 7.2. Of these five, regime and effective-description change are partly externally anchored. Node identity is externally anchored only for the M component. The intervention classification is expertise-dependent and is validated with expertise-stratified agreement. Cross-domain counterfactual dependence has no independent expert reference under the annotation protocol itself.
+
+The extension tier contains optional fields and the scale-separation record: effective-description change kind, threshold provenance, characteristic scale, reversibility, multi-label status, partition sensitivity, scale-separation record, intervention kind, uncertainty and alternatives, and event-node metadata.
+
+Display labels are derived from the core-tier fields and the extension-tier scale-separation record. The evidential anchoring status is a separate extension-tier field computed from the four anchoring conditions and is reported alongside the label. Both are validated as a unit in Phase 2, after the core-tier fields have been validated individually.
+
+The framework is deliberately elaborate because a claim about a scale transition should carry enough structure to be re-usable by another analyst without access to the original author's mind. Elaboration carries a cost: rules may be too complex to apply reliably, or may encode distinctions that human annotators do not in fact use. The core/extension split and the validation programme are the mechanisms through which this risk is tested.
+
+2. Scope and Non-Claims
+Methodological non-claims. STAG does not propose a theory of everything, a replacement for any established physical theory, a new fundamental interaction, a theory of quantum gravity, a parameter-free theory of emergence, predictions of new particles without a generative theory, a complete graph of nature, or a universal assembly mechanism. It does not claim that graph similarity establishes physical similarity, that removal of a domain contribution in a model establishes a general causal property of the physical transition, or that the framework can determine whether a proposed transition is physically real. It does not claim that its predicates are formally well-founded or that its graph formalism is more than a labelled directed multigraph.
+
+Physical non-claims. STAG does not claim that every effective description corresponds to a new fundamental degree of freedom, that any domain partition is universally fundamental, that all scale transitions are sharp, or that empirical gaps necessarily correspond to physical transitions. STAG annotates transition claims on top of established phase structures. Where no phase diagram exists, STAG records the not-determinable state for regime-dependent fields.
+
+Label non-claims. STAG does not claim that a display label is an intrinsic property of a transition, or that every transition must receive one. It does not claim that a STAG-Discovered classification establishes a universal causal fact. A STAG-Discovered label records that, within a declared model and domain partition, removing a specified contribution materially changes a specified transition under a specified non-definitional intervention, with the four prerequisites of Section 7.5 satisfied. Evidential anchoring is a separate status, reported alongside the label. The framework does not claim that its constructs have been validated for inter-rater reliability, that its elaborateness is empirically justified, or that the display labels correspond to distinct natural kinds.
+
+The narrower claim. STAG supplies a structured, provenance-aware annotation language for recording claims about scale-dependent effective organization, together with procedures for defining descriptive units, recording threshold provenance, recording model-relative cross-domain counterfactual dependence, representing evidential status, and maintaining revision history.
+
+3. Related Work
+3.1 Effective field theory and the renormalization group. Effective field theory and renormalization-group methods supply rigorous criteria for many scale-dependent changes (Weinberg 1979; Wilson 1971; Lepage 1989; Burgess 2007). Where those criteria directly answer the scientific question, they take precedence. STAG is not a renormalization-group flow.
+
+3.2 Multiscale modelling. Multiscale methods couple models at different resolutions (E 2011; E et al. 2007). STAG records that descriptions are related without requiring a particular numerical coupling algorithm.
+
+3.3 Emergence, hierarchy, and levels of organization. Philosophical and scientific literature addresses reduction, asymptotic reasoning, autonomy, and explanatory structure (Batterman 2002; Butterfield 2011; Simon 1962; Wimsatt 2007), including mechanistic levels (Bechtel 2008; Craver 2007; Potochnik 2017; Love 2012). STAG does not resolve metaphysical questions about levels.
+
+3.4 Counterfactual and interventionist reasoning. Woodward's (2003) manipulationist account and Pearl's (2000) formal treatment of counterfactuals ground the claim that a contribution is counterfactually relevant to an outcome when an explicit intervention on that contribution changes the outcome under otherwise matched conditions. STAG does not claim to establish causal identification in the sense required by statistical or structural causal-inference frameworks. The framework's dependence field is model-relative and does not satisfy the identification conditions of the potential-outcomes or structural-equations literatures.
+
+3.5 Ontology, provenance, and annotation standards. Adjacent work includes the Basic Formal Ontology (Arp, Smith, and Spear 2015) and the OBO Foundry (Smith et al. 2007); PROV-O (Lebo et al. 2013) and Nanopublications (Groth et al. 2010; Mons et al. 2011) for provenance; MIRIAM (Le Novère et al. 2005) for model annotation; and Bechhofer et al. (2013) on the gap between linked-data publication and scientific practice. Domain-specific standards include SBML, SBGN, BioPAX, MIRIAM, EMMO, and CMIP/ES-DOC. None specifies how a model at one scale relates to a model at another through a model-relative counterfactual transition rule. STAG's mapping to PROV-O is specified in Section 8.5.
+
+3.6 Graph-based and multiscale annotation efforts. Prior work includes hierarchical process graphs and multilayer networks (Kivelä et al. 2014; Boccaletti et al. 2014). STAG differs in three ways. Its transitions carry a model-relative counterfactual-dependence classification rather than only a relationship type. Its node identity is governed by a tuple-based rule decoupled from transition classification and from the domain partition. It treats the domain partition as an analyst-declared and versioned input.
+
+3.7 Statistical gap detection. Methods for identifying gaps and discontinuities are well established (Kulldorff 1997; Glaz et al. 2001). STAG performs none of this work. The companion statistical protocol handles inference.
+
+3.8 Comparison with existing standards (draft). The comparison is a draft whose entries will be confirmed against the executed search. The coding manual for features (a) through (d) is stated in Section 1.5. The draft comparison and the entries for each standard are deposited in Supplementary Material D. The current draft indicates that STAG as proposed specifies all four features and that the seven standards named above each specify at most two of the four, with none specifying model-relative counterfactual dependence in the sense of feature (c). If the executed search confirms this pattern, outcome (i) of Section 1.5 is taken.
+
+4. Operational Definitions
+4.1 Effective description
+A scale-appropriate representation using variables, collective quantities, approximations, or degrees of freedom appropriate to a specified regime. It qualifies if at least one criterion fires.
+
+ΔDOF fires if the effective state space or algebra of observables changes, and the change is not an exact reparametrization. The operational test is to provide two observables whose algebra differs between the two descriptions, with a citation. Integrating out a field within the same effective theory, and other coarse-grainings retaining the same algebra, do not by themselves fire ΔDOF. The criterion is stated as a test rather than as a theorem, and the test's soundness rests on the annotator's ability to identify two observables whose algebra differs under the declared notion of algebra. The framework does not fix the notion of algebra, and this is a source of rater disagreement that the validation programme (Section 13) is designed to measure.
+
+ΔPC fires if the power-counting or expansion parameter governing the regime changes. ΔSYM fires if the symmetry realization or symmetry-breaking pattern changes. ΔAPP fires if the controlled approximation scheme changes and the previous scheme has a stated breakdown or declared accuracy limit that the new scheme addresses. ΔEFT fires if a different effective field theory is required for the stated precision, externally justified by a stated breakdown of the previous EFT, an independently specified accuracy requirement, a change in relevant degrees of freedom, a change in validity regime, or an empirically demonstrated failure of the previous model. ΔCOL fires if new collective variables become appropriate and are not reducible to a change of basis within the existing description. ΔBIND fires if a new stable or metastable composite or bound-state organisation acquires its own effective description. EXPERT fires if domain experts independently identify distinct regimes where the formal criteria are unavailable.
+
+ΔAPP and ΔEFT require external justification. EXPERT requires at least three independent experts, with independent classifications and reported inter-expert agreement. The solution method or approximation scheme is a node attribute, not part of node identity.
+
+ΔDOF is the broadest criterion; its prevalence must be reported. Negative controls must be included. Pairs differing only by an exact reparametrization (basis change, field redefinition, Kramers–Wannier duality, gauge fixing, equivalent mean-field reorganization) should not satisfy any formal criterion. ΔDOF-only cases are reported separately. The framework does not prove that the negative-control set is exhaustive; the reported false-positive rate is a lower bound on the criterion's actual error rate over the space of exact reparametrizations.
+
+4.2 Effective-description change
+A transition qualifies as demonstrating an effective-description change only when at least one of the criteria ΔDOF through ΔBIND is positively demonstrated with recorded evidence, or EXPERT is used under the constraints above. A transition satisfying none is annotated "No demonstrated effective-description change."
+
+Yes-strong is recorded if ΔDOF fires with at least one other formal criterion, or if a non-ΔDOF criterion fires. Yes-weak is recorded if ΔDOF fires alone. No is recorded if no criterion fires. Uncertain is recorded if the annotation cannot decide. Yes-weak transitions are excluded from STAG-Discovered and receive STAG-Unclassified with reason weak_effective_description_basis. The framework distinguishes three cases not assumed identical: a different physical state, a different descriptive representation, and a demonstrated effective-description change. Only the third is recorded as Yes.
+
+4.3 Node
+A pragmatic descriptive unit represented as a graph node. It does not imply an ontological stratum. Defined by a three-component tuple. The domain of the description is a separate, partition-relative annotation attribute.
+
+5. Node Identity and Individuation
+5.1 The node identity tuple
+A node N is the tuple N = (S, M, G), where S is system scope, M is model or formalism, and G is annotation granularity declared before annotation begins.
+
+The declared domain D is an annotation attribute, with domain_id, partition_id, and partition_version, not a component of node identity. A node can be assigned to different domains under different partitions without becoming a different node.
+
+Because domain is not part of identity, two descriptions sharing S, M, and G are the same node even if assigned to different domains under different partitions or used to study different primary observables. The framework records domain assignment, primary observable, and domains spanned as attributes, and flags domain mismatch on the transition. This removes intervention-dependence of identity at the cost of potentially under-splitting descriptions a coarser analysis might keep distinct. The identity-splitting audit of Section 5.8 is the diagnostic.
+
+The flag domain_mismatch is true if and only if intervention_target_domain is not a member of the set of domains to which the source and target nodes are assigned under the annotation's declared partition_id and partition_version. It does not change node identity; it is recorded on the transition and logged for audit. For STAG-Discovered, STAG-Definitional, and the STAG-Intra variants, the flag is a substantive limitation. For STAG-None and STAG-Unclassified, it is a diagnostic.
+
+Regime is an annotation attribute, not an identity component. Two descriptions sharing S, M, and G are the same node even if they apply in different regimes; the difference is shown as a self-loop with a regime-change attribute.
+
+Solution method, approximation scheme, scientific purpose, validity regime, primary observable, and domains spanned are attributes, not identity components.
+
+The node-identity decision is a core-tier rated field with values merged, new_node, uncertain, and not_determinable.
+
+5.2 Regime attribute
+Every annotation records a regime attribute: symmetric (the relevant order parameter vanishes); broken (the order parameter is nonzero); crossover-band (the order parameter changes continuously without a sharp transition); not_applicable (no order parameter is defined); not_determinable (available information does not support an assignment). Where a domain uses specialized vocabulary, the annotation records both the domain-specific label and its framework mapping.
+
+For symmetric, broken, or crossover-band, the annotation records the order parameter, the control-parameter point at which the order-parameter value was determined, and the source from which the point's location on the phase diagram was read. For crossovers, the value-to-label mapping is expressed as value bands declared before annotation, recorded in the field value_bands_if_crossover. The bands are recorded with regime_band_source, with permitted values external_reference and analyst_chosen, and with a citation when external_reference. If regime_band_source = analyst_chosen, the annotation records regime_band_analyst_chosen = true, and the display label is retained with the flag attached and displayed alongside.
+
+The crossover value bands are distinct from the control-parameter band of condition (b) of evidential anchoring: the crossover value bands partition the order-parameter axis for the regime attribute, while the control-parameter band is the interval of the scale-separation record over which the ratio must exceed the minimum.
+
+The placement of the control-parameter point is read from a previously established source. Where no such external placement is available, the regime attribute is not_determinable.
+
+If either endpoint's regime is not_determinable, the annotation records regime_not_determinable = true. The display label is computed as usual and retained with the flag attached and displayed alongside. A STAG-Discovered case may carry the flag if the phase diagram is unavailable while the scale-separation record is available from independent sources.
+
+5.3 Pre-registration of tuple-matching rules
+Before annotation begins, the application must declare a matching rule for each component.
+
+S matches if and only if the two descriptions have the same scope-nesting position, declared in the model reference. M matches if and only if the two descriptions have the same Hamiltonian or Lagrangian. G matches if and only if the declared granularity labels are equal.
+
+The default M-equivalence transformations are exact reparametrizations: field redefinition, basis change, gauge fixing, and exact duality transformations. When an M-equivalence is claimed, the annotation records m_equivalence_basis (the transformation type) and m_equivalence_witness (the specific transformation written out). A merged decision on two descriptions with different Lagrangians and either field missing is a validation error.
+
+Integrating out a field yields the same M only if the resulting action is the exact effective action at the declared scale, with no truncation, projection, or retention of a subset of channels.
+
+A truncation is a declared-order truncation if and only if the expansion is explicitly stated in the model reference, the order is explicitly stated, and the truncation retains all terms up to and including that order. Anything else is a sectoral or channel truncation, produces a different M, and is recorded as a derived-from edge (Section 8.5).
+
+Two descriptions merge into one node if and only if all three component rules report a match. Record the matching-rule version and the M-equivalence rule version. The application must record a justification for the choice of domain partition.
+
+5.4 Worked identity examples
+Example A, 2D Ising at two temperatures (merged; self-loop). D1 at T equal to twice Tc, D2 at T equal to 0.5 Tc. S matches (both apply to the 2D Ising ferromagnet); M matches (same Hamiltonian); G matches (both coarse). Same node. D1 symmetric, D2 broken. Self-loop with regime-change attribute.
+
+Example B, Fermi liquid vs. BCS mean field (new_node). E1 = Fermi-liquid effective action; E2 = BCS reduced Hamiltonian (phonons integrated out of the Fröhlich Hamiltonian, only the pairing channel retained). S and G match; M does not, because retaining only the pairing channel is a channel truncation, not a declared-order truncation. Derived-from edge with derivation_kind = truncation. Decision: new_node.
+
+Example C, gauge fixing (merged). SU(2) in Landau gauge vs. Feynman gauge. Gauge fixing is an exact reparametrization. m_equivalence_basis = gauge_fixing; m_equivalence_witness = the gauge condition. Decision: merged.
+
+Example D, electroweak vs. Fermi theory (new_node). Fermi theory obtained from the electroweak theory by integrating out W and Z with a declared-order truncation to the dimension-six four-fermion operator. M does not match. Derived-from edge with derivation_kind = truncation, derivation_specification = "operator-dimension truncation at dimension six".
+
+5.5 Purpose as attribute of use
+Scientific purpose is recorded as an attribute of the annotation. A single node may serve multiple purposes.
+
+5.6 Granularity and boundary cases
+Granularity is declared before annotation. Nested descriptions are not automatically identical.
+
+5.7 Identity sensitivity and validation
+Node identity is a primary reliability target. Node-set agreement is reported before any transition is annotated, and is measured on pairs of candidate descriptions that differ in at least one tuple component. This is the primary definition of the plausible-merge set. A sensitivity analysis uses pairs that differ in exactly one tuple component.
+
+Because regime and domain are attributes rather than identity components, two descriptions sharing S, M, and G are definitionally the same node, so node-set agreement is tested only on pairs differing in at least one of S, M, G. The externally anchored component of node identity is M; S and G are settled by the pre-registered matching rule and are not independently checked.
+
+5.8 Identity-splitting audit
+For every merged node used in a cross-domain claim (STAG-Discovered, STAG-Definitional, or any STAG-Intra variant), the annotation records splitting_partition_id (an alternative admissible partition under which the node would be split), splitting_would_change_label (a boolean recording whether the derived display label would change under that partition), and splitting_audit_note (the grounds on which the node would or would not split).
+
+The audit does not apply to new_node decisions. For a new_node case, partition sensitivity under Section 7.8 is the required check instead.
+
+Where splitting_would_change_label = true, the label is reported with identity_partition_sensitive = true attached. The case is logged for audit and reported in a separate partition-sensitive stratum in the validation results. No automatic exclusion or downgrade.
+
+6. Threshold Provenance (Extension Tier)
+Each threshold is decomposed into its materially relevant components. Each component receives one or more provenance labels: theoretical (specified by a governing theory); empirical (estimated from a dataset, with the dataset recorded and the overlap with the transition's own data noted); conventional (reporting or operational role). A summary label may be computed: Class 1 (theoretical or independently estimated empirical); Class 2 (at least one component empirically calibrated using the same dataset as the transition); Class 3 (conventional); Mixed; Unknown. A conventional threshold is not scientifically inferior; the label describes origin, not quality.
+
+7. Transition Attributes and Derived Display Labels
+7.1 Primary independent attributes (core tier)
+The core-tier attributes are as follows.
+
+effective_description_change takes values Yes-strong, Yes-weak, No, Uncertain.
+
+cross_domain_counterfactual_dependence takes values Yes, No, Definitional_only, Not_tested, Intra_domain, Untestable, Uncertain, and not_determinable.
+
+intervention_classification takes values Definitional, Definitional(expertise-dependent), Non_definitional, Not_applicable, and not_determinable. The underlying entailment structure is recorded in the sub-field entailment_basis, which takes values E1, E2, E3, E4, and not_determinable. The mapping is as follows. intervention_classification = Definitional if and only if entailment_basis is E1 or E2. intervention_classification = Definitional(expertise-dependent) if and only if entailment_basis is E4. intervention_classification = Non_definitional if and only if entailment_basis is E3. intervention_classification = Not_applicable if and only if no intervention is attempted. intervention_classification = not_determinable when the entailment basis cannot be determined from the available sources; the annotation is retained with the not_determinable flag attached and displayed alongside.
+
+The four entailment basis values are defined as follows. E1, structural entailment: the outcome follows from the symbolic form of the surviving equations alone, with no numerical or self-consistent solution required, and no applicability condition requires separate confirmation. E2, entailment with conditions confirmed: a specific citable result settles the outcome by entailment, and each applicability condition is confirmed by a recorded witness. E3, requires new computation: no cited result settles the outcome, and establishing it requires a new numerical or self-consistent solution. E4, contested: a cited entailment result exists but is contested, or its applicability conditions cannot be confirmed, or any applicability condition lacks a witness.
+
+The entailment basis is a classification and not a decision procedure. The phrase "follows from the symbolic form" is used in the ordinary mathematical sense and is not given a proof-theoretic semantics. The classification is bounded by the E4 label. The not_determinable value is used when the sources required to apply the classification are unavailable or unverifiable; a not_determinable entailment basis propagates to intervention_classification = not_determinable and to cross_domain_counterfactual_dependence = not_determinable.
+
+For E1 and E2, the annotation records cited_structural_result with result_reference, applicability_conditions, and conditions_check as a list of entries each having condition and condition_witness. The condition_witness must name a specific feature of the intervention or the surviving description, identified by an equation, a term, a kernel, a parameter range, or a regime condition, and must cite the source establishing it. If any condition lacks a witness, entailment_basis must be E4. The field takes the value not_determinable when the source supporting the entailment cannot be verified.
+
+For E3 with a numerical citation, the annotation records cited_numerical_result with citation, result_summary, classification_effect, and citation_scope (values annotated_model, related_model, other, and not_determinable). The field takes the value not_determinable when the cited numerical values cannot be verified against their sources.
+
+intervention_source_domains and intervention_target_domain record the domains involved.
+
+intervention_kind takes values boundary_term, defining_coupling, subdominant_coupling, other. If intervention_kind = defining_coupling, the annotation records defining_coupling_intervention = true, requires a second independent rater, and is excluded from STAG-Discovered unless the second rater independently confirms the intervention classification and the material-change result.
+
+cross_domain_intervention_available takes values Yes, No, Uncertain.
+
+partition_id and partition_version identify the partition.
+
+domain_mismatch is a boolean defined in Section 5.1.
+
+7.2 Cross-domain counterfactual dependence
+Yes is recorded when a substantive intervention was performed, the intervention is non-definitional, and the outcome is a material change under a pre-specified material-change test. No is recorded when an intervention was performed, the intervention is non-definitional, and no material change is observed. Definitional_only is recorded when an intervention was performed, was classified Definitional or Definitional(expertise-dependent), and is cross-domain, and the outcome follows from a cited entailment result; this value is mandatory in that case and forbidden when the intervention is not cross-domain. Not_tested is recorded when no intervention was attempted; it is the counterpart of intervention_classification = Not_applicable. Intra_domain is recorded when an intervention was performed, all intervention_source_domains lie within a single declared domain, and the transition's observable is situated in that same domain. Untestable is recorded when no defensible intervention or decomposition is available under the declared model. Uncertain is recorded when the annotation cannot decide between the above. not_determinable is recorded when the field cannot be assigned because a prerequisite field it depends on is itself not_determinable.
+
+Cross-domain is defined by the intervention: intervention_source_domains together with intervention_target_domain span at least two distinct declared domains.
+
+7.3 Decision tree for entailment basis
+The entailment basis is determined by the following procedure. Step 1, does the intervention set a term or kernel to zero. Step 2, does the outcome follow from the symbolic form alone, with no condition requiring separate confirmation. If so, the basis is E1. Step 3, otherwise, is there a specific citable result settling the outcome by entailment. If so, confirm each applicability condition with a witness. If all conditions are confirmed, the basis is E2. If any condition is unconfirmable or contested, or if any condition lacks a witness, the basis is E4. Step 4, if no citable result settles the outcome, the basis is E3. Step 5, if the analyst cannot decide, the case is logged and a second rater is required. If the sources needed to reach any of the above steps cannot be verified, the basis is not_determinable.
+
+The definitions of E1 through E4 are in Section 7.1 and are not restated here.
+
+7.4 Material-change test
+A change is material when at least one of the following is demonstrated under a pre-specified assessment rule: disappearance, order change, class change, or a pre-registered effect-size threshold. The test is declared before the intervention. A class change is a change in the transition's classification under a stated classification scheme (universality class as defined by critical exponents; order of the transition; mean-field versus non-mean-field behavior). The scheme is recorded in material_change_test_justification. The field takes the value not_determinable when the cited numerical values on which the justification rests cannot be verified against their sources.
+
+7.5 STAG-Discovered: prerequisites
+STAG-Discovered is an extension-tier display label. Its assignment requires all of the following four prerequisites. First, effective_description_change = Yes-strong. Second, intervention_classification = Non_definitional (equivalently, entailment_basis = E3). Third, cross_domain_counterfactual_dependence = Yes, with a pre-registered material-change test and a recorded material-change result. Fourth, a scale-separation record satisfying the following: either scale_separation_source_kind = external_value with at least one scale value read from a source that does not take the annotated model as input, or scale_separation_source_kind = external_coefficient with both scale values computed from the model and an externally sourced coefficient entering the computation, with a declared control-parameter band recorded in the fields band_declared, band_min_ratio, band_max_ratio, band_source, and band_source_citation where applicable; and in either case a ratio greater than or equal to the declared minimum.
+
+The four prerequisites are necessary and sufficient for the label, subject to the branch ordering in Section 7.6.
+
+The framework does not separately define "scale transition." The four prerequisites are the sole operational criteria for the label.
+
+Evidential anchoring is defined in Section 1.2. Prerequisite satisfaction is distinct from evidential anchoring. A case can satisfy all four prerequisites and fail anchoring on one or more of conditions (a) through (d).
+
+The scale-separation record has the following components: the two scales compared; the quantity defining each; the source from which each value is read; scale_separation_source_kind; the unit conversion if dimensions differ, with citation; the numerical ratio; the recorded expansion parameter; band_declared; band_min_ratio; band_max_ratio; band_source; band_source_citation; analyst_dependence_acknowledged; analyst_dependence_note; dimensionless. For external_value, the record includes scale_inference_source where the value is inferred from external data via a model that does not take the annotated model as input. The field band_source_citation takes the value not_determinable when the source supporting the band cannot be verified.
+
+The source kinds are defined as follows. external_value means the scale value is a measured quantity, or is a quantity determined by a source that does not take the annotated model as input. A sub-distinction is drawn between a direct measurement and an inference from external data via an external model; the presence of scale_inference_source marks the latter. external_coefficient means the scale values are computed from the model, but an externally sourced coefficient or exponent enters the computation, and a declared robustness band is present. model_internal means the scale value is a parameter of the model or a quantity computed from the model's own parameters alone.
+
+The declared minimum ratio is 10, corresponding to an expansion parameter of at most 0.1. Alternative thresholds of 3, 5, or 20 are permitted with a declared justification.
+
+A record with scale_separation_source_kind = model_internal alone is insufficient. The transition receives STAG-Unclassified with reason model_internal_scale_separation.
+
+The four prerequisites are operational criteria, not independent evidence requirements. A single external source may satisfy multiple prerequisites if applied in different ways.
+
+One case satisfying the four prerequisites is documented in Section 11.2. It is illustrative, not evidentially anchored.
+
+7.6 Derived display label
+The display labels are extension-tier. Derivation proceeds as follows.
+
+Step 1. If effective_description_change = No, no transition is recorded and no label is assigned.
+
+Step 2. If effective_description_change = Uncertain, the label is STAG-Unclassified with reason uncertain.
+
+Step 3. If effective_description_change = Yes-weak, the label is STAG-Unclassified with reason weak_effective_description_basis.
+
+Step 4. If effective_description_change = Yes-strong:
+
+Step 4a. If cross_domain_counterfactual_dependence = Intra_domain:
+
+Step 4a(i). If the material-change classification is Uncertain, the label is STAG-Unclassified with reason uncertain.
+
+Step 4a(ii). Otherwise, if intervention_classification is Definitional or Definitional(expertise-dependent), the label is STAG-Intra-Definitional.
+
+Step 4a(iii). Otherwise, if intervention_classification = Non_definitional, the label is STAG-Intra-Non_definitional.
+
+Step 4a(iv). Otherwise, if intervention_classification = Not_applicable, the label is STAG-Intra.
+
+Step 4b. Otherwise, if intervention_classification is Definitional or Definitional(expertise-dependent) and the intervention is cross-domain, the label is STAG-Definitional.
+
+Step 4c. Otherwise, if intervention_classification = Non_definitional and cross_domain_counterfactual_dependence = Yes and the scale-separation record satisfies the requirement in Section 7.5 with ratio at or above the minimum, the label is STAG-Discovered, reported with evidential_anchoring alongside.
+
+Step 4d. Otherwise, if cross_domain_counterfactual_dependence = Yes and either the record is missing or source_kind = model_internal or the ratio is below the minimum, the label is STAG-Unclassified with reason insufficient_scale_separation or model_internal_scale_separation.
+
+Step 4e. Otherwise, if cross_domain_counterfactual_dependence = No, the label is STAG-None.
+
+Step 4f. Otherwise, if cross_domain_counterfactual_dependence = Not_tested, the label is STAG-Unclassified with reason not_tested.
+
+Step 4g. Otherwise, if cross_domain_counterfactual_dependence = Untestable, the label is STAG-Unclassified with reason untestable_model or inadmissible_partition.
+
+Step 4h. Otherwise, if cross_domain_counterfactual_dependence = Uncertain, the label is STAG-Unclassified with reason uncertain.
+
+Step 4i. Otherwise, if cross_domain_counterfactual_dependence = not_determinable or intervention_classification = not_determinable, the label is STAG-Definitional (for a cross-domain intervention) or STAG-Discovered (where the prerequisites are otherwise satisfied), retained with the not_determinable flag attached and displayed alongside.
+
+The label assignment does not depend on conditions (a) through (d) of evidential anchoring. A STAG-Discovered label may be assigned with shared-assumption material-change evidence, with a shared-assumption test-result relationship, with an analyst-chosen band, or with material-change evidence that is inappropriate for the anchoring criterion. Those failures are reported through evidential_anchoring and do not demote the label. The label records the annotation's structural content; the anchoring status records the strength of the evidence supporting it.
+
+If either endpoint's regime is not_determinable, the label is retained with regime_not_determinable attached and displayed alongside. If identity_partition_sensitive = true, the label is retained with that flag attached and displayed alongside. If any core-tier field on which the label depends is not_determinable, the label is retained with the not_determinable flag attached and displayed alongside.
+
+unclassified_reason permitted values: uncertain, untestable_model, inadmissible_partition, not_tested, insufficient_scale_separation, model_internal_scale_separation, weak_effective_description_basis.
+
+7.7 Partition pre-registration and justification
+The partition must be declared before annotation and before case selection. The Intra_domain rate must be reported per partition. If a partition produces Intra_domain for more than 60 percent of transitions in a set, the partition is flagged for independent audit. For every Intra_domain label, record cross_domain_intervention_available and, if Yes, reason_if_not_performed. The 60 percent threshold is a convention; it is not derived from a statistical model.
+
+7.8 Partition sensitivity
+Partition sensitivity is required for every label above STAG-Unclassified. For STAG-Discovered, STAG-Definitional, and any STAG-Intra case, the annotation records at least one alternative admissible partition, the resulting classification, and whether the classification changed. For STAG-Discovered and STAG-Definitional with a merged node-identity decision, the identity-splitting audit of Section 5.8 is also required. For a new_node decision, the partition-sensitivity record is the required check.
+
+7.9 What STAG-Discovered does not claim
+A STAG-Discovered label does not establish that the transition is caused by the identified domains in any framework-independent sense, that the identified domains are physically fundamental, that the model is correct, that the partition is correct, that the recorded scale-separation ratio is the correct one for the system, or that the counterfactual would hold under a different model or partition. Where identity_partition_sensitive = true, the label is explicitly partition-relative. Where evidential_anchoring is not anchored, the label does not establish that an evidentially anchored case exists.
+
+7.10 The relationship between the label and the anchoring status
+The framework reports the label and the anchoring status side by side. The framework states a display convention that the anchoring status should be reported with the label in every rendering, and provides the schema (Rule 7 and Rule 26 in Artifact 2) that requires the anchoring fields to be recorded and that requires the provisional_flag to be attached to any label whose dependent fields are inconclusive. The framework cannot enforce the display convention technically. A not_determinable flag on any field is displayed alongside the label under the same convention.
+
+The framework does not score the anchoring status into a single numeric summary. The four anchoring conditions are reported individually and are not combined.
+
+The framework states a formal limitation on the reachability of the anchoring status. Under any rendering in which the scale-separation ratio is evaluated at a control-parameter point and the band is anchored to the phase-stability range, the ratio is bounded above by the value at the band endpoint closest to the phase boundary. The bound exists because the correlation length is finite away from the critical point and grows as the endpoint approaches the phase boundary. If the bound is below the declared minimum, the band cannot satisfy condition (b), and the anchoring status is unreachable through that band. The bound is not computed by the framework; its existence is stated here because it is the reason the reachability search in Section 13.4 is not guaranteed to succeed for profile (i) or profile (ii).
+
+8. Domain Partitions and Graph Formalism
+8.1 Decompositional and framework-level partitions
+Decompositional partitions are built from a mathematically or physically distinguishable decomposition of a declared model: terms in a Lagrangian or Hamiltonian, sectors in a product-space formulation, or identifiable physical channels. Framework-level partitions distinguish whole modelling frameworks and are not admissible for cross-domain counterfactual claims; an annotation under a framework-level partition records cross_domain_counterfactual_dependence = Untestable and produces STAG-Unclassified with unclassified_reason = inadmissible_partition. A term coupling two domains is declared a boundary term.
+
+8.2 Admissibility criteria
+A decompositional partition is admissible only if the decomposition is mathematically well-defined in the declared model, each domain is assigned a distinct role and formalism, the partition is pre-registered, the partition is versioned and assigned a stable identifier, and the domain structure is documented with role tags and formalism descriptors.
+
+8.3 Domain entry fields
+domain_id; role_tags; formalism; decomposition_source; validity; status.
+
+8.4 Partition registry
+partition_id; version; domain entries; partition_kind; admissibility_status; date of creation; revision history; supersession relationships.
+
+8.5 Graph structure and PROV-O mapping
+A STAG is a directed multigraph with two kinds of nodes: state nodes and event nodes.
+
+State nodes represent declared effective descriptions and carry the three-component tuple. Because a self-loop on a single state node would have the same prov:Entity as both prov:used and prov:generated, regime-qualified state records are represented as distinct prov:Entity instances sharing one node ID (for example N@symmetric and N@broken).
+
+Event nodes represent transitions that cannot be represented as a single directed edge without ambiguity. An event node maps to prov:Activity. Annotation records are prov:Entity with prov:wasGeneratedBy. Integration-out and truncation relations are recorded as derived-from edges (prov:wasDerivedFrom), not as M-equivalences. Superseding annotations are new prov:Entity records with prov:wasRevisionOf.
+
+A formal definition. A STAG is a tuple G = (V_s, V_e, E, ℓ, τ, ρ). V_s is a finite set of state nodes, each carrying a tuple (S, M, G), a node identifier, and a regime attribute. V_e is a finite set of event nodes, disjoint from V_s, used only for composite transitions. E is a finite set of directed edges, a subset of the union of V_s × V_s, V_s × V_e, and V_e × V_s. Self-loops are permitted and carry a regime_change attribute. ℓ maps V_s into S × M × G and is the node-labelling function. τ maps E into the transition-attribute record and is the edge-labelling function. ρ maps the union of E and V_e into the PROV-O mapping and is the provenance-labelling function. Well-formedness conditions: every edge has a recorded node-identity decision for its endpoints; a self-loop must carry regime_change; an event node must have at least two incoming edges from V_s or at least two outgoing edges to V_s; derived-from edges are disjoint from transition edges; supersession chains are acyclic.
+
+The framework's formal definition does not impose constraints that would make the graph a category, a functor, or any structure richer than a labelled directed multigraph.
+
+An abbreviated Turtle serialization of the two-layer Ising self-loop. The entity stag:N_TWO_LAYER_ISING is a prov:Entity with stag:system_scope recording the two-layer Ising model on a square lattice, stag:model recording the Hamiltonian, stag:granularity recording "coarse", stag:partition_id recording the partition identifier, and stag:partition_version recording the version. The entity stag:N_TWO_LAYER_ISING_broken is a prov:Entity with prov:specializationOf pointing to the first, stag:regime recording "broken", and stag:order_parameter recording the uniform magnetization. The activity stag:T_COUPLING_SELFLOOP is a stag:Transition and a prov:Activity, with prov:used pointing to the broken entity, prov:generated pointing to a symmetric entity, and stag:regime_change recording the transition. The full JSON Schema and SHACL schema are in Artifact 2. SHACL validation of the examples has not been run.
+
+8.6 Edges, direction, reversibility, cycles
+Edges are directed; direction does not imply irreversibility. Reversibility is an edge or event attribute: reversible, irreversible, condition-dependent, unknown. Cycles are permitted. Derived-from edges are distinct from transition edges.
+
+8.7 Composition notation
+Regime transitions: A ⇢ B. Composite formation: A + B → C. Transformations: A → B. Intra-model transitions: self-loops with a regime-change attribute. Derived-from: A ⊑ B.
+
+8.8 Characteristic-scale conventions
+A characteristic scale is a declared quantity associated with a node or event. The convention must be recorded.
+
+9. Status Dimensions (Extension Tier)
+Physical-claim status: D (derived) / E (empirical) / P (established phenomenology) / O (open or disputed). Graph-mapping status: F (formalized) / R (represented) / A (analogy). Framework-frontier status is split: underlying_science_status — established / candidate / heuristic / open; stag_implementation_status — tested / pilot-tested / untested / disputed.
+
+10. Relationship to the Statistical Protocol
+STAG does not perform statistical gap testing. The companion statistical protocol takes the annotation's transition set as input and tests for empirical gaps or discontinuities; its output is recorded as statistical_gap_result. Where the model-relative dependence classification and the statistical gap result disagree, record dependence_gap_discordance and report both.
+
+11. Worked Examples
+None of the annotations below is a validated annotation. "Worked example" means an annotated instance, not an evidentially anchored case. Full annotations are in Artifact 2.
+
+11.1 Superconducting transition in a Fröhlich/Eliashberg model
+Display label: STAG-Definitional, evidential_anchoring = not_applicable, retained with the not_determinable flag attached and displayed alongside.
+
+Partition: STAG-PARTITION-PHYSICS-FROHLICH-2024, version 1, decompositional. Domains: electronic; phononic. H_e-ph is a boundary term.
+
+Model: Fröhlich Hamiltonian H = H_e + H_ph + H_e-ph. Eliashberg theory describes both normal and superconducting states (Eliashberg 1960; McMillan 1968; Allen and Dynes 1975). The BCS reduced Hamiltonian is obtained by integrating out phonons and truncating to the pairing channel; the channel truncation makes it a different M, recorded as a derived-from edge.
+
+Node identity: same Hamiltonian (Fröhlich), same solution method (Eliashberg). S, M, G match. Decision: merged. Self-loop. Domain annotation: electronic.
+
+Regime: order parameter is the s-wave pairing amplitude. T = 2 Tc (symmetric); T = 0.5 Tc (broken).
+
+Effective-description change: Yes-strong. Criteria firing: ΔDOF (normal-state quasiparticles → Bogoliubov quasiparticles, different algebra); ΔSYM (global U(1) broken in the mean-field description); ΔCOL.
+
+Intervention: set the electron–phonon coupling kernel to zero in the Eliashberg s-wave gap equation, retaining the electronic band structure and screened Coulomb repulsion. intervention_source_domains = {electronic, phononic}; intervention_target_domain = electronic; intervention_kind = boundary_term.
+
+Intervention classification: not_determinable, with entailment_basis = not_determinable and cited_structural_result = not_determinable. The scope of the Eliashberg (1960) result and of the Kohn–Luttinger (1965) non-s-wave caveat could not be verified against their primary sources, so the classification is not determined. The conditions_check entry for the "no surviving channel" condition is retained but is not used to assign a class.
+
+Cross-domain counterfactual dependence: not_determinable, since the field depends on intervention_classification, which is not_determinable. Material-change test: disappearance. Derived label: STAG-Definitional, evidential_anchoring = not_applicable, retained with the not_determinable flag attached and displayed alongside, consistent with the not_determinable handling in Section 5.2.
+
+11.2 Two-layer Ising model (illustrative, not anchored)
+Display label: STAG-Discovered, evidential_anchoring = preliminary, retained with the not_determinable flag attached and displayed alongside. This example illustrates the annotation mechanics. It is not evidentially anchored.
+
+Model: two-layer Ising model on a square lattice, intralayer coupling J, interlayer coupling J_int, with Hamiltonian H = −J Σ_{⟨ij⟩∈L1} σ_i σ_j − J Σ_{⟨ij⟩∈L2} τ_i τ_j − J_int Σ_i σ_i τ_i. Parameter regime: J_int = J > 0; both layers share J.
+
+Universality-class assumption: the claim that the coupled model at J_int = J is in the 3D Ising universality class rests on the general principle of dimensional crossover, stated as a working assumption. No specific review of dimensional crossover in layered Ising systems is cited.
+
+Critical temperatures: T_2D ≈ 2.269 J/k_B (exact 2D Ising, Onsager 1944). The assertion that Tc(coupled) exceeds T_2D is stated as an assumption; no source is cited.
+
+Critical exponents: ν_3D = 0.6301(4) from Ferrenberg and Landau (1991); ν_2D = 1 exact (Onsager 1944).
+
+Partition: STAG-PARTITION-PHYSICS-TWO-LAYER-ISING-2024, version 1, decompositional. Domains: layer_1; layer_2. Interlayer term is a boundary term.
+
+Node identity: E1 uses H with J_int = J; E2 uses H with J_int = 0. S and G match; M does not. Decision: new_node.
+
+Regime: order parameter is the uniform magnetization m = (⟨σ⟩ + ⟨τ⟩)/2. The control-parameter point and the phase-diagram source are set to not_determinable, because the assertion that Tc(coupled) exceeds T_2D could not be verified against a source and the placement of the control-parameter point on the phase diagram is therefore not determined.
+
+Effective-description change: Yes-strong. ΔSYM (one Z₂ symmetry coupled; two independent Z₂ symmetries decoupled); ΔDOF (one order parameter vs. two).
+
+Intervention: set J_int = 0. intervention_source_domains = {layer_1, layer_2}; intervention_target_domain = layer_1; intervention_kind = boundary_term.
+
+Intervention classification: Non_definitional, entailment_basis = E3. cited_numerical_result: citations Ferrenberg and Landau (1991) and Onsager (1944); classification_effect = Non_definitional; citation_scope = related_model.
+
+Cross-domain counterfactual dependence: Yes.
+
+Scale-separation record. Microscopic scale: lattice spacing a, dimensionless model unit. Collective scale: correlation length ξ in lattice units, evaluated at t = (T − Tc)/Tc = 0.01, with ξ/a = t^(−ν_3D) ≈ 18.2, external; ν_3D = 0.6301 from Ferrenberg and Landau (1991). Ratio: 18.2. Expansion parameter: approximately 0.055. Source kind: external_coefficient. Dimensionless: true. Control-parameter value: t = 0.01. Control-parameter source: analyst-chosen. Band declared: [0.005, 0.02]. Band source: analyst-chosen. band_source_citation is set to not_determinable, because the assertion that Tc(coupled) exceeds T_2D could not be verified against a source and the band cannot be anchored to a verified phase-stability range. band_min_ratio approximately 11.8, computed by the annotator from the band and ν_3D at t = 0.02. analyst_dependence_acknowledged = true.
+
+Material-change test: class change in ν under the scheme "universality class as defined by critical exponents," from ν approximately 0.63 (3D Ising) at the coupled critical point to ν = 1 (2D Ising) at the decoupled critical point. material_change_test_justification is set to not_determinable, because it rests on the numerical values quoted in Allen and Dynes (1975) and McMillan (1968), which could not be verified against their sources.
+
+Material-change result: not_determinable. The assertion that ν(coupled) is approximately 0.63 at the coupled critical point rests on the dimensional-crossover principle rather than on a verified study of the two-layer model at J_int = J, and the result is therefore not determined.
+
+Partition sensitivity: alternative partition ...-STRONG-WEAK-2024 v1 (domains strong_layer, weak_layer); classification unchanged. Because the node-identity decision is new_node, the identity-splitting audit of Section 5.8 does not apply.
+
+Derived display label: STAG-Discovered, evidential_anchoring = preliminary, retained with the not_determinable flag attached and displayed alongside, consistent with the not_determinable handling in Section 5.2.
+
+Anchoring assessment. The case satisfies the four prerequisites of Section 7.5. It fails anchoring on all four conditions.
+
+Condition (a) fails. The material-change result is supported by citation to studies of the pure 3D and 2D Ising models rather than to a study of the annotated model at the annotated parameters; citation_scope = related_model.
+
+Condition (b) fails. The band source is analyst_chosen, not external_reference, and band_source_citation is not_determinable.
+
+Condition (c) fails. The material-change evidence rests on the same dimensional-crossover assumption that fixes the node's regime assignment at the coupled critical point. independence_of_material_change_evidence = shared_assumption.
+
+Condition (d) fails. The material-change result is entailed by the material-change test's classification scheme applied to the model's assumed class. material_change_test_result_independence = shared_assumption.
+
+The example is illustrative, not evidentially anchored, and it fails anchoring on grounds that are not repairable by adding a Monte Carlo study alone. A Monte Carlo study of the two-layer model at J_int = J would satisfy condition (a) and would supply an independent value of ν for condition (d). It would not supply an externally anchored band for condition (b) unless the study also established the phase-stability range over which the 3D Ising scaling regime holds. Nor would it repair condition (c), because the assumptions fixing the regime attribute are the assumptions of dimensional crossover, and these are the assumptions on which the material-change evidence would rest unless the regime assignment is established independently.
+
+11.3 Two-band superconductor (STAG-None schematic)
+evidential_anchoring = not_assessed. Partition: band sectors, decompositional. Intervention: set the subdominant interband coupling to zero (intervention_kind = subdominant_coupling); classification Non_definitional, entailment_basis = E3. cross_domain_counterfactual_dependence = No. Material-change test: pre-registered effect-size threshold on Tc; result below threshold. Label: STAG-None.
+
+11.4 Glass transition (STAG-Unclassified, inadmissible partition)
+evidential_anchoring = not_assessed. Framework-level partition, recorded as inadmissible. effective_description_change = Yes-strong (ΔDOF, ΔCOL). cross_domain_counterfactual_dependence = Untestable. Label: STAG-Unclassified, unclassified_reason = inadmissible_partition.
+
+11.5 Finite-temperature QCD crossover (STAG-Unclassified, not_tested)
+evidential_anchoring = not_assessed. Partition STAG-PARTITION-PHYSICS-4SECTOR-2024 v1, decompositional. Relevant domain: Strong. Node identity: quark–gluon node (M = perturbative QCD Lagrangian) vs. hadronic node (M = chiral effective Lagrangian); decision new_node. Regime: placeholder bands. effective_description_change = Yes-strong (ΔAPP, ΔCOL). No intervention; intervention_classification = Not_applicable. cross_domain_counterfactual_dependence = Not_tested. Label: STAG-Unclassified, unclassified_reason = not_tested.
+
+11.6 What the examples demonstrate
+The examples illustrate that the annotation records model-relative claims without overstating them, that the entailment basis separates entailment from numerical computation, that a case can satisfy the four prerequisites while failing anchoring, that the cross-domain designation is a property of the intervention and the partition, that a transition with no intervention is Not_tested rather than Intra_domain, that framework-level partitions produce STAG-Unclassified with a specific reason, and that node identity is decoupled from the domain partition and the intervention. The examples also illustrate the not_determinable handling: when a load-bearing source cannot be verified, the corresponding field is marked not_determinable and the label is retained with the flag attached and displayed alongside. None of the annotations is validated. The two-layer example of Section 11.2 is illustrative, not anchored. Whether an anchored case exists is the subject of the reachability search of Section 13.4.
+
+12. Theory Change and Revision
+Annotations are versioned. Every annotation records annotation date, theory or model version, partition identifier and version, model reference, intervention specification, effective-description criteria, evidence, annotator provenance, and revision or supersession relationships.
+
+13. Validation Programme
+13.1 Stages and phasing
+Stage 0 is the ambiguity audit: eight to twelve predefined cases across at least three scientific domains, annotated by a single internal team, with the entailment basis audited with expertise stratification. The purpose is to identify ambiguities and freeze the codebook.
+
+Stage 1a is the confirmatory core: at least twenty cases and at least three raters per case in one scientific domain, covering the five core-tier fields, the entailment basis, and the two anchoring independence fields.
+
+Stage 1b is escalation: additional scientific domains and raters, contingent on the outcomes of Stage 1a.
+
+Stage 2 is the extension tier: display labels and the scale-separation record, validated as a unit after the core tier has been validated.
+
+The escalation rule: Phase 1b proceeds if and only if Phase 1a passes the governing rule of Section 13.3 for at least four of the five core-tier fields, where a threshold-sensitive field counts as passing if it passes at both 0.5 and 0.7, as failing if it fails at both, and as inconclusive if it passes at one and fails at the other.
+
+13.2 Phase 1a design
+Cases: at least twenty, drawn from named review articles by a pre-specified sampling rule. These are floors. A simulation-based power analysis precedes Phase 1a and determines the counts needed to distinguish the pre-specified agreement thresholds from chance for all five core-tier fields. The power analysis is a plan whose results will be deposited with the pre-registration; the framework does not report a power result in this paper. If the power analysis requires larger counts, the larger counts are used.
+
+Negative controls: count set by the Clopper–Pearson one-sided 95 percent upper confidence bound for the false-positive rate, using a pre-specified error allowance of one permitted false positive and tolerance 0.20, giving twenty-two controls. Controls are stratified into obvious_equivalence (basis changes, gauge fixings, field redefinitions, equivalent mean-field reorganizations) and non_obvious_equivalence (dualities such as Kramers–Wannier, exact bosonization identities, non-trivial exact mappings). Because ΔDOF is defined to exclude exact reparametrizations, testing it on obvious equivalences is close to tautological. The false-positive rate is reported separately for the two strata, and the tolerance of 0.20 must hold for the non_obvious_equivalence stratum for the criterion to be regarded as passing. Each control is independently confirmed to be an exact reparametrization by at least two domain experts. The framework does not prove that the control set is exhaustive over the space of exact reparametrizations; the reported false-positive rate is a lower bound.
+
+Raters: domain experts with relevant expertise per case, working independently with the frozen codebook and one training example from the audit.
+
+Fields rated: the five core-tier fields, the entailment basis, and the two anchoring independence fields.
+
+Rating procedure for independence_of_material_change_evidence. The rater lists the assumptions used to fix node identity, the regime attribute, and the effective-description-change classification. The rater lists the assumptions underlying the material-change evidence. The rater classifies as independent if the two lists are disjoint, as shared_assumption if they intersect, and as not_assessed if the rater cannot determine either list.
+
+Rating procedure for material_change_test_result_independence. The rater writes down the classification scheme of the material-change test and the assumptions used to compute the result. The rater classifies as independent if the result does not follow from applying the scheme to those assumptions alone, without additional computation; as shared_assumption if it does; and as not_assessed if the rater cannot decide.
+
+Node-set agreement: measured on the pairwise merge decision over the plausible-merge set, defined in Section 5.7 as pairs of candidate descriptions differing in at least one of S, M, G. A sensitivity analysis uses pairs differing in exactly one component. Agreement is computed with Krippendorff's alpha on the pairwise decisions, with the case identifier used as a cluster for the bootstrap confidence interval.
+
+13.3 Agreement statistics and the governing rule
+Per field: raw agreement, Krippendorff's alpha, Gwet's AC1, prevalence per category.
+
+Governing rule: the lower bound of the 95 percent confidence interval on alpha must be at least 0.6, and the point estimate of AC1 must be at least 0.6. Both pass leads to pass. Alpha passes but AC1 fails leads to inconclusive (prevalence-sensitive). Alpha fails but AC1 passes leads to inconclusive (prevalence-sensitive). Both fail leads to fail.
+
+The threshold of 0.6 is a convention chosen for exploratory annotation intended for reuse by a second analyst, not for confirmatory measurement of an individual case. The pass/fail status of a field is threshold-dependent, and the falsification conditions that invoke the governing rule inherit that dependence.
+
+Threshold sensitivity: a sensitivity analysis of the agreement outcome at thresholds of 0.5 and 0.7 is reported. If a field's outcome differs between the two thresholds, the field is reported as threshold-sensitive (threshold_sensitive_flag = true), with both outcomes reported. A threshold-sensitive field counts as passing for the escalation rule of Section 13.1 if it passes at both thresholds, as failing if it fails at both, and as inconclusive if it passes at one and fails at the other.
+
+Consequence of inconclusive: the field is usable for annotation but is flagged. The field's agreement_outcome is inconclusive and provisional_flag is true. Any display label depending on that field is reported with provisional_flag attached. After the revision cycle, a field that remains inconclusive narrows the framework's claims on any dependent label.
+
+All-inconclusive scenario: if, after the revision cycle, three or more core-tier fields remain inconclusive and none is fail, the framework is reported as not validated but not falsified. The contribution claim narrows to the specification, and no claim is made about reliability of the display labels.
+
+Confidence intervals: case-level cluster bootstrap. The regime attribute's not_applicable and not_determinable values are retained and the agreement statistic is computed on the full value set; a separate analysis excluding these two values is reported as a sensitivity check. Reliability is not validity.
+
+Revision policy: a single revision cycle after Phase 1a. Poor agreement means fail under the governing rule.
+
+13.4 Validity evidence and the reachability hypothesis
+Route 1, synthetic ground-truth comparison. The 2D Ising intra-domain case validates the entailment basis and the intra-domain precedence rule; evidential_anchoring = not_applicable. The two-layer Ising case is illustrative of the annotation mechanics and not evidentially anchored; evidential_anchoring = preliminary. The coupled nonlinear oscillators case (to be described in the supplementary deposit) is preliminary for the E3 basis. Additional toy models to be added include a two-band gap equation with a non-separable kernel, a mean-field model with competing order parameters, and a lattice model with a removable interlayer coupling; evidential_anchoring = candidate.
+
+Route 2, independent computational replication. For a published claim that removing a term changes an outcome, an independent analyst or script re-solves the model using the published specification and parameters. Route 2 validates the source's claim under the annotation's stated intervention, not the annotation's dependence classification.
+
+Route 3, scientific-value test, in Section 13.6.
+
+Reachability hypothesis: at least one published physical system, or at least K synthetic constructions, is evidentially anchored, with all four anchoring conditions satisfied. The three target profiles are stated in Section 1.2. Profile (i) is preferred. Profile (ii) is acceptable if the inference source is external and the inference is declared. Profile (iii) is acceptable only with a declared robustness band. The pre-registered value of K is deposited with the validation protocol. The target outcome is at least one case with evidential_anchoring = anchored.
+
+A limitation of the target profiles. Profile (i) requires an externally anchored band and a ratio above the minimum throughout the band. Section 7.10 states the bound on the ratio at the band endpoint closest to the phase boundary. If the bound is below the declared minimum, profile (i) is unreachable for that band. Profile (ii) has the same problem, and additionally may be empty because many real correlation lengths are inferred via models that are themselves the annotated model. Profile (iii) is a synthetic construction with an externally specified robustness band; this profile is reachable by construction if the constructor chooses the band appropriately, but the framework does not claim that such a synthetic construction is scientifically interesting.
+
+Falsification. If the pre-registered search exhausts its candidate pool and finds no published physical system and fewer than K synthetic constructions satisfying the anchoring definition, the reachability hypothesis is falsified for the domains searched. The consequence is that the contribution narrows to the annotation architecture with the anchoring status retained as a defined but uninstantiated field. Feature (c) of the contribution claim remains specified. The paper should be reframed as a limitative result about the difficulty of constructing an evidence-independent scale-transition discovery criterion. Partial evidence, such as a search finding fewer candidates than the pool size or failures concentrated in one reason category, is reported as inconclusive.
+
+Validity evidence is reported separately from inter-rater agreement.
+
+13.5 Comparison with established descriptions
+Reference standard: domain experts classify each candidate blinded to STAG. For each pair, the expert decides whether the two descriptions use the same Hamiltonian or Lagrangian under the declared M-equivalence rule, and whether an effective-description change is present. Fields compared: effective-description change and the M component of node identity. Metric: chance-corrected agreement per field. The reference standard is not independent of the framework in the sense that the experts must apply the framework's M-equivalence rule.
+
+13.6 Independent empirical application and scientific-value test
+Application: a real scientific case selected independently of the framework's development.
+
+Primary endpoint: whether an independent analyst can use the STAG annotation to identify a transition whose cross-domain dependence status was not apparent from the free-text description, or to predict the outcome of an intervention not described in the source. Measured as the rate at which the analyst correctly identifies dependence or predicts the intervention outcome.
+
+Control condition: information-matched. A domain expert, working from the same source text and citations, writes a structured summary of equivalent length and content to the STAG annotation, using the domain's own vocabulary and no STAG structure, no display label, and no codebook.
+
+Treatment condition: the same source text and citations, plus the STAG display label, plus the annotation JSON fields listed in the reporting checklist, excluding agreement_outcome, provisional_flag, and confidence.
+
+Matching adequacy. The matched control is assessed by a pre-registered rubric applied by two independent raters. The rubric names the dimensions on which matching is judged: the number of retrievable facts, the number of causal or dependence relations stated, the number of evidential qualifiers stated, and the length in tokens. The matching is accepted if both raters judge it adequate. If the raters disagree, the case is excluded from the scientific-value analysis and the exclusion is reported.
+
+Cost endpoints, operationally defined. Annotation time: wall-clock time from the start of the annotation to its deposit. Expert time: sum of expert-hours spent. Retrieval time: wall-clock time for an independent analyst to locate the transition. Error count: number of correction events logged in the annotation's revision history.
+
+All other endpoints are declared secondary and corrected for multiple comparisons.
+
+Success criterion: STAG adds scientific value only if it improves the primary endpoint relative to the information-matched control, with a pre-specified effect size and confidence interval, and if the cost is disclosed and judged acceptable. The success criterion is not evaluated in this paper.
+
+13.7 Falsification conditions
+The following conditions are the falsification conditions for the framework as a whole and for its individual fields. Each condition is stated with the operational test that is applied. A condition is evaluated on the frozen codebook and the pre-registered analysis plan; a condition is not evaluated post hoc.
+
+Condition F1. Node-identity agreement. STAG fails on this field if node-identity agreement fails under the governing rule of Section 13.3 after the single revision cycle permitted by Section 13.3. Operational test: compute Krippendorff's alpha and Gwet's AC1 on the pairwise merge decisions for the plausible-merge set defined in Section 5.7, apply the four-way governing table of Section 13.3, and check whether the outcome is fail after the revision cycle. A threshold-sensitive outcome is reported with both outcomes at 0.5 and 0.7; if the two thresholds disagree, the field is reported as threshold-sensitive and the condition is not triggered unless both thresholds produce fail.
+
+Condition F2. Regime-attribute agreement. STAG fails on this field if regime-attribute agreement fails under the governing rule of Section 13.3 after the revision cycle. Operational test: compute the same statistics on the regime attribute with not_applicable and not_determinable retained in the value set, and with the excluding-them sensitivity analysis reported alongside; check whether the outcome is fail under the same threshold-sensitivity rule as F1.
+
+Condition F3. Effective-description change agreement. STAG fails on this field if effective-description change agreement fails under the governing rule of Section 13.3 after the revision cycle. Operational test: compute the same statistics on the effective-description change field with the full value set (Yes-strong, Yes-weak, No, Uncertain), and check whether the outcome is fail under the same threshold-sensitivity rule as F1.
+
+Condition F4. Scientific-value endpoint. STAG fails if, on the confirmatory set, STAG does not improve the pre-specified scientific-value primary endpoint of Section 13.6 relative to the information-matched control. Operational test: compute the rate at which the analyst correctly identifies dependence or predicts the intervention outcome in each condition; the condition is triggered if the treatment rate does not exceed the control rate at the pre-registered effect size and confidence interval. The pre-registered effect size and confidence interval are deposited with the validation protocol.
+
+Condition F5. Theory revision. STAG fails if the framework cannot represent theory revision without losing provenance. Operational test: a case is selected in which a published model has been superseded by a later model; the annotator is required to record the revision using the supersedes and superseded_by fields of Section 12 and to preserve the annotation history. The condition is triggered if the revision cannot be recorded without overwriting an earlier annotation record.
+
+Condition F6. Display-label distinguishability. STAG fails if the summary display labels of Section 1.3 cannot be distinguished reliably under the frozen codebook. Operational test: compute the governing statistics on the pairwise distinction between each pair of display labels in the confirmatory set; the condition is triggered if the outcome is fail for the label-as-a-unit analysis of Phase 2, after the revision cycle.
+
+Condition F7. Threshold-provenance summary-label reproducibility. STAG fails on the threshold-provenance extension field if threshold-provenance summary labels cannot be reproduced at the pre-specified level. Operational test: compute the governing statistics on the threshold-provenance summary labels (Class 1, Class 2, Class 3, Mixed, Unknown) in the extension tier; the condition is triggered if the outcome is fail after the revision cycle.
+
+Condition F8. Core-tier field redundancy. A core-tier field is redundant if both of the following hold: (i) the field is predictable from the remaining core-tier fields with a held-out accuracy of at least 0.80, and (ii) dropping the field changes no derived label for at least 20 percent of cases. Both constants are pre-registered values. Operational test: fit a predictive model from the remaining core-tier fields to the field of interest on a training split of the confirmatory set, compute held-out accuracy on a held-out split, and compare against 0.80. Separately, re-derive the display labels for the confirmatory set with the field of interest removed and record the fraction of cases for which no label changes. The condition is triggered if the held-out accuracy is at least 0.80 and the no-change fraction is at least 0.20. A field flagged as redundant is a candidate for removal; the condition is applied field by field, not to the framework as a whole.
+
+Condition F9. Legitimate-case accommodation. STAG fails if the framework cannot accommodate scientifically legitimate cases without forcing them into inappropriate categories. Operational test: the ambiguity audit of Stage 0 (Section 13.1) and the confirmatory set of Stage 1a are searched for cases in which the annotator has recorded that the framework's categories are a poor fit. A case is counted as an accommodation failure if two independent raters, working from the annotator's written rationale, agree that the framework's categories are an inappropriate fit and that a scientifically legitimate characterization of the case is excluded. The condition is triggered if the count of agreed accommodation failures is at least the pre-registered tolerance, which is 2 cases out of the confirmatory set of 20 or more. Both the count and the case rationales are reported.
+
+Condition F10. ΔDOF false-positive rate. STAG fails on the ΔDOF criterion if the upper 95 percent confidence bound on the ΔDOF false-positive rate over the non_obvious_equivalence control stratum exceeds 0.20. Operational test: for each control in the non_obvious_equivalence stratum, record whether ΔDOF fires; compute the Clopper–Pearson one-sided 95 percent upper bound on the false-positive rate; the condition is triggered if the upper bound exceeds 0.20. The bound is also reported for the obvious_equivalence stratum, but the condition applies to the non_obvious_equivalence stratum only.
+
+Condition F11. Intra-domain rate and partition adequacy. STAG fails on a given partition if the Intra_domain rate for that partition, computed over the confirmatory set, exceeds 0.60, and either the partition justification is judged inadequate or the independent audit finds the partition inappropriate. Operational test: compute the Intra_domain rate over the confirmatory set for each partition; if the rate exceeds 0.60, trigger the audit procedure of Section 7.7 and record the auditor's judgment of the partition justification. The condition is triggered if the rate exceeds 0.60 and either the audit finds the justification inadequate or the independent audit finds the partition inappropriate.
+
+Condition F12. Synthetic ground-truth comparison. STAG fails if, on the synthetic ground-truth comparison, the rater's label disagrees with the known ground truth above the pre-registered tolerance, not attributable to the entailment basis or the scale-separation record. Operational test: the rater is given the synthetic cases with known ground-truth labels and is required to assign a display label; disagreement is counted per case; the condition is triggered if the disagreement rate exceeds the pre-registered tolerance and, on review of the disagreement cases, the disagreement is not attributable to the entailment basis or the scale-separation record. The pre-registered tolerance is 0.20 of the synthetic cases. The attribution review is performed by two independent raters using a pre-registered attribution rubric.
+
+Condition F13. Entailment-basis agreement. STAG fails on the entailment basis if the field fails under the governing rule of Section 13.3 after the revision cycle. Operational test: compute the same statistics on entailment_basis with the value set E1, E2, E3, E4, and not_determinable; check whether the outcome is fail under the same threshold-sensitivity rule as F1. If the condition is triggered, STAG-Definitional and the STAG-Discovered label's dependence on the entailment classification are reported as provisional.
+
+Condition F14. Reachability hypothesis. STAG's reachability hypothesis is falsified if the pre-registered search of Section 13.4 exhausts its candidate pool and finds no published physical system and fewer than K synthetic constructions satisfying the anchoring definition of Section 1.2, for all target domains searched. Operational test: execute the pre-registered search protocol deposited in Supplementary Material D; record each candidate's profile type and the reason for any failure; the condition is triggered if the exhaustion criterion is met for all target domains. The pre-registered value of K is deposited with the validation protocol. The consequence of the condition is stated in Section 13.4.
+
+Fields reported as inconclusive. Fields whose governing-rule outcome is inconclusive are not triggers of any falsification condition. They are provisionally acceptable but not validated, and any dependent label is reported with provisional_flag attached. After the revision cycle, a field that remains inconclusive narrows the framework's claims on any dependent label, as stated in Section 13.3.
+
+14. Reporting Standard and Limitations
+14.1 Reporting checklist
+Legend: (C) core-tier, required; (E) extension-tier, required when applicable; (D) derived.
+
+System and domain; partition identifier and version. (C)
+
+Candidate effective descriptions. (C)
+
+Node tuple rule (S, M, G matching rules); M-equivalence rule version; m_equivalence_basis, m_equivalence_witness where claimed; solution-method attribute; domains spanned. (C)
+
+Node identity decision; component-level match decisions. (C)
+
+Regime attribute (value; order parameter; control-parameter point; phase-diagram source; domain-specific label and framework mapping; value_bands_if_crossover; regime_band_source; regime_not_determinable flag). (C)
+
+Node-set agreement. (C)
+
+Effective-description change (value; criteria fired with evidence; external justification for ΔAPP and ΔEFT). (C)
+
+Intervention classification (value; entailment_basis; for E1 and E2, cited_structural_result with result_reference, applicability_conditions, and conditions_check as {condition, condition_witness} entries; for E3, cited_numerical_result with citation, result_summary, classification_effect, citation_scope; not_determinable where the sources cannot be verified). (C)
+
+Cross-domain counterfactual dependence (value; source and target domains; intervention_kind; defining_coupling_intervention flag per Section 7.1; cross_domain_intervention_available; domain_mismatch; material-change test and result; material_change_test_justification). (C)
+
+independence_of_material_change_evidence and material_change_test_result_independence. (C)
+
+Scale-separation record (ratios; scale definitions; sources; source kinds; scale_inference_source where applicable; expansion parameter; declared minimum; band_declared, band_min_ratio, band_max_ratio, band_source, band_source_citation; dimensionless flag; analyst_dependence_acknowledged, analyst_dependence_note; not_determinable for band_source_citation where the source cannot be verified). (E)
+
+Partition; partition sensitivity; identity-splitting audit for merged nodes above STAG-Unclassified. (E)
+
+Display label; evidential_anchoring; unclassified_reason; regime_not_determinable; identity_partition_sensitive; not_determinable flag; agreement_outcome; provisional_flag; threshold_sensitive_flag; evidential_anchoring_status. (D)
+
+Threshold provenance. (E)
+
+Characteristic scale. (E)
+
+Reversibility. (E)
+
+Status dimensions. (E)
+
+Statistical gap interface. (E)
+
+Evidence. (C)
+
+Uncertainty and alternatives. (E)
+
+Theory version. (C)
+
+Annotator provenance. (C)
+
+Validity evidence (separate from agreement; synthetic results with evidential_anchoring; independent replication results; verification status of empirical inputs per Section 14.3 and Section 14.4). (C)
+
+Agreement statistics. (C)
+
+evidential_anchoring_status records the anchoring status of a STAG-Discovered annotation under Section 1.2. Permitted values: anchored; anchored_with_stated_limitations; candidate; preliminary; not_assessed; not_applicable. For STAG-Discovered annotations, the value is computed from Section 1.2 (Rule 29 in Artifact 2). For non-STAG-Discovered annotations, it is not_applicable or not_assessed.
+
+14.2 Implementation sketch
+A practical STAG database consists of five linked registries: node, event, partition, model, revision. Node entries carry the three-tuple and the M-matching rule version. Domain annotations are stored in a separate domain-annotation table linked to node and partition. Event entries carry transition attributes; self-loops carry the regime-change attribute. Edge and event entries carry the node-identity decision, the regime attribute, intervention_kind, the domain_mismatch flag, and the scale-separation record where STAG-Discovered is claimed.
+
+14.3 Limitations
+Grouped by theme. Each item is stated once.
+
+Identity limitations.
+
+Node identity is tuple-relative but not partition-relative or intervention-relative. Node-set agreement is not tested on regime- or domain-differing pairs. Diagnostic: the identity-splitting audit of Section 5.8, which applies only to merged nodes and does not repair the under-splitting.
+
+Only M is externally anchored. S and G are settled by the pre-registered matching rule.
+
+The three-component rule has not been stress-tested on multi-domain Hamiltonians under multiple alternative partitions.
+
+Evidence limitations.
+
+M-equivalence is restricted to exact reparametrizations. Integrating out a field gives the same M only for the exact effective action.
+
+The framework presupposes established phase diagrams. Absent one, the regime attribute is not_determinable and the flag attaches.
+
+Cross-domain counterfactual dependence has no independent expert reference. It is validated by internal agreement, synthetic ground truth, and independent computational replication.
+
+The entailment classification is expertise-dependent and is not given a proof-theoretic semantics. The definitional case of Section 11.1 is marked not_determinable because the scope of the Eliashberg (1960) result and of the Kohn–Luttinger (1965) non-s-wave caveat could not be verified against their primary sources.
+
+Condition (c) of evidential anchoring cannot be repaired by adding an independent measurement of the material-change result, because the condition concerns the relation between the material-change evidence and the assumptions fixing the regime, identity, and description-change classification. Section 11.2 is a case in point.
+
+Condition (d) of evidential anchoring is rated by an analyst who must decide whether the result is entailed by the test's scheme applied to the test's assumptions. The rating is expertise-dependent.
+
+The negative-control set is not proved exhaustive over the space of exact reparametrizations. The reported false-positive rate is a lower bound.
+
+Verification limitations.
+
+Verification status of empirical inputs. Eight load-bearing numerical or attributive claims listed in Section 14.4 were checked against their sources. The 3D Ising critical exponent ν_3D = 0.6301(4) attributed to Ferrenberg and Landau (1991), the 2D Ising critical temperature T_2D ≈ 2.269 J/k_B attributed to Onsager (1944), the exactness of ν = 1 in the 2D Ising model, the attribution of the spontaneous magnetization result to Yang (1952), and the attribution of the duality transformation to Kramers and Wannier (1941) were verified. Three items could not be verified against their primary sources: the scope of the Eliashberg (1960) result and the Kohn–Luttinger (1965) non-s-wave caveat; the numerical values quoted in Allen and Dynes (1975) and McMillan (1968); and the assertion that Tc(coupled) exceeds T_2D for the two-layer Ising model. The corresponding annotation fields are marked not_determinable rather than populated from memory, in accordance with the rule stated in Section 14.4. The affected labels are retained with the not_determinable flag attached and displayed alongside.
+
+Validation limitations.
+
+STAG-Discovered has one illustrative example (Section 11.2), which is not evidentially anchored. Whether it can be converted into an anchored case is an open question. The framework gives reasons to expect that the conversion is blocked for conditions (b) and (c), and not only for condition (a).
+
+Reachability of an anchored STAG-Discovered case is unestablished. The reachability search is pre-registered. The preferred target profile (i) may be empty in practice. The acceptable alternative profile (ii) may also be empty, because the inference model is often the annotated model itself.
+
+The scale-separation requirement for evidential anchoring requires an externally anchored band. Where the band is analyst-chosen, anchoring fails on condition (b). The analyst_dependence_acknowledged flag records the analyst's assessment and is not independently verified.
+
+The governing agreement rule reports inconclusive as a distinct outcome, and the outcome is threshold-dependent. A threshold-sensitive field is reported with both outcomes and counted by the rule in Section 13.3.
+
+The all-inconclusive scenario is governed by an explicit rule. If three or more core-tier fields remain inconclusive and none fails, the framework is reported as not validated but not falsified.
+
+Inter-rater reliability has not been demonstrated. Reliability is not validity.
+
+Phase 1a is a target design. If it cannot be run at the specified scale, the framework narrows to a smaller set of domains or is reported as exploratory.
+
+The scoping review has not been executed. The feature matrix is a draft.
+
+The scientific-value test's information-matched control is assessed by a rubric whose dimensions are stated but not validated.
+
+Formalism limitations.
+
+The framework's graph formalism is a labelled directed multigraph and nothing richer. A reader who requires categorical structure will not find it.
+
+The four anchoring conditions are not of the same logical type and are not combined into a single score. A reader who requires a formally unified notion of evidential strength will not find one.
+
+Framework-level partitions do not support counterfactual claims.
+
+The EXPERT criterion introduces judgement and is analysed separately.
+
+SHACL validation of the examples has not been run.
+
+Convention limitations.
+
+The 0.6 agreement threshold and the 0.20 false-positive tolerance are conventions. They are reported as conventions and the sensitivity analysis at 0.5 and 0.7 is reported alongside.
+
+The 60 percent intra-domain threshold is a convention and is reported as a convention.
+
+The declared minimum ratio of 10 is a convention and is reported as a convention with alternatives stated.
+
+14.4 Verification status of empirical inputs
+The following load-bearing numerical or attributive claims were checked against their sources. The 3D Ising critical exponent ν_3D = 0.6301(4) attributed to Ferrenberg and Landau (1991) was verified. The 2D Ising critical temperature T_2D ≈ 2.269 J/k_B attributed to Onsager (1944) was verified. The exactness of ν = 1 in the 2D Ising model was verified. The attribution of the two-dimensional spontaneous magnetization result to Yang (1952) was verified. The attribution of the duality transformation to Kramers and Wannier (1941) was verified.
+
+The following items were not verifiable against their primary sources and the corresponding annotation fields are marked not_determinable rather than populated from memory. The scope of the Eliashberg (1960) result and of the Kohn–Luttinger (1965) non-s-wave caveat could not be verified; the fields intervention_classification, entailment_basis, and cited_structural_result for the annotation of Section 11.1 are marked not_determinable. The numerical values quoted in Allen and Dynes (1975) and McMillan (1968) could not be verified; the fields cited_numerical_result and material_change_test_justification for any annotation citing these values are marked not_determinable. The assertion that Tc(coupled) exceeds T_2D for the two-layer Ising model could not be verified; the regime attribute's control-parameter point and phase-diagram source, the material_change_result, and the band_source_citation field of the scale-separation record for the annotation of Section 11.2 are marked not_determinable.
+
+15. Conclusion
+STAG is proposed as a provenance-aware annotation standard for claims about scale-dependent scientific organization, together with a pre-registered scoping review. It is a specification whose usefulness is an empirical question.
+
+Principal safeguards. Classify before interpreting. Define units before constructing the graph, with node identity drawn from (S, M, G) alone. Match M on Hamiltonian or Lagrangian under an exact-reparametrization rule with a recorded witness. Record regime as an attribute with a documented order-parameter source and a not_determinable fallback. Use only admissible decompositional partitions for counterfactual claims. Separate structural entailment (E1) and entailment-with-confirmed-conditions (E2) from new computation (E3) and contested classification (E4), with per-condition witnesses. Require Yes-strong effective-description change for STAG-Discovered. Require a scale-separation record with an externally read scale value or an externally sourced coefficient with a declared control-parameter band, and a ratio exceeding the minimum across an externally anchored band for evidential anchoring. Require material-change evidence independent of the assumptions fixing identity, regime, and description change. Require the material-change test and result not to share an assumption entailing the result. Include negative controls sized by a pre-specified error allowance, stratified into obvious and non-obvious equivalences. Use a governing agreement rule that reports inconclusive as a distinct outcome and propagates the flag, with an explicit rule for the all-inconclusive case and an explicit acknowledgment that the outcome is threshold-dependent. Validate the cross-domain dependence field by synthetic ground truth and independent computational replication. Version annotations. Validate the core tier before the extension tier. Treat reliability as necessary but not sufficient for validity. Mark any field whose load-bearing source cannot be verified as not_determinable, and retain the label with the flag attached and displayed alongside.
+
+The worked examples cover STAG-Definitional, STAG-Discovered, STAG-None, STAG-Intra-Definitional, and STAG-Unclassified. The two-layer Ising case of Section 11.2 is illustrative, not anchored. It fails all four anchoring conditions, and the failures on conditions (b) and (c) are not repairable by adding a Monte Carlo study of the model. Whether an anchored STAG-Discovered case exists is the subject of the pre-registered reachability search of Section 13.4. The framework does not claim that the anchoring status is currently instantiated.
+
+Three load-bearing empirical inputs could not be verified against their primary sources, and the corresponding annotation fields are marked not_determinable throughout the framework: the scope of the Eliashberg (1960) result and of the Kohn–Luttinger (1965) non-s-wave caveat, the numerical values quoted in Allen and Dynes (1975) and McMillan (1968), and the assertion that Tc(coupled) exceeds T_2D for the two-layer Ising model. The disclosure is stated in Section 14.3 and Section 14.4, and the affected labels are retained with the not_determinable flag attached and displayed alongside.
+
+The proposed contribution is the integration of effective field theory, renormalization-group methods, multiscale modelling, ontology, and formal causal modelling into a single annotation architecture, subject to confirmation by the scoped search. Whether that contribution is useful is an empirical question. Whether the anchoring status is reachable is a second empirical question, and the framework's scope depends on it.
+
+Data Availability
+The full codebook, the schema, the expanded worked examples, the pre-registered validation protocol, the synthetic ground-truth validation script, and the scoping-review protocol are deposited in Artifact 2 (Codebook and Schema) and in Supplementary Material D. The response to hostile readings is deposited in Artifact 3. The repository DOI will be inserted immediately before submission.
+
+References
+Allen, P. B. and Dynes, R. C. (1975). Transition temperature of strong-coupled superconductors reanalyzed. Physical Review B, 12, 905–922.
+
+Arp, R., Smith, B., and Spear, A. D. (2015). Building Ontologies with Basic Formal Ontology. MIT Press.
+
+Batterman, R. W. (2002). The Devil in the Details. Oxford University Press.
+
+Bechhofer, S., et al. (2013). Why linked data is not enough for scientists. Future Generation Computer Systems, 29(2), 599–611.
+
+Bechtel, W. (2008). Mental Mechanisms. Routledge.
+
+Boccaletti, S., et al. (2014). The structure and dynamics of multilayer networks. Physics Reports, 544(1), 1–122.
+
+Burgess, C. P. (2007). An introduction to effective field theory. Annual Review of Nuclear and Particle Science, 57, 329–362.
+
+Butterfield, J. (2011). Emergence, reduction and supervenience: a varied landscape. Foundations of Physics, 41, 920–959.
+
+Craver, C. F. (2007). Explaining the Brain. Oxford University Press.
+
+Demir, E., et al. (2010). The BioPAX community standard for pathway data sharing. Nature Biotechnology, 28(9), 935–942.
+
+Dizadji-Bahmani, F., Curd, M., and Mayo-Wilson, C. (2010). Theory reduction and intertheoretic constraints. Philosophy of Science, 77(5), 788–799.
+
+E, W. (2011). Principles of Multiscale Modeling. Cambridge University Press.
+
+E, W., et al. (2007). Heterogeneous multiscale methods: a review. Communications in Computational Physics, 2, 367–450.
+
+Eliashberg, G. M. (1960). Interactions between electrons and lattice vibrations in a superconductor. Soviet Physics JETP, 11, 696–702.
+
+Ferrenberg, A. M. and Landau, D. P. (1991). Critical behavior of the three-dimensional Ising model: A high-resolution Monte Carlo study. Physical Review B, 44, 5081–5091.
+
+Frigg, R. (2006). Scientific representation and the semantic view of theories. Theoria, 21(1), 49–65.
+
+Ghedini, E., et al. (2022). EMMO: The European Materials Modelling Ontology. Zenodo.
+
+Giere, R. N. (1988). Explaining Science: A Cognitive Approach. University of Chicago Press.
+
+Glaz, J., et al. (2001). Scan Statistics. Springer.
+
+Groth, P., et al. (2010). The anatomy of a nanopublication. Information Services & Use, 30(1–2), 51–56.
+
+Hucka, M., et al. (2003). The Systems Biology Markup Language (SBML). Bioinformatics, 19(4), 524–531.
+
+Kivelä, M., et al. (2014). Multilayer networks. Journal of Complex Networks, 2(3), 203–271.
+
+Kohn, W. and Luttinger, J. M. (1965). New mechanism for superconductivity. Physical Review Letters, 15, 524–526.
+
+Kramers, H. A. and Wannier, G. H. (1941). Statistics of the two-dimensional ferromagnet. Physical Review, 60, 252–262.
+
+Kulldorff, M. (1997). A spatial scan statistic. Communications in Statistics — Theory and Methods, 26, 1481–1496.
+
+Le Novère, N., et al. (2005). Minimum information requested in the annotation of biochemical models (MIRIAM). Nature Biotechnology, 23(12), 1509–1515.
+
+Le Novère, N., et al. (2009). The Systems Biology Graphical Notation. Nature Biotechnology, 27(8), 735–741.
+
+Lebo, T., et al. (2013). PROV-O: The PROV Ontology. W3C Recommendation.
+
+Lepage, G. P. (1989). What is renormalization? In From Actions to Answers: TASI 1989.
+
+Love, A. C. (2012). Hierarchy, causation and explanation. Interface Focus, 2(1), 115–125.
+
+McMillan, W. L. (1968). Transition temperature of strong-coupled superconductors. Physical Review, 167, 331–344.
+
+Mons, B., et al. (2011). The value of data. Nature Genetics, 43(4), 281–283.
+
+Onsager, L. (1944). Crystal statistics. I. A two-dimensional model with an order-disorder transition. Physical Review, 65, 117–149.
+
+Pearl, J. (2000). Causality. Cambridge University Press.
+
+Potochnik, A. (2017). Idealization and the Aims of Science. University of Chicago Press.
+
+Simon, H. A. (1962). The architecture of complexity. Proceedings of the American Philosophical Society, 106, 467–482.
+
+Smith, B., et al. (2007). The OBO Foundry. Nature Biotechnology, 25(11), 1251–1255.
+
+Suppes, P. (1967). What is a scientific theory? In S. Morgenbesser (Ed.), Philosophy of Science Today. Basic Books.
+
+van Fraassen, B. C. (1980). The Scientific Image. Oxford University Press.
+
+Weinberg, S. (1979). Phenomenological Lagrangians. Physica A, 96, 327–340.
+
+Wilson, K. G. (1971). Renormalization group and critical phenomena. Physical Review B, 4, 3174–3182.
+
+Wimsatt, W. C. (2007). Re-Engineering Philosophy for Limited Beings. Harvard University Press.
+
+Woodward, J. (2003). Making Things Happen. Oxford University Press.
+
+Yang, C. N. (1952). The spontaneous magnetization of a two-dimensional Ising model. Physical Review, 85, 808–816.
+
+ok next 1
+Artifact 2 — Codebook and Schema
+Scale-Transition Annotation Graphs (STAG): Codebook and Machine-Readable Schema
+This artifact is the operational instrument of the STAG framework. It is self-contained: it states the field list, the permitted value sets, the semantic validation rules, and the machine-readable schemas. The main paper (Artifact 1) refers to this artifact for field-by-field specifications and for the rule numbers used in the main text.
+
+A.1 Node tuple
+A node N is the tuple N = (S, M, G).
+
+S, system scope: the scope-nesting position declared in the model reference.
+
+M, model or formalism: the Hamiltonian, Lagrangian, or equivalent formal object under which the description is generated.
+
+G, granularity: the annotation granularity declared before annotation begins.
+
+Domain D is a partition-relative annotation attribute, not an identity component. The fields are domain_id, partition_id, and partition_version. Regime, purpose, validity regime, solution-method class, primary observable, and domains spanned are attributes.
+
+A.2 Display labels
+STAG-Discovered (STAG-DISC), STAG-Definitional (STAG-DEF), STAG-None (STAG-NONE), STAG-Intra (STAG-INTRA), STAG-Intra-Definitional (STAG-INTRA-DEF), STAG-Intra-Non_definitional (STAG-INTRA-ND), STAG-Unclassified (STAG-UNC). All seven are extension-tier and derived. evidential_anchoring accompanies every display label and takes the value not_applicable for non-STAG-Discovered labels.
+
+A.3 Regime attribute
+Values: symmetric, broken, crossover-band, not_applicable, not_determinable. Assignment as in Section 5.2 of the main paper. not_determinable attaches regime_not_determinable. regime_band_source records external_reference or analyst_chosen. value_bands_if_crossover records the crossover bands.
+
+A.4 Node identity
+Decision: merged, new_node, uncertain, not_determinable.
+
+Component-level match decisions; matching_rule_version; m_equivalence_rule_version; m_equivalence_basis; m_equivalence_witness; solution_method_attribute; domains_spanned.
+
+Plausible-merge set (primary): pairs differing in at least one of S, M, G. Sensitivity set: pairs differing in exactly one.
+
+A.5 Effective-description change
+Values: Yes-strong, Yes-weak, No, Uncertain.
+
+A.6 Intervention classification
+Values: Definitional, Definitional(expertise-dependent), Non_definitional, Not_applicable, not_determinable.
+
+entailment_basis values: E1, E2, E3, E4, not_determinable.
+
+Mapping: Definitional iff E1 or E2; Definitional(expertise-dependent) iff E4; Non_definitional iff E3; Not_applicable iff no intervention; not_determinable when the entailment basis cannot be determined from the available sources.
+
+Definitions of E1 through E4 are in Section 7.1 of the main paper.
+
+A.7 Cross-domain counterfactual dependence
+Values: Yes, No, Definitional_only, Not_tested, Intra_domain, Untestable, Uncertain, not_determinable. Rules in Section 7.2 of the main paper.
+
+A.8 Partition
+partition_registry_id; partition_version; partition_kind; partition_admissibility_status; partition_preregistration_date; partition_justification; intra_domain_rate; partition_sensitivity; alternative_partition_ids; partition_untested_flag; splitting_partition_id; splitting_would_change_label; splitting_audit_note.
+
+A.9 Scale-separation record
+ratio; expansion_parameter; scale_microscopic; scale_collective; source_each; scale_separation_source_kind; scale_inference_source; unit_conversion_if_needed; minimum; band_declared; band_min_ratio; band_max_ratio; band_source; band_source_citation; dimensionless; control_parameter_value; control_parameter_source; analyst_dependence_acknowledged; analyst_dependence_note.
+
+A.10 Derived-from relation
+derived_from_source_node; derived_from_target_node; derivation_kind (values integration_out, truncation); derivation_specification.
+
+A.11 Extended codebook entries
+Effective-description change kind: free text; records the specific criterion that fired (ΔDOF, ΔPC, ΔSYM, ΔAPP, ΔEFT, ΔCOL, ΔBIND, EXPERT).
+
+Threshold provenance: per-component provenance label (theoretical, empirical, conventional); summary label (Class 1, Class 2, Class 3, Mixed, Unknown).
+
+Characteristic scale: scale_value; scale_kind; scale_convention.
+
+Reversibility: reversible, irreversible, condition-dependent, unknown.
+
+Status dimensions: physical_status (D/E/P/O); graph_status (F/R/A); underlying_science_status (established/candidate/heuristic/open); stag_implementation_status (tested/pilot-tested/untested/disputed).
+
+Statistical gap interface: statistical_gap_result; dependence_gap_discordance.
+
+Evidence: free-text; per-field evidence record.
+
+Uncertainty and alternatives: free-text; alternative_classifications.
+
+Theory version: free-text; versioned identifier.
+
+Annotator provenance: annotator identifier; annotation date; affiliation.
+
+Event node: event_node_id; source nodes list; target nodes list; composition kind.
+
+B. Machine-Readable Schema
+The full JSON Schema and the SHACL schema are deposited in Supplementary Material B and are reproduced below in summary form. The JSON Schema is a draft whose SHACL validation has not been run. The schema has two layers: a structural layer that specifies the fields and their permitted value sets, and a semantic layer that specifies the validation rules.
+
+B.1 Fields
+annotation_id; source_nodes and target_nodes, or source_nodes and event_node_id; node_identity (S, M, G; primary_observable; decision; component-level matches; matching_rule_version; m_equivalence_rule_version; m_equivalence_basis; m_equivalence_witness; solution_method_attribute; domains_spanned; granularity; confidence); domain_annotation; regime_attribute (value; domain_specific_label; framework_value_mapping; order_parameter; control_parameter_point; phase_diagram_source; value_bands_if_crossover; regime_band_source; regime_band_analyst_chosen; regime_not_determinable); validity_regime; purpose_attribute; composition; effective_description_change; effective_description_change_kind; intervention_classification; entailment_basis; cited_structural_result (result_reference; applicability_conditions; conditions_check); cited_numerical_result (citation; result_summary; classification_effect; citation_scope); cross_domain_counterfactual_dependence; intervention_source_domains; intervention_target_domain; intervention_kind; defining_coupling_intervention; cross_domain_intervention_available; reason_if_not_performed; domain_mismatch; model_reference; counterfactual_intervention; counterfactual_description; counterfactual_result; material_change_test; material_change_test_justification; material_change_result; quantities_held_fixed; independence_of_material_change_evidence; material_change_test_result_independence; partition_registry_id; partition_version; partition_kind; partition_admissibility_status; partition_preregistration_date; partition_justification; intra_domain_rate; partition_sensitivity; alternative_partition_ids; partition_untested_flag; splitting_partition_id; splitting_would_change_label; splitting_audit_note; identity_partition_sensitive; scale_separation (ratio; expansion_parameter; scale_microscopic; scale_collective; source_each; scale_separation_source_kind; scale_inference_source; unit_conversion_if_needed; minimum; band_declared; band_min_ratio; band_max_ratio; band_source; band_source_citation; dimensionless; control_parameter_value; control_parameter_source; analyst_dependence_acknowledged; analyst_dependence_note); derived_from_source_node; derived_from_target_node; derivation_kind; derivation_specification; derived_display_label (computed); evidential_anchoring (projection of evidential_anchoring_status); unclassified_reason; threshold_provenance; characteristic_scale; reversibility; physical_status; graph_status; underlying_science_status; stag_implementation_status; statistical_gap_result; dependence_gap_discordance; agreement_outcome (pass, inconclusive, fail); provisional_flag (boolean); threshold_sensitive_flag (boolean); not_determinable_flag (boolean); evidential_anchoring_status (anchored, anchored_with_stated_limitations, candidate, preliminary, not_assessed, not_applicable); confidence; alternative_classifications; evidence; protocol_cross_reference; annotator; annotation_date; theory_version; supersedes; superseded_by; event_node.
+
+B.2 Semantic validation rules
+Rule 1. If intervention_classification is Non_definitional and cross_domain_counterfactual_dependence is Yes or No, model_reference, counterfactual_intervention, counterfactual_description, counterfactual_result, material_change_test, material_change_result must be present.
+
+Rule 2. Precedence as in Section 7.2 of the main paper.
+
+Rule 3. If cross_domain_counterfactual_dependence is Yes, intervention_source_domains together with intervention_target_domain must span at least two distinct declared domains.
+
+Rule 4. If partition_kind is framework_level, cross_domain_counterfactual_dependence must be Untestable and unclassified_reason must be inadmissible_partition.
+
+Rule 5. If effective_description_change is Yes-strong and includes ΔAPP or ΔEFT, external_justification must be populated.
+
+Rule 6. All domain entries must belong to the partition identified by partition_registry_id and partition_version.
+
+Rule 7. If derived_display_label is STAG-Discovered, partition_sensitivity is required; scale_separation must be recorded; ratio must be at or above the recorded minimum; scale_separation_source_kind must be external_value or external_coefficient; band_declared, band_min_ratio, and band_max_ratio must be populated; band_source must be populated, and band_source_citation must be populated when band_source = external_reference; and both independence_of_material_change_evidence and material_change_test_result_independence must be recorded. The recording is required for the annotation record; conditions (a) through (d) do not gate the label. If derived_display_label is STAG-Definitional or any STAG-Intra variant, partition_sensitivity is required.
+
+Rule 8. Node identity must be established from (S, M, G) alone, before any transition attribute is recorded and before any domain annotation is fixed.
+
+Rule 9. Every annotation must declare tuple-matching rules, the M-equivalence rule, granularity, and the partition justification before node identity is finalized.
+
+Rule 10. Supersession must be acyclic.
+
+Rule 11. Every annotation must identify the theory, model, or scientific version under which it was produced.
+
+Rule 12. If composition is composite, event_node must be populated and source_nodes must contain at least two entries.
+
+Rule 13. If composition is not composite, event_node must be absent and transition attributes are stored on the edge. Self-loops carry regime_change.
+
+Rule 14. validity_regime is an attribute and must not be consulted when determining node identity.
+
+Rule 15. Regime attribute is required for every node. When the value is symmetric, broken, or crossover-band, order_parameter, control_parameter_point, phase_diagram_source, domain_specific_label, and framework_value_mapping must be populated. When the value is crossover-band, value_bands_if_crossover must be populated, regime_band_source must be populated and must be external_reference or analyst_chosen, with regime_band_analyst_chosen set true if analyst_chosen.
+
+Rule 16. If two candidate descriptions share S, M, and G, node_identity must be merged. Under different partitions, the same pair is the same node; the domain annotation differs.
+
+Rule 17. cross_domain_counterfactual_dependence = Not_tested is permitted only when intervention_classification = Not_applicable. An intervention performed with no result recorded is a validation error. An intervention performed with a result recorded but an uncertain material-change classification requires Uncertain.
+
+Rule 18. If intervention_classification is Definitional or Definitional(expertise-dependent), cited_structural_result must be populated with result_reference, applicability_conditions, and conditions_check as a list of entries each having condition and condition_witness, at least one per applicability condition. Each condition_witness must name a specific equation, term, kernel, parameter range, or regime condition in the surviving description and must cite a source. A condition_witness naming only a general property is a validation error. If any applicability condition lacks a witness, entailment_basis must be E4 and intervention_classification must be Definitional(expertise-dependent). If a numerical result is cited in support of a Non_definitional classification, cited_numerical_result must be populated with citation, result_summary, classification_effect, and citation_scope.
+
+Rule 19. If cross_domain_counterfactual_dependence is Intra_domain, intervention_source_domains must be a non-empty set contained within a single declared domain, intervention_target_domain must be that same domain, and cross_domain_intervention_available must be populated.
+
+Rule 20. If either endpoint has regime_attribute.value = not_determinable, record regime_not_determinable = true and retain the derived label with the flag attached.
+
+Rule 21. If derived_display_label is STAG-Unclassified, unclassified_reason must be populated and displayed with the label.
+
+Rule 22. If a structural relation between two M's is recorded (integration_out or truncation), it must be recorded as a derived-from edge, not as an M-equivalence.
+
+Rule 23. If effective_description_change is Yes-weak, derived_display_label must be STAG-Unclassified with unclassified_reason = weak_effective_description_basis.
+
+Rule 24. If a merged decision is recorded on two descriptions with different Lagrangians, m_equivalence_basis and m_equivalence_witness must both be populated.
+
+Rule 25. domain_mismatch is true if and only if intervention_target_domain is not a member of the set of domains to which the source and target nodes are assigned under the annotation's declared partition_id and partition_version.
+
+Rule 26. If agreement_outcome is inconclusive for any core-tier field on which the derived label depends, the derived label is reported with provisional_flag = true attached.
+
+Rule 27. If cross_domain_counterfactual_dependence is Intra_domain and the material-change classification is Uncertain, derived_display_label must be STAG-Unclassified with unclassified_reason = uncertain.
+
+Rule 28. If material_change_test is a class change, material_change_test_justification must state the classification scheme.
+
+Rule 29. evidential_anchoring_status is the field carrying the anchoring status of a STAG-Discovered annotation. For STAG-Discovered annotations: anchored if and only if all four anchoring conditions of Section 1.2 of the main paper are satisfied; anchored_with_stated_limitations if all four are satisfied but at least one condition is flagged as interpretive or convention-dependent; preliminary if the case is used to develop or illustrate the codebook; candidate if the case is proposed as a possible instance. Operational determination: condition (a) requires cited_numerical_result.citation_scope = annotated_model or an annotator computation; condition (b) requires band_source = external_reference, band_source_citation populated, and band_min_ratio at or above the declared minimum; condition (c) requires independence_of_material_change_evidence = independent; condition (d) requires material_change_test_result_independence = independent.
+
+Rule 30. For non-STAG-Discovered annotations, evidential_anchoring_status is not_applicable or not_assessed.
+
+Rule 31. If defining_coupling_intervention = true, a second independent rater is required, and the case is excluded from STAG-Discovered unless the second rater independently confirms the intervention classification and the material-change result.
+
+Rule 32. If agreement_outcome differs between the 0.5 and 0.7 thresholds, threshold_sensitive_flag must be true, and the falsification status of any dependent label must be reported as threshold-dependent.
+
+Rule 33. If any field is marked not_determinable because a load-bearing source cannot be verified, the label is retained with the not_determinable flag attached and displayed alongside, and the flag is recorded in the annotation record under not_determinable_flag.
+
+B.3 SHACL shape summary
+The SHACL shapes mirror the semantic validation rules above. Each rule corresponds to one SHACL constraint. The full SHACL shape file is deposited in Supplementary Material B and is not reproduced here. The shapes are drafts whose validation has not been run. Running SHACL validation against the worked examples of the main paper is a target for the validation programme, not a completed result.
+
+B.4 JSON Schema summary
+The JSON Schema is a structural schema with the field names and permitted value sets from Appendix B.1, with allOf and if-then constructs that encode the semantic rules of Appendix B.2 as schema constraints where the constraint is expressible in JSON Schema Draft 2020-12. Constraints that require cross-field inference beyond what JSON Schema expresses are recorded in the SHACL shape file rather than in the JSON Schema. The full JSON Schema file is deposited in Supplementary Material B.
+
+B.5 Worked example records
+The full annotation records for the worked examples of the main paper, including the complete scale-separation records, cited_numerical_result blocks, and conditions_check entries for the Fröhlich/Eliashberg example and the two-layer Ising example, are deposited in Supplementary Material B. Each record is in JSON and in Turtle. The Turtle serialization of the two-layer Ising self-loop is reproduced in the main paper at Section 8.5.
+
+C. Recommended Validation Workflow
+Freeze the codebook at a versioned identifier.
+
+Run the ambiguity audit on eight to twelve cases across at least three domains, with expertise stratification on the entailment basis.
+
+Revise the codebook once; re-freeze.
+
+Pre-register the codebook, schema, sampling rule, power analysis, negative-control count and strata, and the information-matched control.
+
+Run Phase 1a: twenty cases minimum, three raters minimum, one domain, core tier plus the two anchoring independence fields.
+
+Compute agreement per Section 13.3 of the main paper. Apply the governing rule. Flag inconclusive fields. Report threshold sensitivity.
+
+If at least four of the five core-tier fields pass, escalate to Phase 1b.
+
+Validate node-set agreement before any transition annotation is scored.
+
+Run the negative-control analysis with the two strata reported separately.
+
+Run synthetic ground-truth validation on the entailment basis and the intra-domain precedence rule, and independent computational replication.
+
+Run the reachability search as a separate pre-registered step, reporting the profile type of each candidate and the reason for any failure.
+
+Validate the extension tier as a unit.
+
+Run the independent empirical application.
+
+Run the scientific-value test against the information-matched control, and report the adequacy of the matching.
+
+Apply the falsification conditions of Section 13.7 of the main paper. Report all outcomes, including inconclusive and threshold-sensitive ones.
+
+Deposit the codebook, schemas, protocol, scripts, and results.
+
+D. Data Availability
+The full codebook, expanded worked examples, the complete JSON Schema and SHACL schema, the pre-registered validation protocol, the synthetic ground-truth validation script, the extended limitations discussion, and the scoping-review protocol are deposited at Zenodo. Supplementary Material D contains the search protocol, the draft feature matrix, the coding manual for features (a) through (d), and the decision rules of Section 1.5 of the main paper. Matrix entries will be confirmed against executed search results. The repository DOI will be inserted immediately before submission.
+
+ok next 1
+Artifact 3 — Response to Hostile Readings
+Scale-Transition Annotation Graphs (STAG): Response to Hostile Readings
+This artifact accompanies the main paper (Artifact 1). It states the objections that a hostile referee is likely to raise and the framework's replies. Each objection is stated in one paragraph and the reply is stated in one paragraph. The replies are not part of the specification. They are the material a referee receives when the referee asks the questions the specification does not answer on its face.
+
+Objection 1. The flagship label is unreachable.
+Objection. Under a single-status formulation, the flagship label STAG-Discovered is assigned only when all four anchoring conditions are satisfied, and the paper's own example fails all four. If the flagship label is not instantiated, the framework has no instance of its own central construct.
+
+Reply. The framework separates the label from the anchoring status. STAG-Discovered is assigned by the four prerequisites of Section 7.5, which are satisfied by the worked example in Section 11.2. The anchoring status is a separate and stronger field, reported alongside the label, and is the object of the empirical reachability search in Section 13.4. The framework makes no claim that the anchoring status is currently instantiated. The label is instantiated; the stronger status is an open empirical question.
+
+Objection 2. The four anchoring conditions are heterogeneous.
+Objection. Condition (a) is a condition on the annotation record. Condition (b) is a condition on the annotated system and the band. Condition (c) is a condition on the relation between the material-change evidence and other fields. Condition (d) is a condition on the relation between the test and its result. The four conditions do not jointly constitute a formally unified notion of evidential strength, and calling the conjunction "anchoring" misleads.
+
+Reply. The framework states in Section 1.2 and Section 7.10 that the four conditions are not of the same logical type and are not combined into a single score. The framework reports the four conditions individually. A reader who requires a formally unified notion of evidential strength will not find one, and the framework does not claim one. The word "anchoring" is a label for the conjunction and is not a claim that the conjunction has a formal structure.
+
+Objection 3. Condition (c) is not ratable.
+Objection. The rating procedure for condition (c) asks the rater to list the assumptions used to fix node identity, the regime attribute, and the effective-description-change classification, then to list the assumptions underlying the material-change evidence, then to classify the two lists as disjoint or intersecting. Assumptions are not enumerated by the framework, and the lists will be constructed post hoc by the rater to yield the classification the rater prefers.
+
+Reply. The framework states in Section 13.2 that the rating is interpretive and that agreement on the field is reported as a measure of interpretive convergence, not as a measure of the correctness of the classification. The field is validated under the same governing rule as the other core-tier fields, and the framework reports whether the field passes. If the field does not pass, the anchoring status is reported as provisional on that condition. The framework does not claim that the field measures anything beyond the raters' interpretive convergence.
+
+Objection 4. The entailment basis has no proof-theoretic semantics.
+Objection. The entailment basis separates E1 through E4 by whether the outcome "follows from the symbolic form of the surviving equations alone." The framework cites no proof theory, no equational logic, and no operational decision procedure. In principle, every case is E4, because every entailment result is contestable under some reading.
+
+Reply. The framework states in Section 7.1 that the entailment basis is a classification and not a decision procedure, that the phrase "follows from the symbolic form" is used in the ordinary mathematical sense, and that the classification is bounded by the E4 label. The framework does not claim that E4 is a well-defined set or that the assignment of E4 is rater-independent. The regress is bounded by the E4 label, not eliminated by it, and the framework discloses this.
+
+Objection 5. The graph formalism is decorative.
+Objection. Section 8.5 gives a tuple definition of the graph. The definition is a labelled directed multigraph with two node sorts and a provenance map. The composition notation is not given a semantics in terms of the tuple. The formalism is a definition, not a theory.
+
+Reply. The framework states in Section 8.5 that the formal definition does not impose constraints that would make the graph a category, a functor, or any structure richer than a labelled directed multigraph, and that the composition notation is a notational convention for display. A reader who requires a categorical semantics will not find one, and the framework does not claim one. The formalism is a definition, and the framework states that it is a definition.
+
+Objection 6. The statistical argument is thin.
+Objection. The validation programme specifies Krippendorff's alpha and Gwet's AC1 with a governing rule at 0.6, a threshold the paper calls conventional and threshold-sensitive. The sample size is left to a simulation-based power analysis that is not executed. The negative-control count presumes a binomial model that may not hold across strata. The validation programme is pre-registered but not pre-specified in the statistical sense.
+
+Reply. The framework states in Section 13.2 and Section 13.3 that the threshold is a convention, that the sample size is a floor subject to a power analysis whose results will be deposited with the pre-registration, and that the two strata may have different base rates and are reported separately. The framework does not claim that the validation programme is a fully pre-specified statistical analysis. The programme is a plan whose execution is the object of the pre-registration.
+
+Objection 7. The information-matched control is under-controlled.
+Objection. The control is a domain expert's structured summary of the same source text. Length and content are not the right matching dimensions for an information-theoretic comparison. The comparison may not isolate STAG structure from the treatment's greater information density.
+
+Reply. The framework states in Section 13.6 that the matched control is assessed by a pre-registered rubric applied by two independent raters, and that the rubric names the dimensions on which matching is judged: number of retrievable facts, number of causal or dependence relations stated, number of evidential qualifiers stated, and length in tokens. The framework does not claim that the matching is exact. If the two raters disagree, the case is excluded and the exclusion is reported.
+
+Objection 8. The conventions are conventions dressed as criteria.
+Objection. The 0.6 agreement threshold, the 0.20 false-positive tolerance, the 60 percent intra-domain threshold, and the declared minimum ratio of 10 are stated without derivation. They are conventions in a pre-registration, where conventions are supposed to be pre-committed rather than pre-registered as caveats.
+
+Reply. The framework states in Section 13.3, Section 7.7, and Section 7.5 that each of these is a convention, and that the sensitivity analyses at alternative thresholds are reported alongside. The framework reports the outcomes at the alternatives and does not claim that the outcomes are threshold-independent.
+
+Objection 9. The framework has no positive instance.
+Objection. The paper concedes that no example is validated. The two-layer example fails every anchoring condition. The Fröhlich/Eliashberg example is marked not_determinable. The paper has no positive instance of anything and asks to be published on the strength of a specification.
+
+Reply. The framework is a specification and pre-registration. The flagship label is instantiated by the worked example in Section 11.2, and the anchoring status is the object of the reachability search. The framework does not claim that any annotation is evidentially anchored and states in Section 13.4 that the contribution narrows to the annotation architecture with the anchoring status retained as a defined but uninstantiated field if the search fails. The framework is offered as a specification, not as a validated instrument.
+
+Objection 10. The venue claim is under-supported.
+Objection. Section 1.4 says the appropriate venue class is a registered-report, protocol, or philosophy-of-science outlet. A philosophy-of-science journal will ask what the philosophical contribution is. A methods journal will say the framework is too philosophical to be a method.
+
+Reply. The framework is a specification and pre-registration. Its contribution is representational and methodological, not empirical and not philosophical in the sense of arguing a philosophical thesis. It is directed at the registered-report, protocol, and philosophy-of-science venue class, and the framework does not claim to satisfy the standards of a methods journal.
+
+Objection 11. The not_determinable handling is a retreat.
+Objection. After the verification check, the Fröhlich/Eliashberg example is marked not_determinable in its intervention classification, entailment basis, and cited structural result. The two-layer example is marked not_determinable in its regime control-parameter point, phase-diagram source, material-change result, and band-source citation. The paper is retreating from its own examples rather than defending them.
+
+Reply. The framework states in Section 14.3 and Section 14.4 that three load-bearing empirical inputs could not be verified against their primary sources, and that the corresponding fields are marked not_determinable rather than populated from memory. The handling is a disclosure, not a retreat. The framework states in Section 7.6 that a label whose dependent field is not_determinable is retained with the not_determinable flag attached and displayed alongside, and that the flag is displayed with the label under the display convention of Section 7.10.
+
+Objection 12. The verification check cannot be extended.
+Objection. The verification check is confined to eight items. Other load-bearing inputs in the framework, for example the value of the declared minimum ratio and the choice of the Clopper–Pearson bound, are not verified against sources and are not marked not_determinable.
+
+Reply. The framework states in Section 14.4 that the eight items listed are the load-bearing empirical inputs on which the worked examples and the falsification conditions depend. The declared minimum ratio and the Clopper–Pearson bound are conventions and are reported as conventions in Section 14.3. The framework does not claim that the list of eight items is exhaustive over the framework; it claims that it is exhaustive over the items that the worked examples and the reachability search depend on.
+
+Objection 13. The response to hostile readings is part of the paper.
+Objection. The framework's replies to objections are part of the submission. If the replies were responses to a referee, they would be in a separate document. In the paper, they displace the specification.
+
+Reply. The replies are stated in Artifact 3, which is a separate document from the main paper (Artifact 1). The main paper defers to Artifact 3 for extended discussion of objections and to Artifact 2 for field-by-field specifications. The main paper is a specification and pre-registration; Artifact 3 is the response material.
+
+Objection 14. The framework's reachability cannot be decided by the search as specified.
+Objection. The reachability hypothesis is that at least one published physical system or K synthetic constructions satisfies all four anchoring conditions. The search reports each candidate's profile type and the reason for any failure. But the search cannot decide whether the ratio is bounded below the minimum at the band endpoint closest to the phase boundary, because that bound is a property of the system and not of the search.
+
+Reply. The framework states in Section 7.10 that the bound exists as a formal consequence of the correlation length being finite away from the critical point and growing as the endpoint approaches the phase boundary. The bound is not computed by the framework. The search reports, for each candidate, whether the bound is likely to be below the minimum given the candidate's phase-stability range. If the bound is below the minimum for all candidates in all target domains, the reachability hypothesis is falsified for those domains, and the consequence is stated in Section 13.4.
+
+Objection 15. The framework conflates the label with the assessment.
+Objection. A reader who sees STAG-Discovered may read it as a strong classification. The framework states that the anchoring status is displayed with the label, but the framework cannot enforce the display convention. In practice, downstream consumers will strip the anchoring status and treat STAG-Discovered as a claim.
+
+Reply. The framework states in Section 7.10 that the display convention is a convention, that the framework cannot enforce it technically, and that the schema requires the anchoring fields to be recorded. The framework's defence is that the schema makes the anchoring status checkable. The framework's vulnerability is that a downstream consumer may strip the field. The framework discloses the vulnerability and does not claim to eliminate it.
+
+Objection 16. The framework is not a methodology.
+Objection. A methodology tells an analyst how to proceed. The framework tells an analyst how to record what the analyst has decided. It is a recording instrument, not a methodology.
+
+Reply. The framework states in Section 1.1 that it is a specification and pre-registration protocol, that its contribution is representational and methodological rather than empirical, and that it proposes operational definitions for annotation purposes. The framework is a recording instrument for scale-transition claims, and the framework states that this is what it is.
+
+Objection 17. The framework is not falsifiable.
+Objection. The framework is a specification. A specification does not make a claim that can be falsified. Section 13.7 lists falsification conditions, but those conditions are falsification conditions for the framework's fields, not for the framework as a claim. The framework itself is not falsifiable because it makes no empirical claim.
+
+Reply. The framework's falsification conditions are the conditions under which the framework fails on its own terms: agreement failure, redundancy, non-accommodation, false-positive rate above tolerance, and reachability failure. The framework does make an empirical claim, namely that its fields are reproducible and that at least one case satisfies the anchoring conditions. The falsification conditions are the conditions under which that claim fails. The framework does not claim to be falsifiable in the sense of making a predictive empirical claim about the world.
+
+Objection 18. The framework does not solve the problem it states.
+Objection. The paper states the problem of representing inter-scale relations in a way that preserves distinctions between derivation, representation, evidence, counterfactual dependence, and interpretation. The framework provides a recording instrument, not a solution to the problem. A recording instrument does not solve a representational problem; it records the analyst's decisions about it.
+
+Reply. The framework states in Section 1.1 that it is a specification and pre-registration protocol and that its contribution is representational and methodological rather than empirical. The framework records distinctions rather than resolving them. The problem of representing inter-scale relations is not solved by a recording instrument; the framework's contribution is the instrument. The framework does not claim to solve the problem.
+
+Objection 19. The framework mislabels the anchoring status as strong.
+Objection. The framework calls the anchoring status a "stronger status." But the four anchoring conditions include condition (a), which is a restatement of the prerequisites, and condition (b), which is a condition on the band. Calling the conjunction stronger than the label obscures the fact that the label already carries the prerequisites.
+
+Reply. The framework states in Section 1.2 that STAG-Discovered is assigned by the four prerequisites of Section 7.5 and that evidential anchoring is a separate and stronger status. The word "stronger" refers to the fact that evidential anchoring requires the four anchoring conditions in addition to the prerequisites. Condition (a) restates the prerequisite evidence requirement, and condition (b) adds the band requirement. The framework states that the four anchoring conditions are not of the same logical type and that the word "stronger" is a description of the conjunction, not a formal claim.
+
+Objection 20. The framework's codebook is not self-contained.
+Objection. The codebook in Artifact 2 refers to the main paper for the definitions of E1 through E4 and for the rules of cross-domain counterfactual dependence. A codebook that refers to the main paper for its definitions is not self-contained.
+
+Reply. The codebook is a companion to the main paper, not a substitute for it. The codebook states the field list, the permitted value sets, and the semantic validation rules. The definitions of E1 through E4 and the rules of cross-domain counterfactual dependence are stated in the main paper and are cited by section. A reader who requires a self-contained codebook will find the definitions by following the section references. The framework does not claim that the codebook is self-contained from a reader who has not read the main paper.
+
+Data Availability (Artifact 3)
+Artifact 3 is deposited with the main paper and Artifact 2 at Zenodo. The repository DOI will be inserted immediately before submission.
+
