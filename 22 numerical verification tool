@@ -1,0 +1,812 @@
+Build Specification — App 22: Numerical Verification Tool
+Completeness status: COMPLETE. All sections delivered in one pass. No truncation. Formatted for copy-paste into another conversation window. No tables, no boxes.
+
+What It Is
+An app or web service that checks reported numbers in a document against declared sources. It takes a document with reported numbers and a set of declared sources, checks the external constants and the internal arithmetic where computable, and marks the rest as code-dependent. It takes in a document and a source list, and puts out a verification table with verified, corrected, code-dependent, or not verifiable per item. It is for authors and reviewers.
+
+Core Requirements
+Functional requirements:
+
+Accept a document with reported numbers. The document may be a manuscript, a STAG annotation record, a Null-Model Protocol specification, or a combined submission.
+
+Accept a set of declared sources. Each source has a citation, a value, and a verification status.
+
+Extract the reported numbers from the document.
+
+For each reported number, classify it as one of: external constant, internal arithmetic, code-dependent, or unclassified.
+
+For each external constant, look up the value in the declared sources, and classify the item as verified (the reported value matches the source within tolerance), corrected (the reported value differs and the source provides the correct value), or not verifiable (the source is missing or the value cannot be checked).
+
+For each internal arithmetic, check that the arithmetic is correct. Classify the item as verified (the arithmetic is correct within tolerance), corrected (the arithmetic is incorrect and the correct value can be computed), or not verifiable (the arithmetic depends on values not available).
+
+For each code-dependent number, mark the item as code-dependent.
+
+For each unclassified number, mark the item as unclassified.
+
+Report the verification table with the item, the reported value, the source value, the status, and the reason.
+
+Report the summary: the number of verified, corrected, code-dependent, not verifiable, and unclassified items.
+
+Support a web interface and a command-line interface.
+
+Support batch verification of multiple documents.
+
+Non-functional requirements:
+
+Deterministic: same inputs produce same outputs.
+
+No network dependency for the core verification logic.
+
+Fast: verify a typical document in under ten seconds.
+
+Versioned: the tool records the STAG schema version, the Null-Model Protocol schema version, and the tool version.
+
+Reproducible: the tool records the document hash and the source list hash.
+
+Input Specification
+Input 1. Document. Required. A manuscript, a STAG annotation record, a Null-Model Protocol specification, or a combined submission. Formats: PDF, LaTeX, JSON, plain text.
+
+Input 2. Source list. Required. A JSON file with the declared sources. Each source has a citation, a value, a unit, a tolerance, and a verification status.
+
+Input 3. STAG schema version. Optional. Defaults to the latest supported version.
+
+Input 4. Null-Model Protocol schema version. Optional. Defaults to the latest supported version.
+
+Input 5. Verification mode. Optional. Values: full (default), external_only, arithmetic_only, code_dependent_only.
+
+Input 6. Output format. Optional. Values: json (default), text, both, table.
+
+Input 7. Document identifier. Optional. A string identifying the document.
+
+Input 8. Batch file. Optional. A file listing multiple documents to verify.
+
+Output Specification
+Output 1. Verification table. Table, JSON, or text. For each reported number: the item, the reported value, the source value, the status, and the reason.
+
+Output 2. Summary report. Text or JSON. The counts by status.
+
+Output 3. External constants report. JSON. The status of each external constant.
+
+Output 4. Internal arithmetic report. JSON. The status of each internal arithmetic.
+
+Output 5. Code-dependent report. JSON. The list of code-dependent numbers.
+
+Output 6. Unclassified report. JSON. The list of unclassified numbers.
+
+Output 7. Reproducibility record. JSON. The STAG schema version, the Null-Model Protocol schema version, the tool version, the document identifier, the document hash, and the source list hash.
+
+Output 8. Batch report. JSON or text. The verification reports for multiple documents.
+
+Module-by-Module Specification
+Module 1: Document Loader
+Reads the document. Supports PDF, LaTeX, JSON, and plain text. Extracts the text for analysis. Extracts any structured metadata if present. Computes the document hash (SHA-256).
+
+Module 2: Source List Loader
+Reads the source list. Each source has:
+
+source_id (string)
+
+citation (string)
+
+value (number)
+
+unit (string)
+
+tolerance (number)
+
+verification_status (verified, unverified, not_verifiable)
+
+Validates the source list structure. Computes the source list hash (SHA-256).
+
+Module 3: Number Extractor
+Extracts the reported numbers from the document. Uses pattern matching to identify:
+
+External constants. Numbers followed by a citation, a reference, or a source marker.
+
+Internal arithmetic. Numbers that are the result of an arithmetic operation on other numbers in the document.
+
+Code-dependent numbers. Numbers that are the output of a code or a simulation.
+
+Unclassified numbers. Numbers that do not fall into any of the above categories.
+
+Records the location of each number in the document.
+
+Module 4: Classifier
+Classifies each reported number as one of: external constant, internal arithmetic, code-dependent, or unclassified.
+
+The classification is based on:
+
+The presence of a citation or a source marker near the number. If present, external constant.
+
+The presence of an arithmetic operation near the number. If present, internal arithmetic.
+
+The presence of a code or simulation marker near the number. If present, code-dependent.
+
+Otherwise, unclassified.
+
+Module 5: External Constant Checker
+For each external constant, looks up the value in the declared sources. Compares the reported value with the source value within the tolerance. Classifies the item as:
+
+Verified. The reported value matches the source value within tolerance.
+
+Corrected. The reported value differs from the source value, and the source provides the correct value.
+
+Not verifiable. The source is missing or the value cannot be checked.
+
+Records the reported value, the source value, and the status.
+
+Module 6: Internal Arithmetic Checker
+For each internal arithmetic, checks that the arithmetic is correct. Uses the other numbers in the document as inputs. Classifies the item as:
+
+Verified. The arithmetic is correct within tolerance.
+
+Corrected. The arithmetic is incorrect and the correct value can be computed.
+
+Not verifiable. The arithmetic depends on values not available in the document.
+
+Records the reported value, the computed value, and the status.
+
+Module 7: Code-Dependent Marker
+For each code-dependent number, marks the item as code-dependent. Records the reported value and the code or simulation marker.
+
+Module 8: Unclassified Marker
+For each unclassified number, marks the item as unclassified. Records the reported value and the location.
+
+Module 9: Verification Table Builder
+Assembles the verification table. For each reported number: the item, the reported value, the source value, the status, and the reason.
+
+Module 10: Summary Reporter
+Produces the summary report. The counts by status: verified, corrected, code-dependent, not verifiable, unclassified.
+
+Module 11: Report Formatter
+Produces the text, JSON, and table reports.
+
+Module 12: Batch Runner
+Runs the verification on multiple documents. Collects the verification reports for each document.
+
+Module 13: Reproducibility Recorder
+Records the STAG schema version, the Null-Model Protocol schema version, the tool version, the document identifier, the document hash, and the source list hash.
+
+Module 14: Web Service Layer
+Wraps the tool in an HTTP endpoint. Accepts a POST with the document, the source list, and the options. Returns the verification report. Uses HTTP status 200 for a complete verification, 422 for a verification with corrections, 400 for malformed input.
+
+Module 15: Command-Line Interface
+Parses arguments. Invokes Modules 1 through 14. Prints the report to stdout.
+
+Full Verification Specification
+6.1 External Constants
+An external constant is a number that is cited from an external source. Examples:
+
+The 3D Ising critical exponent ν_3D = 0.6301(4) from Ferrenberg and Landau (1991).
+
+The 2D Ising critical temperature T_2D ≈ 2.269 J/k_B from Onsager (1944).
+
+The numerical values quoted in Allen and Dynes (1975) and McMillan (1968).
+
+For each external constant, the checker looks up the value in the declared sources. If the source is present, the checker compares the reported value with the source value within the tolerance. If the values match, the item is verified. If the values differ, the item is corrected and the source value is recorded. If the source is missing, the item is not verifiable.
+
+The tolerance is specified per source. If no tolerance is specified, the default tolerance is 0.001 (relative).
+
+6.2 Internal Arithmetic
+An internal arithmetic is a number that is the result of an arithmetic operation on other numbers in the document. Examples:
+
+Lambda_obs = -50 * log(1 - 0.32353) = 19.54.
+
+GS = (8.1 - 0) / sqrt(8.1) = 2.846.
+
+GS^2 = 8.1.
+
+The ratio Lambda / GS^2 = 19.54 / 8.1 = 2.41.
+
+For each internal arithmetic, the checker reconstructs the arithmetic using the other numbers in the document. If the arithmetic can be reconstructed and the result matches the reported value within tolerance, the item is verified. If the arithmetic can be reconstructed and the result differs, the item is corrected and the correct value is recorded. If the arithmetic cannot be reconstructed, the item is not verifiable.
+
+6.3 Code-Dependent Numbers
+A code-dependent number is a number that is the output of a code or a simulation. Examples:
+
+The empirical null distribution values.
+
+The exceedance probability from the Full-Pipeline Simulator.
+
+The calibration and power values from the Scan-Family Comparator.
+
+For each code-dependent number, the checker marks the item as code-dependent. It does not attempt to verify the value, because the value depends on the code and the seed.
+
+6.4 Unclassified Numbers
+An unclassified number is a number that does not fall into any of the above categories. Examples:
+
+A number that appears in the text without a citation, an arithmetic operation, or a code marker.
+
+For each unclassified number, the checker marks the item as unclassified. It records the reported value and the location.
+
+6.5 The Verification Table
+The verification table has the following columns:
+
+Item. A short description of the number.
+
+Reported Value. The value as it appears in the document.
+
+Source Value. The value from the declared source, or the computed value, or null.
+
+Status. One of: verified, corrected, code_dependent, not_verifiable, unclassified.
+
+Reason. A short explanation of the status.
+
+6.6 The Summary
+The summary has the following fields:
+
+verified_count (integer)
+
+corrected_count (integer)
+
+code_dependent_count (integer)
+
+not_verifiable_count (integer)
+
+unclassified_count (integer)
+
+total (integer)
+
+6.7 The Reproducibility Record
+The reproducibility record has the following fields:
+
+stag_schema_version (string)
+
+null_model_schema_version (string)
+
+tool_version (string)
+
+document_id (string)
+
+document_hash (string)
+
+source_list_hash (string)
+
+timestamp (ISO8601)
+
+Core Logic as Executable Pseudocode
+7.1 Main Flow
+function runVerification(document, sourceList, options):
+
+Step 1. documentText = loadDocument(document, options).
+
+documentHash = sha256(document).
+
+Step 2. sources = loadSourceList(sourceList).
+
+sourceListHash = sha256(sourceList).
+
+Step 3. numbers = extractNumbers(documentText, options).
+
+Step 4. classified = numbers.map(n => classify(n, documentText)).
+
+Step 5. results = [].
+
+for n in classified:
+
+if n.type == "external_constant": result = checkExternalConstant(n, sources).
+
+else if n.type == "internal_arithmetic": result = checkInternalArithmetic(n, documentText).
+
+else if n.type == "code_dependent": result = markCodeDependent(n).
+
+else: result = markUnclassified(n).
+
+results.push(result).
+
+Step 6. summary = buildSummary(results).
+
+Step 7. externalReport = buildExternalReport(results.filter(r => r.type == "external_constant")).
+
+Step 8. arithmeticReport = buildArithmeticReport(results.filter(r => r.type == "internal_arithmetic")).
+
+Step 9. codeDependentReport = buildCodeDependentReport(results.filter(r => r.type == "code_dependent")).
+
+Step 10. unclassifiedReport = buildUnclassifiedReport(results.filter(r => r.type == "unclassified")).
+
+Step 11. table = formatTable(results).
+
+Step 12. reproducibility = buildReproducibilityRecord(options, documentHash, sourceListHash, timestamp).
+
+Step 13. return {results, summary, externalReport, arithmeticReport, codeDependentReport, unclassifiedReport, table, reproducibility}.
+
+7.2 Extract Numbers
+function extractNumbers(documentText, options):
+
+numbers = [].
+
+patterns = [numberPattern, citedNumberPattern, arithmeticPattern, codePattern].
+
+for pattern in patterns:
+
+matches = documentText.matchAll(pattern).
+
+for match in matches:
+
+numbers.push({value: parseNumber(match), location: match.index, context: match.context}).
+
+return numbers.
+
+7.3 Classify
+function classify(number, documentText):
+
+context = documentText.substring(number.location - 100, number.location + 100).
+
+if containsCitation(context): return {type: "external_constant", value: number.value, context: context}.
+
+if containsArithmetic(context): return {type: "internal_arithmetic", value: number.value, context: context}.
+
+if containsCodeMarker(context): return {type: "code_dependent", value: number.value, context: context}.
+
+return {type: "unclassified", value: number.value, context: context}.
+
+7.4 Check External Constant
+function checkExternalConstant(number, sources):
+
+for source in sources:
+
+if number.context.contains(source.citation):
+
+if abs(number.value - source.value) <= source.tolerance:
+
+return {type: "external_constant", value: number.value, source_value: source.value, status: "verified", reason: "matches source " + source.citation}.
+
+else:
+
+return {type: "external_constant", value: number.value, source_value: source.value, status: "corrected", reason: "differs from source " + source.citation + "; correct value is " + source.value}.
+
+return {type: "external_constant", value: number.value, source_value: null, status: "not_verifiable", reason: "source not found in source list"}.
+
+7.5 Check Internal Arithmetic
+function checkInternalArithmetic(number, documentText):
+
+inputs = extractArithmeticInputs(number, documentText).
+
+if inputs == null: return {type: "internal_arithmetic", value: number.value, source_value: null, status: "not_verifiable", reason: "arithmetic inputs not found"}.
+
+computed = evaluateArithmetic(number.expression, inputs).
+
+if abs(number.value - computed) <= DEFAULT_TOLERANCE:
+
+return {type: "internal_arithmetic", value: number.value, source_value: computed, status: "verified", reason: "arithmetic is correct"}.
+
+else:
+
+return {type: "internal_arithmetic", value: number.value, source_value: computed, status: "corrected", reason: "arithmetic is incorrect; correct value is " + computed}.
+
+7.6 Mark Code Dependent
+function markCodeDependent(number):
+
+return {type: "code_dependent", value: number.value, source_value: null, status: "code_dependent", reason: "value depends on code and seed"}.
+
+7.7 Mark Unclassified
+function markUnclassified(number):
+
+return {type: "unclassified", value: number.value, source_value: null, status: "unclassified", reason: "could not classify number"}.
+
+7.8 Build Summary
+function buildSummary(results):
+
+verifiedCount = count(r in results where r.status == "verified").
+
+correctedCount = count(r in results where r.status == "corrected").
+
+codeDependentCount = count(r in results where r.status == "code_dependent").
+
+notVerifiableCount = count(r in results where r.status == "not_verifiable").
+
+unclassifiedCount = count(r in results where r.status == "unclassified").
+
+return {verified_count: verifiedCount, corrected_count: correctedCount, code_dependent_count: codeDependentCount, not_verifiable_count: notVerifiableCount, unclassified_count: unclassifiedCount, total: results.length}.
+
+7.9 Format Table
+function formatTable(results):
+
+table = new Table().
+
+table.addHeader(["Item", "Reported Value", "Source Value", "Status", "Reason"]).
+
+for r in results: table.addRow([r.type, r.value, r.source_value, r.status, r.reason]).
+
+return table.toString().
+
+7.10 Build Reproducibility Record
+function buildReproducibilityRecord(options, documentHash, sourceListHash, timestamp):
+
+return {stag_schema_version: options.stagSchemaVersion, null_model_schema_version: options.nullModelSchemaVersion, tool_version: options.toolVersion, document_id: options.documentId, document_hash: documentHash, source_list_hash: sourceListHash, timestamp: timestamp}.
+
+7.11 Batch Verification
+function runBatchVerification(batchFile, sourceList, options):
+
+Step 1. documents = loadBatchFile(batchFile).
+
+Step 2. reports = [].
+
+for document in documents:
+
+doc = loadDocument(document.path, options).
+
+report = runVerification(doc, sourceList, options).
+
+reports.push({document_id: document.id, report: report}).
+
+Step 3. return {reports: reports, count: reports.length}.
+
+Data Model / JSON Schema for Internal State
+The tool's internal state is a verification report object.
+
+Verification report object:
+
+results (array of item result objects)
+
+summary (object: verified_count, corrected_count, code_dependent_count, not_verifiable_count, unclassified_count, total)
+
+external_report (array of item result objects)
+
+arithmetic_report (array of item result objects)
+
+code_dependent_report (array of item result objects)
+
+unclassified_report (array of item result objects)
+
+table (string)
+
+reproducibility (object: stag_schema_version, null_model_schema_version, tool_version, document_id, document_hash, source_list_hash, timestamp)
+
+Each item result object:
+
+type (external_constant, internal_arithmetic, code_dependent, unclassified)
+
+value (number)
+
+source_value (number or null)
+
+status (verified, corrected, code_dependent, not_verifiable, unclassified)
+
+reason (string)
+
+location (string)
+
+Batch report object:
+
+reports (array of {document_id, report})
+
+count (integer)
+
+Architecture
+Module breakdown:
+
+Document Loader. Reads and extracts text from the document.
+
+Source List Loader. Reads and validates the source list.
+
+Number Extractor. Extracts the reported numbers.
+
+Classifier. Classifies each number.
+
+External Constant Checker. Checks external constants.
+
+Internal Arithmetic Checker. Checks internal arithmetic.
+
+Code-Dependent Marker. Marks code-dependent numbers.
+
+Unclassified Marker. Marks unclassified numbers.
+
+Verification Table Builder. Assembles the table.
+
+Summary Reporter. Produces the summary.
+
+Report Formatter. Produces the text, JSON, and table reports.
+
+Batch Runner. Runs the verification on multiple documents.
+
+Reproducibility Recorder. Records the versions, document hash, and source list hash.
+
+Web Service Layer. HTTP endpoint.
+
+Command-Line Interface. Argument parsing.
+
+Data flow:
+
+Document and source list go to the loaders. Number Extractor extracts. Classifier classifies. Checkers and Markers process. Verification Table Builder assembles. Summary Reporter produces the summary. Report Formatter produces output. Batch Runner runs on multiple documents. Reproducibility Recorder records.
+
+Technology Stack
+Recommended for the web service:
+
+Backend: FastAPI (Python) or Express (Node.js).
+
+Document parsing: pdfplumber or PyPDF2 (Python) or pdf-parse (JS).
+
+LaTeX parsing: regex-based or a dedicated parser.
+
+Arithmetic evaluation: a safe expression evaluator (Python's ast.literal_eval or JS's mathjs).
+
+JSON handling: standard library.
+
+HTTP: FastAPI plus uvicorn (Python) or Express (JS).
+
+Containerization: Docker.
+
+Testing: pytest (Python) or Vitest (JS).
+
+Recommended for the command-line interface:
+
+Same runtime as the web service.
+
+CLI framework: argparse or click (Python) or commander (JS).
+
+Recommended for the web interface:
+
+Frontend: React or Svelte.
+
+Form for uploading the document and the source list.
+
+Display of the verification table, the summary, and the reports.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The STAG schema (Artifact 2, Appendix B.1).
+
+The Null-Model Protocol schema (from App 8 and App 9).
+
+The verification rules from Section 14.4 of Artifact 1.
+
+UI/UX Specification
+Web service:
+
+Endpoint: POST /verify.
+
+Request body: multipart form with fields document (file), source_list (file), options (JSON).
+
+Response on success: HTTP 200 with JSON report.
+
+Response on failure: HTTP 422 with JSON report.
+
+Response on malformed input: HTTP 400 with error message.
+
+Command-line interface:
+
+Usage: numerical-verifier --document FILE --source-list FILE [--stag-schema-version VERSION] [--null-model-schema-version VERSION] [--mode full|external_only|arithmetic_only|code_dependent_only] [--output FILE] [--format json|text|both|table] [--document-id ID].
+
+Output on success: the verification table, the summary, and the reports.
+
+Output on error: the error message and exit code 2.
+
+Web interface:
+
+A form for uploading the document and the source list.
+
+Display of the verification table with color-coded statuses: green for verified, red for corrected, blue for code_dependent, grey for not_verifiable, orange for unclassified.
+
+Display of the summary.
+
+Display of the external constants, the internal arithmetic, the code-dependent numbers, and the unclassified numbers.
+
+Download buttons for the JSON and text reports.
+
+Batch verification:
+
+A form for uploading a batch file.
+
+Display of the batch report.
+
+Validation Engine Design
+The tool validates the following:
+
+Validation 1. Document validity. The document is in a supported format and is not empty.
+
+Validation 2. Source list validity. The source list is in a supported format and has the required structure.
+
+Validation 3. Number extraction. The reported numbers are extracted from the document.
+
+Validation 4. Classification. Each number is classified as one of the four categories.
+
+Validation 5. External constant verification. Each external constant is compared with the declared source.
+
+Validation 6. Internal arithmetic verification. Each internal arithmetic is checked.
+
+Validation 7. Code-dependent marking. Each code-dependent number is marked.
+
+Validation 8. Unclassified marking. Each unclassified number is marked.
+
+Validation 9. Reproducibility. The versions, document hash, and source list hash are recorded.
+
+Testing Strategy
+Unit tests:
+
+Document Loader for PDF, LaTeX, JSON, and plain text.
+
+Source List Loader for valid and invalid source lists.
+
+Number Extractor for each pattern.
+
+Classifier for each category.
+
+External Constant Checker for verified, corrected, and not_verifiable.
+
+Internal Arithmetic Checker for verified, corrected, and not_verifiable.
+
+Code-Dependent Marker.
+
+Unclassified Marker.
+
+Verification Table Builder for the table structure.
+
+Summary Reporter for the summary counts.
+
+Report Formatter for each format.
+
+Batch Runner for multiple documents.
+
+Reproducibility Recorder for the record structure.
+
+Integration tests:
+
+Verify a document with external constants. Verify the external report.
+
+Verify a document with internal arithmetic. Verify the arithmetic report.
+
+Verify a document with code-dependent numbers. Verify the code-dependent report.
+
+Verify a document with unclassified numbers. Verify the unclassified report.
+
+Verify a document with all four categories. Verify the full verification report.
+
+Batch verify multiple documents. Verify the batch report.
+
+Worked-example tests:
+
+Verify the STAG worked examples (Artifact 1, Section 11). Verify the external constants (ν_3D = 0.6301(4), T_2D ≈ 2.269 J/k_B, ν = 1) and the internal arithmetic (Lambda_obs = 19.54, GS = 2.846, GS^2 = 8.1).
+
+Verify the Null-Model Protocol worked examples (Section 11). Verify the external constants and the internal arithmetic (Lambda_obs = 19.54, exact p = 2.99 * 10^-3).
+
+Verify the two-layer Ising example (Artifact 1, Section 11.2). Verify the not_determinable handling for the fields that could not be verified against their primary sources.
+
+Regression tests:
+
+Report determinism.
+
+Verification consistency.
+
+Summary consistency.
+
+Build Phases
+Phase 1. Document Loader. Read and extract text from the document.
+
+Phase 2. Source List Loader. Read and validate the source list.
+
+Phase 3. Number Extractor. Extract the reported numbers.
+
+Phase 4. Classifier. Classify each number.
+
+Phase 5. External Constant Checker. Check external constants.
+
+Phase 6. Internal Arithmetic Checker. Check internal arithmetic.
+
+Phase 7. Code-Dependent Marker. Mark code-dependent numbers.
+
+Phase 8. Unclassified Marker. Mark unclassified numbers.
+
+Phase 9. Verification Table Builder. Assemble the table.
+
+Phase 10. Summary Reporter. Produce the summary.
+
+Phase 11. Report Formatter. Produce the text, JSON, and table reports.
+
+Phase 12. Batch Runner. Run the verification on multiple documents.
+
+Phase 13. Reproducibility Recorder. Record the versions, document hash, and source list hash.
+
+Phase 14. Web Service Layer. HTTP endpoint.
+
+Phase 15. Command-Line Interface.
+
+Phase 16. Web Interface.
+
+Phase 17. Worked-example tests.
+
+Phase 18. Integration testing and hardening.
+
+Phase 19. Packaging and deployment.
+
+Dependencies
+Python path:
+
+pdfplumber or PyPDF2 (PDF parsing).
+
+jsonschema (schema validation).
+
+FastAPI and uvicorn (web service).
+
+argparse or click (command-line).
+
+json (JSON handling, standard library).
+
+re (regex, standard library).
+
+hashlib (hash computation, standard library).
+
+ast (safe expression evaluation, standard library).
+
+pytest (testing).
+
+Node.js path:
+
+pdf-parse (PDF parsing).
+
+ajv (schema validation).
+
+Express (web service).
+
+commander (command-line).
+
+JSON (standard library).
+
+crypto (hash computation, standard library).
+
+mathjs (safe expression evaluation).
+
+Vitest (testing).
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The STAG schema (Artifact 2, Appendix B.1).
+
+The Null-Model Protocol schema (from App 8 and App 9).
+
+The verification rules from Section 14.4 of Artifact 1.
+
+Deployment Notes
+Web service:
+
+Deploy with Docker. Expose a single endpoint. Use a reverse proxy for TLS.
+
+Scale horizontally if needed.
+
+Stateless: no session state between requests.
+
+Log the document identifier, the source list hash, and the summary for audit.
+
+Command-line interface:
+
+Package as a standalone executable (PyInstaller or pkg).
+
+Distribute via pip, npm, or a direct download.
+
+Web interface:
+
+Deploy the frontend as a static bundle.
+
+Backend with FastAPI or Express.
+
+Reproducibility:
+
+Record the STAG schema version, the Null-Model Protocol schema version, the tool version, the document identifier, the document hash, and the source list hash.
+
+Provide a version pin for the verification rules.
+
+Open Questions to Resolve Before Building
+Question 1. Which runtime first? Python or Node.js. Decision affects the PDF parsing library and the safe expression evaluator.
+
+Question 2. What document formats are supported? Options: PDF, LaTeX, JSON, plain text, or all four. Decision needed.
+
+Question 3. How should the tool handle numbers that appear in tables or figures? Options: extract them, or mark them as unclassified. Decision needed.
+
+Question 4. How should the tool handle numbers that appear multiple times in the document? Options: verify each occurrence, or verify the first occurrence. Decision needed.
+
+Question 5. What is the default tolerance for external constants? Options: relative tolerance, absolute tolerance, or per-source tolerance. Decision needed.
+
+Question 6. How should the tool handle internal arithmetic that depends on code-dependent numbers? Options: mark it as not_verifiable, or mark it as code_dependent. Decision needed.
+
+Question 7. How should the tool handle the not_determinable flag propagation? The STAG specification specifies that not_determinable propagates from the entailment basis to the intervention classification to the cross-domain counterfactual dependence. Decision needed: does the tool check the propagation automatically, or trust the record?
+
+Question 8. Should the tool integrate with the STAG schema library (App 17) and the Null-Model Protocol library (App 18)? Decision needed: shared schemas, or independent.
+
+Question 9. How should the tool report the verification table? Options: a single table, or separate tables for each category. Decision needed.
+
+Question 10. Should the tool support batch verification of multiple documents? The design allows it. Decision needed: enable it by default, or only in advanced mode.
+
+End of build specification for App 22.
