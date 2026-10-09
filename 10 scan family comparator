@@ -1,0 +1,745 @@
+Build Specification — App 10: Scan-Family Comparator
+Completeness status: COMPLETE. All sections delivered in one pass. No truncation. Formatted for copy-paste into another conversation window. No tables, no boxes.
+
+What It Is
+A command-line tool that runs the same data under several scan families and reports calibration and power side by side. It runs W_adj, W_pair with and without a cap, and the endpoint-conditioned T_max, and reports the comparison. It takes in a pipeline specification, the data, and the families to compare, and puts out a side-by-side table of critical values, calibration, and power. It is for analysts choosing a scan family.
+
+Core Requirements
+Functional requirements:
+
+Accept a pipeline specification produced by the Pipeline Specification Wizard (App 8).
+
+Accept a dataset.
+
+Accept a list of scan families to compare.
+
+For each scan family, run the full-pipeline simulator (App 9) to compute the empirical null distribution.
+
+For each scan family, compute the 95th-percentile critical value of the scan statistic.
+
+For each scan family, compute the calibration at a pre-specified alpha (default 0.05) by simulating null datasets and checking the rejection rate.
+
+For each scan family, compute the power against a specified alternative.
+
+For each scan family, compute the rejection rates at the specified gap widths and depths.
+
+Report the critical values, calibration, and power side by side.
+
+Support the scan families W_adj, W_pair with and without a cap, and the endpoint-conditioned T_max.
+
+Support the boundary conventions B1 and B2.
+
+Support the empty-W conventions no_candidate and zero.
+
+Support the tail definition, whether >= or >.
+
+Support the multiplicity procedure.
+
+Non-functional requirements:
+
+Deterministic: same specification, data, seed produce same output.
+
+Fast: run the comparison within a reasonable time (depends on the number of families, N, and the number of power simulations).
+
+Versioned: the tool records the specification version and the comparator version.
+
+Reproducible: the tool records the seed and the random number generator.
+
+Input Specification
+Input 1. Pipeline specification. Required. A JSON file conforming to the schema produced by the Pipeline Specification Wizard (App 8).
+
+Input 2. Observed data. Required. A dataset, in CSV, JSON, or plain text.
+
+Input 3. Scan families to compare. Required. A list of family identifiers, each with its parameters.
+
+Input 4. Alternative specification. Required for power computation. A specification of the gap width and depth to test.
+
+Input 5. Alpha. Optional. The nominal level for calibration. Default 0.05.
+
+Input 6. Seed. Required. The random seed.
+
+Input 7. Output directory. Required.
+
+Input 8. Number of simulations. Optional. Overrides the N in the specification.
+
+Input 9. Number of power simulations. Optional. The number of datasets per cell for the power computation. Default 1500.
+
+Input 10. Output format. Optional. Values: text (default), json, both.
+
+Output Specification
+Output 1. Critical value table. Text or JSON. For each scan family, the 95th-percentile critical value of the scan statistic.
+
+Output 2. Calibration table. Text or JSON. For each scan family, the rejection rate at nominal alpha over null datasets.
+
+Output 3. Power table. Text or JSON. For each scan family, the rejection rates at the specified gap widths and depths.
+
+Output 4. Side-by-side comparison. Text or JSON. The critical values, calibration, and power for all scan families in a single view.
+
+Output 5. Summary report. Text. The recommended scan family based on the comparison, with the reasoning.
+
+Output 6. Diagnostic plots. Optional. Power curves for each scan family.
+
+Output 7. Reproducibility record. JSON. The specification version, comparator version, seed, RNG, number of simulations, and runtime.
+
+Module-by-Module Specification
+Module 1: Specification Loader
+Reads the pipeline specification. Validates it against the schema. Rejects malformed specifications.
+
+Module 2: Data Loader
+Reads the observed data. Applies the transformation, jittering, and clustering specified. Assigns the support by the specified rule.
+
+Module 3: Family Resolver
+Reads the list of scan families to compare. Each family has an identifier and its parameters.
+
+Supported families:
+
+W_adj: the adjacent-order-statistic family. Parameters: g_min_value, g_min_units, boundary_convention, empty_w_convention.
+
+W_pair: the general pair family. Parameters: g_min_value, g_min_units, p_max (optional), boundary_convention, empty_w_convention.
+
+T_max: the endpoint-conditioned statistic of Section 6.1 of the Null-Model Protocol paper. Parameters: g_min_value, g_min_units, p_max (optional), boundary_convention, empty_w_convention.
+
+W_pair with cap: W_pair with p_max set to a specific value.
+
+W_pair without cap: W_pair with p_max set to null.
+
+Module 4: Critical Value Calculator
+For each family, runs the full-pipeline simulator (App 9) with the specification and the family parameters. Computes the empirical null distribution. Computes the 95th-percentile critical value.
+
+Module 5: Calibration Calculator
+For each family, simulates null datasets. For each dataset, computes the scan statistic. Checks whether the statistic exceeds the critical value at the pre-specified alpha. Computes the rejection rate.
+
+Module 6: Power Calculator
+For each family, simulates datasets with the specified alternative. For each dataset, computes the scan statistic. Checks whether the statistic exceeds the critical value at the pre-specified alpha. Computes the rejection rate.
+
+The alternative specification includes the gap width, the gap depth, and the gap location.
+
+Module 7: Comparison Table Builder
+Assembles the critical value table, the calibration table, and the power table. Produces the side-by-side comparison.
+
+Module 8: Recommendation Engine
+Analyzes the comparison. Identifies the best scan family for the specified alternative. Produces a recommendation with the reasoning.
+
+The recommendation may note that no scan family dominates: the choice depends on the alternative of interest and should be made in advance.
+
+Module 9: Report Formatter
+Produces the summary report and the diagnostic plots.
+
+Module 10: Reproducibility Recorder
+Records the specification version, comparator version, seed, RNG, number of simulations, and runtime.
+
+Module 11: Command-Line Interface
+Parses arguments. Invokes Modules 1 through 10. Writes the results to the output directory.
+
+Full Computation Specification
+6.1 Critical Value
+For a scan family F and a scan statistic Lambda_max, the 95th-percentile critical value is the value c such that P(Lambda_max >= c) = 0.05 under the null. It is estimated by simulation: run N null datasets, compute Lambda_max for each, sort, and take the value at the 95th percentile.
+
+For W_adj alone at n = 40, the critical value is approximately 14.0.
+
+For W_pair uncapped at n = 40, the critical value is approximately 23.8.
+
+For W_pair with the endpoint-corrected count at n = 40, the critical value is approximately 15.6.
+
+For W_pair with p_max = 0.5 at n = 40, the critical value is approximately 14.7.
+
+For W_pair with p_max = 0.5 and the endpoint correction at n = 40, the critical value is approximately 10.2.
+
+For T_max with adjacent windows only, the critical value is approximately 6.67.
+
+For T_max with all windows uncapped, the critical value is approximately 7.97.
+
+For T_max with all windows and p_max = 0.5, the critical value is approximately 7.50.
+
+6.2 Calibration
+For each family, the calibration is the rejection rate at nominal alpha over null datasets. The simulator runs the full pipeline on each null dataset. The rejection rate is the fraction of datasets with Lambda_max >= critical value.
+
+For the full pipeline, the rejection rate should be at or near the nominal alpha. For a mismatched pipeline (for example, ignoring the support rule), the rejection rate may be higher.
+
+6.3 Power
+For each family, the power is the rejection rate at nominal alpha over datasets with the specified alternative. The alternative is specified by:
+
+The gap width w, as a fraction of the support or as a value in the transformed space.
+
+The gap depth theta, as a fraction between 0 and 1.
+
+The gap location, as a fraction of the support or as a value in the transformed space.
+
+The rejection rate is the fraction of datasets with Lambda_max >= critical value.
+
+The power computation uses the same N for each cell (default 1500). The Monte Carlo standard error is at most about 0.013 per cell.
+
+6.4 Comparison
+The comparison reports the critical values, calibration, and power side by side.
+
+For the hard gap at theta = 1, the power at widths 0.10, 0.15, 0.20, and 0.30 is:
+
+For W_adj: 0.30, 0.98, 1.00, 1.00.
+
+For W_pair uncapped: 0.07, 0.15, 0.40, 1.00.
+
+For W_pair with endpoint-corrected count: 0.13, 0.23, 0.59, 1.00.
+
+For W_pair with p_max = 0.5: 0.30, 0.92, 1.00, 1.00.
+
+For W_pair with p_max = 0.5 and endpoint correction: 0.24, 0.74, 1.00, 1.00.
+
+For the partial depletion at theta = 0.8, the power at the same widths is:
+
+For W_adj: 0.14, 0.36, 0.43, 0.58.
+
+For W_pair uncapped: 0.05, 0.08, 0.13, 0.32.
+
+For W_pair with endpoint-corrected count: 0.08, 0.12, 0.22, 0.53.
+
+For W_pair with p_max = 0.5: 0.17, 0.38, 0.56, 0.79.
+
+For W_pair with p_max = 0.5 and endpoint correction: 0.18, 0.35, 0.54, 0.82.
+
+For the endpoint-conditioned T_max, the critical values are:
+
+For adjacent windows only: 6.67.
+
+For all windows uncapped: 7.97.
+
+For all windows with p_max = 0.5: 7.50.
+
+For the endpoint-conditioned T_max, the hard-gap power at theta = 1 for widths 0.10, 0.15, 0.20, 0.30 is:
+
+For adjacent windows only: 0.30, 0.97, 1.00, 1.00.
+
+For all windows uncapped: 0.23, 0.65, 1.00, 1.00.
+
+For all windows with p_max = 0.5: 0.27, 0.80, 1.00, 1.00.
+
+For the endpoint-conditioned T_max, the partial-depletion power at theta = 0.8 is:
+
+For adjacent windows only: 0.16, 0.37, 0.45, 0.59.
+
+For all windows uncapped: 0.15, 0.30, 0.53, 0.77.
+
+For all windows with p_max = 0.5: 0.16, 0.34, 0.56, 0.81.
+
+For the endpoint-conditioned T_max, the partial-depletion power at theta = 0.5 is:
+
+For adjacent windows only: 0.07, 0.10, 0.12, 0.16.
+
+For all windows uncapped: 0.09, 0.12, 0.16, 0.25.
+
+For all windows with p_max = 0.5: 0.08, 0.12, 0.16, 0.26.
+
+6.5 Recommendation
+The recommendation engine analyzes the comparison.
+
+It notes that no scan family dominates. The choice depends on the alternative of interest.
+
+For narrow hard gaps, W_adj is best or tied.
+
+For wide hard gaps or partial depletion, W_pair with a cap or T_max is better.
+
+The choice should be made in advance from the alternatives of scientific interest.
+
+The recommendation reports the best family for each tested alternative, with the reasoning.
+
+Core Logic as Executable Pseudocode
+7.1 Main Flow
+function runComparator(specification, data, families, alternative, seed, outputDir, options):
+
+Step 1. validatedSpec = validateSpecification(specification). If invalid, return {error: "invalid specification"}.
+
+Step 2. setSeed(seed).
+
+Step 3. observedData = loadData(data, validatedSpec).
+
+Step 4. results = {}.
+
+for family in families:
+
+criticalValue = computeCriticalValue(observedData, family, validatedSpec, options.N).
+
+calibration = computeCalibration(observedData, family, validatedSpec, criticalValue, options.alpha, options.N).
+
+power = computePower(observedData, family, validatedSpec, criticalValue, alternative, options.alpha, options.powerSimulations).
+
+results[family.id] = {critical_value: criticalValue, calibration: calibration, power: power}.
+
+Step 5. comparison = buildComparisonTable(results).
+
+Step 6. recommendation = recommendFamily(results, alternative).
+
+Step 7. report = formatReport(results, comparison, recommendation).
+
+Step 8. saveResults(outputDir, report, results, validatedSpec, seed).
+
+Step 9. return {results, comparison, recommendation, report}.
+
+7.2 Compute Critical Value
+function computeCriticalValue(data, family, spec, N):
+
+nullDistribution = [].
+
+for i in range(1, N + 1):
+
+syntheticData = generateSyntheticData(spec, i).
+
+effectiveNull = buildEffectiveNull(spec, syntheticData).
+
+W = formScanFamily(syntheticData, family, spec).
+
+if W is empty:
+
+if spec.empty_w_convention == "zero": lambdaMax = 0.
+
+else: continue.
+
+else:
+
+lambdaMax = computeScanStatistic(syntheticData, W, effectiveNull, spec, family).
+
+nullDistribution.push(lambdaMax).
+
+sorted = sort(nullDistribution).
+
+index = floor(0.95 * length(sorted)).
+
+return sorted[index].
+
+7.3 Compute Calibration
+function computeCalibration(data, family, spec, criticalValue, alpha, N):
+
+rejections = 0.
+
+for i in range(1, N + 1):
+
+syntheticData = generateSyntheticData(spec, i).
+
+effectiveNull = buildEffectiveNull(spec, syntheticData).
+
+W = formScanFamily(syntheticData, family, spec).
+
+if W is empty: continue.
+
+lambdaMax = computeScanStatistic(syntheticData, W, effectiveNull, spec, family).
+
+if lambdaMax >= criticalValue: rejections = rejections + 1.
+
+return rejections / N.
+
+7.4 Compute Power
+function computePower(data, family, spec, criticalValue, alternative, alpha, powerSimulations):
+
+rejections = 0.
+
+for i in range(1, powerSimulations + 1):
+
+syntheticData = generateSyntheticDataWithAlternative(spec, alternative, i).
+
+effectiveNull = buildEffectiveNull(spec, syntheticData).
+
+W = formScanFamily(syntheticData, family, spec).
+
+if W is empty: continue.
+
+lambdaMax = computeScanStatistic(syntheticData, W, effectiveNull, spec, family).
+
+if lambdaMax >= criticalValue: rejections = rejections + 1.
+
+return rejections / powerSimulations.
+
+7.5 Generate Synthetic Data with Alternative
+function generateSyntheticDataWithAlternative(spec, alternative, i):
+
+data = generateSyntheticData(spec, i).
+
+data = applyGapToData(data, alternative.width, alternative.depth, alternative.location).
+
+return data.
+
+7.6 Form Scan Family
+function formScanFamily(data, family, spec):
+
+if family.id == "W_adj":
+
+return formAdjacentWindows(data, family.g_min_value, family.g_min_units, spec.support_rule, family.boundary_convention).
+
+else if family.id == "W_pair":
+
+return formPairWindows(data, family.g_min_value, family.g_min_units, family.p_max, spec.support_rule, family.boundary_convention).
+
+else if family.id == "T_max":
+
+return formPairWindows(data, family.g_min_value, family.g_min_units, family.p_max, spec.support_rule, family.boundary_convention).
+
+else if family.id == "W_pair_capped":
+
+return formPairWindows(data, family.g_min_value, family.g_min_units, family.p_max, spec.support_rule, family.boundary_convention).
+
+else if family.id == "W_pair_uncapped":
+
+return formPairWindows(data, family.g_min_value, family.g_min_units, null, spec.support_rule, family.boundary_convention).
+
+7.7 Compute Scan Statistic
+function computeScanStatistic(data, W, effectiveNull, spec, family):
+
+if family.id == "T_max":
+
+return computeTMax(data, W, effectiveNull, spec).
+
+else:
+
+return computeLambdaMax(data, W, effectiveNull, spec).
+
+7.8 Compute T_max
+function computeTMax(data, W, effectiveNull, spec):
+
+tMax = 0.
+
+for w in W:
+
+P = integrateEffectiveNull(effectiveNull, w).
+
+k = countSpacingsInWindow(data, w).
+
+betaTail = betaTailProbability(k, length(data) - 1 - k, P).
+
+t = -log(betaTail).
+
+if t > tMax: tMax = t.
+
+return tMax.
+
+7.9 Build Comparison Table
+function buildComparisonTable(results):
+
+table = {families: [], critical_values: [], calibrations: [], powers: []}.
+
+for familyId, result in results:
+
+table.families.push(familyId).
+
+table.critical_values.push(result.critical_value).
+
+table.calibrations.push(result.calibration).
+
+table.powers.push(result.power).
+
+return table.
+
+7.10 Recommend Family
+function recommendFamily(results, alternative):
+
+best = null.
+
+bestPower = -1.
+
+for familyId, result in results:
+
+if result.power > bestPower:
+
+best = familyId.
+
+bestPower = result.power.
+
+reasoning = "Family " + best + " has the highest power (" + bestPower + ") against the specified alternative (width " + alternative.width + ", depth " + alternative.depth + ", location " + alternative.location + "). The choice should be made in advance from the alternatives of scientific interest."
+
+return {recommended: best, power: bestPower, reasoning: reasoning}.
+
+Data Model / JSON Schema for Internal State
+The comparator's internal state is a result object.
+
+Result object:
+
+families (array of family objects)
+
+comparison (object: critical_values, calibrations, powers)
+
+recommendation (object: recommended, power, reasoning)
+
+reproducibility_record (object: specification_version, comparator_version, seed, rng, number_of_simulations, runtime_seconds)
+
+Each family object:
+
+id (string)
+
+parameters (object)
+
+critical_value (number)
+
+calibration (number)
+
+power (number)
+
+Architecture
+Module breakdown:
+
+Specification Loader. Reads and validates the pipeline specification.
+
+Data Loader. Reads and transforms the observed data.
+
+Family Resolver. Reads the list of scan families to compare.
+
+Critical Value Calculator. Computes the 95th-percentile critical value for each family.
+
+Calibration Calculator. Computes the rejection rate at nominal alpha for each family.
+
+Power Calculator. Computes the rejection rate at nominal alpha for the specified alternative for each family.
+
+Comparison Table Builder. Assembles the critical value table, calibration table, and power table.
+
+Recommendation Engine. Analyzes the comparison and produces a recommendation.
+
+Report Formatter. Produces the summary report and diagnostic plots.
+
+Reproducibility Recorder. Records the specification version, comparator version, seed, RNG, N, runtime.
+
+Command-Line Interface. Parses arguments.
+
+Data flow:
+
+Specification and data go to the loaders. Family Resolver reads the families. Critical Value, Calibration, and Power Calculators compute for each family. Comparison Table Builder assembles. Recommendation Engine produces the recommendation. Report Formatter produces output.
+
+Technology Stack
+Recommended for the command-line tool:
+
+Language: Python 3.11+ or Julia 1.9+ or Rust 1.70+.
+
+Numeric computation: NumPy or SciPy (Python) or standard library (Julia or Rust).
+
+Parallel computation: multiprocessing or joblib (Python) or Threads (Julia) or Rayon (Rust).
+
+JSON handling: standard library.
+
+CLI framework: argparse or click (Python) or ArgParse (Julia) or clap (Rust).
+
+Testing: pytest (Python) or Test (Julia) or cargo test (Rust).
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The pipeline specification conforms to the schema produced by the Pipeline Specification Wizard (App 8).
+
+UI/UX Specification
+Command-line interface:
+
+Usage: null-model-comparator --specification FILE --data FILE --families FAMILY1,FAMILY2,... --alternative FILE --seed SEED --output-dir DIR [--N N] [--power-simulations M] [--alpha 0.05] [--format json|text|both] [--plot].
+
+Output on success: the critical value table, the calibration table, the power table, and the recommendation.
+
+Output on error: the error message and exit code 2.
+
+Diagnostic plots: power curves for each scan family.
+
+Library API:
+
+runComparator(specification, data, families, alternative, seed, options) returns the result object.
+
+computeCriticalValue(data, family, spec, N) returns the critical value.
+
+computeCalibration(data, family, spec, criticalValue, alpha, N) returns the calibration.
+
+computePower(data, family, spec, criticalValue, alternative, alpha, powerSimulations) returns the power.
+
+recommendFamily(results, alternative) returns the recommendation.
+
+Validation Engine Design
+The comparator validates the following:
+
+Validation 1. Specification validity. The specification is validated against the schema.
+
+Validation 2. Data validity. The data is validated for format and consistency.
+
+Validation 3. Family validity. Each family's parameters are validated.
+
+Validation 4. Alternative validity. The alternative specification is validated.
+
+Validation 5. Consistency. The family parameters are consistent with the specification (for example, if the family is W_pair with a cap, the cap value must be specified).
+
+Validation 6. Calibration adequacy. The calibration is checked against the nominal alpha.
+
+Validation 7. N adequacy. If N is below the recommended minimum for the target tail, a warning is issued.
+
+Testing Strategy
+Unit tests:
+
+Specification Loader for valid and invalid specifications.
+
+Data Loader for each format.
+
+Family Resolver for each family type.
+
+Critical Value Calculator for each family.
+
+Calibration Calculator for each family.
+
+Power Calculator for each family.
+
+Comparison Table Builder for the table structure.
+
+Recommendation Engine for the recommendation logic.
+
+Reproducibility Recorder for the record structure.
+
+Integration tests:
+
+Run the comparator with W_adj and W_pair uncapped. Verify the critical values and the power comparison.
+
+Run the comparator with W_adj and W_pair with p_max = 0.5. Verify the critical values and the power comparison.
+
+Run the comparator with W_adj, W_pair uncapped, and T_max. Verify the critical values and the power comparison.
+
+Run the comparator at n = 20, n = 40, and n = 60. Verify the effect of sample size on the comparison.
+
+Worked-example tests:
+
+Artifact 1, Section 11.6 (pair windows, endpoint bias, endpoint-conditioned statistic): the critical values and power should match the reported values.
+
+Artifact 1, Section 11.6, n = 40: critical values 14.0 for W_adj, 23.8 for W_pair uncapped, 15.6 for the endpoint-corrected count, 14.7 for P_max = 0.5, 10.2 for P_max = 0.5 with endpoint correction.
+
+Artifact 1, Section 11.6, n = 40, hard-gap power at theta = 1: the values reported in Section 6.4 of this specification.
+
+Artifact 1, Section 11.6, n = 40, partial-depletion power at theta = 0.8: the values reported in Section 6.4.
+
+Artifact 1, Section 11.6, n = 40, T_max: critical values 6.67, 7.97, 7.50 for adjacent, uncapped, and capped.
+
+Regression tests:
+
+Specification version compatibility.
+
+Data format compatibility.
+
+Determinism: same specification, data, and seed produce same output.
+
+Parallel computation: results are independent of the number of workers.
+
+Build Phases
+Phase 1. Specification Loader. Read and validate the pipeline specification.
+
+Phase 2. Data Loader. Read and transform the observed data.
+
+Phase 3. Family Resolver. Read the list of scan families to compare.
+
+Phase 4. Critical Value Calculator. Compute the 95th-percentile critical value for each family.
+
+Phase 5. Calibration Calculator. Compute the rejection rate at nominal alpha for each family.
+
+Phase 6. Power Calculator. Compute the rejection rate at nominal alpha for the specified alternative for each family.
+
+Phase 7. Comparison Table Builder. Assemble the comparison table.
+
+Phase 8. Recommendation Engine. Analyze the comparison and produce a recommendation.
+
+Phase 9. Report Formatter. Produce the summary and diagnostic plots.
+
+Phase 10. Reproducibility Recorder. Record the specification version, comparator version, seed, RNG, N, runtime.
+
+Phase 11. Command-Line Interface.
+
+Phase 12. Worked-example tests. Verify the critical values and power against the reported values.
+
+Phase 13. Integration testing and hardening.
+
+Phase 14. Packaging.
+
+Dependencies
+Python path:
+
+NumPy (numeric computation).
+
+SciPy (statistical functions).
+
+multiprocessing or joblib (parallel computation).
+
+argparse or click (command-line).
+
+matplotlib (diagnostic plots).
+
+jsonschema (specification validation).
+
+pytest (testing).
+
+Julia path:
+
+Standard library (numeric computation, RNG).
+
+Threads (parallel computation).
+
+JSON (JSON handling).
+
+ArgParse (command-line).
+
+Plots (diagnostic plots).
+
+Test (testing).
+
+Rust path:
+
+ndarray or nalgebra (numeric computation).
+
+rand (RNG).
+
+rayon (parallel computation).
+
+serde_json (JSON handling).
+
+clap (command-line).
+
+plotters (diagnostic plots).
+
+cargo test (testing).
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The pipeline specification conforms to the schema produced by the Pipeline Specification Wizard (App 8).
+
+The full-pipeline simulator (App 9) is used for the calibration and power computations.
+
+Deployment Notes
+Command-line tool:
+
+Package as a standalone executable (PyInstaller for Python, PackageCompiler for Julia, cargo build for Rust).
+
+Distribute via pip, Julia's package manager, cargo, or a direct download.
+
+No server required.
+
+Library:
+
+Publish to PyPI (Python), Julia's General Registry (Julia), or crates.io (Rust).
+
+Semantic versioning.
+
+Reproducibility:
+
+Record the seed and the RNG.
+
+Record the specification version and the comparator version.
+
+Record the number of simulations and the runtime.
+
+Provide a version pin for the comparison logic.
+
+Open Questions to Resolve Before Building
+Question 1. Which runtime first? Python, Julia, or Rust. Decision affects the numeric library, the parallel computation model, and the packaging.
+
+Question 2. What is the default list of families to compare? Options: W_adj, W_pair uncapped, W_pair with p_max = 0.5, T_max with all windows, T_max with p_max = 0.5. Decision needed.
+
+Question 3. What is the default alternative specification for the power computation? Options: a single alternative, or a grid of alternatives. Decision needed.
+
+Question 4. How should the comparator handle the case where a family is inapplicable to the specification (for example, a fixed family with no fixed windows)? Options: skip the family, warn, or fail. Decision needed.
+
+Question 5. How should the comparator handle the case where N is below the recommended minimum? Options: warn, require a confirmation, or fail. Decision needed.
+
+Question 6. How should the comparator handle the case where the observed data is empty for a family? Options: report "no admissible candidate", or skip the family. Decision needed.
+
+Question 7. Should the comparator support adaptive or importance sampling for tail probabilities below the resolution of direct Monte Carlo? Decision needed.
+
+Question 8. Should the comparator integrate with the Pipeline Specification Wizard (App 8) and the Full-Pipeline Simulator (App 9)? Decision needed: shared schema registry, or independent.
+
+Question 9. How should the comparator report the recommendation when no family dominates? Options: report the best family for each tested alternative, or report that no recommendation is possible. Decision needed.
+
+Question 10. How should the comparator handle the not_determinable flag propagation from the specification? The Null-Model Protocol paper uses not_determinable in the STAG framework, but not in the pipeline specification. Decision needed: does the comparator support not_determinable values in the specification, or require all values?
+
+End of build specification for App 10.
