@@ -1,0 +1,1156 @@
+Build Specification — App 24: Master Workbench
+Completeness status: COMPLETE. All sections delivered in one pass. No truncation. Formatted for copy-paste into another conversation window. No tables, no boxes.
+
+What It Is
+A plugin host and index for all modules (Apps 1 through 23). It provides the module registry, the shared schema registry, the shared provenance database, the shared authentication layer, the shared reporting layer, the unified search, and the launcher. It does not duplicate functionality. It is the generalization of App 14 (the STAG plus Null-Model Combined Workbench) to all 23 apps. It is for research groups, labs, consortia, and anyone who uses more than one module.
+
+Core Requirements
+Functional requirements:
+
+Host all 23 modules (Apps 1 through 23) as plugins.
+
+Provide a module registry that lists the available modules, their versions, their dependencies, and their entry points.
+
+Provide a shared schema registry that holds the STAG schema (Artifact 2, Appendix B.1), the STAG SHACL schema (Artifact 2, Appendix B.3), the STAG codebook (Artifact 2, Appendices A.1 through A.11), the Null-Model Protocol schema (from App 8 and App 9), and the deposit schema (from App 23).
+
+Provide a shared provenance database that holds the provenance records for all modules. It reuses the provenance database (App 20) and extends it with the module identifier.
+
+Provide a shared authentication layer that authenticates users and authorizes access to modules and records.
+
+Provide a shared reporting layer that produces reports across modules.
+
+Provide a unified search that searches across all modules (works in the library, STAG annotations, Null-Model Protocol results, partitions, nodes, events, models, revisions, domain annotations, audit log entries).
+
+Provide a launcher that opens any module in its own view.
+
+Provide a workspace that lets a user open multiple modules side by side.
+
+Provide a navigation that lets a user move between modules.
+
+Provide a status view that shows the health of each module (running, stopped, error).
+
+Provide a configuration view that lets an administrator configure each module.
+
+Provide a logging view that aggregates logs from all modules.
+
+Provide a plugin interface that allows new modules to be added.
+
+Provide a version compatibility check between modules and the shared core.
+
+Provide a health check for the shared core and each module.
+
+Provide a backup and restore for the shared core and each module.
+
+Provide an audit log for every operation across all modules.
+
+Provide a command-line interface for administration.
+
+Provide a web interface for users and administrators.
+
+Non-functional requirements:
+
+Deterministic: same inputs produce same outputs.
+
+Fast: launch a module in under two seconds; search across all modules in under three seconds.
+
+Scalable: support up to 10^6 records across all modules.
+
+Versioned: the master records the version of each module and the version of the shared core.
+
+Reproducible: the master records the provenance for every operation.
+
+Portable: works on Linux, macOS, and Windows.
+
+Well-documented: module registry documentation, plugin interface documentation, and user guide.
+
+Input Specification
+Input 1. Module registry file. Required. A JSON file listing the available modules, their versions, their dependencies, and their entry points.
+
+Input 2. User credentials. Required for authenticated operations.
+
+Input 3. Module identifier. Required for module-specific operations.
+
+Input 4. Configuration file. Required for the shared core and each module.
+
+Input 5. Plugin package. Optional. A new module to add to the registry.
+
+Input 6. Search query. Required for unified search.
+
+Input 7. Workspace file. Optional. A file describing a user's workspace (which modules are open, their layout, their state).
+
+Input 8. Backup file. Optional. A file containing the shared core's state and each module's state.
+
+Input 9. Output format. Optional. Values: json (default), text, html.
+
+Output Specification
+Output 1. Module registry. JSON. The list of available modules, with their versions, dependencies, and entry points.
+
+Output 2. Module status. JSON. The health of each module (running, stopped, error).
+
+Output 3. Unified search result. JSON. The list of records matching the search query, across all modules.
+
+Output 4. Workspace. JSON or HTML. The user's workspace, with the modules open and their state.
+
+Output 5. Configuration view. JSON. The configuration of the shared core and each module.
+
+Output 6. Logging view. JSON or text. The aggregated logs from all modules.
+
+Output 7. Audit log entry. JSON. The operation, the module, the record, the user, the timestamp, and the result.
+
+Output 8. API response. JSON. The result of the API operation, with HTTP status.
+
+Output 9. Plugin interface documentation. Markdown or HTML. The interface a new module must implement.
+
+Output 10. Backup file. A JSON archive or a database dump.
+
+Output 11. Reproducibility record. JSON. The version of each module, the version of the shared core, the configuration, and the timestamp.
+
+Module-by-Module Specification
+Module 1: Module Registry
+Holds the module registry. Each entry has:
+
+module_id (string, required)
+
+module_name (string, required)
+
+module_version (string, required)
+
+module_description (string, optional)
+
+module_dependencies (array of strings, optional)
+
+module_entry_point (string, required)
+
+module_api_endpoint (string, optional)
+
+module_ui_route (string, optional)
+
+module_status (running, stopped, error)
+
+module_configuration_schema (JSON, optional)
+
+module_health_check (string, optional)
+
+The registry is loaded from the module registry file at startup.
+
+Module 2: Shared Schema Registry
+Holds the shared schemas. It is the union of the STAG schema registry (App 17) and the Null-Model Protocol schema registry (App 18), plus the deposit schema (App 23). Provides lookup by schema name and version.
+
+Module 3: Shared Provenance Database
+Holds the provenance records for all modules. It reuses the provenance database (App 20) and extends it with the module identifier. Each provenance record has:
+
+provenance_id (string, primary key)
+
+module_id (string, foreign key to module_registry)
+
+record_type (work, annotation, result, partition, node, event, model, revision, domain_annotation, other)
+
+record_id (string)
+
+user_id (string)
+
+user_affiliation (string or null)
+
+timestamp (ISO8601)
+
+source (string)
+
+tool_version (string)
+
+operation (create, read, update, delete, query, aggregate, search, export, import, moderate, backup, restore)
+
+created_at (ISO8601)
+
+Module 4: Shared Authentication Layer
+Provides authentication (API keys, OAuth, or JWT) and authorization (role-based access control: reader, depositor, moderator, admin, and module-specific roles). The authentication layer is shared across all modules.
+
+Module 5: Shared Reporting Layer
+Provides reporting across modules. Supports reports that combine data from multiple modules (for example, a report that shows a work from the library alongside its STAG annotations and its Null-Model Protocol results).
+
+Module 6: Unified Search
+Provides unified search across all modules. Searches works in the library, STAG annotations, Null-Model Protocol results, partitions, nodes, events, models, revisions, domain annotations, and audit log entries. Returns the results grouped by module.
+
+Module 7: Launcher
+Provides a launcher that opens any module in its own view. The launcher reads the module registry, presents the available modules, and opens the selected module.
+
+Module 8: Workspace
+Provides a workspace that lets a user open multiple modules side by side. The workspace state (which modules are open, their layout, their state) is saved to a workspace file.
+
+Module 9: Navigation
+Provides navigation between modules. A sidebar lists the available modules; clicking a module opens it in the workspace.
+
+Module 10: Status View
+Provides a status view that shows the health of each module. The status view reads the module status from the module registry and the health check results.
+
+Module 11: Configuration View
+Provides a configuration view that lets an administrator configure each module. The configuration is stored in a configuration file per module.
+
+Module 12: Logging View
+Provides a logging view that aggregates logs from all modules. The logs are collected from each module's log file or log endpoint.
+
+Module 13: Plugin Interface
+Provides a plugin interface that allows new modules to be added. A module must implement the following interface:
+
+registerModule() returns the module's metadata (module_id, module_name, module_version, module_description, module_dependencies, module_entry_point, module_api_endpoint, module_ui_route, module_configuration_schema, module_health_check).
+
+startModule(configuration) starts the module.
+
+stopModule() stops the module.
+
+healthCheck() returns the module's health (running, stopped, error).
+
+getApiEndpoints() returns the module's API endpoints.
+
+getUiRoutes() returns the module's UI routes.
+
+getProvenanceRecords() returns the module's provenance records.
+
+getAuditLog() returns the module's audit log entries.
+
+backup() returns the module's state.
+
+restore(state) restores the module's state.
+
+Module 14: Version Compatibility Checker
+Checks that each module's version is compatible with the shared core's version. If a module is incompatible, the master refuses to load it and reports the incompatibility.
+
+Module 15: Health Check
+Provides a health check for the shared core and each module. The health check runs periodically and on demand. The results are displayed in the status view.
+
+Module 16: Backup and Restore
+Provides backup and restore for the shared core and each module. Backup produces a JSON archive or a database dump. Restore loads the backup.
+
+Module 17: Audit Logging
+Logs every operation across all modules. Each audit log entry has:
+
+audit_id (string, primary key)
+
+operation (create, read, update, delete, query, aggregate, search, export, import, moderate, backup, restore)
+
+module_id (string, foreign key to module_registry)
+
+record_type (string)
+
+record_id (string)
+
+user_id (string)
+
+timestamp (ISO8601)
+
+result (success, failure)
+
+details (JSON)
+
+created_at (ISO8601)
+
+Module 18: Command-Line Interface
+Provides the command-line interface for administration:
+
+master init. Initialize the master.
+
+master register. Register a module.
+
+master unregister. Unregister a module.
+
+master start. Start a module.
+
+master stop. Stop a module.
+
+master status. Show the status of all modules.
+
+master health. Run a health check.
+
+master search. Execute a unified search.
+
+master backup. Backup the shared core and each module.
+
+master restore. Restore the shared core and each module.
+
+master audit. List audit log entries.
+
+master config. Show or update the configuration.
+
+Module 19: REST API
+Provides the REST API. Endpoints:
+
+GET /modules. List the modules.
+
+GET /modules/{id}. Get a module by ID.
+
+POST /modules. Register a module.
+
+DELETE /modules/{id}. Unregister a module.
+
+POST /modules/{id}/start. Start a module.
+
+POST /modules/{id}/stop. Stop a module.
+
+GET /modules/{id}/health. Get a module's health.
+
+GET /modules/{id}/config. Get a module's configuration.
+
+PUT /modules/{id}/config. Update a module's configuration.
+
+GET /modules/{id}/logs. Get a module's logs.
+
+POST /search. Execute a unified search.
+
+POST /backup. Backup the shared core and each module.
+
+POST /restore. Restore the shared core and each module.
+
+GET /audit. List audit log entries.
+
+Module 20: GraphQL API
+Provides the GraphQL API. The schema exposes the modules, their health, their configuration, their logs, the unified search, the audit log, and the provenance records.
+
+Module 21: Web Interface
+Provides a web interface for users and administrators. The web interface has:
+
+A launcher that lists the available modules.
+
+A workspace that lets a user open multiple modules side by side.
+
+A navigation sidebar.
+
+A status view that shows the health of each module.
+
+A configuration view for administrators.
+
+A logging view.
+
+A unified search box.
+
+An audit log view.
+
+A backup and restore view.
+
+Module 22: Reproducibility Recorder
+Records the version of each module, the version of the shared core, the configuration, and the timestamp. The record is stored in the shared provenance database.
+
+Module 23: Migration Manager
+Manages migrations for the shared core and each module. Each version has a migration script. Migrations are applied in order.
+
+Full Module Registry Specification
+6.1 Module Registry Entry
+Each module registry entry has:
+
+module_id (string, required). Examples: "stag_annotation_editor", "stag_validator", "provo_exporter_importer", "scale_separation_calculator", "stag_graph_viewer", "partition_sensitivity_explorer", "revision_history_viewer", "pipeline_specification_wizard", "full_pipeline_simulator", "scan_family_comparator", "effective_null_builder", "n_calculator", "gap_score_reporter", "stag_null_model_workbench", "journal_submission_checker", "teaching_training_sandbox", "stag_schema_library", "null_model_protocol_library", "reproducibility_deposit_template", "provenance_aware_annotation_database", "stag_audit_tool", "numerical_verification_tool", "physics_knowledge_library".
+
+module_name (string, required). The human-readable name.
+
+module_version (string, required). Semantic version.
+
+module_description (string, optional). A short description.
+
+module_dependencies (array of strings, optional). The module IDs of the modules this module depends on. For example, the STAG annotation editor depends on the STAG schema library and the scale-separation calculator.
+
+module_entry_point (string, required). The path to the module's entry point (a Python module, a JavaScript module, or a binary).
+
+module_api_endpoint (string, optional). The base URL of the module's REST API, if it has one.
+
+module_ui_route (string, optional). The route of the module's UI, if it has one.
+
+module_status (running, stopped, error). The current status.
+
+module_configuration_schema (JSON, optional). The JSON Schema for the module's configuration.
+
+module_health_check (string, optional). The URL or command to run for the module's health check.
+
+6.2 The Full Module List
+The full module list is:
+
+Module 1. stag_annotation_editor. Depends on: stag_schema_library, scale_separation_calculator.
+
+Module 2. stag_validator. Depends on: stag_schema_library.
+
+Module 3. provo_exporter_importer. Depends on: stag_schema_library.
+
+Module 4. scale_separation_calculator. Depends on: nothing.
+
+Module 5. stag_graph_viewer. Depends on: stag_schema_library.
+
+Module 6. partition_sensitivity_explorer. Depends on: stag_schema_library.
+
+Module 7. revision_history_viewer. Depends on: stag_schema_library.
+
+Module 8. pipeline_specification_wizard. Depends on: nothing.
+
+Module 9. full_pipeline_simulator. Depends on: null_model_protocol_library, effective_null_builder, n_calculator.
+
+Module 10. scan_family_comparator. Depends on: full_pipeline_simulator.
+
+Module 11. effective_null_builder. Depends on: nothing.
+
+Module 12. n_calculator. Depends on: nothing.
+
+Module 13. gap_score_reporter. Depends on: nothing.
+
+Module 14. stag_null_model_workbench. Depends on: stag_annotation_editor, stag_validator, pipeline_specification_wizard, full_pipeline_simulator.
+
+Module 15. journal_submission_checker. Depends on: stag_validator, full_pipeline_simulator, stag_audit_tool.
+
+Module 16. teaching_training_sandbox. Depends on: stag_annotation_editor, full_pipeline_simulator.
+
+Module 17. stag_schema_library. Depends on: nothing.
+
+Module 18. null_model_protocol_library. Depends on: nothing.
+
+Module 19. reproducibility_deposit_template. Depends on: stag_schema_library, null_model_protocol_library.
+
+Module 20. provenance_aware_annotation_database. Depends on: stag_schema_library, provo_exporter_importer.
+
+Module 21. stag_audit_tool. Depends on: stag_schema_library.
+
+Module 22. numerical_verification_tool. Depends on: nothing.
+
+Module 23. physics_knowledge_library. Depends on: stag_schema_library, null_model_protocol_library, provo_exporter_importer, provenance_aware_annotation_database, stag_null_model_workbench.
+
+6.3 Dependency Resolution
+At startup, the master reads the module registry and resolves the dependencies. If a module depends on another module that is not registered, the master reports the missing dependency and refuses to load the dependent module. If a module depends on a module that is registered but not started, the master starts the dependency first.
+
+The dependency order is computed by a topological sort. Cycles are reported and refused.
+
+Core Logic as Executable Pseudocode
+7.1 Main Flow
+function runMaster(options):
+
+Step 1. moduleRegistry = loadModuleRegistry(options.moduleRegistryFile).
+
+Step 2. dependencyOrder = resolveDependencies(moduleRegistry).
+
+if dependencyOrder is null: return {error: "dependency cycle detected"}.
+
+Step 3. sharedCore = initializeSharedCore(options).
+
+Step 4. startedModules = [].
+
+for moduleId in dependencyOrder:
+
+module = moduleRegistry.get(moduleId).
+
+compatibility = checkVersionCompatibility(module, sharedCore).
+
+if not compatibility.compatible: reportIncompatibility(module, compatibility.reason); continue.
+
+startResult = startModule(module, sharedCore).
+
+if startResult.error: reportError(module, startResult.error); continue.
+
+startedModules.push(module).
+
+Step 5. startWebInterface(sharedCore, startedModules).
+
+Step 6. startRestApi(sharedCore, startedModules).
+
+Step 7. startGraphQLApi(sharedCore, startedModules).
+
+Step 8. startCommandLineInterface(sharedCore, startedModules).
+
+Step 9. startHealthCheck(sharedCore, startedModules).
+
+Step 10. return {sharedCore: sharedCore, startedModules: startedModules, moduleRegistry: moduleRegistry}.
+
+7.2 Load Module Registry
+function loadModuleRegistry(file):
+
+registry = parseJSON(file).
+
+validateRegistry(registry).
+
+return registry.
+
+7.3 Resolve Dependencies
+function resolveDependencies(registry):
+
+order = [].
+
+visited = new Set().
+
+visiting = new Set().
+
+function visit(moduleId):
+
+if visited.has(moduleId): return true.
+
+if visiting.has(moduleId): return false.
+
+visiting.add(moduleId).
+
+module = registry.get(moduleId).
+
+for depId in module.module_dependencies:
+
+if not visit(depId): return false.
+
+visiting.delete(moduleId).
+
+visited.add(moduleId).
+
+order.push(moduleId).
+
+return true.
+
+for moduleId in registry.keys():
+
+if not visit(moduleId): return null.
+
+return order.
+
+7.4 Initialize Shared Core
+function initializeSharedCore(options):
+
+schemaRegistry = new SharedSchemaRegistry().
+
+schemaRegistry.load(STAG_SCHEMA, NULL_MODEL_SCHEMA, DEPOSIT_SCHEMA).
+
+provenanceDatabase = new SharedProvenanceDatabase(options.databaseConfig).
+
+authenticationLayer = new SharedAuthenticationLayer(options.authenticationConfig).
+
+reportingLayer = new SharedReportingLayer(options.reportingConfig).
+
+return {schemaRegistry: schemaRegistry, provenanceDatabase: provenanceDatabase, authenticationLayer: authenticationLayer, reportingLayer: reportingLayer}.
+
+7.5 Start Module
+function startModule(module, sharedCore):
+
+config = loadModuleConfiguration(module.module_id).
+
+result = module.startModule(config).
+
+if result.error: return {error: result.error}.
+
+insertProvenanceRecord(sharedCore.provenanceDatabase, module.module_id, "module", module.module_id, "system", null, now(), "master", MASTER_VERSION, "create").
+
+insertAuditLog(sharedCore, "start", module.module_id, module.module_id, "system", "success", {config: config}).
+
+return {status: "started"}.
+
+7.6 Stop Module
+function stopModule(module, sharedCore):
+
+result = module.stopModule().
+
+insertProvenanceRecord(sharedCore.provenanceDatabase, module.module_id, "module", module.module_id, "system", null, now(), "master", MASTER_VERSION, "delete").
+
+insertAuditLog(sharedCore, "stop", module.module_id, module.module_id, "system", "success", null).
+
+return {status: "stopped"}.
+
+7.7 Health Check
+function healthCheck(module):
+
+return module.healthCheck().
+
+7.8 Unified Search
+function unifiedSearch(query, sharedCore, startedModules):
+
+results = [].
+
+for module in startedModules:
+
+if module.getSearchFunction is not null:
+
+moduleResults = module.getSearchFunction(query).
+
+results.push({module_id: module.module_id, results: moduleResults}).
+
+return {results: results, count: results.reduce((sum, r) => sum + r.results.length, 0)}.
+
+7.9 Backup
+function backup(sharedCore, startedModules, options):
+
+backupObj = {shared_core: sharedCore.backup(), modules: {}}.
+
+for module in startedModules:
+
+backupObj.modules[module.module_id] = module.backup().
+
+if options.format == "json": output = JSON.stringify(backupObj).
+
+else if options.format == "sql": output = dumpDatabaseSQL().
+
+insertAuditLog(sharedCore, "backup", "database", null, "system", "success", {format: options.format}).
+
+return {output: output, format: options.format}.
+
+7.10 Restore
+function restore(file, sharedCore, startedModules):
+
+backupObj = parseBackup(file).
+
+sharedCore.restore(backupObj.shared_core).
+
+for module in startedModules:
+
+module.restore(backupObj.modules[module.module_id]).
+
+insertAuditLog(sharedCore, "restore", "database", null, "system", "success", {file: file}).
+
+return {status: "restored"}.
+
+7.11 Version Compatibility Check
+function checkVersionCompatibility(module, sharedCore):
+
+moduleMajor = parseMajor(module.module_version).
+
+sharedCoreMajor = parseMajor(sharedCore.version).
+
+if moduleMajor != sharedCoreMajor: return {compatible: false, reason: "major version mismatch"}.
+
+moduleDependencies = module.module_dependencies.
+
+for depId in moduleDependencies:
+
+dep = moduleRegistry.get(depId).
+
+if dep is null: return {compatible: false, reason: "missing dependency " + depId}.
+
+return {compatible: true}.
+
+7.12 Audit Log
+function insertAuditLog(sharedCore, operation, moduleId, recordType, recordId, userId, result, details):
+
+auditEntry = {audit_id: generateAuditId(), operation: operation, module_id: moduleId, record_type: recordType, record_id: recordId, user_id: userId, timestamp: now(), result: result, details: details}.
+
+sharedCore.provenanceDatabase.insertAuditLog(auditEntry).
+
+7.13 Provenance Record
+function insertProvenanceRecord(provenanceDatabase, moduleId, recordType, recordId, userId, userAffiliation, timestamp, source, toolVersion, operation):
+
+provenanceRecord = {provenance_id: generateProvenanceId(), module_id: moduleId, record_type: recordType, record_id: recordId, user_id: userId, user_affiliation: userAffiliation, timestamp: timestamp, source: source, tool_version: toolVersion, operation: operation}.
+
+provenanceDatabase.insert(provenanceRecord).
+
+Data Model / JSON Schema for Internal State
+The master's internal state is a master object.
+
+Master object:
+
+shared_core (object: schema_registry, provenance_database, authentication_layer, reporting_layer)
+
+module_registry (array of module entry objects)
+
+started_modules (array of module objects)
+
+audit_log (array of audit log entries)
+
+reproducibility_record (object: master_version, shared_core_version, module_versions, configuration, timestamp)
+
+Each module entry object:
+
+module_id (string)
+
+module_name (string)
+
+module_version (string)
+
+module_description (string or null)
+
+module_dependencies (array of strings)
+
+module_entry_point (string)
+
+module_api_endpoint (string or null)
+
+module_ui_route (string or null)
+
+module_status (running, stopped, error)
+
+module_configuration_schema (JSON or null)
+
+module_health_check (string or null)
+
+Audit log entry object:
+
+audit_id (string)
+
+operation (create, read, update, delete, query, aggregate, search, export, import, moderate, backup, restore, start, stop)
+
+module_id (string)
+
+record_type (string)
+
+record_id (string)
+
+user_id (string)
+
+timestamp (ISO8601)
+
+result (success, failure)
+
+details (JSON)
+
+Reproducibility record object:
+
+master_version (string)
+
+shared_core_version (string)
+
+module_versions (object: module_id to version)
+
+configuration (JSON)
+
+timestamp (ISO8601)
+
+Architecture
+Module breakdown:
+
+Module Registry. Holds the module registry.
+
+Shared Schema Registry. Holds the shared schemas.
+
+Shared Provenance Database. Holds the provenance records.
+
+Shared Authentication Layer. Authenticates and authorizes.
+
+Shared Reporting Layer. Produces reports across modules.
+
+Unified Search. Searches across all modules.
+
+Launcher. Opens any module.
+
+Workspace. Opens multiple modules side by side.
+
+Navigation. Moves between modules.
+
+Status View. Shows the health of each module.
+
+Configuration View. Configures each module.
+
+Logging View. Aggregates logs.
+
+Plugin Interface. Allows new modules to be added.
+
+Version Compatibility Checker. Checks version compatibility.
+
+Health Check. Runs a health check.
+
+Backup and Restore. Backs up and restores the shared core and each module.
+
+Audit Logging. Logs operations.
+
+Command-Line Interface. Administration.
+
+REST API. HTTP endpoints.
+
+GraphQL API. GraphQL endpoint.
+
+Web Interface. User and administrator interface.
+
+Reproducibility Recorder. Records the versions, configuration, and timestamp.
+
+Migration Manager. Manages migrations.
+
+Data flow:
+
+The module registry is loaded. Dependencies are resolved. The shared core is initialized. Modules are started in dependency order. The web interface, the REST API, the GraphQL API, and the command-line interface are started. The health check runs. Requests go to the interfaces, which call the shared core and the modules. The audit logging records every operation. The provenance database stores the provenance records.
+
+Technology Stack
+Recommended for the master:
+
+Language: Python 3.11+ or Node.js 20+.
+
+Master framework: FastAPI (Python) or Express (JS).
+
+Plugin system: importlib (Python) or dynamic import (JS).
+
+Dependency resolution: custom topological sort or a graph library (networkx for Python, graphlib for JS).
+
+Shared core: the shared schema registry (App 17 and App 18), the provenance database (App 20), the authentication layer, and the reporting layer.
+
+Web interface: React or Svelte.
+
+GraphQL: Strawberry (Python) or Apollo Server (JS).
+
+Database: PostgreSQL 15+ or SQLite 3.40+.
+
+Containerization: Docker.
+
+Testing: pytest (Python) or Vitest (JS).
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The STAG schema (Artifact 2, Appendix B.1).
+
+The STAG codebook (Artifact 2, Appendices A.1 through A.11).
+
+The Null-Model Protocol schema (from App 8 and App 9).
+
+The deposit schema (from App 23).
+
+The STAG schema library (App 17).
+
+The Null-Model Protocol library (App 18).
+
+The provenance database (App 20).
+
+The combined workbench (App 14).
+
+UI/UX Specification
+Layout:
+
+Top bar: master title, user menu, search box.
+
+Left sidebar: navigation, listing the available modules.
+
+Main area: the workspace, which can show one or more modules side by side.
+
+Right sidebar: status view, showing the health of each module.
+
+Bottom bar: logging view, showing the aggregated logs.
+
+Navigation:
+
+Click a module in the left sidebar to open it in the workspace.
+
+Click a tab in the workspace to switch between modules.
+
+Click the search box to run a unified search.
+
+Click the status view to see the health of each module.
+
+Click the logging view to see the aggregated logs.
+
+Error display:
+
+Module errors: a red badge in the status view.
+
+Dependency errors: a modal dialog at startup.
+
+Version incompatibility: a modal dialog at startup.
+
+Authentication errors: a login prompt.
+
+Display conventions:
+
+Every module is shown with its name and version.
+
+Every record is shown with its provenance.
+
+Every operation is logged in the audit log.
+
+Validation Engine Design
+The master validates the following:
+
+Validation 1. Module registry validity. The module registry is validated against the module registry schema.
+
+Validation 2. Dependency resolution. The dependencies are resolved and checked for cycles.
+
+Validation 3. Version compatibility. Each module's version is checked against the shared core's version.
+
+Validation 4. Module startup. Each module starts successfully.
+
+Validation 5. Module health. Each module's health is checked.
+
+Validation 6. Shared core health. The shared core's health is checked.
+
+Validation 7. Audit completeness. Every operation is logged.
+
+Validation 8. Provenance completeness. Every operation has a provenance record.
+
+Testing Strategy
+Unit tests:
+
+Module Registry for valid and invalid registries.
+
+Dependency Resolution for each dependency order and for cycles.
+
+Shared Core Initialization for the schema registry, the provenance database, the authentication layer, and the reporting layer.
+
+Module Startup for each module.
+
+Module Stop for each module.
+
+Health Check for each module.
+
+Unified Search for each module.
+
+Backup for the shared core and each module.
+
+Restore for the shared core and each module.
+
+Version Compatibility Check for each combination of versions.
+
+Audit Logging for each operation.
+
+Provenance Recording for each operation.
+
+Command-Line Interface for each command.
+
+REST API for each endpoint.
+
+GraphQL API for each query and mutation.
+
+Web Interface for each view.
+
+Integration tests:
+
+Start the master. Verify all modules start in dependency order.
+
+Stop a module. Verify the master handles the stop.
+
+Start the master with a missing dependency. Verify the master reports the error.
+
+Start the master with a version incompatibility. Verify the master reports the error.
+
+Run a unified search. Verify the results across modules.
+
+Backup the master. Restore the master. Verify the data is identical.
+
+Register a new module. Verify the master loads it.
+
+Unregister a module. Verify the master stops it.
+
+Worked-example tests:
+
+Register all 23 modules. Verify the master starts them in dependency order.
+
+Register the STAG annotation editor (App 1) and the STAG schema library (App 17). Verify the dependency is resolved.
+
+Register the full-pipeline simulator (App 9) and the Null-Model Protocol library (App 18). Verify the dependency is resolved.
+
+Register the physics knowledge library (App 23) and its dependencies. Verify the dependencies are resolved.
+
+Regression tests:
+
+Module registry consistency.
+
+Dependency order consistency.
+
+Audit log consistency.
+
+Provenance record consistency.
+
+Build Phases
+Phase 1. Module Registry. Load and validate the module registry.
+
+Phase 2. Shared Schema Registry. Load the shared schemas.
+
+Phase 3. Shared Provenance Database. Initialize the provenance database.
+
+Phase 4. Shared Authentication Layer. Initialize the authentication layer.
+
+Phase 5. Shared Reporting Layer. Initialize the reporting layer.
+
+Phase 6. Dependency Resolver. Resolve the dependencies.
+
+Phase 7. Module Starter. Start the modules in dependency order.
+
+Phase 8. Module Stopper. Stop the modules.
+
+Phase 9. Health Check. Run the health check.
+
+Phase 10. Unified Search. Implement the unified search.
+
+Phase 11. Launcher. Implement the launcher.
+
+Phase 12. Workspace. Implement the workspace.
+
+Phase 13. Navigation. Implement the navigation.
+
+Phase 14. Status View. Implement the status view.
+
+Phase 15. Configuration View. Implement the configuration view.
+
+Phase 16. Logging View. Implement the logging view.
+
+Phase 17. Plugin Interface. Implement the plugin interface.
+
+Phase 18. Version Compatibility Checker. Implement the version compatibility checker.
+
+Phase 19. Backup and Restore. Implement backup and restore.
+
+Phase 20. Audit Logging. Implement audit logging.
+
+Phase 21. Command-Line Interface. Implement the command-line interface.
+
+Phase 22. REST API. Implement the REST API.
+
+Phase 23. GraphQL API. Implement the GraphQL API.
+
+Phase 24. Web Interface. Implement the web interface.
+
+Phase 25. Reproducibility Recorder. Implement the reproducibility recorder.
+
+Phase 26. Migration Manager. Implement the migration manager.
+
+Phase 27. Worked-example tests.
+
+Phase 28. Integration testing and hardening.
+
+Phase 29. Packaging and deployment.
+
+Dependencies
+Python path:
+
+FastAPI (REST API).
+
+Strawberry (GraphQL API).
+
+importlib (plugin system, standard library).
+
+networkx (dependency resolution).
+
+SQLAlchemy (provenance database).
+
+Alembic (migrations).
+
+Click (command-line).
+
+pytest (testing).
+
+Node.js path:
+
+Express (REST API).
+
+Apollo Server (GraphQL API).
+
+dynamic import (plugin system, standard library).
+
+graphlib (dependency resolution, standard library).
+
+Prisma (provenance database).
+
+Commander (command-line).
+
+Vitest (testing).
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The STAG schema (Artifact 2, Appendix B.1).
+
+The STAG codebook (Artifact 2, Appendices A.1 through A.11).
+
+The Null-Model Protocol schema (from App 8 and App 9).
+
+The deposit schema (from App 23).
+
+The STAG schema library (App 17).
+
+The Null-Model Protocol library (App 18).
+
+The provenance database (App 20).
+
+The combined workbench (App 14).
+
+Deployment Notes
+Master:
+
+Package as a standalone executable (PyInstaller or pkg).
+
+Distribute via pip, npm, or a direct download.
+
+Provide a Docker image.
+
+Provide a Docker Compose file for the full stack.
+
+Modules:
+
+Each module is packaged separately.
+
+The master loads the modules from the module registry.
+
+Each module can be updated independently.
+
+Shared core:
+
+The shared core is packaged with the master.
+
+The shared core can be updated independently.
+
+Reproducibility:
+
+Record the master version, the shared core version, the module versions, the configuration, and the timestamp.
+
+Record the provenance for every operation.
+
+Provide a version pin for the schemas.
+
+Open Questions to Resolve Before Building
+Question 1. Which runtime first? Python or Node.js. Decision affects the plugin system and the packaging.
+
+Question 2. How should the master handle a module that fails to start? Options: fail the master, skip the module, or retry. Decision needed.
+
+Question 3. How should the master handle a module that crashes after starting? Options: restart it, mark it as error, or notify the administrator. Decision needed.
+
+Question 4. How should the master handle a new module that is registered at runtime? Options: load it immediately, or require a restart. Decision needed.
+
+Question 5. How should the master handle a module that has an incompatible version? Options: fail the master, skip the module, or load it in a compatibility mode. Decision needed.
+
+Question 6. How should the master handle the shared schema registry? Options: one schema registry for all modules, or one per module. Decision needed.
+
+Question 7. How should the master handle the shared provenance database? Options: one database for all modules, or one per module. Decision needed.
+
+Question 8. How should the master handle the shared authentication layer? Options: one authentication layer for all modules, or one per module. Decision needed.
+
+Question 9. How should the master handle the shared reporting layer? Options: one reporting layer for all modules, or one per module. Decision needed.
+
+Question 10. How should the master handle the not_determinable flag propagation? The STAG specification specifies that not_determinable propagates from the entailment basis to the intervention classification to the cross-domain counterfactual dependence. Decision needed: does the master check the propagation automatically, or trust the records?
+
+Question 11. Should the master support federation with other masters? Decision needed.
+
+Question 12. Should the master support multi-tenancy? Decision needed.
+
+Question 13. Should the master support a marketplace for modules? Decision needed.
+
+Question 14. How should the master handle the backup and restore of the shared core and each module? Options: one backup for all, or one per module. Decision needed.
+
+Question 15. How should the master handle the migration of the shared core and each module? Options: one migration for all, or one per module. Decision needed.
+
+End of build specification for App 24.
+
+All 24 build specifications are now complete. The complete set is:
+
+STAG Annotation Editor
+
+STAG Annotation Validator
+
+PROV-O Exporter and Importer
+
+Scale-Separation Record Calculator
+
+STAG Graph Viewer
+
+Partition Sensitivity Explorer
+
+Revision History Viewer
+
+Pipeline Specification Wizard
+
+Full-Pipeline Simulator
+
+Scan-Family Comparator
+
+Effective-Null Builder
+
+N Calculator
+
+Gap-Score Reporter
+
+STAG plus Null-Model Combined Workbench
+
+Journal Submission Checker
+
+Teaching and Training Sandbox
+
+STAG Schema Library
+
+Null-Model Protocol Library
+
+Reproducibility Deposit Template
+
+Provenance-Aware Annotation Database
+
+STAG Audit Tool
+
+Numerical Verification Tool
+
+Physics Knowledge Library
+
+Master Workbench
