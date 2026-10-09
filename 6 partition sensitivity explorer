@@ -1,0 +1,673 @@
+Build Specification — App 6: Partition Sensitivity Explorer
+Completeness status: COMPLETE. All sections delivered in one pass. No truncation. Formatted for copy-paste into another conversation window. No tables, no boxes.
+
+What It Is
+A tool that re-derives labels under an alternative partition. It takes a STAG annotation record and an alternative admissible partition, recomputes the labels, shows which change, and runs the identity-splitting audit for merged nodes. It takes in a STAG record and an alternative partition, and puts out a label comparison and the audit result. It is for authors and reviewers.
+
+Core Requirements
+Functional requirements:
+
+Accept a STAG JSON record.
+
+Accept an alternative admissible partition.
+
+Validate the alternative partition for admissibility (Artifact 1, Section 8.2).
+
+Recompute the derived display label under the alternative partition.
+
+Recompute the evidential anchoring status under the alternative partition if the label is STAG-Discovered.
+
+Recompute the domain annotations under the alternative partition.
+
+Recompute the cross-domain counterfactual dependence under the alternative partition.
+
+Recompute the domain_mismatch flag under the alternative partition.
+
+Identify the identity-splitting audit fields if the node-identity decision is merged (Artifact 1, Section 5.8).
+
+Compute splitting_partition_id, splitting_would_change_label, and splitting_audit_note.
+
+Compare the original label with the recomputed label.
+
+Report which labels changed and which did not.
+
+Report the identity-splitting audit result.
+
+Report the partition sensitivity result.
+
+Operate as an app or command-line tool.
+
+Non-functional requirements:
+
+Deterministic: same inputs produce same outputs.
+
+No network dependency.
+
+Fast: recompute a typical record in under one second.
+
+Versioned: the tool records the schema version of the record and the partition version.
+
+Reproducible: the tool records the alternative partition and the recomputation logic.
+
+Input Specification
+Input 1. STAG JSON record. Required. The annotation record conforming to Artifact 2, Appendix B.1.
+
+Input 2. Alternative partition. Required. A partition object with partition_id, partition_version, partition_kind, partition_admissibility_status, domain entries, and partition_justification.
+
+Input 3. Schema version. Required. Selects the correct field interpretation.
+
+Input 4. Alternative partition file. Optional. A file containing one or more alternative partitions to test.
+
+Input 5. Report format. Optional. Values: text (default), json, both.
+
+Input 6. Audit mode. Optional. Values: standard (default), exhaustive (test all fields that depend on the partition).
+
+Output Specification
+Output 1. Label comparison. Text or JSON. The original label and the recomputed label, side by side, with a boolean indicating whether the label changed.
+
+Output 2. Anchoring comparison. Text or JSON. The original anchoring status and the recomputed anchoring status, with a boolean indicating whether the anchoring status changed.
+
+Output 3. Domain annotation comparison. Text or JSON. The original domain annotation and the recomputed domain annotation.
+
+Output 4. Cross-domain counterfactual dependence comparison. Text or JSON. The original value and the recomputed value, with a boolean indicating whether the value changed.
+
+Output 5. domain_mismatch comparison. Text or JSON. The original value and the recomputed value.
+
+Output 6. Identity-splitting audit result. Text or JSON. The splitting_partition_id, splitting_would_change_label, and splitting_audit_note.
+
+Output 7. Partition sensitivity result. Text or JSON. The alternative partition ID, the resulting classification, and whether the classification changed.
+
+Output 8. Full recomputed record. JSON. The record with all partition-dependent fields recomputed under the alternative partition.
+
+Output 9. Audit log. JSON. Which fields were recomputed, which rules were re-evaluated, and which flags were attached.
+
+Module-by-Module Specification
+Module 1: Record Loader
+Reads the STAG JSON record. Validates it against the JSON Schema for the selected version. Rejects malformed records with an error.
+
+Module 2: Partition Loader
+Reads the alternative partition. Validates it for admissibility (Artifact 1, Section 8.2). Checks that the partition has a partition_id, partition_version, partition_kind, partition_admissibility_status, domain entries, and partition_justification. Rejects inadmissible partitions with an error, unless the partition is framework-level (which is admissible for the purpose of the audit but produces STAG-Unclassified with reason inadmissible_partition).
+
+Module 3: Partition Admissibility Checker
+Checks the alternative partition against the admissibility criteria (Artifact 1, Section 8.2):
+
+The decomposition is mathematically well-defined in the declared model.
+
+Each domain is assigned a distinct role and formalism.
+
+The partition is pre-registered.
+
+The partition is versioned and assigned a stable identifier.
+
+The domain structure is documented with role tags and formalism descriptors.
+
+If any criterion fails, the partition is flagged as inadmissible. If the partition is framework-level, it is flagged as framework-level and admissible for the audit but not for cross-domain counterfactual claims.
+
+Module 4: Label Recomputation Engine
+Recomputes the derived display label under the alternative partition. Applies the decision tree from Artifact 1, Section 7.6. The recomputation uses the alternative partition's domain entries to recompute the domain annotations, the intervention source and target domains, and the cross-domain counterfactual dependence.
+
+Module 5: Anchoring Recomputation Engine
+Recomputes the evidential anchoring status under the alternative partition if the recomputed label is STAG-Discovered. Applies the anchoring conditions from Artifact 1, Section 1.2. The recomputation uses the alternative partition's domain entries to recompute condition (a), condition (c), and condition (d). Condition (b) does not depend on the partition.
+
+Module 6: Domain Annotation Recomputation Engine
+Recomputes the domain annotations under the alternative partition. Maps each source node and target node to the alternative partition's domains. Recomputes the domains spanned, the intervention source domains, and the intervention target domain.
+
+Module 7: Cross-Domain Counterfactual Dependence Recomputation Engine
+Recomputes the cross-domain counterfactual dependence under the alternative partition. Applies the rules from Artifact 1, Section 7.2. The recomputation uses the alternative partition's domain entries to determine whether the intervention is cross-domain.
+
+Module 8: domain_mismatch Recomputation Engine
+Recomputes the domain_mismatch flag under the alternative partition. Applies Rule 25: domain_mismatch is true if and only if intervention_target_domain is not a member of the set of domains to which the source and target nodes are assigned under the alternative partition.
+
+Module 9: Identity-Splitting Audit Engine
+If the node-identity decision is merged, runs the identity-splitting audit (Artifact 1, Section 5.8). Computes splitting_partition_id, splitting_would_change_label, and splitting_audit_note. If splitting_would_change_label is true, sets identity_partition_sensitive to true.
+
+Module 10: Partition Sensitivity Recorder
+Records the partition sensitivity result. Applies the requirements from Artifact 1, Section 7.8. Records at least one alternative admissible partition, the resulting classification, and whether the classification changed.
+
+Module 11: Comparison Engine
+Compares the original record with the recomputed record. Identifies which fields changed. Classifies changes as label changes, anchoring changes, domain annotation changes, cross-domain counterfactual dependence changes, or domain_mismatch changes.
+
+Module 12: Report Formatter
+Produces the comparison report. Text and JSON.
+
+Module 13: Command-Line Interface
+Parses arguments. Invokes Modules 1 through 12. Prints the report to stdout. Writes the recomputed record to a file.
+
+Module 14: Graphical Interface (optional)
+A small window with the original record, the alternative partition, and the comparison report. Displays the label comparison, the anchoring comparison, and the audit result in real time.
+
+Full Recomputation Specification
+6.1 Label Recomputation
+The label is recomputed by applying the decision tree from Artifact 1, Section 7.6, with the alternative partition's domain entries substituted for the original partition's domain entries.
+
+The recomputation affects the following fields:
+
+domain_annotation (the domain of each node)
+
+intervention_source_domains (the domains involved in the intervention)
+
+intervention_target_domain (the domain of the intervention target)
+
+cross_domain_counterfactual_dependence (whether the intervention is cross-domain)
+
+domain_mismatch (whether the intervention target domain is in the source and target nodes' domains)
+
+The recomputation does not affect the following fields:
+
+effective_description_change
+
+intervention_classification
+
+entailment_basis
+
+scale_separation
+
+partition_sensitivity (the recomputed record gets a new partition_sensitivity based on the alternative partition)
+
+6.2 Anchoring Recomputation
+The anchoring status is recomputed by applying the four anchoring conditions (Artifact 1, Section 1.2) with the alternative partition's domain entries.
+
+Condition (a) is affected if the material-change evidence depends on the partition. The recomputation checks whether the cited numerical result's citation_scope is annotated_model under the alternative partition.
+
+Condition (b) is not affected by the partition. The band source and the band minimum ratio are properties of the annotated system, not the partition.
+
+Condition (c) is affected if the assumptions used to fix node identity, the regime attribute, or the effective-description-change classification depend on the partition. The recomputation checks whether independence_of_material_change_evidence is independent under the alternative partition.
+
+Condition (d) is affected if the material-change test's classification scheme depends on the partition. The recomputation checks whether material_change_test_result_independence is independent under the alternative partition.
+
+6.3 Domain Annotation Recomputation
+The domain annotation is recomputed by mapping each source node and target node to the alternative partition's domains. The mapping uses the node's tuple (S, M, G) and the alternative partition's domain entries.
+
+The recomputation produces a new domain_id, partition_id, and partition_version for each node.
+
+6.4 Cross-Domain Counterfactual Dependence Recomputation
+The cross-domain counterfactual dependence is recomputed by applying the rules from Artifact 1, Section 7.2, with the alternative partition's domain entries.
+
+The recomputation affects the following cases:
+
+If the intervention source domains and target domain span at least two distinct declared domains under the alternative partition, the intervention is cross-domain.
+
+If the intervention source domains and target domain lie within a single declared domain under the alternative partition, the intervention is Intra_domain.
+
+If the alternative partition is framework-level, the intervention is Untestable.
+
+6.5 domain_mismatch Recomputation
+The domain_mismatch flag is recomputed by applying Rule 25: domain_mismatch is true if and only if intervention_target_domain is not a member of the set of domains to which the source and target nodes are assigned under the alternative partition.
+
+6.6 Identity-Splitting Audit
+The identity-splitting audit is run if the node-identity decision is merged. The audit produces:
+
+splitting_partition_id: an alternative admissible partition under which the node would be split.
+
+splitting_would_change_label: a boolean recording whether the derived display label would change under that partition.
+
+splitting_audit_note: the grounds on which the node would or would not split.
+
+The audit uses the alternative partition as the splitting partition. If the alternative partition splits the merged node, the label is recomputed under the split. If the label changes, splitting_would_change_label is true.
+
+6.7 Partition Sensitivity Result
+The partition sensitivity result records:
+
+The alternative partition ID and version.
+
+The resulting classification (the recomputed label).
+
+Whether the classification changed.
+
+If the classification changed, the original classification and the recomputed classification are both recorded.
+
+6.8 Comparison
+The comparison engine compares the original record with the recomputed record. It identifies:
+
+Label changes: the original label versus the recomputed label.
+
+Anchoring changes: the original anchoring status versus the recomputed anchoring status.
+
+Domain annotation changes: the original domain annotation versus the recomputed domain annotation.
+
+Cross-domain counterfactual dependence changes: the original value versus the recomputed value.
+
+domain_mismatch changes: the original value versus the recomputed value.
+
+Flag changes: any flags that were added or removed.
+
+Core Logic as Executable Pseudocode
+7.1 Main Flow
+function explorePartitionSensitivity(record, alternativePartition, options):
+
+Step 1. validateRecord(record, options.schemaVersion). If invalid, return {error: "invalid record"}.
+
+Step 2. validatePartition(alternativePartition). If invalid, return {error: "invalid partition"}.
+
+Step 3. admissibility = checkAdmissibility(alternativePartition).
+
+Step 4. recomputedRecord = cloneRecord(record).
+
+Step 5. recomputedRecord.domain_annotation = recomputeDomainAnnotation(record, alternativePartition).
+
+Step 6. recomputedRecord.intervention_source_domains = recomputeInterventionSourceDomains(record, alternativePartition).
+
+Step 7. recomputedRecord.intervention_target_domain = recomputeInterventionTargetDomain(record, alternativePartition).
+
+Step 8. recomputedRecord.cross_domain_counterfactual_dependence = recomputeCrossDomain(record, alternativePartition).
+
+Step 9. recomputedRecord.domain_mismatch = recomputeDomainMismatch(record, alternativePartition).
+
+Step 10. recomputedRecord.derived_display_label = deriveDisplayLabel(recomputedRecord).
+
+Step 11. if recomputedRecord.derived_display_label == "STAG-Discovered": recomputedRecord.evidential_anchoring = deriveAnchoringStatus(recomputedRecord).
+
+Step 12. if record.node_identity.decision == "merged": auditResult = runIdentitySplittingAudit(record, alternativePartition, recomputedRecord).
+
+Step 13. recomputedRecord.partition_sensitivity = recordPartitionSensitivity(record, alternativePartition, recomputedRecord).
+
+Step 14. comparison = compareRecords(record, recomputedRecord).
+
+Step 15. return {comparison, recomputedRecord, auditResult, admissibility}.
+
+7.2 Recompute Domain Annotation
+function recomputeDomainAnnotation(record, alternativePartition):
+
+newAnnotation = {}.
+
+for each node in record.source_nodes and record.target_nodes:
+
+domain = mapNodeToDomain(node, alternativePartition).
+
+newAnnotation[node.node_id] = {domain_id: domain.id, partition_id: alternativePartition.partition_id, partition_version: alternativePartition.partition_version}.
+
+return newAnnotation.
+
+7.3 Map Node to Domain
+function mapNodeToDomain(node, partition):
+
+for each domain in partition.domains:
+
+if node.tuple.S in domain.scope and node.tuple.M in domain.formalism and node.tuple.G in domain.granularity:
+
+return domain.
+
+return null.
+
+7.4 Recompute Cross-Domain
+function recomputeCrossDomain(record, alternativePartition):
+
+sourceDomains = [].
+
+for each source in record.intervention_source_domains:
+
+domain = mapNodeToDomain(source, alternativePartition).
+
+if domain != null: sourceDomains.push(domain.id).
+
+targetDomain = mapNodeToDomain(record.intervention_target_domain, alternativePartition).
+
+if targetDomain == null: return "Untestable".
+
+if alternativePartition.partition_kind == "framework_level": return "Untestable".
+
+allDomains = new Set(sourceDomains.concat([targetDomain.id])).
+
+if allDomains.size >= 2: return "Yes".
+
+if allDomains.size == 1: return "Intra_domain".
+
+return "Untestable".
+
+7.5 Recompute Domain Mismatch
+function recomputeDomainMismatch(record, alternativePartition):
+
+targetDomain = mapNodeToDomain(record.intervention_target_domain, alternativePartition).
+
+sourceDomains = [].
+
+for each source in record.source_nodes:
+
+domain = mapNodeToDomain(source, alternativePartition).
+
+if domain != null: sourceDomains.push(domain.id).
+
+for each target in record.target_nodes:
+
+domain = mapNodeToDomain(target, alternativePartition).
+
+if domain != null: sourceDomains.push(domain.id).
+
+if targetDomain == null: return true.
+
+return not sourceDomains.includes(targetDomain.id).
+
+7.6 Run Identity-Splitting Audit
+function runIdentitySplittingAudit(record, alternativePartition, recomputedRecord):
+
+audit = {splitting_partition_id: alternativePartition.partition_id, splitting_would_change_label: false, splitting_audit_note: ""}.
+
+if record.derived_display_label != recomputedRecord.derived_display_label:
+
+audit.splitting_would_change_label = true.
+
+audit.splitting_audit_note = "Label changes from " + record.derived_display_label + " to " + recomputedRecord.derived_display_label + " under partition " + alternativePartition.partition_id.
+
+else:
+
+audit.splitting_audit_note = "Label unchanged under partition " + alternativePartition.partition_id + "; node would not split with label change".
+
+return audit.
+
+7.7 Record Partition Sensitivity
+function recordPartitionSensitivity(record, alternativePartition, recomputedRecord):
+
+return {alternative_partition_ids: [alternativePartition.partition_id], resulting_classification: recomputedRecord.derived_display_label, classification_changed: record.derived_display_label != recomputedRecord.derived_display_label}.
+
+7.8 Compare Records
+function compareRecords(original, recomputed):
+
+comparison = {label_changed: original.derived_display_label != recomputed.derived_display_label, original_label: original.derived_display_label, recomputed_label: recomputed.derived_display_label, anchoring_changed: original.evidential_anchoring != recomputed.evidential_anchoring, original_anchoring: original.evidential_anchoring, recomputed_anchoring: recomputed.evidential_anchoring, domain_annotation_changed: not deepEqual(original.domain_annotation, recomputed.domain_annotation), cross_domain_changed: original.cross_domain_counterfactual_dependence != recomputed.cross_domain_counterfactual_dependence, original_cross_domain: original.cross_domain_counterfactual_dependence, recomputed_cross_domain: recomputed.cross_domain_counterfactual_dependence, domain_mismatch_changed: original.domain_mismatch != recomputed.domain_mismatch, original_domain_mismatch: original.domain_mismatch, recomputed_domain_mismatch: recomputed.domain_mismatch, flags_added: difference(recomputed.flags, original.flags), flags_removed: difference(original.flags, recomputed.flags)}.
+
+return comparison.
+
+Data Model / JSON Schema for Internal State
+The tool's internal state is a comparison object, a recomputed record object, an audit result object, and an admissibility object.
+
+Comparison object:
+
+label_changed (boolean)
+
+original_label (string)
+
+recomputed_label (string)
+
+anchoring_changed (boolean)
+
+original_anchoring (string)
+
+recomputed_anchoring (string)
+
+domain_annotation_changed (boolean)
+
+cross_domain_changed (boolean)
+
+original_cross_domain (string)
+
+recomputed_cross_domain (string)
+
+domain_mismatch_changed (boolean)
+
+original_domain_mismatch (boolean)
+
+recomputed_domain_mismatch (boolean)
+
+flags_added (array of strings)
+
+flags_removed (array of strings)
+
+Recomputed record object: the same structure as the STAG annotation record (Artifact 2, Appendix B.1), with partition-dependent fields recomputed.
+
+Audit result object:
+
+splitting_partition_id (string)
+
+splitting_would_change_label (boolean)
+
+splitting_audit_note (string)
+
+Admissibility object:
+
+admissible (boolean)
+
+framework_level (boolean)
+
+criteria_checked (array of objects: criterion, passed, note)
+
+Architecture
+Module breakdown:
+
+Record Loader. Reads and validates the STAG JSON record.
+
+Partition Loader. Reads and validates the alternative partition.
+
+Partition Admissibility Checker. Checks the admissibility criteria.
+
+Label Recomputation Engine. Recomputes the derived display label.
+
+Anchoring Recomputation Engine. Recomputes the evidential anchoring status.
+
+Domain Annotation Recomputation Engine. Recomputes the domain annotations.
+
+Cross-Domain Counterfactual Dependence Recomputation Engine. Recomputes the cross-domain counterfactual dependence.
+
+domain_mismatch Recomputation Engine. Recomputes the domain_mismatch flag.
+
+Identity-Splitting Audit Engine. Runs the identity-splitting audit.
+
+Partition Sensitivity Recorder. Records the partition sensitivity result.
+
+Comparison Engine. Compares the original record with the recomputed record.
+
+Report Formatter. Produces the comparison report.
+
+Command-Line Interface. Argument parsing and output.
+
+Graphical Interface (optional). Real-time display.
+
+Data flow:
+
+Record and alternative partition go to the loaders. Admissibility Checker checks the partition. Recomputation Engines recompute the partition-dependent fields. Label and Anchoring Engines derive the label and anchoring status. Identity-Splitting Audit Engine runs the audit. Partition Sensitivity Recorder records the result. Comparison Engine compares. Report Formatter produces the output.
+
+Technology Stack
+Recommended for the command-line tool:
+
+Language: Python 3.11+ or Node.js 20+.
+
+JSON handling: standard library.
+
+Schema validation: jsonschema (Python) or ajv (JS).
+
+CLI framework: argparse (Python) or commander (JS).
+
+Testing: pytest (Python) or Vitest (JS).
+
+Recommended for the graphical interface:
+
+Python: PyQt6 or Tkinter.
+
+JavaScript: React or Svelte.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The recomputed record conforms to Artifact 2, Appendix B.1.
+
+UI/UX Specification
+Command-line interface:
+
+Usage: stag-partition-sensitivity --input FILE --partition FILE [--schema-version VERSION] [--format text|json|both] [--output FILE].
+
+Output on success: the label comparison, the anchoring comparison, the domain annotation comparison, the cross-domain comparison, the domain_mismatch comparison, the audit result, and the partition sensitivity result.
+
+Output on error: the error message and exit code 2.
+
+Graphical interface (optional):
+
+Left panel: the original record.
+
+Center panel: the alternative partition.
+
+Right panel: the comparison report.
+
+Top bar: load record, load partition, run comparison, export report.
+
+Real-time display of the comparison as the partition is edited.
+
+Validation Engine Design
+The tool validates the following:
+
+Validation 1. Record validity. The record is validated against the JSON Schema for the selected version.
+
+Validation 2. Partition admissibility. The alternative partition is checked against the admissibility criteria.
+
+Validation 3. Partition compatibility. The alternative partition must use the same node tuple (S, M, G) as the original record, or the mapping must be defined.
+
+Validation 4. Recomputation consistency. The recomputed record must satisfy the same rules as the original record (the 32 semantic rules).
+
+Validation 5. Comparison consistency. The comparison must not report a change in a field that does not depend on the partition.
+
+Testing Strategy
+Unit tests:
+
+Partition admissibility checker for admissible, inadmissible, and framework-level partitions.
+
+Label recomputation for each label transition.
+
+Anchoring recomputation for each anchoring status.
+
+Domain annotation recomputation for each domain mapping.
+
+Cross-domain recomputation for cross-domain, Intra_domain, and Untestable.
+
+domain_mismatch recomputation for true and false.
+
+Identity-splitting audit for merged and new_node decisions.
+
+Partition sensitivity recorder for changed and unchanged classifications.
+
+Comparison engine for each field.
+
+Integration tests:
+
+Load a record and an alternative partition. Recompute the record. Compare. Verify the comparison.
+
+Load a record with a merged node. Run the identity-splitting audit. Verify the audit result.
+
+Load a record with a new_node decision. Verify that the identity-splitting audit is not run and that partition sensitivity is recorded instead.
+
+Worked-example tests:
+
+Artifact 1, Section 11.2 (two-layer Ising): the record has a new_node decision. The partition sensitivity check should test the alternative partition STAG-PARTITION-PHYSICS-TWO-LAYER-ISING-STRONG-WEAK-2024 v1. The recomputed label should be STAG-Discovered (unchanged).
+
+Artifact 1, Section 11.4 (glass transition): the record has a framework-level partition. The recomputed label should be STAG-Unclassified with reason inadmissible_partition.
+
+Regression tests:
+
+Partition sensitivity round trip.
+
+Comparison consistency for fields that do not depend on the partition.
+
+Flag changes for each flag.
+
+Build Phases
+Phase 1. Record Loader. Read and validate the STAG JSON record.
+
+Phase 2. Partition Loader. Read and validate the alternative partition.
+
+Phase 3. Partition Admissibility Checker. Check the admissibility criteria.
+
+Phase 4. Domain Annotation Recomputation Engine. Recompute the domain annotations.
+
+Phase 5. Cross-Domain Counterfactual Dependence Recomputation Engine. Recompute the cross-domain counterfactual dependence.
+
+Phase 6. domain_mismatch Recomputation Engine. Recompute the domain_mismatch flag.
+
+Phase 7. Label Recomputation Engine. Recompute the derived display label.
+
+Phase 8. Anchoring Recomputation Engine. Recompute the evidential anchoring status.
+
+Phase 9. Identity-Splitting Audit Engine. Run the identity-splitting audit.
+
+Phase 10. Partition Sensitivity Recorder. Record the partition sensitivity result.
+
+Phase 11. Comparison Engine. Compare the original record with the recomputed record.
+
+Phase 12. Report Formatter. Produce the comparison report.
+
+Phase 13. Command-Line Interface.
+
+Phase 14. Graphical Interface (optional).
+
+Phase 15. Worked-example tests.
+
+Phase 16. Integration testing and hardening.
+
+Phase 17. Packaging.
+
+Dependencies
+Python path:
+
+argparse (command-line, standard library).
+
+json (JSON handling, standard library).
+
+jsonschema (record validation).
+
+PyQt6 or Tkinter (optional graphical interface).
+
+pytest (testing).
+
+Node.js path:
+
+commander (command-line).
+
+JSON (standard library).
+
+ajv (record validation).
+
+React or Svelte (optional graphical interface).
+
+Vitest (testing).
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The recomputed record conforms to Artifact 2, Appendix B.1.
+
+The identity-splitting audit conforms to Artifact 1, Section 5.8.
+
+The partition sensitivity record conforms to Artifact 1, Section 7.8.
+
+Deployment Notes
+Command-line tool:
+
+Package as a standalone executable (PyInstaller or pkg).
+
+Distribute via pip, npm, or a direct download.
+
+No server required.
+
+Graphical interface:
+
+Package as a desktop application.
+
+Distribute via the platform's app store or a direct download.
+
+No server required.
+
+Reproducibility:
+
+Record the alternative partition and the recomputation logic in the output.
+
+Record the schema version and the tool version.
+
+Open Questions to Resolve Before Building
+Question 1. Which runtime first? Python or Node.js. Decision affects the schema and CLI libraries and the packaging.
+
+Question 2. What does the tool do when the alternative partition uses different domain granularity? Options: map by node tuple, map by hand, or fail. Decision needed.
+
+Question 3. How should the tool handle a record with multiple merged nodes? Options: run the audit for each merged node, or run the audit for the whole record. Decision needed.
+
+Question 4. How should the tool handle a record with multiple partitions? The documents specify one partition per record. Decision needed.
+
+Question 5. Should the tool support batch testing of multiple alternative partitions? Decision needed.
+
+Question 6. How should the tool report a change that is due to the partition but is not a label change? Options: report as a secondary change, or only report label changes. Decision needed.
+
+Question 7. How should the tool handle the not_determinable flag propagation? The documents specify that not_determinable propagates from the entailment basis to the intervention classification to the cross-domain counterfactual dependence. Decision needed: does the tool check the propagation automatically, or does it trust the record?
+
+Question 8. Should the tool integrate with the STAG annotation editor (App 1) and the validator (App 2)? Decision needed: shared schema registry, or independent.
+
+Question 9. How should the tool handle the case where the alternative partition is inadmissible? Options: fail, warn, or run the audit with the inadmissible partition. Decision needed.
+
+Question 10. How should the tool report the partition sensitivity result? The documents specify that the annotation records at least one alternative admissible partition, the resulting classification, and whether the classification changed. Decision needed: does the tool record the partition sensitivity result in the original record, or only in the comparison report?
+
+End of build specification for App 6
