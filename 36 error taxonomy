@@ -1,0 +1,1469 @@
+Build Specification — App 36: The Error Taxonomy
+Completeness status: COMPLETE. All sections delivered in one pass. No truncation. Formatted for copy-paste. Long lists are broken into short lines.
+
+1. What It Is
+A structured record of every error a student makes, what kind of error it is, and what it reveals about their understanding. An error is a mistake in a problem, an answer, a proof, a calculation, a decision, or an argument. The Error Taxonomy records each error with its type, its description, the underlying misconception, the recommended intervention, and the provenance.
+
+It reuses:
+
+the STAG Schema Library (App 17)
+
+the Provenance-Aware Annotation Database (App 20)
+
+the Revision History Viewer (App 7)
+
+the Misconception Database (App 31)
+
+the Method Tracker (App 32)
+
+the Learning Provenance System (App 33)
+
+the Autofill Library Service (App 49)
+
+It is for teachers, tutors, education researchers, and anyone who wants to understand why students make mistakes.
+
+2. Core Requirements
+Functional requirements:
+
+Accept deposits of errors from users.
+
+Store each error with its subject, its topic, its description, and its provenance.
+
+Record the error type: conceptual, procedural, factual, computational, logical, strategic, careless, or other.
+
+Record the underlying misconception, if any, linked to the Misconception Database.
+
+Record the method that was being used, if any, linked to the Method Tracker.
+
+Record the recommended intervention.
+
+Record the student's response to the intervention, if known.
+
+Record the context in which the error was made: the problem, the question, the setting.
+
+Record the frequency: how often the student makes this error.
+
+Record the persistence: how hard the error is to correct.
+
+Enforce provenance completeness.
+
+Enforce versioning.
+
+Enforce supersession acyclicity.
+
+Support querying by error ID, student, subject, topic, error type, date, and keywords.
+
+Support full-text search of the description, the recommended intervention, and the notes.
+
+Support aggregation queries: count by subject, by error type, by student, by year, by frequency, by persistence.
+
+Support exporting an error as JSON, PROV-O, and Turtle.
+
+Support importing an error from JSON.
+
+Support bulk import and bulk export.
+
+Support a REST API for CRUD operations.
+
+Support a GraphQL API for flexible queries.
+
+Support a command-line interface for administration.
+
+Support authentication and authorization.
+
+Support audit logging.
+
+Support backup and restore.
+
+Support a web interface.
+
+Support moderation.
+
+Support linking an error to a Misconception Database record.
+
+Support linking an error to a Method Tracker record.
+
+Support linking an error to a Learning Provenance System record.
+
+Support the error map: a visualisation of errors by subject and by type.
+
+Support the error frequency curve: a visualisation of how often a student makes an error over time.
+
+Support the intervention comparison view: a visualisation that compares two or more interventions for the same error.
+
+Non-functional requirements:
+
+Deterministic.
+
+Fast: query a typical error in under 100 milliseconds.
+
+Scalable: support up to 10^6 errors.
+
+Versioned: the taxonomy records the STAG schema version, the error schema version, and the taxonomy version.
+
+Reproducible.
+
+Portable.
+
+Well-documented.
+
+3. Input Specification
+Input 1. Error deposit. Required. A deposit object conforming to the error schema.
+
+Input 2. Files. Optional. The student's work, the problem, or the notes.
+
+Input 3. Provenance record. Required.
+
+Input 4. Misconception reference. Optional. A reference to a Misconception Database record.
+
+Input 5. Method reference. Optional. A reference to a Method Tracker record.
+
+Input 6. Learning record reference. Optional.
+
+Input 7. Query.
+
+Input 8. Aggregation query.
+
+Input 9. Authentication credentials.
+
+Input 10. Bulk import file.
+
+Input 11. Bulk export query.
+
+4. Output Specification
+Output 1. Error record. JSON.
+
+Output 2. PROV-O serialization.
+
+Output 3. Turtle serialization.
+
+Output 4. Query result. JSON.
+
+Output 5. Aggregation result. JSON.
+
+Output 6. Full-text search result. JSON.
+
+Output 7. Error map. JSON or a rendered graph.
+
+Output 8. Error frequency curve. JSON or a rendered curve.
+
+Output 9. Intervention comparison view. JSON or a rendered graph.
+
+Output 10. Related errors. JSON.
+
+Output 11. Bulk export file.
+
+Output 12. Audit log entry. JSON.
+
+Output 13. API response. JSON.
+
+Output 14. GraphQL response. JSON.
+
+Output 15. Backup file.
+
+5. Module-by-Module Specification
+Module 1. Error Schema.
+
+Defines the structure of an error deposit.
+
+Module 2. Database Schema.
+
+The tables and indexes.
+
+Module 3. Error Loader.
+
+Reads and validates an error deposit.
+
+Module 4. Error Writer.
+
+Writes an error deposit to the database.
+
+Module 5. Error Reader.
+
+Reads an error deposit from the database.
+
+Module 6. Error Updater.
+
+Updates an error deposit.
+
+Module 7. Error Deleter.
+
+Deletes an error deposit.
+
+Module 8. Query Engine.
+
+Executes queries.
+
+Module 9. Full-Text Search Engine.
+
+Executes full-text search.
+
+Module 10. Aggregation Engine.
+
+Executes aggregation queries.
+
+Module 11. Exporter.
+
+Exports an error as JSON, PROV-O, and Turtle.
+
+Module 12. Importer.
+
+Imports an error from JSON.
+
+Module 13. Bulk Import and Export.
+
+Bulk operations.
+
+Module 14. REST API.
+
+HTTP endpoints.
+
+Module 15. GraphQL API.
+
+GraphQL endpoint.
+
+Module 16. Command-Line Interface.
+
+Administration commands.
+
+Module 17. Authentication and Authorization.
+
+Access control.
+
+Module 18. Audit Logging.
+
+Logs operations.
+
+Module 19. Backup and Restore.
+
+Database backup and restore.
+
+Module 20. Web Interface.
+
+Depositing, browsing, querying.
+
+Module 21. Moderation Workflow.
+
+Moderation of errors.
+
+Module 22. Error Map.
+
+Visualises errors by subject and by type.
+
+Module 23. Error Frequency Curve.
+
+Visualises how often a student makes an error over time.
+
+Module 24. Intervention Comparison View.
+
+Compares two or more interventions for the same error.
+
+Module 25. Related-Error Finder.
+
+Finds errors related to a given one.
+
+Module 26. Migration Manager.
+
+Database migrations.
+
+6. Full Error Specification
+6.1 Error Schema
+The error schema defines the structure of an error deposit.
+
+It has the following fields:
+
+error_id. A string. Required.
+
+error_name. A string. Required.
+
+error_description. A string. Required.
+
+subject. A string. Required.
+
+topic. A string. Required.
+
+error_type. An enum. Required. The values are conceptual, procedural, factual, computational, logical, strategic, careless, other.
+
+underlying_misconception_reference. A string. Optional.
+
+method_reference. A string. Optional.
+
+learning_record_reference. A string. Optional.
+
+recommended_intervention. An object. Required.
+
+student_response. An object. Optional.
+
+context. An object. Required.
+
+frequency. An enum. Required. The values are one_time, occasional, frequent, very_frequent.
+
+persistence. An enum. Required. The values are low, medium, high, very_high.
+
+student_id. A string. Required.
+
+date_observed. A string in ISO8601 format. Required.
+
+date_last_observed. A string in ISO8601 format. Optional.
+
+related_errors. An array of error relations. Optional.
+
+provenance. An object. Required.
+
+keywords. An array of strings. Optional.
+
+notes. A string. Optional.
+
+moderation_status. An enum. The values are pending, approved, rejected.
+
+version. An integer.
+
+supersedes. A string. Optional.
+
+superseded_by. A string. Optional.
+
+The recommended_intervention object has:
+
+intervention_type. An enum. The values are direct_instruction, practice, feedback, peer_discussion, demonstration, worked_example, other.
+
+intervention_description. A string.
+
+intervention_reference. A string. Optional.
+
+The student_response object has:
+
+response_type. An enum. The values are corrected, partially_corrected, not_corrected, unknown.
+
+response_date. A string in ISO8601 format.
+
+response_notes. A string. Optional.
+
+The context object has:
+
+context_type. An enum. The values are homework, exam, class_work, project, tutoring, self_study, other.
+
+context_description. A string.
+
+problem_reference. A string. Optional.
+
+Each error relation has:
+
+relation_id. A string.
+
+related_error_id. A string.
+
+relation_type. An enum. The values are same_misconception, same_method, same_subject, related, independent.
+
+relation_note. A string. Optional.
+
+6.2 Database Schema
+The database has the following tables.
+
+error_record. Holds the error records.
+
+Its fields are:
+
+error_id
+
+error_name
+
+error_description
+
+subject
+
+topic
+
+error_type
+
+underlying_misconception_reference
+
+method_reference
+
+learning_record_reference
+
+recommended_intervention
+
+student_response
+
+context
+
+frequency
+
+persistence
+
+student_id
+
+date_observed
+
+date_last_observed
+
+provenance
+
+keywords
+
+notes
+
+moderation_status
+
+version
+
+supersedes
+
+superseded_by
+
+created_at
+
+updated_at
+
+error_relation. Holds the error relations.
+
+Its fields are:
+
+relation_id
+
+error_id
+
+related_error_id
+
+relation_type
+
+relation_note
+
+created_at
+
+misconception_link. Holds the misconception links.
+
+Its fields are:
+
+link_id
+
+error_id
+
+misconception_id
+
+created_at
+
+method_link. Holds the method links.
+
+Its fields are:
+
+link_id
+
+error_id
+
+method_id
+
+created_at
+
+learning_link. Holds the learning links.
+
+Its fields are:
+
+link_id
+
+error_id
+
+learning_id
+
+created_at
+
+provenance. Holds the provenance records.
+
+Its fields are:
+
+provenance_id
+
+error_id
+
+depositor_id
+
+depositor_affiliation
+
+timestamp
+
+source
+
+tool_version
+
+operation
+
+created_at
+
+audit_log. Holds the audit log entries.
+
+Its fields are:
+
+audit_id
+
+operation
+
+record_type
+
+record_id
+
+depositor_id
+
+timestamp
+
+result
+
+details
+
+created_at
+
+moderation. Holds the moderation records.
+
+Its fields are:
+
+moderation_id
+
+error_id
+
+moderator_id
+
+moderation_status
+
+moderation_date
+
+moderation_notes
+
+created_at
+
+6.3 Referential Integrity
+Every error_relation.error_id and error_relation.related_error_id must exist in error_record.
+
+Every misconception_link.error_id must exist in error_record.
+
+Every method_link.error_id must exist in error_record.
+
+Every learning_link.error_id must exist in error_record.
+
+Every provenance.error_id must exist in error_record.
+
+Every moderation.error_id must exist in error_record.
+
+The version chain must be acyclic.
+
+The error relation must be symmetric where appropriate.
+
+6.4 Indexes
+The database has indexes on:
+
+error_record.error_id
+
+error_record.error_name
+
+error_record.subject
+
+error_record.topic
+
+error_record.error_type
+
+error_record.frequency
+
+error_record.persistence
+
+error_record.student_id
+
+error_record.date_observed
+
+error_record.moderation_status
+
+error_record.keywords
+
+error_relation.error_id
+
+error_relation.related_error_id
+
+misconception_link.error_id
+
+method_link.error_id
+
+learning_link.error_id
+
+provenance.error_id
+
+provenance.depositor_id
+
+audit_log.operation
+
+audit_log.record_id
+
+moderation.error_id
+
+moderation.moderation_status
+
+Full-text search indexes on the description, the recommended intervention, and the notes.
+
+7. Core Logic as Executable Pseudocode
+7.1 Create Error
+function createError(error, files, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Validate the error against the schema. If invalid, return an error with the details.
+
+Step 3. If the misconception reference is present, look it up. If null, flag it as unresolved.
+
+Step 4. If the method reference is present, look it up. If null, flag it as unresolved.
+
+Step 5. If the learning record reference is present, look it up. If null, flag it as unresolved.
+
+Step 6. Generate an error ID. Set the fields: version 1, moderation_status pending, date_observed now, student_id from auth, provenance from provenance.
+
+Step 7. Insert the error record.
+
+Step 8. Insert the error relations.
+
+Step 9. Insert the misconception link, the method link, and the learning link if present.
+
+Step 10. Insert the provenance.
+
+Step 11. Insert the moderation record.
+
+Step 12. Insert the audit log entry.
+
+Step 13. Return the error_id and the status created.
+
+7.2 Read Error
+function readError(errorId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the error. If null, return an error.
+
+Step 3. Read the error relations, the links, the provenance, and the moderation.
+
+Step 4. Reconstruct the deposit.
+
+Step 5. Insert the audit log entry.
+
+Step 6. Return the deposit.
+
+7.3 Update Error
+function updateError(errorId, error, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Read the existing error. If null, return an error.
+
+Step 3. Validate the new error.
+
+Step 4. Increment the version. Update the supersedes and superseded_by fields.
+
+Step 5. Insert a provenance record with operation update.
+
+Step 6. Insert an audit log entry.
+
+Step 7. Return the error_id, the version, and the status updated.
+
+7.4 Delete Error
+function deleteError(errorId, provenance, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Read the existing error. If null, return an error.
+
+Step 3. If soft delete, mark as deleted. Otherwise, remove.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the error_id and the status deleted.
+
+7.5 Query Errors
+function queryErrors(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the query.
+
+Step 3. Read the matching errors.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the errors, the count, and the pagination.
+
+7.6 Aggregate Errors
+function aggregateErrors(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the aggregation.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the results.
+
+7.7 Full-Text Search
+function fullTextSearch(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the search.
+
+Step 3. Read the matching errors.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the errors and the count.
+
+7.8 Export Error
+function exportError(errorId, format, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the deposit.
+
+Step 3. If json, output the deposit. If provo, export to PROV-O. If turtle, serialize to Turtle.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the output and the format.
+
+7.9 Bulk Import
+function bulkImport(file, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Parse the file.
+
+Step 3. For each error, call createError.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the results and the count.
+
+7.10 Bulk Export
+function bulkExport(query, format, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the matching errors.
+
+Step 3. If json, output the list. If jsonl, output one line per error. If provo, export each one.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the output and the count.
+
+7.11 Moderate Error
+function moderateError(errorId, moderationStatus, moderationNotes, auth):
+
+Step 1. validateAuth(auth, "moderator"). If not authorized, return an error.
+
+Step 2. Read the existing error. If null, return an error.
+
+Step 3. Update the moderation status. Insert a moderation record.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the error_id and the status.
+
+7.12 Error Map
+function errorMap(auth, options):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read all errors.
+
+Step 3. Build the map with subjects as axes and error types as colours.
+
+Step 4. Return the map.
+
+7.13 Error Frequency Curve
+function errorFrequencyCurve(studentId, errorId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the error records for the student and the error.
+
+Step 3. Build the curve with the frequency over time.
+
+Step 4. Return the curve.
+
+7.14 Intervention Comparison View
+function interventionComparisonView(errorId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the error. If null, return an error.
+
+Step 3. Read the interventions that have been tried.
+
+Step 4. Build the comparison by overlaying the outcomes.
+
+Step 5. Return the comparison.
+
+7.15 Find Related Errors
+function findRelatedErrors(errorId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the error. If null, return an error.
+
+Step 3. Find errors with the same misconception, the same method, the same subject, or the same error type.
+
+Step 4. Return the related errors.
+
+7.16 Audit Log
+function auditLog(query, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Build and execute the query.
+
+Step 3. Return the results.
+
+7.17 Backup
+function backup(auth, options):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. If sql, dump as SQL. If json, dump as JSON.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the output and the format.
+
+7.18 Restore
+function restore(file, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Load the database from the file.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the status restored.
+
+8. Data Model
+The taxonomy's internal state is the set of tables. The API's internal state is a request object and a response object.
+
+Request object:
+
+operation
+
+resource
+
+record_id
+
+record_json
+
+query
+
+auth
+
+Response object:
+
+status
+
+result
+
+error
+
+audit_id
+
+9. Architecture
+Module breakdown:
+
+Error Schema.
+
+Database Schema.
+
+Error Loader.
+
+Error Writer.
+
+Error Reader.
+
+Error Updater.
+
+Error Deleter.
+
+Query Engine.
+
+Full-Text Search Engine.
+
+Aggregation Engine.
+
+Exporter.
+
+Importer.
+
+Bulk Import and Export.
+
+REST API.
+
+GraphQL API.
+
+Command-Line Interface.
+
+Authentication and Authorization.
+
+Audit Logging.
+
+Backup and Restore.
+
+Web Interface.
+
+Moderation Workflow.
+
+Error Map.
+
+Error Frequency Curve.
+
+Intervention Comparison View.
+
+Related-Error Finder.
+
+Migration Manager.
+
+Data flow:
+
+API requests go to the REST or GraphQL API.
+
+The API calls the error loader, writer, reader, updater, deleter, query engine, search engine, aggregation engine, exporter, or importer.
+
+The database schema stores the data.
+
+The audit logging records every operation.
+
+The authentication and authorization check access.
+
+The moderation workflow handles moderation.
+
+The error map, the error frequency curve, and the intervention comparison view visualise.
+
+The related-error finder finds relations.
+
+The backup and restore handle backup.
+
+The web interface provides depositing, browsing, and querying.
+
+10. Technology Stack
+Recommended for the database:
+
+Database: PostgreSQL 15+ or SQLite 3.40+.
+
+Language: Python 3.11+ or Node.js 20+.
+
+ORM: SQLAlchemy or Prisma.
+
+Migrations: Alembic or Prisma Migrate.
+
+Full-text search: PostgreSQL tsvector or SQLite FTS5.
+
+Recommended for the REST API:
+
+Framework: FastAPI or Express.
+
+Authentication: FastAPI Users or Passport.
+
+Recommended for the GraphQL API:
+
+Framework: Strawberry or Apollo Server.
+
+Recommended for the command-line interface:
+
+Framework: Click or Commander.
+
+Recommended for the web interface:
+
+Frontend: React or Svelte.
+
+Backend: the same as the REST API.
+
+Recommended for deployment:
+
+Containerization: Docker.
+
+Orchestration: Docker Compose or Kubernetes.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The STAG schema (Artifact 2, Appendix B.1).
+
+The PROV-O exporter (App 3).
+
+The STAG schema library (App 17).
+
+The provenance database (App 20).
+
+The revision history viewer (App 7).
+
+The Misconception Database (App 31).
+
+The Method Tracker (App 32).
+
+The Learning Provenance System (App 33).
+
+The Autofill Library Service (App 49).
+
+11. UI/UX Specification
+REST API:
+
+Base URL: https://api.example.com/v1.
+
+Authentication: Bearer token.
+
+Endpoints:
+
+GET /errors.
+
+GET /errors/{id}.
+
+POST /errors.
+
+PUT /errors/{id}.
+
+DELETE /errors/{id}.
+
+GET /errors/{id}/provo.
+
+GET /errors/{id}/turtle.
+
+GET /errors/{id}/related.
+
+GET /errors/{id}/misconception.
+
+GET /errors/{id}/method.
+
+GET /errors/{id}/learning-record.
+
+GET /errors/by-subject/{subject}.
+
+GET /errors/by-student/{student_id}.
+
+GET /errors/by-type/{error_type}.
+
+GET /students/{student_id}/errors/{error_id}/frequency-curve.
+
+GET /errors/{id}/intervention-comparison.
+
+POST /query.
+
+POST /aggregate.
+
+POST /search.
+
+GET /map.
+
+POST /bulk/import.
+
+POST /bulk/export.
+
+POST /moderate/{id}.
+
+GET /audit.
+
+Responses in JSON.
+
+HTTP status codes: 200, 201, 204, 400, 401, 403, 404, 409, 422, 500.
+
+GraphQL API:
+
+Endpoint: https://api.example.com/graphql.
+
+Schema exposes the entities and their relationships.
+
+Command-line interface:
+
+Usage: error-taxonomy [command] [options].
+
+Commands: init, migrate, backup, restore, import, export, query, aggregate, moderate, audit.
+
+Web interface:
+
+A browsable list of errors.
+
+A deposit form.
+
+A search box.
+
+A filter panel.
+
+An aggregation view.
+
+An error map.
+
+An error frequency curve.
+
+An intervention comparison view.
+
+A detail view for each error.
+
+A moderation view.
+
+12. Validation Engine Design
+The taxonomy validates the following.
+
+Validation 1. Error validity. Every error is validated against the schema.
+
+Validation 2. Referential integrity.
+
+Validation 3. Version chain acyclicity.
+
+Validation 4. Misconception resolution.
+
+Validation 5. Method resolution.
+
+Validation 6. Learning record resolution.
+
+Validation 7. Provenance completeness.
+
+Validation 8. Audit completeness.
+
+Validation 9. Moderation completeness.
+
+Validation 10. Frequency consistency. The frequency must be consistent with the date records.
+
+Validation 11. Persistence consistency. The persistence must be consistent with the student response.
+
+Validation 12. Student response date consistency. The response date must be after the observation date.
+
+13. Testing Strategy
+Unit tests:
+
+Error Schema for valid and invalid errors.
+
+Database Schema for each table and index.
+
+Error Loader.
+
+Error Writer.
+
+Error Reader.
+
+Error Updater.
+
+Error Deleter.
+
+Query Engine.
+
+Full-Text Search Engine.
+
+Aggregation Engine.
+
+Exporter.
+
+Importer.
+
+Bulk Import and Export.
+
+REST API.
+
+GraphQL API.
+
+Command-Line Interface.
+
+Authentication and Authorization.
+
+Audit Logging.
+
+Backup and Restore.
+
+Web Interface.
+
+Moderation Workflow.
+
+Error Map.
+
+Error Frequency Curve.
+
+Intervention Comparison View.
+
+Related-Error Finder.
+
+Migration Manager.
+
+Integration tests:
+
+Create an error. Read it back.
+
+Update an error.
+
+Delete an error.
+
+Query by each field.
+
+Aggregate by each dimension.
+
+Search by full text.
+
+Export as JSON, PROV-O, and Turtle.
+
+Bulk import and export.
+
+Backup and restore.
+
+Moderate an error.
+
+Generate the error map.
+
+Generate the error frequency curve.
+
+Compare interventions.
+
+Worked-example tests:
+
+Deposit the error of confusing mass and weight.
+
+Deposit the error of confusing velocity and acceleration.
+
+Deposit the error of forgetting the constant of integration.
+
+Deposit the error of misapplying the chain rule.
+
+Deposit the error of confusing correlation and causation.
+
+Deposit the error of reversing the direction of an inequality when multiplying by a negative.
+
+Deposit the error of confusing the numerator and the denominator.
+
+Deposit the error of dropping a negative sign.
+
+Deposit the error of using the wrong unit.
+
+Deposit the error of reading a graph incorrectly.
+
+Regression tests:
+
+Error determinism.
+
+Query consistency.
+
+Aggregation consistency.
+
+Audit log consistency.
+
+Moderation consistency.
+
+Frequency consistency.
+
+Persistence consistency.
+
+Response date consistency.
+
+14. Build Phases
+Phase 1. Error Schema.
+
+Phase 2. Database Schema.
+
+Phase 3. Error Loader.
+
+Phase 4. Error Writer.
+
+Phase 5. Error Reader.
+
+Phase 6. Error Updater.
+
+Phase 7. Error Deleter.
+
+Phase 8. Query Engine.
+
+Phase 9. Full-Text Search Engine.
+
+Phase 10. Aggregation Engine.
+
+Phase 11. Exporter.
+
+Phase 12. Importer.
+
+Phase 13. Bulk Import and Export.
+
+Phase 14. REST API.
+
+Phase 15. GraphQL API.
+
+Phase 16. Command-Line Interface.
+
+Phase 17. Authentication and Authorization.
+
+Phase 18. Audit Logging.
+
+Phase 19. Backup and Restore.
+
+Phase 20. Web Interface.
+
+Phase 21. Moderation Workflow.
+
+Phase 22. Error Map.
+
+Phase 23. Error Frequency Curve.
+
+Phase 24. Intervention Comparison View.
+
+Phase 25. Related-Error Finder.
+
+Phase 26. Migration Manager.
+
+Phase 27. Worked-example tests.
+
+Phase 28. Integration testing and hardening.
+
+Phase 29. Packaging and deployment.
+
+15. Dependencies
+Python path:
+
+SQLAlchemy.
+
+Alembic.
+
+FastAPI.
+
+Strawberry.
+
+FastAPI Users.
+
+Click.
+
+psycopg2.
+
+sqlite3.
+
+jsonschema.
+
+hashlib.
+
+json.
+
+pytest.
+
+Node.js path:
+
+Prisma.
+
+Express.
+
+Apollo Server.
+
+Passport.
+
+Commander.
+
+pg.
+
+better-sqlite3.
+
+ajv.
+
+crypto.
+
+JSON.
+
+Vitest.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The STAG schema (Artifact 2, Appendix B.1).
+
+The PROV-O exporter (App 3).
+
+The STAG schema library (App 17).
+
+The provenance database (App 20).
+
+The revision history viewer (App 7).
+
+The Misconception Database (App 31).
+
+The Method Tracker (App 32).
+
+The Learning Provenance System (App 33).
+
+The Autofill Library Service (App 49).
+
+16. Deployment Notes
+Database:
+
+PostgreSQL for multi-user deployments.
+
+SQLite for single-user deployments.
+
+Backup and restore via pg_dump and pg_restore or the SQLite backup API.
+
+REST API:
+
+Deploy with Docker. Stateless. Scale horizontally.
+
+Use a reverse proxy for TLS.
+
+Log every request for audit.
+
+GraphQL API:
+
+Deploy alongside the REST API.
+
+Use a query depth limit and a query complexity limit.
+
+Command-line interface:
+
+Package as a standalone executable.
+
+Distribute via pip, npm, or a direct download.
+
+Web interface:
+
+Deploy the frontend as a static bundle.
+
+Backend with FastAPI or Express.
+
+Reproducibility:
+
+Record the STAG schema version, the error schema version, and the taxonomy version.
+
+Record the provenance for every deposit.
+
+Provide a version pin for the schemas and codebook.
+
+17. Open Questions to Resolve Before Building
+Question 1. Which runtime first? Python or Node.js.
+
+Question 2. Which database first? PostgreSQL or SQLite.
+
+Question 3. How should the taxonomy handle the subject and topic? A fixed taxonomy, or an open set.
+
+Question 4. How should the taxonomy handle the error type? A fixed set of eight values, or an open set.
+
+Question 5. How should the taxonomy handle the frequency? A fixed set of four values, or a continuous scale.
+
+Question 6. How should the taxonomy handle the persistence? A fixed set of four values, or a continuous scale.
+
+Question 7. How should the taxonomy handle the recommended intervention? A fixed set, or an open set.
+
+Question 8. How should the taxonomy handle the relation between errors? Manual entry, or automatic detection.
+
+Question 9. How should the taxonomy handle the moderation workflow? Pending until approved, auto-approved, or require a moderator.
+
+Question 10. How should the taxonomy handle the misconception reference? Required, optional, or optional depending on the error type.
+
+Question 11. How should the taxonomy handle the method reference? Required, optional, or optional depending on the error type.
+
+Question 12. How should the taxonomy handle the learning record reference? Required, optional, or optional depending on the error type.
+
+Question 13. How should the taxonomy handle the error map? A scatter plot, a heat map, or both.
+
+Question 14. How should the taxonomy handle the error frequency curve? A line plot, a bar chart, or both.
+
+Question 15. How should the taxonomy handle the intervention comparison view? An overlay of outcomes, a side-by-side table, or both.
+
+Question 16. Should the taxonomy integrate with the STAG schema library (App 17), the provenance database (App 20), the revision history viewer (App 7), the Misconception Database (App 31), the Method Tracker (App 32), and the Learning Provenance System (App 33)?
+
+Question 17. Should the taxonomy support federation with other instances of itself?
+
+Question 18. How should the taxonomy handle the deposit of an error that is already in the taxonomy? Reject, create a new version, or create a separate record with a cross-reference.
+
+Question 19. Should the taxonomy support autofill via App 49? If so, which library does it register?
+
+Question 20. Should the taxonomy support a teacher view that shows all students' errors for a given subject?
+
+Question 21. Should the taxonomy support a class-level view that shows the most common errors in a class?
+
+Question 22. Should the taxonomy support a comparison between two students' error profiles?
+
+End of build specification for App 36, the Error Taxonomy.
