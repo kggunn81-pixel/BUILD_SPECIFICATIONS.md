@@ -1,0 +1,634 @@
+Build Specification — App 4: Scale-Separation Record Calculator
+Completeness status: COMPLETE. All sections delivered in one pass. No truncation. Formatted for copy-paste into another conversation window. No tables, no boxes.
+
+What It Is
+A small tool that builds and checks one scale-separation record. It takes the two scales, their sources, the unit conversion, and the control-parameter band. It computes the ratio, the expansion parameter, and the band minimum. It flags an analyst-chosen band and marks the record anchored or not under condition (b) of evidential anchoring. It is for anyone producing a STAG-Discovered annotation.
+
+Core Requirements
+Functional requirements:
+
+Accept two scale values (microscopic and collective).
+
+Accept the source of each scale value.
+
+Accept the source kind for each scale (external_value, external_coefficient, model_internal).
+
+Accept the unit conversion if the dimensions differ.
+
+Accept the declared minimum ratio (default 10; alternatives 3, 5, 20 permitted with justification).
+
+Accept the control-parameter band (band_declared, band_min_ratio, band_max_ratio).
+
+Accept the band source (external_reference or analyst_chosen).
+
+Accept the band source citation if external_reference.
+
+Accept the control-parameter value and source.
+
+Compute the ratio.
+
+Compute the expansion parameter.
+
+Compute the band minimum ratio.
+
+Flag the record as anchored or not under condition (b) of evidential anchoring.
+
+Flag the record as analyst-dependent if the band source is analyst_chosen.
+
+Flag the record as model_internal if the source kind is model_internal (which makes STAG-Discovered unreachable).
+
+Warn if the ratio is below the declared minimum.
+
+Warn if the band minimum ratio is below the declared minimum.
+
+Warn if the source kind is external_value but no external scale value is recorded.
+
+Warn if the source kind is external_coefficient but no external coefficient is recorded.
+
+Warn if the band source is external_reference but no band source citation is recorded.
+
+Emit a completed scale-separation record in JSON.
+
+Emit an anchoring flag and a set of warnings.
+
+Non-functional requirements:
+
+Deterministic: same inputs produce same outputs.
+
+No network dependency.
+
+Fast: compute a record in under one second.
+
+Versioned: the record conforms to the schema version of the accompanying STAG annotation.
+
+Reproducible: the record records all inputs and the computed values.
+
+Input Specification
+Input 1. scale_microscopic. Required. The microscopic scale value, with its unit.
+
+Input 2. scale_collective. Required. The collective scale value, with its unit.
+
+Input 3. source_microscopic. Required. The source from which the microscopic scale value is read.
+
+Input 4. source_collective. Required. The source from which the collective scale value is read.
+
+Input 5. scale_separation_source_kind. Required. Values: external_value, external_coefficient, model_internal.
+
+Input 6. scale_inference_source. Optional. Required if the source kind is external_value and the value is inferred from external data via a model that does not take the annotated model as input.
+
+Input 7. unit_conversion_if_needed. Optional. Required if the dimensions of the two scales differ. Includes the conversion factor and its citation.
+
+Input 8. minimum. Required. The declared minimum ratio. Default 10. Alternatives 3, 5, 20 permitted with a declared justification.
+
+Input 9. band_declared. Required if the source kind is external_coefficient. The declared control-parameter band.
+
+Input 10. band_min_ratio. Required if the source kind is external_coefficient. The ratio at the band endpoint closest to the phase boundary.
+
+Input 11. band_max_ratio. Required if the source kind is external_coefficient. The ratio at the band endpoint farthest from the phase boundary.
+
+Input 12. band_source. Required if the source kind is external_coefficient. Values: external_reference, analyst_chosen.
+
+Input 13. band_source_citation. Required if band_source is external_reference. The citation for the band.
+
+Input 14. dimensionless. Required. Boolean. Whether the ratio is dimensionless.
+
+Input 15. control_parameter_value. Required if the source kind is external_coefficient. The control-parameter value at which the ratio is computed.
+
+Input 16. control_parameter_source. Required if the source kind is external_coefficient. The source from which the control-parameter value is read.
+
+Input 17. analyst_dependence_acknowledged. Required if band_source is analyst_chosen. Boolean. Whether the analyst acknowledges the dependence.
+
+Input 18. analyst_dependence_note. Required if analyst_dependence_acknowledged is true. Free text.
+
+Output Specification
+Output 1. Completed scale-separation record. JSON. Conforming to Artifact 2, Appendix A.9.
+
+Output 2. Anchoring flag. Boolean. True if condition (b) of evidential anchoring is satisfied, false otherwise.
+
+Output 3. Warnings. Array of warning objects. Each warning has a code, a message, and the offending field.
+
+Output 4. Computed values. JSON. The ratio, the expansion parameter, and the band minimum ratio.
+
+Output 5. Human-readable summary. Text. The ratio, the expansion parameter, the anchoring flag, and any warnings.
+
+Module-by-Module Specification
+Module 1: Input Loader
+Reads the input parameters. Validates that all required inputs are present. Validates that the units are consistent or that a unit conversion is provided. Rejects malformed input with an error.
+
+Module 2: Ratio Calculator
+Computes the ratio as scale_microscopic divided by scale_collective, or the reverse, depending on which scale is larger. The convention is recorded in the record. If the dimensions differ, applies the unit conversion first.
+
+Module 3: Expansion Parameter Calculator
+Computes the expansion parameter as the reciprocal of the ratio (1 / ratio). This is the parameter that must be at most 0.1 for the default minimum ratio of 10.
+
+Module 4: Band Minimum Calculator
+If the source kind is external_coefficient and a band is declared, computes the band minimum ratio as the ratio at the band endpoint closest to the phase boundary. The calculation depends on the functional form of the scale with respect to the control parameter. The calculator supports three forms: power law (ratio = A times control_parameter to the power B), exponential (ratio = A times exp(B times control_parameter)), and user-supplied function. The calculator records the form used.
+
+Module 5: Anchoring Flag Evaluator
+Evaluates condition (b) of evidential anchoring. Condition (b) is satisfied if and only if:
+
+The band source is external_reference.
+
+The band source citation is populated.
+
+The band minimum ratio is at or above the declared minimum.
+
+If any of these fail, the anchoring flag is false.
+
+Module 6: Warning Generator
+Generates warnings for the following conditions:
+
+Ratio below the declared minimum.
+
+Band minimum ratio below the declared minimum.
+
+Source kind is external_value but no external scale value is recorded.
+
+Source kind is external_coefficient but no external coefficient is recorded.
+
+Band source is external_reference but no band source citation is recorded.
+
+Source kind is model_internal (which makes STAG-Discovered unreachable).
+
+Band source is analyst_chosen (which makes condition (b) fail).
+
+Analyst dependence acknowledged but no note provided.
+
+Module 7: Record Builder
+Assembles the completed scale-separation record. Conforms to Artifact 2, Appendix A.9. Includes the inputs, the computed values, the anchoring flag, and the warnings.
+
+Module 8: Report Formatter
+Produces the human-readable summary and the JSON record.
+
+Module 9: Command-Line Interface
+Parses arguments. Invokes Modules 1 through 8. Prints the summary to stdout. Writes the JSON record to a file.
+
+Module 10: Graphical Interface (optional)
+A small form with fields for each input. Displays the computed values, the anchoring flag, and the warnings in real time.
+
+Full Computation Specification
+6.1 Ratio Computation
+The ratio is the larger scale divided by the smaller scale, so the ratio is always at least 1. The convention is recorded as ratio = scale_microscopic / scale_collective or ratio = scale_collective / scale_microscopic.
+
+If the dimensions differ, the unit conversion is applied first. The conversion factor is recorded with its citation.
+
+If the scales are dimensionless, the dimensionless flag is set to true.
+
+6.2 Expansion Parameter Computation
+The expansion parameter is 1 / ratio. For the default minimum ratio of 10, the maximum permitted expansion parameter is 0.1.
+
+6.3 Band Minimum Computation
+The band minimum ratio is the ratio at the band endpoint closest to the phase boundary. It depends on the functional form of the scale with respect to the control parameter.
+
+For a power law, ratio = A times control_parameter to the power B. The band minimum is computed at the band endpoint closest to the phase boundary.
+
+For an exponential, ratio = A times exp(B times control_parameter). The band minimum is computed at the band endpoint closest to the phase boundary.
+
+For a user-supplied function, the calculator evaluates the function at the band endpoints and takes the minimum.
+
+The calculator records the functional form used and the control-parameter value at each endpoint.
+
+6.4 Anchoring Flag Evaluation
+Condition (b) is satisfied if and only if:
+
+band_source == external_reference.
+
+band_source_citation is populated.
+
+band_min_ratio >= minimum.
+
+If band_source == analyst_chosen, condition (b) is not satisfied, and the anchoring flag is false. The record is flagged with analyst_dependence_acknowledged = true and analyst_dependence_note populated.
+
+If band_source == external_reference but band_source_citation is not populated, condition (b) is not satisfied, and the anchoring flag is false.
+
+If band_min_ratio < minimum, condition (b) is not satisfied, and the anchoring flag is false.
+
+6.5 STAG-Discovered Reachability Check
+STAG-Discovered is reachable if and only if the scale-separation record satisfies the requirement in Artifact 1, Section 7.5. This requires:
+
+scale_separation_source_kind == external_value, with at least one scale value read from a source that does not take the annotated model as input.
+
+Or scale_separation_source_kind == external_coefficient, with both scale values computed from the model and an externally sourced coefficient entering the computation, with a declared control-parameter band.
+
+And in either case, ratio >= minimum.
+
+If scale_separation_source_kind == model_internal, STAG-Discovered is not reachable, and the record is flagged with model_internal_scale_separation.
+
+Core Logic as Executable Pseudocode
+7.1 Main Flow
+function buildScaleSeparationRecord(inputs):
+
+Step 1. validateInputs(inputs). If invalid, return {error: "invalid inputs"}.
+
+Step 2. if inputs.unit_conversion_if_needed: convertedMicro = applyConversion(inputs.scale_microscopic, inputs.unit_conversion_if_needed); convertedColl = applyConversion(inputs.scale_collective, inputs.unit_conversion_if_needed).
+
+Step 3. ratio = computeRatio(convertedMicro, convertedColl).
+
+Step 4. expansionParameter = 1 / ratio.
+
+Step 5. if inputs.scale_separation_source_kind == "external_coefficient" and inputs.band_declared: bandMinRatio = computeBandMinimum(inputs.band_declared, inputs.control_parameter_value, inputs.control_parameter_source, inputs.functional_form).
+
+Step 6. anchoringFlag = evaluateConditionB(inputs, bandMinRatio).
+
+Step 7. warnings = generateWarnings(inputs, ratio, bandMinRatio, anchoringFlag).
+
+Step 8. record = buildRecord(inputs, ratio, expansionParameter, bandMinRatio, anchoringFlag, warnings).
+
+Step 9. return {record, anchoringFlag, warnings}.
+
+7.2 Compute Ratio
+function computeRatio(micro, coll):
+
+if micro >= coll: return {value: micro / coll, convention: "micro_over_coll"}.
+
+else: return {value: coll / micro, convention: "coll_over_micro"}.
+
+7.3 Compute Band Minimum
+function computeBandMinimum(band, controlValue, controlSource, functionalForm):
+
+endpoints = [band.min, band.max].
+
+ratios = [].
+
+for endpoint in endpoints:
+
+if functionalForm == "power_law": ratio = A * (endpoint ^ B).
+
+else if functionalForm == "exponential": ratio = A * exp(B * endpoint).
+
+else if functionalForm == "user_supplied": ratio = functionalForm(endpoint).
+
+ratios.push(ratio).
+
+return min(ratios).
+
+7.4 Evaluate Condition B
+function evaluateConditionB(inputs, bandMinRatio):
+
+if inputs.band_source != "external_reference": return false.
+
+if inputs.band_source_citation is null: return false.
+
+if bandMinRatio < inputs.minimum: return false.
+
+return true.
+
+7.5 Generate Warnings
+function generateWarnings(inputs, ratio, bandMinRatio, anchoringFlag):
+
+warnings = [].
+
+if ratio.value < inputs.minimum: warnings.push({code: "RATIO_BELOW_MINIMUM", message: "Ratio is below the declared minimum", field: "ratio"}).
+
+if bandMinRatio != null and bandMinRatio < inputs.minimum: warnings.push({code: "BAND_MIN_BELOW_MINIMUM", message: "Band minimum ratio is below the declared minimum", field: "band_min_ratio"}).
+
+if inputs.scale_separation_source_kind == "external_value" and inputs.source_microscopic is null and inputs.source_collective is null: warnings.push({code: "NO_EXTERNAL_SCALE_VALUE", message: "Source kind is external_value but no external scale value is recorded", field: "source_microscopic"}).
+
+if inputs.scale_separation_source_kind == "external_coefficient" and inputs.external_coefficient is null: warnings.push({code: "NO_EXTERNAL_COEFFICIENT", message: "Source kind is external_coefficient but no external coefficient is recorded", field: "external_coefficient"}).
+
+if inputs.band_source == "external_reference" and inputs.band_source_citation is null: warnings.push({code: "NO_BAND_SOURCE_CITATION", message: "Band source is external_reference but no band source citation is recorded", field: "band_source_citation"}).
+
+if inputs.scale_separation_source_kind == "model_internal": warnings.push({code: "MODEL_INTERNAL", message: "Source kind is model_internal; STAG-Discovered is unreachable", field: "scale_separation_source_kind"}).
+
+if inputs.band_source == "analyst_chosen": warnings.push({code: "ANALYST_CHOSEN_BAND", message: "Band source is analyst_chosen; condition (b) fails", field: "band_source"}).
+
+if inputs.analyst_dependence_acknowledged and inputs.analyst_dependence_note is null: warnings.push({code: "NO_ANALYST_DEPENDENCE_NOTE", message: "Analyst dependence acknowledged but no note provided", field: "analyst_dependence_note"}).
+
+return warnings.
+
+7.6 Build Record
+function buildRecord(inputs, ratio, expansionParameter, bandMinRatio, anchoringFlag, warnings):
+
+record = {
+
+scale_microscopic: inputs.scale_microscopic,
+
+scale_collective: inputs.scale_collective,
+
+source_each: {microscopic: inputs.source_microscopic, collective: inputs.source_collective},
+
+scale_separation_source_kind: inputs.scale_separation_source_kind,
+
+scale_inference_source: inputs.scale_inference_source,
+
+unit_conversion_if_needed: inputs.unit_conversion_if_needed,
+
+ratio: ratio.value,
+
+ratio_convention: ratio.convention,
+
+expansion_parameter: expansionParameter,
+
+minimum: inputs.minimum,
+
+band_declared: inputs.band_declared,
+
+band_min_ratio: bandMinRatio,
+
+band_max_ratio: inputs.band_max_ratio,
+
+band_source: inputs.band_source,
+
+band_source_citation: inputs.band_source_citation,
+
+dimensionless: inputs.dimensionless,
+
+control_parameter_value: inputs.control_parameter_value,
+
+control_parameter_source: inputs.control_parameter_source,
+
+analyst_dependence_acknowledged: inputs.analyst_dependence_acknowledged,
+
+analyst_dependence_note: inputs.analyst_dependence_note,
+
+anchoring_flag: anchoringFlag,
+
+warnings: warnings
+
+}.
+
+return record.
+
+Data Model / JSON Schema for Internal State
+The internal state is a scale-separation record object. Top-level keys:
+
+scale_microscopic (object: value, unit)
+
+scale_collective (object: value, unit)
+
+source_each (object: microscopic, collective)
+
+scale_separation_source_kind (external_value, external_coefficient, model_internal)
+
+scale_inference_source (string or null)
+
+unit_conversion_if_needed (object or null: factor, citation)
+
+ratio (number)
+
+ratio_convention (micro_over_coll, coll_over_micro)
+
+expansion_parameter (number)
+
+minimum (number)
+
+band_declared (object or null: min, max)
+
+band_min_ratio (number or null)
+
+band_max_ratio (number or null)
+
+band_source (external_reference, analyst_chosen, or null)
+
+band_source_citation (string or null)
+
+dimensionless (boolean)
+
+control_parameter_value (number or null)
+
+control_parameter_source (string or null)
+
+analyst_dependence_acknowledged (boolean or null)
+
+analyst_dependence_note (string or null)
+
+anchoring_flag (boolean)
+
+warnings (array of warning objects)
+
+Each warning object:
+
+code (string)
+
+message (string)
+
+field (string)
+
+Architecture
+Module breakdown:
+
+Input Loader. Reads and validates the input parameters.
+
+Ratio Calculator. Computes the ratio and applies the unit conversion.
+
+Expansion Parameter Calculator. Computes 1 / ratio.
+
+Band Minimum Calculator. Computes the band minimum ratio from the band and the functional form.
+
+Anchoring Flag Evaluator. Evaluates condition (b).
+
+Warning Generator. Generates warnings.
+
+Record Builder. Assembles the record.
+
+Report Formatter. Produces the summary and JSON.
+
+Command-Line Interface. Argument parsing and output.
+
+Graphical Interface (optional). Form with real-time display.
+
+Data flow:
+
+Inputs go to Input Loader. Ratio Calculator computes the ratio. Expansion Parameter Calculator computes the expansion parameter. Band Minimum Calculator computes the band minimum. Anchoring Flag Evaluator evaluates condition (b). Warning Generator generates warnings. Record Builder assembles the record. Report Formatter produces the output.
+
+Technology Stack
+Recommended for the command-line tool:
+
+Language: Python 3.11+ or Node.js 20+.
+
+Numeric computation: standard library (math).
+
+JSON handling: standard library (json).
+
+CLI framework: argparse (Python) or commander (JS).
+
+Testing: pytest (Python) or Vitest (JS).
+
+Recommended for the graphical interface:
+
+Python: PyQt6 or Tkinter.
+
+JavaScript: React or Svelte.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The record conforms to Artifact 2, Appendix A.9.
+
+UI/UX Specification
+Command-line interface:
+
+Usage: stag-scale-sep --micro VALUE --micro-unit UNIT --coll VALUE --coll-unit UNIT --source-micro SOURCE --source-coll SOURCE --source-kind KIND [--minimum MIN] [--band MIN MAX] [--band-source SOURCE] [--band-citation CITATION] [--control-value VALUE] [--control-source SOURCE] [--output FILE].
+
+Output on success: the ratio, the expansion parameter, the band minimum, the anchoring flag, and any warnings.
+
+Output on error: the error message and exit code 2.
+
+Graphical interface (optional):
+
+Fields for each input, grouped by section: scales, sources, source kind, unit conversion, minimum, band, control parameter, analyst dependence.
+
+Real-time display of the ratio, the expansion parameter, the band minimum, and the anchoring flag.
+
+Warnings displayed as a list below the computed values.
+
+Save button writes the JSON record to a file.
+
+Validation Engine Design
+The calculator validates the following:
+
+Validation 1. Required inputs present. All required inputs must be present.
+
+Validation 2. Units consistent. If the units differ, a unit conversion must be provided.
+
+Validation 3. Minimum ratio. The minimum must be 10, or 3, 5, or 20 with a justification.
+
+Validation 4. Band. If the source kind is external_coefficient, the band must be declared.
+
+Validation 5. Band source. If the band is declared, the band source must be external_reference or analyst_chosen.
+
+Validation 6. Band source citation. If the band source is external_reference, the citation must be populated.
+
+Validation 7. Analyst dependence. If the band source is analyst_chosen, analyst_dependence_acknowledged must be true and analyst_dependence_note must be populated.
+
+Validation 8. Source kind. The source kind must be external_value, external_coefficient, or model_internal.
+
+Validation 9. Scale inference source. If the source kind is external_value and the value is inferred, scale_inference_source must be populated.
+
+Testing Strategy
+Unit tests:
+
+Ratio computation for micro > coll, micro < coll, micro == coll.
+
+Expansion parameter computation.
+
+Band minimum computation for power law, exponential, and user-supplied function.
+
+Anchoring flag evaluation for all combinations of band source, band source citation, and band minimum ratio.
+
+Warning generation for each warning code.
+
+Integration tests:
+
+A complete record with external_value source kind and external_reference band.
+
+A complete record with external_coefficient source kind and external_reference band.
+
+A complete record with external_coefficient source kind and analyst_chosen band.
+
+A complete record with model_internal source kind.
+
+Worked-example tests:
+
+Artifact 1, Section 11.2 (two-layer Ising): the scale-separation record has scale_microscopic = lattice spacing a (dimensionless), scale_collective = correlation length ξ at t = 0.01 with ξ/a = 18.2, ratio = 18.2, expansion parameter ≈ 0.055, source kind = external_coefficient, band = [0.005, 0.02], band source = analyst_chosen, band_min_ratio ≈ 11.8. The anchoring flag should be false because the band source is analyst_chosen.
+
+Regression tests:
+
+Unit conversion round trip.
+
+Band minimum computation with different functional forms.
+
+Warning generation with all combinations of inputs.
+
+Build Phases
+Phase 1. Input Loader. Read and validate inputs.
+
+Phase 2. Ratio Calculator. Compute the ratio and apply unit conversion.
+
+Phase 3. Expansion Parameter Calculator. Compute 1 / ratio.
+
+Phase 4. Band Minimum Calculator. Compute the band minimum from the band and the functional form.
+
+Phase 5. Anchoring Flag Evaluator. Evaluate condition (b).
+
+Phase 6. Warning Generator. Generate warnings.
+
+Phase 7. Record Builder. Assemble the record.
+
+Phase 8. Report Formatter. Produce the summary and JSON.
+
+Phase 9. Command-Line Interface. Argument parsing and output.
+
+Phase 10. Graphical Interface (optional).
+
+Phase 11. Worked-example tests. Load the worked example and verify outputs.
+
+Phase 12. Integration testing and hardening.
+
+Dependencies
+Python path:
+
+argparse (command-line, standard library).
+
+math (numeric computation, standard library).
+
+json (JSON handling, standard library).
+
+PyQt6 or Tkinter (optional graphical interface).
+
+pytest (testing).
+
+Node.js path:
+
+commander (command-line).
+
+Math (standard library).
+
+JSON (standard library).
+
+React or Svelte (optional graphical interface).
+
+Vitest (testing).
+
+Shared:
+
+JSON Schema Draft 2020-12 for the record.
+
+The record conforms to Artifact 2, Appendix A.9.
+
+Deployment Notes
+Command-line tool:
+
+Package as a standalone executable (PyInstaller or pkg).
+
+Distribute via pip, npm, or a direct download.
+
+No server required.
+
+Graphical interface:
+
+Package as a desktop application.
+
+Distribute via the platform's app store or a direct download.
+
+No server required.
+
+Reproducibility:
+
+Record all inputs and computed values in the JSON record.
+
+Provide a version pin for the computation logic.
+
+Open Questions to Resolve Before Building
+Question 1. Which runtime first? Python or Node.js. Decision affects the numeric library and the packaging.
+
+Question 2. What is the default functional form for the band minimum computation? Options: power law, exponential, or user-supplied. Decision needed.
+
+Question 3. How should the calculator handle the case where the band minimum ratio cannot be computed because the functional form is not declared? Options: require the functional form, or default to power law. Decision needed.
+
+Question 4. Should the calculator support multiple bands? The documents specify one band. Decision needed.
+
+Question 5. How should the calculator handle the case where the ratio is exactly at the minimum? The documents say "at or above." Decision needed: treat exactly at the minimum as passing.
+
+Question 6. Should the calculator support the alternative minimum ratios (3, 5, 20) with a justification field? The documents permit them. Decision needed: include a justification field.
+
+Question 7. How should the calculator handle the case where the unit conversion is provided but the units are the same? Options: warn, ignore, or require. Decision needed.
+
+Question 8. Should the calculator integrate with the STAG annotation editor (App 1) and the validator (App 2)? Decision needed: shared schema registry, or independent.
+
+Question 9. How should the calculator report the anchoring flag? The documents specify the anchoring flag as a boolean. Decision needed: include the reason for the flag.
+
+Question 10. Should the calculator support batch processing (multiple records in one run)? Decision needed.
+
+End of build specification for App 4.
