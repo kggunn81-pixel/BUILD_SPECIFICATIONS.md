@@ -1,0 +1,1457 @@
+Build Specification — App 32: The Method Tracker
+Completeness status: COMPLETE. All sections delivered in one pass. No truncation. Formatted for copy-paste. Long lists are broken into short lines.
+
+1. What It Is
+A tool that lets a student record every method they have learned, with the contexts where it applies, the contexts where it fails, and the examples they have worked. A method is a procedure: a way of solving a problem, analysing data, or making a decision. The Method Tracker records each method with its name, its subject, its applicability conditions, its failure conditions, the worked examples, the student's proficiency level, and the provenance.
+
+It reuses:
+
+the STAG Annotation Editor (App 1)
+
+the Teaching and Training Sandbox (App 16)
+
+the STAG Schema Library (App 17)
+
+the Provenance-Aware Annotation Database (App 20)
+
+the Revision History Viewer (App 7)
+
+the Autofill Library Service (App 49)
+
+It is for students, teachers, tutors, and anyone learning a method-heavy subject.
+
+2. Core Requirements
+Functional requirements:
+
+Accept deposits of methods from users.
+
+Store each method with its name, its subject, its description, and its provenance.
+
+Record the applicability conditions: the contexts where the method works.
+
+Record the failure conditions: the contexts where the method does not work.
+
+Record the prerequisites: the concepts or methods required before this one.
+
+Record the worked examples: the problems the student has solved using the method.
+
+Record the student's proficiency level for each method.
+
+Record the date the student learned the method.
+
+Record the date the student last used the method.
+
+Record the relation between methods: which ones are prerequisites, which are alternatives, which are special cases.
+
+Enforce provenance completeness.
+
+Enforce versioning.
+
+Enforce supersession acyclicity.
+
+Support querying by method ID, method name, subject, topic, proficiency level, student, date learned, and keywords.
+
+Support full-text search of the description, the applicability conditions, and the notes.
+
+Support aggregation queries: count by subject, by proficiency level, by student, by year.
+
+Support exporting a method as JSON, PROV-O, and Turtle.
+
+Support importing a method from JSON.
+
+Support bulk import and bulk export.
+
+Support a REST API for CRUD operations.
+
+Support a GraphQL API for flexible queries.
+
+Support a command-line interface for administration.
+
+Support authentication and authorization.
+
+Support audit logging.
+
+Support backup and restore.
+
+Support a web interface.
+
+Support moderation.
+
+Support linking a method to a STAG annotation if the method involves a scale-transition claim.
+
+Support linking a method to a Physics Knowledge Library work if the method is described in a deposited work.
+
+Support the method map: a visualisation of the methods by subject and by prerequisite.
+
+Support the proficiency curve: a visualisation of how a student's proficiency in a method changes over time.
+
+Support the method comparison view: a visualisation that compares two or more methods for the same problem.
+
+Non-functional requirements:
+
+Deterministic.
+
+Fast: query a typical method in under 100 milliseconds.
+
+Scalable: support up to 10^6 methods.
+
+Versioned: the tracker records the STAG schema version, the method schema version, and the tracker version.
+
+Reproducible.
+
+Portable.
+
+Well-documented.
+
+3. Input Specification
+Input 1. Method deposit. Required. A deposit object conforming to the method schema.
+
+Input 2. Files. Optional. Notes, examples, or teaching material.
+
+Input 3. Provenance record. Required.
+
+Input 4. STAG annotation. Optional.
+
+Input 5. Work reference. Optional.
+
+Input 6. Query.
+
+Input 7. Aggregation query.
+
+Input 8. Authentication credentials.
+
+Input 9. Bulk import file.
+
+Input 10. Bulk export query.
+
+4. Output Specification
+Output 1. Method record. JSON.
+
+Output 2. PROV-O serialization.
+
+Output 3. Turtle serialization.
+
+Output 4. Query result. JSON.
+
+Output 5. Aggregation result. JSON.
+
+Output 6. Full-text search result. JSON.
+
+Output 7. Method map. JSON or a rendered graph.
+
+Output 8. Proficiency curve. JSON or a rendered curve.
+
+Output 9. Method comparison view. JSON or a rendered graph.
+
+Output 10. Related methods. JSON.
+
+Output 11. Bulk export file.
+
+Output 12. Audit log entry. JSON.
+
+Output 13. API response. JSON.
+
+Output 14. GraphQL response. JSON.
+
+Output 15. Backup file.
+
+5. Module-by-Module Specification
+Module 1. Method Schema.
+
+Defines the structure of a method deposit.
+
+Module 2. Database Schema.
+
+The tables and indexes.
+
+Module 3. Method Loader.
+
+Reads and validates a method deposit.
+
+Module 4. Method Writer.
+
+Writes a method deposit to the database.
+
+Module 5. Method Reader.
+
+Reads a method deposit from the database.
+
+Module 6. Method Updater.
+
+Updates a method deposit.
+
+Module 7. Method Deleter.
+
+Deletes a method deposit.
+
+Module 8. Query Engine.
+
+Executes queries.
+
+Module 9. Full-Text Search Engine.
+
+Executes full-text search.
+
+Module 10. Aggregation Engine.
+
+Executes aggregation queries.
+
+Module 11. Exporter.
+
+Exports a method as JSON, PROV-O, and Turtle.
+
+Module 12. Importer.
+
+Imports a method from JSON.
+
+Module 13. Bulk Import and Export.
+
+Bulk operations.
+
+Module 14. REST API.
+
+HTTP endpoints.
+
+Module 15. GraphQL API.
+
+GraphQL endpoint.
+
+Module 16. Command-Line Interface.
+
+Administration commands.
+
+Module 17. Authentication and Authorization.
+
+Access control.
+
+Module 18. Audit Logging.
+
+Logs operations.
+
+Module 19. Backup and Restore.
+
+Database backup and restore.
+
+Module 20. Web Interface.
+
+Depositing, browsing, querying.
+
+Module 21. Moderation Workflow.
+
+Moderation of methods.
+
+Module 22. Method Map.
+
+Visualises the methods by subject and by prerequisite.
+
+Module 23. Proficiency Curve.
+
+Visualises how a student's proficiency in a method changes over time.
+
+Module 24. Method Comparison View.
+
+Compares two or more methods for the same problem.
+
+Module 25. Related-Method Finder.
+
+Finds methods related to a given one.
+
+Module 26. Migration Manager.
+
+Database migrations.
+
+6. Full Method Specification
+6.1 Method Schema
+The method schema defines the structure of a method deposit.
+
+It has the following fields:
+
+method_id. A string. Required.
+
+method_name. A string. Required.
+
+description. A string. Required.
+
+subject. A string. Required.
+
+topic. A string. Required.
+
+applicability_conditions. An array of strings. Required.
+
+failure_conditions. An array of strings. Required.
+
+prerequisites. An array of prerequisite objects. Optional.
+
+worked_examples. An array of example objects. Optional.
+
+proficiency. An object. Required. It contains level and last_assessed.
+
+student_id. A string. Required.
+
+date_learned. A string in ISO8601 format. Required.
+
+date_last_used. A string in ISO8601 format. Optional.
+
+related_methods. An array of method relations. Optional.
+
+provenance. An object. Required.
+
+stag_annotation. An object. Optional.
+
+work_reference. A string. Optional.
+
+keywords. An array of strings. Optional.
+
+notes. A string. Optional.
+
+moderation_status. An enum. The values are pending, approved, rejected.
+
+version. An integer.
+
+supersedes. A string. Optional.
+
+superseded_by. A string. Optional.
+
+Each prerequisite object has:
+
+prerequisite_id. A string.
+
+prerequisite_type. An enum. The values are concept, method, skill.
+
+prerequisite_name. A string.
+
+prerequisite_description. A string.
+
+Each example object has:
+
+example_id. A string.
+
+problem_description. A string.
+
+solution. A string.
+
+date_worked. A string in ISO8601 format.
+
+result. An enum. The values are correct, partial, incorrect.
+
+notes. A string. Optional.
+
+Each method relation has:
+
+relation_id. A string.
+
+related_method_id. A string.
+
+relation_type. An enum. The values are prerequisite, alternative, special_case, generalisation, related, independent.
+
+relation_note. A string. Optional.
+
+The proficiency level has four values:
+
+novice.
+
+developing.
+
+proficient.
+
+advanced.
+
+6.2 Database Schema
+The database has the following tables.
+
+method. Holds the method records.
+
+Its fields are:
+
+method_id
+
+method_name
+
+description
+
+subject
+
+topic
+
+applicability_conditions
+
+failure_conditions
+
+proficiency
+
+student_id
+
+date_learned
+
+date_last_used
+
+provenance
+
+keywords
+
+notes
+
+moderation_status
+
+version
+
+supersedes
+
+superseded_by
+
+created_at
+
+updated_at
+
+prerequisite. Holds the prerequisite records.
+
+Its fields are:
+
+prerequisite_id
+
+method_id
+
+prerequisite_type
+
+prerequisite_name
+
+prerequisite_description
+
+created_at
+
+worked_example. Holds the worked-example records.
+
+Its fields are:
+
+example_id
+
+method_id
+
+problem_description
+
+solution
+
+date_worked
+
+result
+
+notes
+
+created_at
+
+method_relation. Holds the method relations.
+
+Its fields are:
+
+relation_id
+
+method_id
+
+related_method_id
+
+relation_type
+
+relation_note
+
+created_at
+
+stag_link. Holds the STAG links.
+
+Its fields are:
+
+link_id
+
+method_id
+
+annotation_id
+
+created_at
+
+work_link. Holds the work links.
+
+Its fields are:
+
+link_id
+
+method_id
+
+work_id
+
+created_at
+
+provenance. Holds the provenance records.
+
+Its fields are:
+
+provenance_id
+
+method_id
+
+depositor_id
+
+depositor_affiliation
+
+timestamp
+
+source
+
+tool_version
+
+operation
+
+created_at
+
+audit_log. Holds the audit log entries.
+
+Its fields are:
+
+audit_id
+
+operation
+
+record_type
+
+record_id
+
+depositor_id
+
+timestamp
+
+result
+
+details
+
+created_at
+
+moderation. Holds the moderation records.
+
+Its fields are:
+
+moderation_id
+
+method_id
+
+moderator_id
+
+moderation_status
+
+moderation_date
+
+moderation_notes
+
+created_at
+
+6.3 Referential Integrity
+Every prerequisite.method_id must exist in method.
+
+Every worked_example.method_id must exist in method.
+
+Every method_relation.method_id and method_relation.related_method_id must exist in method.
+
+Every stag_link.method_id must exist in method.
+
+Every work_link.method_id must exist in method.
+
+Every provenance.method_id must exist in method.
+
+Every moderation.method_id must exist in method.
+
+The version chain must be acyclic.
+
+The method relation must be symmetric where appropriate.
+
+6.4 Indexes
+The database has indexes on:
+
+method.method_id
+
+method.method_name
+
+method.subject
+
+method.topic
+
+method.proficiency
+
+method.student_id
+
+method.date_learned
+
+method.moderation_status
+
+method.keywords
+
+prerequisite.method_id
+
+worked_example.method_id
+
+method_relation.method_id
+
+method_relation.related_method_id
+
+stag_link.method_id
+
+work_link.method_id
+
+provenance.method_id
+
+provenance.depositor_id
+
+audit_log.operation
+
+audit_log.record_id
+
+moderation.method_id
+
+moderation.moderation_status
+
+Full-text search indexes on the description, the applicability conditions, and the notes.
+
+7. Core Logic as Executable Pseudocode
+7.1 Create Method
+function createMethod(method, files, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Validate the method against the schema. If invalid, return an error with the details.
+
+Step 3. If the STAG annotation is present, validate it.
+
+Step 4. If the work reference is present, look it up. If null, flag it as unresolved.
+
+Step 5. Generate a method ID. Set the fields: version 1, moderation_status pending, deposit_date now, depositor_id from auth, depositor_affiliation from auth, provenance from provenance.
+
+Step 6. Insert the method.
+
+Step 7. Insert the prerequisite records, the worked-example records, and the relation records.
+
+Step 8. Insert the STAG link and the work link if present.
+
+Step 9. Insert the provenance.
+
+Step 10. Insert the moderation record.
+
+Step 11. Insert the audit log entry.
+
+Step 12. Return the method_id and the status created.
+
+7.2 Read Method
+function readMethod(methodId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the method. If null, return an error.
+
+Step 3. Read the prerequisites, the worked examples, the relations, the links, the provenance, and the moderation.
+
+Step 4. Reconstruct the deposit.
+
+Step 5. Insert the audit log entry.
+
+Step 6. Return the deposit.
+
+7.3 Update Method
+function updateMethod(methodId, method, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Read the existing method. If null, return an error.
+
+Step 3. Validate the new method.
+
+Step 4. Increment the version. Update the supersedes and superseded_by fields.
+
+Step 5. Insert a provenance record with operation update.
+
+Step 6. Insert an audit log entry.
+
+Step 7. Return the method_id, the version, and the status updated.
+
+7.4 Delete Method
+function deleteMethod(methodId, provenance, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Read the existing method. If null, return an error.
+
+Step 3. If soft delete, mark as deleted. Otherwise, remove.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the method_id and the status deleted.
+
+7.5 Query Methods
+function queryMethods(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the query.
+
+Step 3. Read the matching methods.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the methods, the count, and the pagination.
+
+7.6 Aggregate Methods
+function aggregateMethods(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the aggregation.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the results.
+
+7.7 Full-Text Search
+function fullTextSearch(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the search.
+
+Step 3. Read the matching methods.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the methods and the count.
+
+7.8 Export Method
+function exportMethod(methodId, format, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the deposit.
+
+Step 3. If json, output the deposit. If provo, export to PROV-O. If turtle, serialize to Turtle.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the output and the format.
+
+7.9 Bulk Import
+function bulkImport(file, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Parse the file.
+
+Step 3. For each method, call createMethod.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the results and the count.
+
+7.10 Bulk Export
+function bulkExport(query, format, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the matching methods.
+
+Step 3. If json, output the list. If jsonl, output one line per method. If provo, export each one.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the output and the count.
+
+7.11 Moderate Method
+function moderateMethod(methodId, moderationStatus, moderationNotes, auth):
+
+Step 1. validateAuth(auth, "moderator"). If not authorized, return an error.
+
+Step 2. Read the existing method. If null, return an error.
+
+Step 3. Update the moderation status. Insert a moderation record.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the method_id and the status.
+
+7.12 Method Map
+function methodMap(auth, options):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read all methods.
+
+Step 3. Build the map with subjects as regions and prerequisites as edges.
+
+Step 4. Return the map.
+
+7.13 Proficiency Curve
+function proficiencyCurve(methodId, studentId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the method and the student.
+
+Step 3. Read the worked examples and their results over time.
+
+Step 4. Build the curve with the proficiency over time.
+
+Step 5. Return the curve.
+
+7.14 Method Comparison View
+function methodComparisonView(methodIds, problemDescription, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read each method.
+
+Step 3. Build the comparison by overlaying the applicability conditions and the failure conditions.
+
+Step 4. Return the comparison.
+
+7.15 Find Related Methods
+function findRelatedMethods(methodId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the method. If null, return an error.
+
+Step 3. Find methods with the same subject, the same topic, or the same prerequisites.
+
+Step 4. Return the related methods.
+
+7.16 Audit Log
+function auditLog(query, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Build and execute the query.
+
+Step 3. Return the results.
+
+7.17 Backup
+function backup(auth, options):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. If sql, dump as SQL. If json, dump as JSON.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the output and the format.
+
+7.18 Restore
+function restore(file, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Load the database from the file.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the status restored.
+
+8. Data Model
+The tracker's internal state is the set of tables. The API's internal state is a request object and a response object.
+
+Request object:
+
+operation
+
+resource
+
+record_id
+
+record_json
+
+query
+
+auth
+
+Response object:
+
+status
+
+result
+
+error
+
+audit_id
+
+9. Architecture
+Module breakdown:
+
+Method Schema.
+
+Database Schema.
+
+Method Loader.
+
+Method Writer.
+
+Method Reader.
+
+Method Updater.
+
+Method Deleter.
+
+Query Engine.
+
+Full-Text Search Engine.
+
+Aggregation Engine.
+
+Exporter.
+
+Importer.
+
+Bulk Import and Export.
+
+REST API.
+
+GraphQL API.
+
+Command-Line Interface.
+
+Authentication and Authorization.
+
+Audit Logging.
+
+Backup and Restore.
+
+Web Interface.
+
+Moderation Workflow.
+
+Method Map.
+
+Proficiency Curve.
+
+Method Comparison View.
+
+Related-Method Finder.
+
+Migration Manager.
+
+Data flow:
+
+API requests go to the REST or GraphQL API.
+
+The API calls the method loader, writer, reader, updater, deleter, query engine, search engine, aggregation engine, exporter, or importer.
+
+The database schema stores the data.
+
+The audit logging records every operation.
+
+The authentication and authorization check access.
+
+The moderation workflow handles moderation.
+
+The method map, the proficiency curve, and the method comparison view visualise.
+
+The related-method finder finds relations.
+
+The backup and restore handle backup.
+
+The web interface provides depositing, browsing, and querying.
+
+10. Technology Stack
+Recommended for the database:
+
+Database: PostgreSQL 15+ or SQLite 3.40+.
+
+Language: Python 3.11+ or Node.js 20+.
+
+ORM: SQLAlchemy or Prisma.
+
+Migrations: Alembic or Prisma Migrate.
+
+Full-text search: PostgreSQL tsvector or SQLite FTS5.
+
+Recommended for the REST API:
+
+Framework: FastAPI or Express.
+
+Authentication: FastAPI Users or Passport.
+
+Recommended for the GraphQL API:
+
+Framework: Strawberry or Apollo Server.
+
+Recommended for the command-line interface:
+
+Framework: Click or Commander.
+
+Recommended for the web interface:
+
+Frontend: React or Svelte.
+
+Backend: the same as the REST API.
+
+Recommended for deployment:
+
+Containerization: Docker.
+
+Orchestration: Docker Compose or Kubernetes.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The STAG schema (Artifact 2, Appendix B.1).
+
+The PROV-O exporter (App 3).
+
+The STAG schema library (App 17).
+
+The provenance database (App 20).
+
+The revision history viewer (App 7).
+
+The Teaching and Training Sandbox (App 16).
+
+The Autofill Library Service (App 49).
+
+11. UI/UX Specification
+REST API:
+
+Base URL: https://api.example.com/v1.
+
+Authentication: Bearer token.
+
+Endpoints:
+
+GET /methods.
+
+GET /methods/{id}.
+
+POST /methods.
+
+PUT /methods/{id}.
+
+DELETE /methods/{id}.
+
+GET /methods/{id}/provo.
+
+GET /methods/{id}/turtle.
+
+GET /methods/{id}/prerequisites.
+
+GET /methods/{id}/worked-examples.
+
+GET /methods/{id}/related.
+
+GET /methods/{id}/stag.
+
+GET /methods/{id}/work.
+
+GET /methods/by-subject/{subject}.
+
+GET /methods/by-student/{student_id}.
+
+GET /methods/{id}/proficiency-curve/{student_id}.
+
+POST /compare.
+
+POST /query.
+
+POST /aggregate.
+
+POST /search.
+
+GET /map.
+
+POST /bulk/import.
+
+POST /bulk/export.
+
+POST /moderate/{id}.
+
+GET /audit.
+
+Responses in JSON.
+
+HTTP status codes: 200, 201, 204, 400, 401, 403, 404, 409, 422, 500.
+
+GraphQL API:
+
+Endpoint: https://api.example.com/graphql.
+
+Schema exposes the entities and their relationships.
+
+Command-line interface:
+
+Usage: method-tracker [command] [options].
+
+Commands: init, migrate, backup, restore, import, export, query, aggregate, moderate, audit.
+
+Web interface:
+
+A browsable list of methods.
+
+A deposit form.
+
+A search box.
+
+A filter panel.
+
+An aggregation view.
+
+A method map.
+
+A proficiency curve.
+
+A method comparison view.
+
+A detail view for each method.
+
+A moderation view.
+
+12. Validation Engine Design
+The tracker validates the following.
+
+Validation 1. Method validity. Every method is validated against the schema.
+
+Validation 2. STAG annotation validity.
+
+Validation 3. Referential integrity.
+
+Validation 4. Version chain acyclicity.
+
+Validation 5. Work resolution.
+
+Validation 6. Provenance completeness.
+
+Validation 7. Audit completeness.
+
+Validation 8. Moderation completeness.
+
+Validation 9. Proficiency consistency. The proficiency level must be consistent with the worked examples.
+
+Validation 10. Date consistency. The date learned must be before the date last used.
+
+13. Testing Strategy
+Unit tests:
+
+Method Schema for valid and invalid methods.
+
+Database Schema for each table and index.
+
+Method Loader.
+
+Method Writer.
+
+Method Reader.
+
+Method Updater.
+
+Method Deleter.
+
+Query Engine.
+
+Full-Text Search Engine.
+
+Aggregation Engine.
+
+Exporter.
+
+Importer.
+
+Bulk Import and Export.
+
+REST API.
+
+GraphQL API.
+
+Command-Line Interface.
+
+Authentication and Authorization.
+
+Audit Logging.
+
+Backup and Restore.
+
+Web Interface.
+
+Moderation Workflow.
+
+Method Map.
+
+Proficiency Curve.
+
+Method Comparison View.
+
+Related-Method Finder.
+
+Migration Manager.
+
+Integration tests:
+
+Create a method. Read it back.
+
+Update a method.
+
+Delete a method.
+
+Query by each field.
+
+Aggregate by each dimension.
+
+Search by full text.
+
+Export as JSON, PROV-O, and Turtle.
+
+Bulk import and export.
+
+Backup and restore.
+
+Moderate a method.
+
+Generate the method map.
+
+Generate the proficiency curve.
+
+Compare methods.
+
+Worked-example tests:
+
+Deposit the method of dimensional analysis.
+
+Deposit the method of separation of variables.
+
+Deposit the method of integration by parts.
+
+Deposit the method of hypothesis testing.
+
+Deposit the method of linear regression.
+
+Deposit the method of Newton's method.
+
+Deposit the method of proof by induction.
+
+Deposit the method of the control of variables.
+
+Deposit the method of double-blind testing.
+
+Deposit the method of the Socratic method.
+
+Regression tests:
+
+Method determinism.
+
+Query consistency.
+
+Aggregation consistency.
+
+Audit log consistency.
+
+Moderation consistency.
+
+Proficiency consistency.
+
+Date consistency.
+
+14. Build Phases
+Phase 1. Method Schema.
+
+Phase 2. Database Schema.
+
+Phase 3. Method Loader.
+
+Phase 4. Method Writer.
+
+Phase 5. Method Reader.
+
+Phase 6. Method Updater.
+
+Phase 7. Method Deleter.
+
+Phase 8. Query Engine.
+
+Phase 9. Full-Text Search Engine.
+
+Phase 10. Aggregation Engine.
+
+Phase 11. Exporter.
+
+Phase 12. Importer.
+
+Phase 13. Bulk Import and Export.
+
+Phase 14. REST API.
+
+Phase 15. GraphQL API.
+
+Phase 16. Command-Line Interface.
+
+Phase 17. Authentication and Authorization.
+
+Phase 18. Audit Logging.
+
+Phase 19. Backup and Restore.
+
+Phase 20. Web Interface.
+
+Phase 21. Moderation Workflow.
+
+Phase 22. Method Map.
+
+Phase 23. Proficiency Curve.
+
+Phase 24. Method Comparison View.
+
+Phase 25. Related-Method Finder.
+
+Phase 26. Migration Manager.
+
+Phase 27. Worked-example tests.
+
+Phase 28. Integration testing and hardening.
+
+Phase 29. Packaging and deployment.
+
+15. Dependencies
+Python path:
+
+SQLAlchemy.
+
+Alembic.
+
+FastAPI.
+
+Strawberry.
+
+FastAPI Users.
+
+Click.
+
+psycopg2.
+
+sqlite3.
+
+jsonschema.
+
+hashlib.
+
+json.
+
+pytest.
+
+Node.js path:
+
+Prisma.
+
+Express.
+
+Apollo Server.
+
+Passport.
+
+Commander.
+
+pg.
+
+better-sqlite3.
+
+ajv.
+
+crypto.
+
+JSON.
+
+Vitest.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The STAG schema (Artifact 2, Appendix B.1).
+
+The PROV-O exporter (App 3).
+
+The STAG schema library (App 17).
+
+The provenance database (App 20).
+
+The revision history viewer (App 7).
+
+The Teaching and Training Sandbox (App 16).
+
+The Autofill Library Service (App 49).
+
+16. Deployment Notes
+Database:
+
+PostgreSQL for multi-user deployments.
+
+SQLite for single-user deployments.
+
+Backup and restore via pg_dump and pg_restore or the SQLite backup API.
+
+REST API:
+
+Deploy with Docker. Stateless. Scale horizontally.
+
+Use a reverse proxy for TLS.
+
+Log every request for audit.
+
+GraphQL API:
+
+Deploy alongside the REST API.
+
+Use a query depth limit and a query complexity limit.
+
+Command-line interface:
+
+Package as a standalone executable.
+
+Distribute via pip, npm, or a direct download.
+
+Web interface:
+
+Deploy the frontend as a static bundle.
+
+Backend with FastAPI or Express.
+
+Reproducibility:
+
+Record the STAG schema version, the method schema version, and the tracker version.
+
+Record the provenance for every deposit.
+
+Provide a version pin for the schemas and codebook.
+
+17. Open Questions to Resolve Before Building
+Question 1. Which runtime first? Python or Node.js.
+
+Question 2. Which database first? PostgreSQL or SQLite.
+
+Question 3. How should the tracker handle the subject and topic? A fixed taxonomy, or an open set.
+
+Question 4. How should the tracker handle the proficiency level? A fixed set of four values, or a continuous scale.
+
+Question 5. How should the tracker handle the worked examples? A fixed schema, or an open schema.
+
+Question 6. How should the tracker handle the relation between methods? Manual entry, or automatic detection.
+
+Question 7. How should the tracker handle the moderation workflow? Pending until approved, auto-approved, or require a moderator.
+
+Question 8. How should the tracker handle the STAG annotation? Required, optional, or optional depending on the method type.
+
+Question 9. How should the tracker handle the work reference? Required, optional, or optional depending on the subject.
+
+Question 10. How should the tracker handle the method map? A scatter plot, a network graph, or both.
+
+Question 11. How should the tracker handle the proficiency curve? A line plot, a bar chart, or both.
+
+Question 12. How should the tracker handle the method comparison view? An overlay of conditions, a side-by-side table, or both.
+
+Question 13. Should the tracker integrate with the STAG schema library (App 17), the provenance database (App 20), the revision history viewer (App 7), and the Teaching and Training Sandbox (App 16)?
+
+Question 14. Should the tracker support federation with other instances of itself?
+
+Question 15. How should the tracker handle the deposit of a method that is already in the tracker? Reject, create a new version, or create a separate record with a cross-reference.
+
+Question 16. Should the tracker support autofill via App 49? If so, which library does it register?
+
+Question 17. Should the tracker support multiple students per method, or one student per method?
+
+Question 18. Should the tracker support a teacher view that shows all students' proficiency for a method?
+
+End of build specification for App 32, the Method Tracker.
