@@ -1,0 +1,1744 @@
+Build Specification — App 47: The Replication Cost Estimator
+Completeness status: COMPLETE. All sections delivered in one pass. No truncation. Formatted for copy-paste. Long lists are broken into short lines.
+
+1. What It Is
+A provenance-aware, versioned system that estimates the cost of replicating a study. The cost depends on the study's methods, its sample size, its instruments, its duration, its personnel, and its location. The Replication Cost Estimator records each study's characteristics, computes the estimated cost of replication, and produces a breakdown by category. It is a planning tool: it helps funders, researchers, and institutions decide whether a replication is worth the cost.
+
+It reuses:
+
+the Physics Knowledge Library (App 23)
+
+the N Calculator (App 12)
+
+the Pipeline Specification Wizard (App 8)
+
+the Effective-Null Builder (App 11)
+
+the Provenance-Aware Annotation Database (App 20)
+
+the PROV-O Exporter (App 3)
+
+the Revision History Viewer (App 7)
+
+the Instrument Provenance Registry (App 28)
+
+the Replication Tracker (App 26)
+
+the Autofill Library Service (App 49)
+
+It is for funders, research groups, meta-scientists, institutional review boards, and anyone who wants to know what a replication would cost.
+
+2. Core Requirements
+Functional requirements:
+
+Accept deposits of replication cost estimates from users.
+
+Store each estimate with the study reference, the method, the cost breakdown, and the provenance.
+
+Record the study characteristics: the design, the sample size, the population, the instruments, the duration, and the location.
+
+Record the cost categories: personnel, equipment, materials, travel, participant compensation, publication, overhead, and other.
+
+Record the cost drivers: what makes the replication expensive.
+
+Record the cost assumptions: what assumptions the estimate rests on.
+
+Record the uncertainty: the range of the estimate, not just the point value.
+
+Record the cost per participant, the cost per site, and the cost per month.
+
+Record the comparison with the original study's cost, if known.
+
+Record the currency and the year, with an adjustment for inflation.
+
+Record the funding sources: what funding would be needed and where it might come from.
+
+Enforce provenance completeness.
+
+Enforce versioning.
+
+Enforce supersession acyclicity.
+
+Support querying by estimate ID, study reference, method, cost range, currency, funder, depositor, deposit date, and keywords.
+
+Support full-text search of the study description, the cost assumptions, and the notes.
+
+Support aggregation queries: count by method, by cost range, by funder, by year, by country.
+
+Support exporting an estimate as JSON, PROV-O, and Turtle.
+
+Support importing an estimate from JSON.
+
+Support bulk import and bulk export.
+
+Support a REST API for CRUD operations.
+
+Support a GraphQL API for flexible queries.
+
+Support a command-line interface for administration.
+
+Support authentication and authorization.
+
+Support audit logging.
+
+Support backup and restore.
+
+Support a web interface.
+
+Support moderation.
+
+Support linking an estimate to a Physics Knowledge Library work.
+
+Support linking an estimate to a Replication Tracker record.
+
+Support linking an estimate to an Instrument Provenance Registry record.
+
+Support the cost breakdown view: a visualisation of the cost categories.
+
+Support the cost comparison view: a visualisation that compares two or more estimates for the same study.
+
+Support the cost driver view: a visualisation of what makes the replication expensive.
+
+Support the cost timeline: a visualisation of how the cost has changed over time.
+
+Support the funding gap view: a visualisation of the difference between the estimated cost and the available funding.
+
+Non-functional requirements:
+
+Deterministic.
+
+Fast: query a typical estimate in under 100 milliseconds.
+
+Scalable: support up to 10^6 estimates.
+
+Versioned: the system records the STAG schema version, the replication cost schema version, and the system version.
+
+Reproducible.
+
+Portable.
+
+Well-documented.
+
+3. Input Specification
+Input 1. Replication cost estimate deposit. Required. A deposit object conforming to the replication cost schema.
+
+Input 2. Files. Optional. Budgets, quotes, or cost documentation.
+
+Input 3. Provenance record. Required.
+
+Input 4. Study reference. Optional. A reference to a study in the Physics Knowledge Library.
+
+Input 5. Replication Tracker reference. Optional.
+
+Input 6. Instrument reference. Optional.
+
+Input 7. Query.
+
+Input 8. Aggregation query.
+
+Input 9. Authentication credentials.
+
+Input 10. Bulk import file.
+
+Input 11. Bulk export query.
+
+4. Output Specification
+Output 1. Replication cost record. JSON.
+
+Output 2. PROV-O serialization.
+
+Output 3. Turtle serialization.
+
+Output 4. Query result. JSON.
+
+Output 5. Aggregation result. JSON.
+
+Output 6. Full-text search result. JSON.
+
+Output 7. Cost breakdown view. JSON or a rendered view.
+
+Output 8. Cost comparison view. JSON or a rendered view.
+
+Output 9. Cost driver view. JSON or a rendered view.
+
+Output 10. Cost timeline. JSON or a rendered timeline.
+
+Output 11. Funding gap view. JSON or a rendered view.
+
+Output 12. Related estimates. JSON.
+
+Output 13. Bulk export file.
+
+Output 14. Audit log entry. JSON.
+
+Output 15. API response. JSON.
+
+Output 16. GraphQL response. JSON.
+
+Output 17. Backup file.
+
+5. Module-by-Module Specification
+Module 1. Replication Cost Schema.
+
+Defines the structure of a replication cost estimate deposit.
+
+Module 2. Database Schema.
+
+The tables and indexes.
+
+Module 3. Estimate Loader.
+
+Reads and validates a replication cost estimate.
+
+Module 4. Estimate Writer.
+
+Writes a replication cost estimate to the database.
+
+Module 5. Estimate Reader.
+
+Reads a replication cost estimate from the database.
+
+Module 6. Estimate Updater.
+
+Updates a replication cost estimate.
+
+Module 7. Estimate Deleter.
+
+Deletes a replication cost estimate.
+
+Module 8. Query Engine.
+
+Executes queries.
+
+Module 9. Full-Text Search Engine.
+
+Executes full-text search.
+
+Module 10. Aggregation Engine.
+
+Executes aggregation queries.
+
+Module 11. Cost Calculator.
+
+Computes the estimated cost from the study characteristics.
+
+Module 12. Exporter.
+
+Exports an estimate as JSON, PROV-O, and Turtle.
+
+Module 13. Importer.
+
+Imports an estimate from JSON.
+
+Module 14. Bulk Import and Export.
+
+Bulk operations.
+
+Module 15. REST API.
+
+HTTP endpoints.
+
+Module 16. GraphQL API.
+
+GraphQL endpoint.
+
+Module 17. Command-Line Interface.
+
+Administration commands.
+
+Module 18. Authentication and Authorization.
+
+Access control.
+
+Module 19. Audit Logging.
+
+Logs operations.
+
+Module 20. Backup and Restore.
+
+Database backup and restore.
+
+Module 21. Web Interface.
+
+Depositing, browsing, querying.
+
+Module 22. Moderation Workflow.
+
+Moderation of estimates.
+
+Module 23. Cost Breakdown View.
+
+Visualises the cost categories.
+
+Module 24. Cost Comparison View.
+
+Compares two or more estimates for the same study.
+
+Module 25. Cost Driver View.
+
+Visualises what makes the replication expensive.
+
+Module 26. Cost Timeline.
+
+Visualises how the cost has changed over time.
+
+Module 27. Funding Gap View.
+
+Visualises the difference between the estimated cost and the available funding.
+
+Module 28. Related-Estimate Finder.
+
+Finds estimates related to a given one.
+
+Module 29. Migration Manager.
+
+Database migrations.
+
+6. Full Replication Cost Specification
+6.1 Replication Cost Schema
+The replication cost schema defines the structure of a replication cost estimate deposit.
+
+It has the following fields:
+
+estimate_id. A string. Required.
+
+estimate_name. A string. Required.
+
+study_reference. A string. Required.
+
+study_description. A string. Required.
+
+method. An object. Required. It contains design, sample_size, population, instruments, duration_months, and number_of_sites.
+
+cost_categories. An array of cost category objects. Required.
+
+total_cost. An object. Required. It contains value, currency, and year.
+
+cost_uncertainty. An object. Required. It contains lower and upper.
+
+cost_drivers. An array of cost driver objects. Required.
+
+cost_assumptions. An array of assumption objects. Required.
+
+cost_per_participant. An object. Optional. It contains value and currency.
+
+cost_per_site. An object. Optional. It contains value and currency.
+
+cost_per_month. An object. Optional. It contains value and currency.
+
+original_study_cost. An object. Optional. It contains value, currency, year, and source.
+
+inflation_adjustment. An object. Optional. It contains base_year, target_year, and adjustment_factor.
+
+funding_sources. An array of funding source objects. Optional.
+
+funding_gap. An object. Optional. It contains value and currency.
+
+related_estimates. An array of estimate relations. Optional.
+
+provenance. An object. Required.
+
+work_reference. A string. Optional.
+
+replication_tracker_reference. A string. Optional.
+
+instrument_reference. A string. Optional.
+
+keywords. An array of strings. Optional.
+
+notes. A string. Optional.
+
+moderation_status. An enum. The values are pending, approved, rejected.
+
+version. An integer.
+
+supersedes. A string. Optional.
+
+superseded_by. A string. Optional.
+
+The method object has:
+
+design. An enum. The values are randomized_controlled_trial, cohort, case_control, cross_sectional, longitudinal, experimental, observational, simulation, survey, other.
+
+sample_size. An integer.
+
+population. A string.
+
+instruments. An array of strings.
+
+duration_months. An integer.
+
+number_of_sites. An integer.
+
+Each cost category object has:
+
+category_id. A string.
+
+category_name. An enum. The values are personnel, equipment, materials, travel, participant_compensation, publication, overhead, other.
+
+category_description. A string.
+
+category_cost. An object. It contains value and currency.
+
+percentage_of_total. A number. Optional.
+
+notes. A string. Optional.
+
+Each cost driver object has:
+
+driver_id. A string.
+
+driver_description. A string.
+
+driver_type. An enum. The values are sample_size, duration, number_of_sites, instrument_cost, participant_compensation, personnel_seniority, travel_distance, regulatory_requirements, other.
+
+driver_impact. An object. It contains value and currency.
+
+notes. A string. Optional.
+
+Each assumption object has:
+
+assumption_id. A string.
+
+assumption_description. A string.
+
+assumption_type. An enum. The values are personnel_rate, instrument_rate, participant_rate, overhead_rate, inflation_rate, other.
+
+assumption_value. An object. It contains value and units.
+
+notes. A string. Optional.
+
+Each funding source object has:
+
+source_id. A string.
+
+source_name. A string.
+
+source_type. An enum. The values are government, industry, non_profit, university, internal, other.
+
+source_amount. An object. It contains value and currency.
+
+source_conditions. A string. Optional.
+
+Each estimate relation has:
+
+relation_id. A string.
+
+related_estimate_id. A string.
+
+relation_type. An enum. The values are same_study, same_method, alternative, complement, related, independent.
+
+relation_note. A string. Optional.
+
+6.2 Database Schema
+The database has the following tables.
+
+replication_cost. Holds the replication cost records.
+
+Its fields are:
+
+estimate_id
+
+estimate_name
+
+study_reference
+
+study_description
+
+method
+
+total_cost
+
+cost_uncertainty
+
+cost_per_participant
+
+cost_per_site
+
+cost_per_month
+
+original_study_cost
+
+inflation_adjustment
+
+funding_gap
+
+provenance
+
+keywords
+
+notes
+
+moderation_status
+
+version
+
+supersedes
+
+superseded_by
+
+created_at
+
+updated_at
+
+cost_category. Holds the cost category records.
+
+Its fields are:
+
+category_id
+
+estimate_id
+
+category_name
+
+category_description
+
+category_cost
+
+percentage_of_total
+
+notes
+
+created_at
+
+cost_driver. Holds the cost driver records.
+
+Its fields are:
+
+driver_id
+
+estimate_id
+
+driver_description
+
+driver_type
+
+driver_impact
+
+notes
+
+created_at
+
+assumption. Holds the assumption records.
+
+Its fields are:
+
+assumption_id
+
+estimate_id
+
+assumption_description
+
+assumption_type
+
+assumption_value
+
+notes
+
+created_at
+
+funding_source. Holds the funding source records.
+
+Its fields are:
+
+source_id
+
+estimate_id
+
+source_name
+
+source_type
+
+source_amount
+
+source_conditions
+
+created_at
+
+estimate_relation. Holds the estimate relations.
+
+Its fields are:
+
+relation_id
+
+estimate_id
+
+related_estimate_id
+
+relation_type
+
+relation_note
+
+created_at
+
+work_link. Holds the work links.
+
+Its fields are:
+
+link_id
+
+estimate_id
+
+work_id
+
+created_at
+
+replication_tracker_link. Holds the Replication Tracker links.
+
+Its fields are:
+
+link_id
+
+estimate_id
+
+replication_id
+
+created_at
+
+instrument_link. Holds the instrument links.
+
+Its fields are:
+
+link_id
+
+estimate_id
+
+instrument_id
+
+created_at
+
+provenance. Holds the provenance records.
+
+Its fields are:
+
+provenance_id
+
+estimate_id
+
+depositor_id
+
+depositor_affiliation
+
+timestamp
+
+source
+
+tool_version
+
+operation
+
+created_at
+
+audit_log. Holds the audit log entries.
+
+Its fields are:
+
+audit_id
+
+operation
+
+record_type
+
+record_id
+
+depositor_id
+
+timestamp
+
+result
+
+details
+
+created_at
+
+moderation. Holds the moderation records.
+
+Its fields are:
+
+moderation_id
+
+estimate_id
+
+moderator_id
+
+moderation_status
+
+moderation_date
+
+moderation_notes
+
+created_at
+
+6.3 Referential Integrity
+Every cost_category.estimate_id must exist in replication_cost.
+
+Every cost_driver.estimate_id must exist in replication_cost.
+
+Every assumption.estimate_id must exist in replication_cost.
+
+Every funding_source.estimate_id must exist in replication_cost.
+
+Every estimate_relation.estimate_id and estimate_relation.related_estimate_id must exist in replication_cost.
+
+Every work_link.estimate_id must exist in replication_cost.
+
+Every replication_tracker_link.estimate_id must exist in replication_cost.
+
+Every instrument_link.estimate_id must exist in replication_cost.
+
+Every provenance.estimate_id must exist in replication_cost.
+
+Every moderation.estimate_id must exist in replication_cost.
+
+The version chain must be acyclic.
+
+The estimate relation must be symmetric where appropriate.
+
+6.4 Indexes
+The database has indexes on:
+
+replication_cost.estimate_id
+
+replication_cost.estimate_name
+
+replication_cost.study_reference
+
+replication_cost.moderation_status
+
+replication_cost.keywords
+
+cost_category.estimate_id
+
+cost_category.category_name
+
+cost_driver.estimate_id
+
+cost_driver.driver_type
+
+assumption.estimate_id
+
+assumption.assumption_type
+
+funding_source.estimate_id
+
+funding_source.source_type
+
+estimate_relation.estimate_id
+
+estimate_relation.related_estimate_id
+
+work_link.estimate_id
+
+replication_tracker_link.estimate_id
+
+instrument_link.estimate_id
+
+provenance.estimate_id
+
+provenance.depositor_id
+
+audit_log.operation
+
+audit_log.record_id
+
+moderation.estimate_id
+
+moderation.moderation_status
+
+Full-text search indexes on the study description, the cost assumptions, and the notes.
+
+7. Core Logic as Executable Pseudocode
+7.1 Create Replication Cost Estimate
+function createReplicationCost(estimate, files, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Validate the estimate against the schema. If invalid, return an error with the details.
+
+Step 3. If the work reference is present, look it up. If null, flag it as unresolved.
+
+Step 4. If the replication tracker reference is present, look it up. If null, flag it as unresolved.
+
+Step 5. If the instrument reference is present, look it up. If null, flag it as unresolved.
+
+Step 6. Generate an estimate ID. Set the fields: version 1, moderation_status pending, deposit_date now, depositor_id from auth, depositor_affiliation from auth, provenance from provenance.
+
+Step 7. Insert the replication cost.
+
+Step 8. Insert the cost categories, the cost drivers, the assumptions, the funding sources, and the estimate relations.
+
+Step 9. Insert the work link, the replication tracker link, and the instrument link if present.
+
+Step 10. Insert the provenance.
+
+Step 11. Insert the moderation record.
+
+Step 12. Insert the audit log entry.
+
+Step 13. Return the estimate_id and the status created.
+
+7.2 Read Replication Cost Estimate
+function readReplicationCost(estimateId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the estimate. If null, return an error.
+
+Step 3. Read the cost categories, the cost drivers, the assumptions, the funding sources, the relations, the links, the provenance, and the moderation.
+
+Step 4. Reconstruct the deposit.
+
+Step 5. Insert the audit log entry.
+
+Step 6. Return the deposit.
+
+7.3 Update Replication Cost Estimate
+function updateReplicationCost(estimateId, estimate, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Read the existing estimate. If null, return an error.
+
+Step 3. Validate the new estimate.
+
+Step 4. Increment the version. Update the supersedes and superseded_by fields.
+
+Step 5. Insert a provenance record with operation update.
+
+Step 6. Insert an audit log entry.
+
+Step 7. Return the estimate_id, the version, and the status updated.
+
+7.4 Delete Replication Cost Estimate
+function deleteReplicationCost(estimateId, provenance, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Read the existing estimate. If null, return an error.
+
+Step 3. If soft delete, mark as deleted. Otherwise, remove.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the estimate_id and the status deleted.
+
+7.5 Compute Cost
+function computeCost(estimateId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the estimate. If null, return an error.
+
+Step 3. Read the cost categories, the cost drivers, and the assumptions.
+
+Step 4. Sum the cost categories to get the total cost.
+
+Step 5. Apply the assumptions: personnel rate, instrument rate, participant rate, overhead rate, inflation rate.
+
+Step 6. Compute the uncertainty: the lower and upper bounds based on the assumptions.
+
+Step 7. Compute the cost per participant, the cost per site, and the cost per month.
+
+Step 8. Compute the inflation adjustment if an original study cost is present.
+
+Step 9. Compute the funding gap if funding sources are present.
+
+Step 10. Update the estimate's total_cost, cost_uncertainty, cost_per_participant, cost_per_site, cost_per_month, inflation_adjustment, and funding_gap fields.
+
+Step 11. Insert the audit log entry.
+
+Step 12. Return the estimate.
+
+7.6 Query Replication Cost Estimates
+function queryReplicationCosts(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the query.
+
+Step 3. Read the matching estimates.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the estimates, the count, and the pagination.
+
+7.7 Aggregate Replication Cost Estimates
+function aggregateReplicationCosts(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the aggregation.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the results.
+
+7.8 Full-Text Search
+function fullTextSearch(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the search.
+
+Step 3. Read the matching estimates.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the estimates and the count.
+
+7.9 Export Replication Cost Estimate
+function exportReplicationCost(estimateId, format, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the deposit.
+
+Step 3. If json, output the deposit. If provo, export to PROV-O. If turtle, serialize to Turtle.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the output and the format.
+
+7.10 Bulk Import
+function bulkImport(file, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Parse the file.
+
+Step 3. For each estimate, call createReplicationCost.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the results and the count.
+
+7.11 Bulk Export
+function bulkExport(query, format, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the matching estimates.
+
+Step 3. If json, output the list. If jsonl, output one line per estimate. If provo, export each one.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the output and the count.
+
+7.12 Moderate Replication Cost Estimate
+function moderateReplicationCost(estimateId, moderationStatus, moderationNotes, auth):
+
+Step 1. validateAuth(auth, "moderator"). If not authorized, return an error.
+
+Step 2. Read the existing estimate. If null, return an error.
+
+Step 3. Update the moderation status. Insert a moderation record.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the estimate_id and the status.
+
+7.13 Cost Breakdown View
+function costBreakdownView(estimateId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the estimate. If null, return an error.
+
+Step 3. Read the cost categories.
+
+Step 4. Build the view with the cost categories and their amounts.
+
+Step 5. Return the view.
+
+7.14 Cost Comparison View
+function costComparisonView(studyReference, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read all estimates for the study.
+
+Step 3. Build the comparison by overlaying the total costs and the cost categories.
+
+Step 4. Return the comparison.
+
+7.15 Cost Driver View
+function costDriverView(estimateId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the estimate. If null, return an error.
+
+Step 3. Read the cost drivers.
+
+Step 4. Build the view with the cost drivers and their impacts.
+
+Step 5. Return the view.
+
+7.16 Cost Timeline
+function costTimeline(studyReference, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read all estimates for the study.
+
+Step 3. Build the timeline with the total cost over time.
+
+Step 4. Return the timeline.
+
+7.17 Funding Gap View
+function fundingGapView(estimateId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the estimate. If null, return an error.
+
+Step 3. Read the funding sources.
+
+Step 4. Build the view with the estimated cost and the available funding.
+
+Step 5. Return the view.
+
+7.18 Find Related Estimates
+function findRelatedEstimates(estimateId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the estimate. If null, return an error.
+
+Step 3. Find estimates with the same study, the same method, or the same cost range.
+
+Step 4. Return the related estimates.
+
+7.19 Audit Log
+function auditLog(query, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Build and execute the query.
+
+Step 3. Return the results.
+
+7.20 Backup
+function backup(auth, options):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. If sql, dump as SQL. If json, dump as JSON.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the output and the format.
+
+7.21 Restore
+function restore(file, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Load the database from the file.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the status restored.
+
+8. Data Model
+The system's internal state is the set of tables. The API's internal state is a request object and a response object.
+
+Request object:
+
+operation
+
+resource
+
+record_id
+
+record_json
+
+query
+
+auth
+
+Response object:
+
+status
+
+result
+
+error
+
+audit_id
+
+9. Architecture
+Module breakdown:
+
+Replication Cost Schema.
+
+Database Schema.
+
+Estimate Loader.
+
+Estimate Writer.
+
+Estimate Reader.
+
+Estimate Updater.
+
+Estimate Deleter.
+
+Query Engine.
+
+Full-Text Search Engine.
+
+Aggregation Engine.
+
+Cost Calculator.
+
+Exporter.
+
+Importer.
+
+Bulk Import and Export.
+
+REST API.
+
+GraphQL API.
+
+Command-Line Interface.
+
+Authentication and Authorization.
+
+Audit Logging.
+
+Backup and Restore.
+
+Web Interface.
+
+Moderation Workflow.
+
+Cost Breakdown View.
+
+Cost Comparison View.
+
+Cost Driver View.
+
+Cost Timeline.
+
+Funding Gap View.
+
+Related-Estimate Finder.
+
+Migration Manager.
+
+Data flow:
+
+API requests go to the REST or GraphQL API.
+
+The API calls the estimate loader, writer, reader, updater, deleter, query engine, search engine, aggregation engine, cost calculator, exporter, or importer.
+
+The cost calculator computes the total cost, the uncertainty, and the per-unit costs.
+
+The database schema stores the data.
+
+The audit logging records every operation.
+
+The authentication and authorization check access.
+
+The moderation workflow handles moderation.
+
+The cost breakdown view, the cost comparison view, the cost driver view, the cost timeline, and the funding gap view visualise.
+
+The related-estimate finder finds relations.
+
+The backup and restore handle backup.
+
+The web interface provides depositing, browsing, and querying.
+
+10. Technology Stack
+Recommended for the database:
+
+Database: PostgreSQL 15+ or SQLite 3.40+.
+
+Language: Python 3.11+ or Node.js 20+.
+
+ORM: SQLAlchemy or Prisma.
+
+Migrations: Alembic or Prisma Migrate.
+
+Full-text search: PostgreSQL tsvector or SQLite FTS5.
+
+Recommended for the REST API:
+
+Framework: FastAPI or Express.
+
+Authentication: FastAPI Users or Passport.
+
+Recommended for the GraphQL API:
+
+Framework: Strawberry or Apollo Server.
+
+Recommended for the command-line interface:
+
+Framework: Click or Commander.
+
+Recommended for the web interface:
+
+Frontend: React or Svelte.
+
+Backend: the same as the REST API.
+
+Recommended for deployment:
+
+Containerization: Docker.
+
+Orchestration: Docker Compose or Kubernetes.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The PROV-O exporter (App 3).
+
+The STAG schema library (App 17).
+
+The Null-Model Protocol library (App 18).
+
+The N Calculator (App 12).
+
+The Pipeline Specification Wizard (App 8).
+
+The Effective-Null Builder (App 11).
+
+The provenance database (App 20).
+
+The revision history viewer (App 7).
+
+The Physics Knowledge Library (App 23).
+
+The Instrument Provenance Registry (App 28).
+
+The Replication Tracker (App 26).
+
+The Autofill Library Service (App 49).
+
+11. UI/UX Specification
+REST API:
+
+Base URL: https://api.example.com/v1.
+
+Authentication: Bearer token.
+
+Endpoints:
+
+GET /estimates.
+
+GET /estimates/{id}.
+
+POST /estimates.
+
+PUT /estimates/{id}.
+
+DELETE /estimates/{id}.
+
+POST /estimates/{id}/compute.
+
+GET /estimates/{id}/provo.
+
+GET /estimates/{id}/turtle.
+
+GET /estimates/{id}/cost-categories.
+
+GET /estimates/{id}/cost-drivers.
+
+GET /estimates/{id}/assumptions.
+
+GET /estimates/{id}/funding-sources.
+
+GET /estimates/{id}/relations.
+
+GET /estimates/{id}/related.
+
+GET /estimates/{id}/work.
+
+GET /estimates/{id}/replication-tracker.
+
+GET /estimates/{id}/instrument.
+
+GET /estimates/by-method/{method}.
+
+GET /estimates/by-funding-source/{source}.
+
+GET /studies/{study_reference}/cost-comparison.
+
+GET /estimates/{id}/cost-breakdown-view.
+
+GET /estimates/{id}/cost-driver-view.
+
+GET /studies/{study_reference}/cost-timeline.
+
+GET /estimates/{id}/funding-gap-view.
+
+POST /query.
+
+POST /aggregate.
+
+POST /search.
+
+POST /bulk/import.
+
+POST /bulk/export.
+
+POST /moderate/{id}.
+
+GET /audit.
+
+Responses in JSON.
+
+HTTP status codes: 200, 201, 204, 400, 401, 403, 404, 409, 422, 500.
+
+GraphQL API:
+
+Endpoint: https://api.example.com/graphql.
+
+Schema exposes the entities and their relationships.
+
+Command-line interface:
+
+Usage: replication-cost-estimator [command] [options].
+
+Commands: init, migrate, backup, restore, import, export, query, aggregate, moderate, audit, compute.
+
+Web interface:
+
+A browsable list of estimates.
+
+A deposit form.
+
+A search box.
+
+A filter panel.
+
+An aggregation view.
+
+A cost breakdown view.
+
+A cost comparison view.
+
+A cost driver view.
+
+A cost timeline.
+
+A funding gap view.
+
+A detail view for each estimate.
+
+A moderation view.
+
+12. Validation Engine Design
+The system validates the following.
+
+Validation 1. Estimate validity. Every estimate is validated against the schema.
+
+Validation 2. Referential integrity.
+
+Validation 3. Version chain acyclicity.
+
+Validation 4. Work resolution.
+
+Validation 5. Replication tracker record resolution.
+
+Validation 6. Instrument resolution.
+
+Validation 7. Provenance completeness.
+
+Validation 8. Audit completeness.
+
+Validation 9. Moderation completeness.
+
+Validation 10. Cost consistency. The cost categories must sum to the total.
+
+Validation 11. Uncertainty consistency. The lower and upper bounds must be consistent with the total.
+
+Validation 12. Per-unit consistency. The cost per participant, per site, and per month must be consistent with the total and the method.
+
+Validation 13. Inflation consistency. The inflation adjustment must be consistent with the original study cost and the base and target years.
+
+Validation 14. Funding gap consistency. The funding gap must be consistent with the total and the funding sources.
+
+13. Testing Strategy
+Unit tests:
+
+Replication Cost Schema for valid and invalid estimates.
+
+Database Schema for each table and index.
+
+Estimate Loader.
+
+Estimate Writer.
+
+Estimate Reader.
+
+Estimate Updater.
+
+Estimate Deleter.
+
+Query Engine.
+
+Full-Text Search Engine.
+
+Aggregation Engine.
+
+Cost Calculator.
+
+Exporter.
+
+Importer.
+
+Bulk Import and Export.
+
+REST API.
+
+GraphQL API.
+
+Command-Line Interface.
+
+Authentication and Authorization.
+
+Audit Logging.
+
+Backup and Restore.
+
+Web Interface.
+
+Moderation Workflow.
+
+Cost Breakdown View.
+
+Cost Comparison View.
+
+Cost Driver View.
+
+Cost Timeline.
+
+Funding Gap View.
+
+Related-Estimate Finder.
+
+Migration Manager.
+
+Integration tests:
+
+Create an estimate. Read it back.
+
+Update an estimate.
+
+Compute the cost. Verify the total.
+
+Delete an estimate.
+
+Query by each field.
+
+Aggregate by each dimension.
+
+Search by full text.
+
+Export as JSON, PROV-O, and Turtle.
+
+Bulk import and export.
+
+Backup and restore.
+
+Moderate an estimate.
+
+Generate the cost breakdown view.
+
+Generate the cost comparison view.
+
+Generate the cost driver view.
+
+Generate the cost timeline.
+
+Generate the funding gap view.
+
+Worked-example tests:
+
+Estimate the cost of replicating the ego depletion effect.
+
+Estimate the cost of replicating the Stanford Prison Experiment.
+
+Estimate the cost of replicating a clinical trial for a new drug.
+
+Estimate the cost of replicating a psychological priming study.
+
+Estimate the cost of replicating a climate attribution study.
+
+Estimate the cost of replicating a particle physics experiment.
+
+Estimate the cost of replicating a sociological survey.
+
+Estimate the cost of replicating an economic field experiment.
+
+Regression tests:
+
+Estimate determinism.
+
+Query consistency.
+
+Aggregation consistency.
+
+Audit log consistency.
+
+Moderation consistency.
+
+Cost consistency.
+
+Uncertainty consistency.
+
+Per-unit consistency.
+
+Inflation consistency.
+
+Funding gap consistency.
+
+14. Build Phases
+Phase 1. Replication Cost Schema.
+
+Phase 2. Database Schema.
+
+Phase 3. Estimate Loader.
+
+Phase 4. Estimate Writer.
+
+Phase 5. Estimate Reader.
+
+Phase 6. Estimate Updater.
+
+Phase 7. Estimate Deleter.
+
+Phase 8. Query Engine.
+
+Phase 9. Full-Text Search Engine.
+
+Phase 10. Aggregation Engine.
+
+Phase 11. Cost Calculator.
+
+Phase 12. Exporter.
+
+Phase 13. Importer.
+
+Phase 14. Bulk Import and Export.
+
+Phase 15. REST API.
+
+Phase 16. GraphQL API.
+
+Phase 17. Command-Line Interface.
+
+Phase 18. Authentication and Authorization.
+
+Phase 19. Audit Logging.
+
+Phase 20. Backup and Restore.
+
+Phase 21. Web Interface.
+
+Phase 22. Moderation Workflow.
+
+Phase 23. Cost Breakdown View.
+
+Phase 24. Cost Comparison View.
+
+Phase 25. Cost Driver View.
+
+Phase 26. Cost Timeline.
+
+Phase 27. Funding Gap View.
+
+Phase 28. Related-Estimate Finder.
+
+Phase 29. Migration Manager.
+
+Phase 30. Worked-example tests.
+
+Phase 31. Integration testing and hardening.
+
+Phase 32. Packaging and deployment.
+
+15. Dependencies
+Python path:
+
+SQLAlchemy.
+
+Alembic.
+
+FastAPI.
+
+Strawberry.
+
+FastAPI Users.
+
+Click.
+
+psycopg2.
+
+sqlite3.
+
+jsonschema.
+
+hashlib.
+
+json.
+
+pytest.
+
+Node.js path:
+
+Prisma.
+
+Express.
+
+Apollo Server.
+
+Passport.
+
+Commander.
+
+pg.
+
+better-sqlite3.
+
+ajv.
+
+crypto.
+
+JSON.
+
+Vitest.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The PROV-O exporter (App 3).
+
+The STAG schema library (App 17).
+
+The Null-Model Protocol library (App 18).
+
+The N Calculator (App 12).
+
+The Pipeline Specification Wizard (App 8).
+
+The Effective-Null Builder (App 11).
+
+The provenance database (App 20).
+
+The revision history viewer (App 7).
+
+The Physics Knowledge Library (App 23).
+
+The Instrument Provenance Registry (App 28).
+
+The Replication Tracker (App 26).
+
+The Autofill Library Service (App 49).
+
+16. Deployment Notes
+Database:
+
+PostgreSQL for multi-user deployments.
+
+SQLite for single-user deployments.
+
+Backup and restore via pg_dump and pg_restore or the SQLite backup API.
+
+REST API:
+
+Deploy with Docker. Stateless. Scale horizontally.
+
+Use a reverse proxy for TLS.
+
+Log every request for audit.
+
+GraphQL API:
+
+Deploy alongside the REST API.
+
+Use a query depth limit and a query complexity limit.
+
+Command-line interface:
+
+Package as a standalone executable.
+
+Distribute via pip, npm, or a direct download.
+
+Web interface:
+
+Deploy the frontend as a static bundle.
+
+Backend with FastAPI or Express.
+
+Reproducibility:
+
+Record the STAG schema version, the replication cost schema version, and the system version.
+
+Record the provenance for every deposit.
+
+Provide a version pin for the schemas and codebook.
+
+17. Open Questions to Resolve Before Building
+Question 1. Which runtime first? Python or Node.js.
+
+Question 2. Which database first? PostgreSQL or SQLite.
+
+Question 3. How should the system handle the method design? A fixed set of ten values, or an open set.
+
+Question 4. How should the system handle the cost category? A fixed set of eight values, or an open set.
+
+Question 5. How should the system handle the cost driver type? A fixed set of nine values, or an open set.
+
+Question 6. How should the system handle the assumption type? A fixed set of six values, or an open set.
+
+Question 7. How should the system handle the funding source type? A fixed set, or an open set.
+
+Question 8. How should the system handle the relation between estimates? Manual entry, or automatic detection.
+
+Question 9. How should the system handle the moderation workflow? Pending until approved, auto-approved, or require a moderator.
+
+Question 10. How should the system handle the work reference? Required, optional, or optional depending on the study type.
+
+Question 11. How should the system handle the replication tracker reference? Required, optional, or optional depending on the study type.
+
+Question 12. How should the system handle the instrument reference? Required, optional, or optional depending on the study type.
+
+Question 13. How should the system handle the inflation adjustment? A fixed index, a per-country index, or a user-supplied index.
+
+Question 14. How should the system handle the cost breakdown view? A bar chart, a pie chart, or both.
+
+Question 15. How should the system handle the cost comparison view? An overlay of total costs, a side-by-side table, or both.
+
+Question 16. How should the system handle the cost driver view? A bar chart, a waterfall chart, or both.
+
+Question 17. How should the system handle the cost timeline? A line plot, a Gantt chart, or both.
+
+Question 18. How should the system handle the funding gap view? A bar chart, a waterfall chart, or both.
+
+Question 19. Should the system integrate with the STAG schema library (App 17), the Null-Model Protocol library (App 18), the N Calculator (App 12), the Pipeline Specification Wizard (App 8), the Effective-Null Builder (App 11), the provenance database (App 20), the revision history viewer (App 7), the Physics Knowledge Library (App 23), the Instrument Provenance Registry (App 28), and the Replication Tracker (App 26)?
+
+Question 20. Should the system support federation with other instances of itself?
+
+Question 21. How should the system handle the deposit of an estimate that is already in the system? Reject, create a new version, or create a separate record with a cross-reference.
+
+Question 22. Should the system support autofill via App 49? If so, which library does it register?
+
+Question 23. Should the system support a funder view that shows the cost of the replications they might fund?
+
+Question 24. Should the system support a research group view that shows the cost of the replications they might conduct?
+
+Question 25. Should the system support a "what would make this cheaper" function that shows what changes would reduce the cost?
+
+Question 26. Should the system support a "what would make this more expensive" function that shows what changes would increase the cost?
+
+End of build specification for App 47, the Replication Cost Estimator.
+
+
