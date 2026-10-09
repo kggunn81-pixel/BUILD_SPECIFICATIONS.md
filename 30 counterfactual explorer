@@ -1,0 +1,1427 @@
+App 30: The Counterfactual Explorer
+Completeness status: COMPLETE. All sections delivered in one pass. No truncation. Formatted for copy-paste. Long lists are broken into short lines.
+
+1. What It Is
+A tool that takes a model and a proposed intervention, and explores what happens under different conditions. It lets a user specify a model, specify an intervention on a term, a coupling, a parameter, or a sub-system, run the intervention, and record the outcome. It records the counterfactual dependence of the outcome on the intervention, the material-change test, and the relation to the standard model.
+
+It reuses:
+
+the STAG Annotation Editor (App 1)
+
+the Full-Pipeline Simulator (App 9)
+
+the STAG Schema Library (App 17)
+
+the Null-Model Protocol Library (App 18)
+
+the STAG plus Null-Model Combined Workbench (App 14)
+
+the Provenance-Aware Annotation Database (App 20)
+
+the Numerical Verification Tool (App 22)
+
+the Physics Knowledge Library (App 23)
+
+the Autofill Library Service (App 49)
+
+It is for theoreticians, experimentalists, and anyone who asks the question "what if this contribution were removed?"
+
+2. Core Requirements
+Functional requirements:
+
+Accept a model specification from the user.
+
+Accept an intervention specification from the user.
+
+Accept the outcome measure and the material-change test.
+
+Run the intervention.
+
+Record the outcome under the intervention and the outcome without the intervention.
+
+Record the difference between the two outcomes.
+
+Apply the material-change test and record the result.
+
+Classify the counterfactual dependence.
+
+Record the provenance.
+
+Link to a STAG annotation if the intervention is part of a scale-transition claim.
+
+Link to a Null-Model Protocol result if the intervention is tested statistically.
+
+Link to a numerical verification result if the reported numbers have been verified.
+
+Link to a Physics Knowledge Library work if the model is described in a deposited work.
+
+Enforce provenance completeness.
+
+Enforce versioning.
+
+Enforce supersession acyclicity.
+
+Support querying by counterfactual ID, model reference, intervention kind, outcome measure, dependence classification, depositor, deposit date, and keywords.
+
+Support full-text search of the description, the intervention, and the notes.
+
+Support aggregation queries: count by model, by intervention kind, by dependence classification, by year, by depositor.
+
+Support exporting a counterfactual as JSON, PROV-O, and Turtle.
+
+Support importing a counterfactual from JSON.
+
+Support bulk import and bulk export.
+
+Support a REST API for CRUD operations.
+
+Support a GraphQL API for flexible queries.
+
+Support a command-line interface for administration.
+
+Support authentication and authorization.
+
+Support audit logging.
+
+Support backup and restore.
+
+Support a web interface.
+
+Support moderation.
+
+Support the intervention comparison view: a visualisation that compares two or more interventions on the same model.
+
+Support the counterfactual map: a visualisation of the interventions on a model and their outcomes.
+
+Non-functional requirements:
+
+Deterministic.
+
+Fast: query a typical counterfactual in under 100 milliseconds.
+
+Scalable: support up to 10^6 counterfactuals.
+
+Versioned: the explorer records the STAG schema version, the Null-Model Protocol schema version, the counterfactual schema version, and the explorer version.
+
+Reproducible.
+
+Portable.
+
+Well-documented.
+
+3. Input Specification
+Input 1. Counterfactual deposit. Required. A deposit object conforming to the counterfactual schema.
+
+Input 2. Model specification. Required. The model reference and the model parameters.
+
+Input 3. Intervention specification. Required. The intervention kind and the intervention target.
+
+Input 4. Outcome measure. Required. What is measured under the intervention.
+
+Input 5. Material-change test. Required. The test that decides whether the change is material.
+
+Input 6. Files. Optional. Documentation or supplementary material.
+
+Input 7. Provenance record. Required. The depositor ID, the timestamp, the source, and the tool version.
+
+Input 8. STAG annotation. Optional.
+
+Input 9. Null-Model Protocol result. Optional.
+
+Input 10. Numerical verification result. Optional.
+
+Input 11. Work reference. Optional.
+
+Input 12. Query.
+
+Input 13. Aggregation query.
+
+Input 14. Authentication credentials.
+
+Input 15. Bulk import file.
+
+Input 16. Bulk export query.
+
+4. Output Specification
+Output 1. Counterfactual record. JSON.
+
+Output 2. PROV-O serialization.
+
+Output 3. Turtle serialization.
+
+Output 4. Query result. JSON.
+
+Output 5. Aggregation result. JSON.
+
+Output 6. Full-text search result. JSON.
+
+Output 7. Intervention comparison view. JSON or a rendered graph.
+
+Output 8. Counterfactual map. JSON or a rendered map.
+
+Output 9. Related counterfactuals. JSON.
+
+Output 10. Bulk export file.
+
+Output 11. Audit log entry. JSON.
+
+Output 12. API response. JSON.
+
+Output 13. GraphQL response. JSON.
+
+Output 14. Backup file.
+
+5. Module-by-Module Specification
+Module 1. Counterfactual Schema.
+
+Defines the structure of a counterfactual deposit.
+
+Module 2. Database Schema.
+
+The tables and indexes.
+
+Module 3. Counterfactual Loader.
+
+Reads and validates a counterfactual deposit.
+
+Module 4. Counterfactual Writer.
+
+Writes a counterfactual deposit to the database.
+
+Module 5. Counterfactual Reader.
+
+Reads a counterfactual deposit from the database.
+
+Module 6. Counterfactual Updater.
+
+Updates a counterfactual deposit.
+
+Module 7. Counterfactual Deleter.
+
+Deletes a counterfactual deposit.
+
+Module 8. Query Engine.
+
+Executes queries.
+
+Module 9. Full-Text Search Engine.
+
+Executes full-text search.
+
+Module 10. Aggregation Engine.
+
+Executes aggregation queries.
+
+Module 11. Exporter.
+
+Exports a counterfactual as JSON, PROV-O, and Turtle.
+
+Module 12. Importer.
+
+Imports a counterfactual from JSON.
+
+Module 13. Bulk Import and Export.
+
+Bulk operations.
+
+Module 14. REST API.
+
+HTTP endpoints.
+
+Module 15. GraphQL API.
+
+GraphQL endpoint.
+
+Module 16. Command-Line Interface.
+
+Administration commands.
+
+Module 17. Authentication and Authorization.
+
+Access control.
+
+Module 18. Audit Logging.
+
+Logs operations.
+
+Module 19. Backup and Restore.
+
+Database backup and restore.
+
+Module 20. Web Interface.
+
+Depositing, browsing, querying.
+
+Module 21. Moderation Workflow.
+
+Moderation of counterfactuals.
+
+Module 22. Intervention Comparison View.
+
+Compares two or more interventions on the same model.
+
+Module 23. Counterfactual Map.
+
+Visualises the interventions on a model and their outcomes.
+
+Module 24. Related-Counterfactual Finder.
+
+Finds counterfactuals related to a given one.
+
+Module 25. Migration Manager.
+
+Database migrations.
+
+Module 26. Intervention Runner.
+
+Runs the intervention and records the outcomes. It calls App 9 to run the statistical pipeline if the intervention requires a simulation, or calls the model directly if the model is analytic.
+
+Module 27. Material-Change Evaluator.
+
+Applies the material-change test and records the result. It supports the four material-change types from Artifact 1, Section 7.4: disappearance, order change, class change, and a pre-registered effect-size threshold.
+
+6. Full Counterfactual Specification
+6.1 Counterfactual Schema
+The counterfactual schema defines the structure of a counterfactual deposit.
+
+It has the following fields:
+
+counterfactual_id. A string. Required.
+
+model_reference. A string. Required.
+
+model_parameters. An object. Required.
+
+intervention. An object. Required. It contains intervention_kind, intervention_target, and intervention_description.
+
+intervention_kind. An enum. The values are boundary_term, defining_coupling, subdominant_coupling, parameter_change, subsystem_removal, other.
+
+outcome_measure. An object. Required. It contains measure_name, measure_units, and measure_description.
+
+outcome_without_intervention. An object. Required. It contains value and uncertainty.
+
+outcome_with_intervention. An object. Required. It contains value and uncertainty.
+
+outcome_change. An object. Required. It contains absolute_change, relative_change, and direction.
+
+material_change_test. An object. Required. It contains test_type, test_parameters, and test_justification.
+
+material_change_result. An enum. The values are material, not_material, uncertain, not_determinable.
+
+dependence_classification. An enum. The values are yes, no, definitional_only, untestable, uncertain, not_determinable.
+
+quantities_held_fixed. An array of strings. Required.
+
+provenance. An object. Required.
+
+stag_annotation. An object. Optional.
+
+null_model_result. An object. Optional.
+
+numerical_verification_result. An object. Optional.
+
+work_reference. A string. Optional.
+
+keywords. An array of strings. Optional.
+
+notes. A string. Optional.
+
+moderation_status. An enum. The values are pending, approved, rejected.
+
+version. An integer.
+
+supersedes. A string. Optional.
+
+superseded_by. A string. Optional.
+
+6.2 Database Schema
+The database has the following tables.
+
+counterfactual. Holds the counterfactual records.
+
+Its fields are:
+
+counterfactual_id
+
+model_reference
+
+model_parameters
+
+intervention
+
+intervention_kind
+
+outcome_measure
+
+outcome_without_intervention
+
+outcome_with_intervention
+
+outcome_change
+
+material_change_test
+
+material_change_result
+
+dependence_classification
+
+quantities_held_fixed
+
+provenance
+
+keywords
+
+notes
+
+moderation_status
+
+version
+
+supersedes
+
+superseded_by
+
+created_at
+
+updated_at
+
+stag_link. Holds the STAG links.
+
+Its fields are:
+
+link_id
+
+counterfactual_id
+
+annotation_id
+
+created_at
+
+null_model_link. Holds the Null-Model Protocol links.
+
+Its fields are:
+
+link_id
+
+counterfactual_id
+
+result_id
+
+created_at
+
+verification_link. Holds the numerical verification links.
+
+Its fields are:
+
+link_id
+
+counterfactual_id
+
+verification_id
+
+created_at
+
+work_link. Holds the work links.
+
+Its fields are:
+
+link_id
+
+counterfactual_id
+
+work_id
+
+created_at
+
+provenance. Holds the provenance records.
+
+Its fields are:
+
+provenance_id
+
+counterfactual_id
+
+depositor_id
+
+depositor_affiliation
+
+timestamp
+
+source
+
+tool_version
+
+operation
+
+created_at
+
+audit_log. Holds the audit log entries.
+
+Its fields are:
+
+audit_id
+
+operation
+
+record_type
+
+record_id
+
+depositor_id
+
+timestamp
+
+result
+
+details
+
+created_at
+
+moderation. Holds the moderation records.
+
+Its fields are:
+
+moderation_id
+
+counterfactual_id
+
+moderator_id
+
+moderation_status
+
+moderation_date
+
+moderation_notes
+
+created_at
+
+6.3 Referential Integrity
+Every stag_link.counterfactual_id must exist in counterfactual.
+
+Every null_model_link.counterfactual_id must exist in counterfactual.
+
+Every verification_link.counterfactual_id must exist in counterfactual.
+
+Every work_link.counterfactual_id must exist in counterfactual.
+
+Every provenance.counterfactual_id must exist in counterfactual.
+
+Every moderation.counterfactual_id must exist in counterfactual.
+
+The version chain must be acyclic.
+
+6.4 Indexes
+The database has indexes on:
+
+counterfactual.counterfactual_id
+
+counterfactual.model_reference
+
+counterfactual.intervention_kind
+
+counterfactual.outcome_measure
+
+counterfactual.dependence_classification
+
+counterfactual.material_change_result
+
+counterfactual.depositor_id
+
+counterfactual.moderation_status
+
+counterfactual.keywords
+
+stag_link.counterfactual_id
+
+null_model_link.counterfactual_id
+
+verification_link.counterfactual_id
+
+work_link.counterfactual_id
+
+provenance.counterfactual_id
+
+provenance.depositor_id
+
+audit_log.operation
+
+audit_log.record_id
+
+moderation.counterfactual_id
+
+moderation.moderation_status
+
+Full-text search indexes on the description, the intervention, and the notes.
+
+7. Core Logic as Executable Pseudocode
+7.1 Create Counterfactual
+function createCounterfactual(counterfactual, files, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Validate the counterfactual against the schema. If invalid, return an error with the details.
+
+Step 3. If the STAG annotation is present, validate it.
+
+Step 4. If the Null-Model Protocol result is present, validate it.
+
+Step 5. If the verification result is present, validate it.
+
+Step 6. If the work reference is present, look it up. If null, flag it as unresolved.
+
+Step 7. Generate a counterfactual ID. Set the fields: version 1, moderation_status pending, deposit_date now, depositor_id from auth, depositor_affiliation from auth, provenance from provenance.
+
+Step 8. Insert the counterfactual.
+
+Step 9. Insert the STAG link, the Null-Model link, the verification link, and the work link if present.
+
+Step 10. Insert the provenance.
+
+Step 11. Insert the moderation record.
+
+Step 12. Insert the audit log entry.
+
+Step 13. Return the counterfactual_id and the status created.
+
+7.2 Run Intervention
+function runIntervention(modelReference, modelParameters, intervention, outcomeMeasure, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. If the model is analytic, evaluate the outcome without the intervention and the outcome with the intervention directly.
+
+Step 3. If the model requires simulation, call App 9 (Full-Pipeline Simulator) with the model parameters and the intervention as the alternative.
+
+Step 4. Collect the outcome without the intervention and the outcome with the intervention.
+
+Step 5. Compute the outcome change.
+
+Step 6. Apply the material-change test.
+
+Step 7. Classify the dependence.
+
+Step 8. Return the outcome without the intervention, the outcome with the intervention, the outcome change, the material-change result, and the dependence classification.
+
+7.3 Read Counterfactual
+function readCounterfactual(counterfactualId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the counterfactual. If null, return an error.
+
+Step 3. Read the links, the provenance, and the moderation.
+
+Step 4. Reconstruct the deposit.
+
+Step 5. Insert the audit log entry.
+
+Step 6. Return the deposit.
+
+7.4 Update Counterfactual
+function updateCounterfactual(counterfactualId, counterfactual, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Read the existing counterfactual. If null, return an error.
+
+Step 3. Validate the new counterfactual.
+
+Step 4. Increment the version. Update the supersedes and superseded_by fields.
+
+Step 5. Insert a provenance record with operation update.
+
+Step 6. Insert an audit log entry.
+
+Step 7. Return the counterfactual_id, the version, and the status updated.
+
+7.5 Delete Counterfactual
+function deleteCounterfactual(counterfactualId, provenance, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Read the existing counterfactual. If null, return an error.
+
+Step 3. If soft delete, mark as deleted. Otherwise, remove.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the counterfactual_id and the status deleted.
+
+7.6 Query Counterfactuals
+function queryCounterfactuals(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the query.
+
+Step 3. Read the matching counterfactuals.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the counterfactuals, the count, and the pagination.
+
+7.7 Aggregate Counterfactuals
+function aggregateCounterfactuals(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the aggregation.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the results.
+
+7.8 Full-Text Search
+function fullTextSearch(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the search.
+
+Step 3. Read the matching counterfactuals.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the counterfactuals and the count.
+
+7.9 Export Counterfactual
+function exportCounterfactual(counterfactualId, format, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the deposit.
+
+Step 3. If json, output the deposit. If provo, export to PROV-O. If turtle, serialize to Turtle.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the output and the format.
+
+7.10 Bulk Import
+function bulkImport(file, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Parse the file.
+
+Step 3. For each counterfactual, call createCounterfactual.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the results and the count.
+
+7.11 Bulk Export
+function bulkExport(query, format, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the matching counterfactuals.
+
+Step 3. If json, output the list. If jsonl, output one line per counterfactual. If provo, export each one.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the output and the count.
+
+7.12 Moderate Counterfactual
+function moderateCounterfactual(counterfactualId, moderationStatus, moderationNotes, auth):
+
+Step 1. validateAuth(auth, "moderator"). If not authorized, return an error.
+
+Step 2. Read the existing counterfactual. If null, return an error.
+
+Step 3. Update the moderation status. Insert a moderation record.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the counterfactual_id and the status.
+
+7.13 Intervention Comparison View
+function interventionComparisonView(counterfactualIds, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read each counterfactual.
+
+Step 3. Build the comparison by overlaying the outcome changes on the same axes.
+
+Step 4. Return the comparison.
+
+7.14 Counterfactual Map
+function counterfactualMap(modelReference, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read all counterfactuals for the model.
+
+Step 3. Build the map with the interventions as positions and the outcome changes as sizes or colours.
+
+Step 4. Return the map.
+
+7.15 Find Related Counterfactuals
+function findRelatedCounterfactuals(counterfactualId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the counterfactual. If null, return an error.
+
+Step 3. Find counterfactuals with the same model reference, the same intervention kind, or the same outcome measure.
+
+Step 4. Return the related counterfactuals.
+
+7.16 Audit Log
+function auditLog(query, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Build and execute the query.
+
+Step 3. Return the results.
+
+7.17 Backup
+function backup(auth, options):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. If sql, dump as SQL. If json, dump as JSON.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the output and the format.
+
+7.18 Restore
+function restore(file, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Load the database from the file.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the status restored.
+
+8. Data Model
+The explorer's internal state is the set of tables. The API's internal state is a request object and a response object.
+
+Request object:
+
+operation
+
+resource
+
+record_id
+
+record_json
+
+query
+
+auth
+
+Response object:
+
+status
+
+result
+
+error
+
+audit_id
+
+9. Architecture
+Module breakdown:
+
+Counterfactual Schema.
+
+Database Schema.
+
+Counterfactual Loader.
+
+Counterfactual Writer.
+
+Counterfactual Reader.
+
+Counterfactual Updater.
+
+Counterfactual Deleter.
+
+Query Engine.
+
+Full-Text Search Engine.
+
+Aggregation Engine.
+
+Exporter.
+
+Importer.
+
+Bulk Import and Export.
+
+REST API.
+
+GraphQL API.
+
+Command-Line Interface.
+
+Authentication and Authorization.
+
+Audit Logging.
+
+Backup and Restore.
+
+Web Interface.
+
+Moderation Workflow.
+
+Intervention Comparison View.
+
+Counterfactual Map.
+
+Related-Counterfactual Finder.
+
+Migration Manager.
+
+Intervention Runner.
+
+Material-Change Evaluator.
+
+Data flow:
+
+API requests go to the REST or GraphQL API.
+
+The API calls the counterfactual loader, writer, reader, updater, deleter, query engine, search engine, aggregation engine, exporter, or importer.
+
+The intervention runner calls App 9 if the model requires simulation, or evaluates the model directly if it is analytic.
+
+The material-change evaluator applies the test.
+
+The database schema stores the data.
+
+The audit logging records every operation.
+
+The authentication and authorization check access.
+
+The moderation workflow handles moderation.
+
+The intervention comparison view and the counterfactual map visualise.
+
+The related-counterfactual finder finds relations.
+
+The backup and restore handle backup.
+
+The web interface provides depositing, browsing, and querying.
+
+10. Technology Stack
+Recommended for the database:
+
+Database: PostgreSQL 15+ or SQLite 3.40+.
+
+Language: Python 3.11+ or Node.js 20+.
+
+ORM: SQLAlchemy or Prisma.
+
+Migrations: Alembic or Prisma Migrate.
+
+Full-text search: PostgreSQL tsvector or SQLite FTS5.
+
+Recommended for the REST API:
+
+Framework: FastAPI or Express.
+
+Authentication: FastAPI Users or Passport.
+
+Recommended for the GraphQL API:
+
+Framework: Strawberry or Apollo Server.
+
+Recommended for the command-line interface:
+
+Framework: Click or Commander.
+
+Recommended for the web interface:
+
+Frontend: React or Svelte.
+
+Backend: the same as the REST API.
+
+Recommended for deployment:
+
+Containerization: Docker.
+
+Orchestration: Docker Compose or Kubernetes.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The STAG schema (Artifact 2, Appendix B.1).
+
+The Null-Model Protocol schema (from App 8 and App 9).
+
+The PROV-O exporter (App 3).
+
+The STAG schema library (App 17).
+
+The Null-Model Protocol library (App 18).
+
+The full-pipeline simulator (App 9).
+
+The provenance database (App 20).
+
+The numerical verification tool (App 22).
+
+The Physics Knowledge Library (App 23).
+
+The Autofill Library Service (App 49).
+
+11. UI/UX Specification
+REST API:
+
+Base URL: https://api.example.com/v1.
+
+Authentication: Bearer token.
+
+Endpoints:
+
+GET /counterfactuals.
+
+GET /counterfactuals/{id}.
+
+POST /counterfactuals.
+
+PUT /counterfactuals/{id}.
+
+DELETE /counterfactuals/{id}.
+
+GET /counterfactuals/{id}/provo.
+
+GET /counterfactuals/{id}/turtle.
+
+GET /counterfactuals/{id}/related.
+
+GET /counterfactuals/{id}/stag.
+
+GET /counterfactuals/{id}/null-model.
+
+GET /counterfactuals/{id}/verification.
+
+GET /counterfactuals/{id}/work.
+
+GET /counterfactuals/by-model/{model_reference}.
+
+GET /counterfactuals/{id}/comparison.
+
+POST /run-intervention. Run an intervention without saving.
+
+POST /query.
+
+POST /aggregate.
+
+POST /search.
+
+GET /map/{model_reference}.
+
+POST /bulk/import.
+
+POST /bulk/export.
+
+POST /moderate/{id}.
+
+GET /audit.
+
+Responses in JSON.
+
+HTTP status codes: 200, 201, 204, 400, 401, 403, 404, 409, 422, 500.
+
+GraphQL API:
+
+Endpoint: https://api.example.com/graphql.
+
+Schema exposes the entities and their relationships.
+
+Command-line interface:
+
+Usage: counterfactual-explorer [command] [options].
+
+Commands: init, migrate, backup, restore, import, export, query, aggregate, moderate, audit, run-intervention.
+
+Web interface:
+
+A browsable list of counterfactuals.
+
+A deposit form.
+
+A run-intervention form.
+
+A search box.
+
+A filter panel.
+
+An aggregation view.
+
+An intervention comparison view.
+
+A counterfactual map.
+
+A detail view.
+
+A moderation view.
+
+12. Validation Engine Design
+The registry validates the following.
+
+Validation 1. Counterfactual validity. Every counterfactual is validated against the schema.
+
+Validation 2. STAG annotation validity.
+
+Validation 3. Null-Model Protocol result validity.
+
+Validation 4. Numerical verification result validity.
+
+Validation 5. Referential integrity.
+
+Validation 6. Version chain acyclicity.
+
+Validation 7. Work resolution. Every work_reference must resolve or be flagged.
+
+Validation 8. Provenance completeness.
+
+Validation 9. Audit completeness.
+
+Validation 10. Moderation completeness.
+
+Validation 11. Outcome consistency. The outcome change must be consistent with the outcomes.
+
+Validation 12. Material-change consistency. The material-change result must be consistent with the test.
+
+13. Testing Strategy
+Unit tests:
+
+Counterfactual Schema for valid and invalid counterfactuals.
+
+Database Schema for each table and index.
+
+Counterfactual Loader.
+
+Counterfactual Writer.
+
+Counterfactual Reader.
+
+Counterfactual Updater.
+
+Counterfactual Deleter.
+
+Query Engine.
+
+Full-Text Search Engine.
+
+Aggregation Engine.
+
+Exporter.
+
+Importer.
+
+Bulk Import and Export.
+
+REST API.
+
+GraphQL API.
+
+Command-Line Interface.
+
+Authentication and Authorization.
+
+Audit Logging.
+
+Backup and Restore.
+
+Web Interface.
+
+Moderation Workflow.
+
+Intervention Comparison View.
+
+Counterfactual Map.
+
+Related-Counterfactual Finder.
+
+Migration Manager.
+
+Intervention Runner.
+
+Material-Change Evaluator.
+
+Integration tests:
+
+Create a counterfactual. Read it back.
+
+Update a counterfactual.
+
+Delete a counterfactual.
+
+Query by each field.
+
+Aggregate by each dimension.
+
+Search by full text.
+
+Export as JSON, PROV-O, and Turtle.
+
+Bulk import and export.
+
+Backup and restore.
+
+Moderate a counterfactual.
+
+Compare two interventions.
+
+Generate the counterfactual map.
+
+Run an intervention without saving.
+
+Worked-example tests:
+
+Deposit the counterfactual for the two-layer Ising model: set J_int to zero, measure the change in the universality class.
+
+Deposit the counterfactual for the Fröhlich/Eliashberg model: set the electron-phonon coupling to zero, measure the change in the superconducting gap.
+
+Deposit the counterfactual for a climate model: remove the anthropogenic forcing, measure the change in global temperature.
+
+Deposit the counterfactual for an economic model: remove a tax, measure the change in output.
+
+Regression tests:
+
+Counterfactual determinism.
+
+Query consistency.
+
+Aggregation consistency.
+
+Audit log consistency.
+
+Moderation consistency.
+
+Outcome consistency.
+
+Material-change consistency.
+
+14. Build Phases
+Phase 1. Counterfactual Schema.
+
+Phase 2. Database Schema.
+
+Phase 3. Counterfactual Loader.
+
+Phase 4. Counterfactual Writer.
+
+Phase 5. Counterfactual Reader.
+
+Phase 6. Counterfactual Updater.
+
+Phase 7. Counterfactual Deleter.
+
+Phase 8. Query Engine.
+
+Phase 9. Full-Text Search Engine.
+
+Phase 10. Aggregation Engine.
+
+Phase 11. Exporter.
+
+Phase 12. Importer.
+
+Phase 13. Bulk Import and Export.
+
+Phase 14. REST API.
+
+Phase 15. GraphQL API.
+
+Phase 16. Command-Line Interface.
+
+Phase 17. Authentication and Authorization.
+
+Phase 18. Audit Logging.
+
+Phase 19. Backup and Restore.
+
+Phase 20. Web Interface.
+
+Phase 21. Moderation Workflow.
+
+Phase 22. Intervention Comparison View.
+
+Phase 23. Counterfactual Map.
+
+Phase 24. Related-Counterfactual Finder.
+
+Phase 25. Migration Manager.
+
+Phase 26. Intervention Runner.
+
+Phase 27. Material-Change Evaluator.
+
+Phase 28. Worked-example tests.
+
+Phase 29. Integration testing and hardening.
+
+Phase 30. Packaging and deployment.
+
+15. Dependencies
+Python path:
+
+SQLAlchemy.
+
+Alembic.
+
+FastAPI.
+
+Strawberry.
+
+FastAPI Users.
+
+Click.
+
+psycopg2.
+
+sqlite3.
+
+jsonschema.
+
+hashlib.
+
+json.
+
+pytest.
+
+Node.js path:
+
+Prisma.
+
+Express.
+
+Apollo Server.
+
+Passport.
+
+Commander.
+
+pg.
+
+better-sqlite3.
+
+ajv.
+
+crypto.
+
+JSON.
+
+Vitest.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The STAG schema (Artifact 2, Appendix B.1).
+
+The Null-Model Protocol schema (from App 8 and App 9).
+
+The PROV-O exporter (App 3).
+
+The STAG schema library (App 17).
+
+The Null-Model Protocol library (App 18).
+
+The full-pipeline simulator (App 9).
+
+The provenance database (App 20).
+
+The numerical verification tool (App 22).
+
+The Physics Knowledge Library (App 23).
+
+The Autofill Library Service (App 49).
+
+16. Deployment Notes
+Database:
+
+PostgreSQL for multi-user deployments.
+
+SQLite for single-user deployments.
+
+Backup and restore via pg_dump and pg_restore or the SQLite backup API.
+
+REST API:
+
+Deploy with Docker. Stateless. Scale horizontally.
+
+Use a reverse proxy for TLS.
+
+Log every request for audit.
+
+GraphQL API:
+
+Deploy alongside the REST API.
+
+Use a query depth limit and a query complexity limit.
+
+Command-line interface:
+
+Package as a standalone executable.
+
+Distribute via pip, npm, or a direct download.
+
+Web interface:
+
+Deploy the frontend as a static bundle.
+
+Backend with FastAPI or Express.
+
+Reproducibility:
+
+Record the STAG schema version, the Null-Model Protocol schema version, the counterfactual schema version, and the explorer version.
+
+Record the provenance for every deposit.
+
+Provide a version pin for the schemas.
+
+17. Open Questions to Resolve Before Building
+Question 1. Which runtime first? Python or Node.js.
+
+Question 2. Which database first? PostgreSQL or SQLite.
+
+Question 3. How should the explorer handle the intervention kind? A fixed set, or an open set.
+
+Question 4. How should the explorer handle the outcome measure? A fixed set of measure types, or an open set.
+
+Question 5. How should the explorer handle the material-change test? A fixed set of test types, or an open set.
+
+Question 6. How should the explorer handle the dependence classification? A fixed set, or an open set.
+
+Question 7. How should the explorer run the intervention? Call App 9, or evaluate the model directly, or both.
+
+Question 8. How should the explorer handle the outcome uncertainty? Record it, or ignore it.
+
+Question 9. How should the explorer handle the quantities held fixed? A free-text field, or a structured list.
+
+Question 10. How should the explorer handle the moderation workflow? Pending until approved, auto-approved, or require a moderator.
+
+Question 11. How should the explorer handle the STAG annotation? Required, optional, or optional depending on the intervention kind.
+
+Question 12. How should the explorer handle the Null-Model Protocol result? Required, optional, or optional depending on the intervention kind.
+
+Question 13. How should the explorer handle the numerical verification result?
+
+Question 14. How should the explorer handle the work reference?
+
+Question 15. How should the explorer handle the intervention comparison view? An overlay of outcome changes, a side-by-side table, or both.
+
+Question 16. How should the explorer handle the counterfactual map? A scatter plot, a network graph, or both.
+
+Question 17. Should the explorer integrate with the STAG schema library (App 17), the Null-Model Protocol library (App 18), the full-pipeline simulator (App 9), the provenance database (App 20), the numerical verification tool (App 22), and the Physics Knowledge Library (App 23)?
+
+Question 18. Should the explorer support federation with other instances of itself?
+
+Question 19. How should the explorer handle the deposit of a counterfactual that is already in the explorer? Reject, create a new version, or create a separate record with a cross-reference.
+
+Question 20. Should the explorer support autofill via App 49? If so, which library does it register?
+
+End of build specification for App 30, the Counterfactual Explorer.
