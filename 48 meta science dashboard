@@ -1,0 +1,1871 @@
+Build Specification — App 48: The Meta-Science Dashboard
+Completeness status: COMPLETE. All sections delivered in one pass. No truncation. Formatted for copy-paste. Long lists are broken into short lines.
+
+1. What It Is
+A provenance-aware, versioned dashboard that shows the state of a scientific field. The state of a field is described by how many claims are contested, how many have been replicated, how many have been retracted, how many have been superseded, and how those numbers change over time. The Meta-Science Dashboard aggregates the data from the other apps in the suite, computes the field-level metrics, and presents them as a live dashboard. It is the top-level view of the suite, the place where the whole system's output is summarised.
+
+It reuses:
+
+the Physics Knowledge Library (App 23)
+
+the Replication Tracker (App 26)
+
+the Anomaly Register (App 25)
+
+the Medical Claim Verifier (App 40)
+
+the Psychological Effect Registry (App 41)
+
+the Climate Attribution Registry (App 42)
+
+the Historical Claim Registry (App 38)
+
+the Mathematical Conjecture Registry (App 44)
+
+the Claim Lifecycle Tracker (App 45)
+
+the Evidence Aggregator (App 46)
+
+the Provenance-Aware Annotation Database (App 20)
+
+the PROV-O Exporter (App 3)
+
+the Revision History Viewer (App 7)
+
+the Autofill Library Service (App 49)
+
+It is for funders, journal editors, meta-scientists, science policymakers, and anyone who wants to see the state of a field.
+
+2. Core Requirements
+Functional requirements:
+
+Accept a field selection from the user.
+
+Aggregate the data from the other apps for the selected field.
+
+Compute the field-level metrics: claims contested, claims replicated, claims retracted, claims superseded, claims open.
+
+Compute the trends: how the metrics change over time.
+
+Compute the comparison: how the field compares to other fields.
+
+Compute the hotspots: which claims have the most activity.
+
+Compute the cold spots: which claims have the least activity.
+
+Compute the funding impact: how much funding has gone to which claims.
+
+Compute the time-to-resolution: how long claims take to resolve.
+
+Compute the replication rate: what fraction of claims have been replicated.
+
+Compute the retraction rate: what fraction of claims have been retracted.
+
+Compute the evidence strength distribution: how the evidence strength is distributed across claims.
+
+Record the dashboard state: the field, the time period, the metrics, the trends.
+
+Record the data sources: which apps contributed which data.
+
+Record the provenance: the data collection date, the aggregation tool version.
+
+Enforce provenance completeness.
+
+Enforce versioning.
+
+Enforce supersession acyclicity.
+
+Support querying by dashboard ID, field, time period, metric, depositor, deposit date, and keywords.
+
+Support full-text search of the dashboard description, the metrics, and the notes.
+
+Support exporting a dashboard as JSON, PROV-O, and Turtle.
+
+Support importing a dashboard from JSON.
+
+Support bulk import and bulk export.
+
+Support a REST API for CRUD operations.
+
+Support a GraphQL API for flexible queries.
+
+Support a command-line interface for administration.
+
+Support authentication and authorization.
+
+Support audit logging.
+
+Support backup and restore.
+
+Support a web interface.
+
+Support moderation.
+
+Support the field overview: a visualisation of the field's metrics.
+
+Support the trend view: a visualisation of how the metrics change over time.
+
+Support the comparison view: a visualisation that compares the field to other fields.
+
+Support the hotspot view: a visualisation of the claims with the most activity.
+
+Support the cold spot view: a visualisation of the claims with the least activity.
+
+Support the funding view: a visualisation of the funding impact.
+
+Support the time-to-resolution view: a visualisation of the time-to-resolution distribution.
+
+Support the evidence strength view: a visualisation of the evidence strength distribution.
+
+Non-functional requirements:
+
+Deterministic.
+
+Fast: query a typical dashboard in under 500 milliseconds.
+
+Scalable: support up to 10^7 records across the suite.
+
+Versioned: the system records the STAG schema version, the Null-Model Protocol schema version, the meta-science schema version, and the system version.
+
+Reproducible.
+
+Portable.
+
+Well-documented.
+
+3. Input Specification
+Input 1. Field selection. Required. The field to dashboard.
+
+Input 2. Time period. Required. The period to dashboard.
+
+Input 3. Subfield selection. Optional. The subfield to dashboard.
+
+Input 4. Data sources. Required. Which apps to pull data from.
+
+Input 5. Provenance record. Required.
+
+Input 6. Query.
+
+Input 7. Aggregation query.
+
+Input 8. Authentication credentials.
+
+Input 9. Bulk import file.
+
+Input 10. Bulk export query.
+
+4. Output Specification
+Output 1. Dashboard record. JSON.
+
+Output 2. PROV-O serialization.
+
+Output 3. Turtle serialization.
+
+Output 4. Query result. JSON.
+
+Output 5. Aggregation result. JSON.
+
+Output 6. Full-text search result. JSON.
+
+Output 7. Field overview. JSON or a rendered view.
+
+Output 8. Trend view. JSON or a rendered view.
+
+Output 9. Comparison view. JSON or a rendered view.
+
+Output 10. Hotspot view. JSON or a rendered view.
+
+Output 11. Cold spot view. JSON or a rendered view.
+
+Output 12. Funding view. JSON or a rendered view.
+
+Output 13. Time-to-resolution view. JSON or a rendered view.
+
+Output 14. Evidence strength view. JSON or a rendered view.
+
+Output 15. Bulk export file.
+
+Output 16. Audit log entry. JSON.
+
+Output 17. API response. JSON.
+
+Output 18. GraphQL response. JSON.
+
+Output 19. Backup file.
+
+5. Module-by-Module Specification
+Module 1. Meta-Science Schema.
+
+Defines the structure of a meta-science dashboard record.
+
+Module 2. Database Schema.
+
+The tables and indexes.
+
+Module 3. Dashboard Loader.
+
+Reads and validates a dashboard record.
+
+Module 4. Dashboard Writer.
+
+Writes a dashboard record to the database.
+
+Module 5. Dashboard Reader.
+
+Reads a dashboard record from the database.
+
+Module 6. Dashboard Updater.
+
+Updates a dashboard record.
+
+Module 7. Dashboard Deleter.
+
+Deletes a dashboard record.
+
+Module 8. Query Engine.
+
+Executes queries.
+
+Module 9. Full-Text Search Engine.
+
+Executes full-text search.
+
+Module 10. Aggregation Engine.
+
+Executes aggregation queries.
+
+Module 11. Metrics Calculator.
+
+Computes the field-level metrics.
+
+Module 12. Trend Calculator.
+
+Computes the trends.
+
+Module 13. Comparison Calculator.
+
+Computes the comparison with other fields.
+
+Module 14. Exporter.
+
+Exports a dashboard as JSON, PROV-O, and Turtle.
+
+Module 15. Importer.
+
+Imports a dashboard from JSON.
+
+Module 16. Bulk Import and Export.
+
+Bulk operations.
+
+Module 17. REST API.
+
+HTTP endpoints.
+
+Module 18. GraphQL API.
+
+GraphQL endpoint.
+
+Module 19. Command-Line Interface.
+
+Administration commands.
+
+Module 20. Authentication and Authorization.
+
+Access control.
+
+Module 21. Audit Logging.
+
+Logs operations.
+
+Module 22. Backup and Restore.
+
+Database backup and restore.
+
+Module 23. Web Interface.
+
+Depositing, browsing, querying.
+
+Module 24. Moderation Workflow.
+
+Moderation of dashboards.
+
+Module 25. Field Overview.
+
+Visualises the field's metrics.
+
+Module 26. Trend View.
+
+Visualises how the metrics change over time.
+
+Module 27. Comparison View.
+
+Compares the field to other fields.
+
+Module 28. Hotspot View.
+
+Visualises the claims with the most activity.
+
+Module 29. Cold Spot View.
+
+Visualises the claims with the least activity.
+
+Module 30. Funding View.
+
+Visualises the funding impact.
+
+Module 31. Time-to-Resolution View.
+
+Visualises the time-to-resolution distribution.
+
+Module 32. Evidence Strength View.
+
+Visualises the evidence strength distribution.
+
+Module 33. Source App Integrator.
+
+Integrates with the other apps to pull the data.
+
+Module 34. Migration Manager.
+
+Database migrations.
+
+6. Full Meta-Science Specification
+6.1 Meta-Science Schema
+The meta-science schema defines the structure of a meta-science dashboard record.
+
+It has the following fields:
+
+dashboard_id. A string. Required.
+
+dashboard_name. A string. Required.
+
+field. A string. Required.
+
+subfield. A string. Optional.
+
+time_period. An object. Required. It contains start_date and end_date.
+
+data_sources. An array of source objects. Required.
+
+metrics. An object. Required. It contains claims_contested, claims_replicated, claims_retracted, claims_superseded, claims_open, claims_total.
+
+trends. An array of trend objects. Required.
+
+comparisons. An array of comparison objects. Optional.
+
+hotspots. An array of hotspot objects. Optional.
+
+cold_spots. An array of cold spot objects. Optional.
+
+funding_impact. An object. Optional. It contains total_funding, funding_per_claim, and funding_distribution.
+
+time_to_resolution. An object. Optional. It contains median_months, mean_months, and distribution.
+
+replication_rate. A number. Optional.
+
+retraction_rate. A number. Optional.
+
+evidence_strength_distribution. An object. Optional. It contains strong, moderate, weak, and inconclusive counts.
+
+provenance. An object. Required.
+
+keywords. An array of strings. Optional.
+
+notes. A string. Optional.
+
+moderation_status. An enum. The values are pending, approved, rejected.
+
+version. An integer.
+
+supersedes. A string. Optional.
+
+superseded_by. A string. Optional.
+
+Each source object has:
+
+source_id. A string.
+
+source_app. An enum. The values are physics_knowledge_library, replication_tracker, anomaly_register, medical_claim_verifier, psychological_effect_registry, climate_attribution_registry, historical_claim_registry, mathematical_conjecture_registry, claim_lifecycle_tracker, evidence_aggregator, other.
+
+source_record_count. An integer.
+
+source_last_updated. A string in ISO8601 format.
+
+Each trend object has:
+
+trend_id. A string.
+
+metric_name. An enum. The values are claims_contested, claims_replicated, claims_retracted, claims_superseded, claims_open, claims_total, replication_rate, retraction_rate, time_to_resolution, evidence_strength.
+
+trend_period. An object. It contains start_date and end_date.
+
+trend_values. An array of time series values.
+
+trend_direction. An enum. The values are increasing, decreasing, stable, oscillating, unclear.
+
+Each comparison object has:
+
+comparison_id. A string.
+
+compared_field. A string.
+
+compared_metrics. An object. It contains claims_contested, claims_replicated, claims_retracted, claims_superseded, claims_open, claims_total.
+
+notes. A string. Optional.
+
+Each hotspot object has:
+
+hotspot_id. A string.
+
+claim_id. A string.
+
+claim_description. A string.
+
+activity_count. An integer.
+
+activity_type. An enum. The values are replication_attempts, critiques, replications, revisions, funding_events, other.
+
+notes. A string. Optional.
+
+Each cold spot object has:
+
+cold_spot_id. A string.
+
+claim_id. A string.
+
+claim_description. A string.
+
+last_activity_date. A string in ISO8601 format.
+
+months_since_activity. An integer.
+
+notes. A string. Optional.
+
+Each time series value has:
+
+date. A string in ISO8601 format.
+
+value. A number.
+
+6.2 Database Schema
+The database has the following tables.
+
+meta_science_dashboard. Holds the meta-science dashboard records.
+
+Its fields are:
+
+dashboard_id
+
+dashboard_name
+
+field
+
+subfield
+
+time_period
+
+metrics
+
+funding_impact
+
+time_to_resolution
+
+replication_rate
+
+retraction_rate
+
+evidence_strength_distribution
+
+provenance
+
+keywords
+
+notes
+
+moderation_status
+
+version
+
+supersedes
+
+superseded_by
+
+created_at
+
+updated_at
+
+source. Holds the source records.
+
+Its fields are:
+
+source_id
+
+dashboard_id
+
+source_app
+
+source_record_count
+
+source_last_updated
+
+created_at
+
+trend. Holds the trend records.
+
+Its fields are:
+
+trend_id
+
+dashboard_id
+
+metric_name
+
+trend_period
+
+trend_values
+
+trend_direction
+
+created_at
+
+comparison. Holds the comparison records.
+
+Its fields are:
+
+comparison_id
+
+dashboard_id
+
+compared_field
+
+compared_metrics
+
+notes
+
+created_at
+
+hotspot. Holds the hotspot records.
+
+Its fields are:
+
+hotspot_id
+
+dashboard_id
+
+claim_id
+
+claim_description
+
+activity_count
+
+activity_type
+
+notes
+
+created_at
+
+cold_spot. Holds the cold spot records.
+
+Its fields are:
+
+cold_spot_id
+
+dashboard_id
+
+claim_id
+
+claim_description
+
+last_activity_date
+
+months_since_activity
+
+notes
+
+created_at
+
+provenance. Holds the provenance records.
+
+Its fields are:
+
+provenance_id
+
+dashboard_id
+
+depositor_id
+
+depositor_affiliation
+
+timestamp
+
+source
+
+tool_version
+
+operation
+
+created_at
+
+audit_log. Holds the audit log entries.
+
+Its fields are:
+
+audit_id
+
+operation
+
+record_type
+
+record_id
+
+depositor_id
+
+timestamp
+
+result
+
+details
+
+created_at
+
+moderation. Holds the moderation records.
+
+Its fields are:
+
+moderation_id
+
+dashboard_id
+
+moderator_id
+
+moderation_status
+
+moderation_date
+
+moderation_notes
+
+created_at
+
+6.3 Referential Integrity
+Every source.dashboard_id must exist in meta_science_dashboard.
+
+Every trend.dashboard_id must exist in meta_science_dashboard.
+
+Every comparison.dashboard_id must exist in meta_science_dashboard.
+
+Every hotspot.dashboard_id must exist in meta_science_dashboard.
+
+Every cold_spot.dashboard_id must exist in meta_science_dashboard.
+
+Every provenance.dashboard_id must exist in meta_science_dashboard.
+
+Every moderation.dashboard_id must exist in meta_science_dashboard.
+
+The version chain must be acyclic.
+
+6.4 Indexes
+The database has indexes on:
+
+meta_science_dashboard.dashboard_id
+
+meta_science_dashboard.dashboard_name
+
+meta_science_dashboard.field
+
+meta_science_dashboard.subfield
+
+meta_science_dashboard.moderation_status
+
+meta_science_dashboard.keywords
+
+source.dashboard_id
+
+source.source_app
+
+trend.dashboard_id
+
+trend.metric_name
+
+comparison.dashboard_id
+
+hotspot.dashboard_id
+
+cold_spot.dashboard_id
+
+provenance.dashboard_id
+
+provenance.depositor_id
+
+audit_log.operation
+
+audit_log.record_id
+
+moderation.dashboard_id
+
+moderation.moderation_status
+
+Full-text search indexes on the dashboard name, the field, and the notes.
+
+7. Core Logic as Executable Pseudocode
+7.1 Create Meta-Science Dashboard
+function createMetaScienceDashboard(dashboard, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Validate the dashboard against the schema. If invalid, return an error with the details.
+
+Step 3. Generate a dashboard ID. Set the fields: version 1, moderation_status pending, deposit_date now, depositor_id from auth, depositor_affiliation from auth, provenance from provenance.
+
+Step 4. Insert the meta-science dashboard.
+
+Step 5. Insert the source records, the trend records, the comparison records, the hotspot records, and the cold spot records.
+
+Step 6. Insert the provenance.
+
+Step 7. Insert the moderation record.
+
+Step 8. Insert the audit log entry.
+
+Step 9. Return the dashboard_id and the status created.
+
+7.2 Compute Dashboard
+function computeDashboard(dashboardId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the dashboard. If null, return an error.
+
+Step 3. Read the field and the time period.
+
+Step 4. Pull the data from the source apps.
+
+Step 5. Compute the metrics: claims_contested, claims_replicated, claims_retracted, claims_superseded, claims_open, claims_total.
+
+Step 6. Compute the trends for each metric.
+
+Step 7. Compute the comparisons with other fields.
+
+Step 8. Compute the hotspots: the claims with the most activity.
+
+Step 9. Compute the cold spots: the claims with the least activity.
+
+Step 10. Compute the funding impact.
+
+Step 11. Compute the time-to-resolution distribution.
+
+Step 12. Compute the replication rate and the retraction rate.
+
+Step 13. Compute the evidence strength distribution.
+
+Step 14. Update the dashboard's metrics, trends, comparisons, hotspots, cold_spots, funding_impact, time_to_resolution, replication_rate, retraction_rate, and evidence_strength_distribution fields.
+
+Step 15. Insert the audit log entry.
+
+Step 16. Return the dashboard.
+
+7.3 Compute Metrics
+function computeMetrics(field, timePeriod, sourceApps):
+
+Step 1. For each source app, count the claims in the field and the time period.
+
+Step 2. From the Claim Lifecycle Tracker, count the claims by current status.
+
+Step 3. From the Replication Tracker, count the claims that have been replicated.
+
+Step 4. From the retraction data, count the claims that have been retracted.
+
+Step 5. From the Claim Lifecycle Tracker, count the claims that have been superseded.
+
+Step 6. From the Claim Lifecycle Tracker, count the claims that are still open.
+
+Step 7. Compute the total.
+
+Step 8. Return the metrics.
+
+7.4 Compute Trends
+function computeTrends(field, timePeriod, sourceApps):
+
+Step 1. For each metric, build a time series of its value over the time period.
+
+Step 2. Compute the trend direction: increasing, decreasing, stable, oscillating, unclear.
+
+Step 3. Return the trends.
+
+7.5 Compute Comparisons
+function computeComparisons(field, otherFields, sourceApps):
+
+Step 1. For each other field, compute its metrics.
+
+Step 2. Compare the metrics to the selected field's metrics.
+
+Step 3. Return the comparisons.
+
+7.6 Compute Hotspots
+function computeHotspots(field, timePeriod, sourceApps):
+
+Step 1. For each claim in the field and time period, count its activity: replication attempts, critiques, replications, revisions, funding events.
+
+Step 2. Rank the claims by activity count.
+
+Step 3. Return the top claims as hotspots.
+
+7.7 Compute Cold Spots
+function computeColdSpots(field, sourceApps):
+
+Step 1. For each claim in the field, find its last activity date.
+
+Step 2. Compute the months since the last activity.
+
+Step 3. Rank the claims by months since activity.
+
+Step 4. Return the top claims as cold spots.
+
+7.8 Compute Funding Impact
+function computeFundingImpact(field, sourceApps):
+
+Step 1. Sum the funding for the claims in the field.
+
+Step 2. Compute the funding per claim.
+
+Step 3. Compute the funding distribution: how the funding is spread across claims.
+
+Step 4. Return the funding impact.
+
+7.9 Compute Time to Resolution
+function computeTimeToResolution(field, sourceApps):
+
+Step 1. For each resolved claim in the field, compute the time from the first statement to the resolution.
+
+Step 2. Compute the median, the mean, and the distribution.
+
+Step 3. Return the time-to-resolution metrics.
+
+7.10 Compute Replication Rate
+function computeReplicationRate(field, sourceApps):
+
+Step 1. Count the claims in the field.
+
+Step 2. Count the claims that have been replicated.
+
+Step 3. Divide the replicated count by the total count.
+
+Step 4. Return the replication rate.
+
+7.11 Compute Retraction Rate
+function computeRetractionRate(field, sourceApps):
+
+Step 1. Count the claims in the field.
+
+Step 2. Count the claims that have been retracted.
+
+Step 3. Divide the retracted count by the total count.
+
+Step 4. Return the retraction rate.
+
+7.12 Compute Evidence Strength Distribution
+function computeEvidenceStrengthDistribution(field, sourceApps):
+
+Step 1. For each claim in the field, get the aggregate evidence strength from the Evidence Aggregator.
+
+Step 2. Count the claims by strength: strong, moderate, weak, inconclusive.
+
+Step 3. Return the distribution.
+
+7.13 Read Meta-Science Dashboard
+function readMetaScienceDashboard(dashboardId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the dashboard. If null, return an error.
+
+Step 3. Read the sources, the trends, the comparisons, the hotspots, the cold spots, the provenance, and the moderation.
+
+Step 4. Reconstruct the dashboard record.
+
+Step 5. Insert the audit log entry.
+
+Step 6. Return the dashboard record.
+
+7.14 Query Meta-Science Dashboards
+function queryMetaScienceDashboards(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the query.
+
+Step 3. Read the matching dashboards.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the dashboards, the count, and the pagination.
+
+7.15 Full-Text Search
+function fullTextSearch(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the search.
+
+Step 3. Read the matching dashboards.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the dashboards and the count.
+
+7.16 Export Meta-Science Dashboard
+function exportMetaScienceDashboard(dashboardId, format, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the dashboard record.
+
+Step 3. If json, output the dashboard record. If provo, export to PROV-O. If turtle, serialize to Turtle.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the output and the format.
+
+7.17 Bulk Import
+function bulkImport(file, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Parse the file.
+
+Step 3. For each dashboard, call createMetaScienceDashboard.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the results and the count.
+
+7.18 Bulk Export
+function bulkExport(query, format, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the matching dashboards.
+
+Step 3. If json, output the list. If jsonl, output one line per dashboard. If provo, export each one.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the output and the count.
+
+7.19 Field Overview
+function fieldOverview(dashboardId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the dashboard. If null, return an error.
+
+Step 3. Read the metrics.
+
+Step 4. Build the view with the metrics.
+
+Step 5. Return the view.
+
+7.20 Trend View
+function trendView(dashboardId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the dashboard. If null, return an error.
+
+Step 3. Read the trends.
+
+Step 4. Build the view with the trends.
+
+Step 5. Return the view.
+
+7.21 Comparison View
+function comparisonView(dashboardId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the dashboard. If null, return an error.
+
+Step 3. Read the comparisons.
+
+Step 4. Build the view with the comparisons.
+
+Step 5. Return the view.
+
+7.22 Hotspot View
+function hotspotView(dashboardId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the dashboard. If null, return an error.
+
+Step 3. Read the hotspots.
+
+Step 4. Build the view with the hotspots.
+
+Step 5. Return the view.
+
+7.23 Cold Spot View
+function coldSpotView(dashboardId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the dashboard. If null, return an error.
+
+Step 3. Read the cold spots.
+
+Step 4. Build the view with the cold spots.
+
+Step 5. Return the view.
+
+7.24 Funding View
+function fundingView(dashboardId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the dashboard. If null, return an error.
+
+Step 3. Read the funding impact.
+
+Step 4. Build the view with the funding impact.
+
+Step 5. Return the view.
+
+7.25 Time-to-Resolution View
+function timeToResolutionView(dashboardId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the dashboard. If null, return an error.
+
+Step 3. Read the time-to-resolution metrics.
+
+Step 4. Build the view with the time-to-resolution distribution.
+
+Step 5. Return the view.
+
+7.26 Evidence Strength View
+function evidenceStrengthView(dashboardId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the dashboard. If null, return an error.
+
+Step 3. Read the evidence strength distribution.
+
+Step 4. Build the view with the evidence strength distribution.
+
+Step 5. Return the view.
+
+7.27 Audit Log
+function auditLog(query, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Build and execute the query.
+
+Step 3. Return the results.
+
+7.28 Backup
+function backup(auth, options):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. If sql, dump as SQL. If json, dump as JSON.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the output and the format.
+
+7.29 Restore
+function restore(file, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Load the database from the file.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the status restored.
+
+8. Data Model
+The system's internal state is the set of tables. The API's internal state is a request object and a response object.
+
+Request object:
+
+operation
+
+resource
+
+record_id
+
+record_json
+
+query
+
+auth
+
+Response object:
+
+status
+
+result
+
+error
+
+audit_id
+
+9. Architecture
+Module breakdown:
+
+Meta-Science Schema.
+
+Database Schema.
+
+Dashboard Loader.
+
+Dashboard Writer.
+
+Dashboard Reader.
+
+Dashboard Updater.
+
+Dashboard Deleter.
+
+Query Engine.
+
+Full-Text Search Engine.
+
+Aggregation Engine.
+
+Metrics Calculator.
+
+Trend Calculator.
+
+Comparison Calculator.
+
+Exporter.
+
+Importer.
+
+Bulk Import and Export.
+
+REST API.
+
+GraphQL API.
+
+Command-Line Interface.
+
+Authentication and Authorization.
+
+Audit Logging.
+
+Backup and Restore.
+
+Web Interface.
+
+Moderation Workflow.
+
+Field Overview.
+
+Trend View.
+
+Comparison View.
+
+Hotspot View.
+
+Cold Spot View.
+
+Funding View.
+
+Time-to-Resolution View.
+
+Evidence Strength View.
+
+Source App Integrator.
+
+Migration Manager.
+
+Data flow:
+
+API requests go to the REST or GraphQL API.
+
+The API calls the dashboard loader, writer, reader, updater, deleter, query engine, search engine, aggregation engine, metrics calculator, trend calculator, comparison calculator, exporter, or importer.
+
+The source app integrator pulls the data from the other apps.
+
+The metrics calculator, the trend calculator, and the comparison calculator compute the field-level metrics.
+
+The database schema stores the data.
+
+The audit logging records every operation.
+
+The authentication and authorization check access.
+
+The moderation workflow handles moderation.
+
+The field overview, the trend view, the comparison view, the hotspot view, the cold spot view, the funding view, the time-to-resolution view, and the evidence strength view visualise.
+
+The backup and restore handle backup.
+
+The web interface provides depositing, browsing, and querying.
+
+10. Technology Stack
+Recommended for the database:
+
+Database: PostgreSQL 15+ or SQLite 3.40+.
+
+Language: Python 3.11+ or Node.js 20+.
+
+ORM: SQLAlchemy or Prisma.
+
+Migrations: Alembic or Prisma Migrate.
+
+Full-text search: PostgreSQL tsvector or SQLite FTS5.
+
+Recommended for the REST API:
+
+Framework: FastAPI or Express.
+
+Authentication: FastAPI Users or Passport.
+
+Recommended for the GraphQL API:
+
+Framework: Strawberry or Apollo Server.
+
+Recommended for the command-line interface:
+
+Framework: Click or Commander.
+
+Recommended for the web interface:
+
+Frontend: React or Svelte with a charting library such as Recharts or Chart.js.
+
+Backend: the same as the REST API.
+
+Recommended for deployment:
+
+Containerization: Docker.
+
+Orchestration: Docker Compose or Kubernetes.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The Null-Model Protocol schema (from App 8 and App 9).
+
+The PROV-O exporter (App 3).
+
+The STAG schema library (App 17).
+
+The Null-Model Protocol library (App 18).
+
+The provenance database (App 20).
+
+The revision history viewer (App 7).
+
+The Physics Knowledge Library (App 23).
+
+The Replication Tracker (App 26).
+
+The Anomaly Register (App 25).
+
+The Medical Claim Verifier (App 40).
+
+The Psychological Effect Registry (App 41).
+
+The Climate Attribution Registry (App 42).
+
+The Historical Claim Registry (App 38).
+
+The Mathematical Conjecture Registry (App 44).
+
+The Claim Lifecycle Tracker (App 45).
+
+The Evidence Aggregator (App 46).
+
+The Autofill Library Service (App 49).
+
+11. UI/UX Specification
+REST API:
+
+Base URL: https://api.example.com/v1.
+
+Authentication: Bearer token.
+
+Endpoints:
+
+GET /dashboards.
+
+GET /dashboards/{id}.
+
+POST /dashboards.
+
+PUT /dashboards/{id}.
+
+DELETE /dashboards/{id}.
+
+POST /dashboards/{id}/compute.
+
+GET /dashboards/{id}/provo.
+
+GET /dashboards/{id}/turtle.
+
+GET /dashboards/{id}/sources.
+
+GET /dashboards/{id}/trends.
+
+GET /dashboards/{id}/comparisons.
+
+GET /dashboards/{id}/hotspots.
+
+GET /dashboards/{id}/cold-spots.
+
+GET /dashboards/by-field/{field}.
+
+GET /dashboards/{id}/field-overview.
+
+GET /dashboards/{id}/trend-view.
+
+GET /dashboards/{id}/comparison-view.
+
+GET /dashboards/{id}/hotspot-view.
+
+GET /dashboards/{id}/cold-spot-view.
+
+GET /dashboards/{id}/funding-view.
+
+GET /dashboards/{id}/time-to-resolution-view.
+
+GET /dashboards/{id}/evidence-strength-view.
+
+POST /query.
+
+POST /aggregate.
+
+POST /search.
+
+POST /bulk/import.
+
+POST /bulk/export.
+
+POST /moderate/{id}.
+
+GET /audit.
+
+Responses in JSON.
+
+HTTP status codes: 200, 201, 204, 400, 401, 403, 404, 409, 422, 500.
+
+GraphQL API:
+
+Endpoint: https://api.example.com/graphql.
+
+Schema exposes the entities and their relationships.
+
+Command-line interface:
+
+Usage: meta-science-dashboard [command] [options].
+
+Commands: init, migrate, backup, restore, import, export, query, aggregate, moderate, audit, compute.
+
+Web interface:
+
+A browsable list of dashboards.
+
+A deposit form.
+
+A search box.
+
+A filter panel.
+
+An aggregation view.
+
+A field overview.
+
+A trend view.
+
+A comparison view.
+
+A hotspot view.
+
+A cold spot view.
+
+A funding view.
+
+A time-to-resolution view.
+
+An evidence strength view.
+
+A detail view for each dashboard.
+
+A moderation view.
+
+12. Validation Engine Design
+The system validates the following.
+
+Validation 1. Dashboard validity. Every dashboard is validated against the schema.
+
+Validation 2. Referential integrity.
+
+Validation 3. Version chain acyclicity.
+
+Validation 4. Provenance completeness.
+
+Validation 5. Audit completeness.
+
+Validation 6. Moderation completeness.
+
+Validation 7. Source consistency. The source data must be consistent with the source apps.
+
+Validation 8. Metric consistency. The metrics must be consistent with each other and with the source data.
+
+Validation 9. Trend consistency. The trends must be consistent with the metrics over time.
+
+Validation 10. Comparison consistency. The comparisons must be consistent with the compared fields.
+
+Validation 11. Rate consistency. The replication rate and the retraction rate must be consistent with the metrics.
+
+Validation 12. Distribution consistency. The evidence strength distribution must sum to the total.
+
+13. Testing Strategy
+Unit tests:
+
+Meta-Science Schema for valid and invalid dashboards.
+
+Database Schema for each table and index.
+
+Dashboard Loader.
+
+Dashboard Writer.
+
+Dashboard Reader.
+
+Dashboard Updater.
+
+Dashboard Deleter.
+
+Query Engine.
+
+Full-Text Search Engine.
+
+Aggregation Engine.
+
+Metrics Calculator.
+
+Trend Calculator.
+
+Comparison Calculator.
+
+Exporter.
+
+Importer.
+
+Bulk Import and Export.
+
+REST API.
+
+GraphQL API.
+
+Command-Line Interface.
+
+Authentication and Authorization.
+
+Audit Logging.
+
+Backup and Restore.
+
+Web Interface.
+
+Moderation Workflow.
+
+Field Overview.
+
+Trend View.
+
+Comparison View.
+
+Hotspot View.
+
+Cold Spot View.
+
+Funding View.
+
+Time-to-Resolution View.
+
+Evidence Strength View.
+
+Source App Integrator.
+
+Migration Manager.
+
+Integration tests:
+
+Create a dashboard. Read it back.
+
+Update a dashboard.
+
+Compute the dashboard. Verify the metrics.
+
+Delete a dashboard.
+
+Query by each field.
+
+Aggregate by each dimension.
+
+Search by full text.
+
+Export as JSON, PROV-O, and Turtle.
+
+Bulk import and export.
+
+Backup and restore.
+
+Moderate a dashboard.
+
+Generate the field overview.
+
+Generate the trend view.
+
+Generate the comparison view.
+
+Generate the hotspot view.
+
+Generate the cold spot view.
+
+Generate the funding view.
+
+Generate the time-to-resolution view.
+
+Generate the evidence strength view.
+
+Worked-example tests:
+
+Dashboard the field of psychology.
+
+Dashboard the field of medicine.
+
+Dashboard the field of climate science.
+
+Dashboard the field of physics.
+
+Dashboard the field of economics.
+
+Dashboard the field of history.
+
+Dashboard the field of mathematics.
+
+Dashboard the field of philosophy.
+
+Dashboard the field of biology.
+
+Dashboard the field of chemistry.
+
+Regression tests:
+
+Dashboard determinism.
+
+Query consistency.
+
+Aggregation consistency.
+
+Audit log consistency.
+
+Moderation consistency.
+
+Source consistency.
+
+Metric consistency.
+
+Trend consistency.
+
+Comparison consistency.
+
+Rate consistency.
+
+Distribution consistency.
+
+14. Build Phases
+Phase 1. Meta-Science Schema.
+
+Phase 2. Database Schema.
+
+Phase 3. Dashboard Loader.
+
+Phase 4. Dashboard Writer.
+
+Phase 5. Dashboard Reader.
+
+Phase 6. Dashboard Updater.
+
+Phase 7. Dashboard Deleter.
+
+Phase 8. Query Engine.
+
+Phase 9. Full-Text Search Engine.
+
+Phase 10. Aggregation Engine.
+
+Phase 11. Metrics Calculator.
+
+Phase 12. Trend Calculator.
+
+Phase 13. Comparison Calculator.
+
+Phase 14. Exporter.
+
+Phase 15. Importer.
+
+Phase 16. Bulk Import and Export.
+
+Phase 17. REST API.
+
+Phase 18. GraphQL API.
+
+Phase 19. Command-Line Interface.
+
+Phase 20. Authentication and Authorization.
+
+Phase 21. Audit Logging.
+
+Phase 22. Backup and Restore.
+
+Phase 23. Web Interface.
+
+Phase 24. Moderation Workflow.
+
+Phase 25. Field Overview.
+
+Phase 26. Trend View.
+
+Phase 27. Comparison View.
+
+Phase 28. Hotspot View.
+
+Phase 29. Cold Spot View.
+
+Phase 30. Funding View.
+
+Phase 31. Time-to-Resolution View.
+
+Phase 32. Evidence Strength View.
+
+Phase 33. Source App Integrator.
+
+Phase 34. Migration Manager.
+
+Phase 35. Worked-example tests.
+
+Phase 36. Integration testing and hardening.
+
+Phase 37. Packaging and deployment.
+
+15. Dependencies
+Python path:
+
+SQLAlchemy.
+
+Alembic.
+
+FastAPI.
+
+Strawberry.
+
+FastAPI Users.
+
+Click.
+
+psycopg2.
+
+sqlite3.
+
+jsonschema.
+
+hashlib.
+
+json.
+
+pytest.
+
+Node.js path:
+
+Prisma.
+
+Express.
+
+Apollo Server.
+
+Passport.
+
+Commander.
+
+pg.
+
+better-sqlite3.
+
+ajv.
+
+crypto.
+
+JSON.
+
+Vitest.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The Null-Model Protocol schema (from App 8 and App 9).
+
+The PROV-O exporter (App 3).
+
+The STAG schema library (App 17).
+
+The Null-Model Protocol library (App 18).
+
+The provenance database (App 20).
+
+The revision history viewer (App 7).
+
+The Physics Knowledge Library (App 23).
+
+The Replication Tracker (App 26).
+
+The Anomaly Register (App 25).
+
+The Medical Claim Verifier (App 40).
+
+The Psychological Effect Registry (App 41).
+
+The Climate Attribution Registry (App 42).
+
+The Historical Claim Registry (App 38).
+
+The Mathematical Conjecture Registry (App 44).
+
+The Claim Lifecycle Tracker (App 45).
+
+The Evidence Aggregator (App 46).
+
+The Autofill Library Service (App 49).
+
+16. Deployment Notes
+Database:
+
+PostgreSQL for multi-user deployments.
+
+SQLite for single-user deployments.
+
+Backup and restore via pg_dump and pg_restore or the SQLite backup API.
+
+REST API:
+
+Deploy with Docker. Stateless. Scale horizontally.
+
+Use a reverse proxy for TLS.
+
+Log every request for audit.
+
+GraphQL API:
+
+Deploy alongside the REST API.
+
+Use a query depth limit and a query complexity limit.
+
+Command-line interface:
+
+Package as a standalone executable.
+
+Distribute via pip, npm, or a direct download.
+
+Web interface:
+
+Deploy the frontend as a static bundle.
+
+Backend with FastAPI or Express.
+
+Reproducibility:
+
+Record the STAG schema version, the Null-Model Protocol schema version, the meta-science schema version, and the system version.
+
+Record the provenance for every deposit.
+
+Provide a version pin for the schemas and codebook.
+
+17. Open Questions to Resolve Before Building
+Question 1. Which runtime first? Python or Node.js.
+
+Question 2. Which database first? PostgreSQL or SQLite.
+
+Question 3. How should the system handle the field and subfield? A fixed taxonomy, or an open set.
+
+Question 4. How should the system handle the source app? A fixed set of apps, or an open set.
+
+Question 5. How should the system handle the metric name? A fixed set of ten values, or an open set.
+
+Question 6. How should the system handle the trend direction? A fixed set of five values, or an open set.
+
+Question 7. How should the system handle the activity type? A fixed set, or an open set.
+
+Question 8. How should the system handle the moderation workflow? Pending until approved, auto-approved, or require a moderator.
+
+Question 9. How should the system handle the data sources? All apps, or only the selected apps.
+
+Question 10. How should the system handle the time period? A fixed set of periods, or a user-supplied period.
+
+Question 11. How should the system handle the field overview? A metric card, a table, or both.
+
+Question 12. How should the system handle the trend view? A line plot, a bar chart, or both.
+
+Question 13. How should the system handle the comparison view? A bar chart, a radar chart, or both.
+
+Question 14. How should the system handle the hotspot view? A bar chart, a heat map, or both.
+
+Question 15. How should the system handle the cold spot view? A bar chart, a heat map, or both.
+
+Question 16. How should the system handle the funding view? A bar chart, a waterfall chart, or both.
+
+Question 17. How should the system handle the time-to-resolution view? A histogram, a box plot, or both.
+
+Question 18. How should the system handle the evidence strength view? A stacked bar chart, a pie chart, or both.
+
+Question 19. Should the system integrate with the STAG schema library (App 17), the Null-Model Protocol library (App 18), the provenance database (App 20), the revision history viewer (App 7), and all the claim registries and trackers in the suite?
+
+Question 20. Should the system support federation with other instances of itself?
+
+Question 21. How should the system handle the deposit of a dashboard that is already in the system? Reject, create a new version, or create a separate record with a cross-reference.
+
+Question 22. Should the system support autofill via App 49? If so, which library does it register?
+
+Question 23. Should the system support a funder view that shows the state of the fields they fund?
+
+Question 24. Should the system support a journal view that shows the state of the fields they publish?
+
+Question 25. Should the system support a public communications view that shows the state of a field in plain language?
+
+Question 26. Should the system support a live mode that updates the dashboard as new data arrives?
+
+Question 27. Should the system support a comparison across countries or regions?
+
+Question 28. Should the system support a comparison across time periods, such as decades?
+
+Question 29. Should the system support a prediction function that estimates the future state of the field?
+
+Question 30. Should the system support a warning function that alerts when a field's metrics change significantly?
+
+End of build specification for App 48, the Meta-Science Dashboard.
+
+All 48 app specifications are now complete.
+
+The full list is:
+
+Apps 1 through 24: the first list.
+
+Apps 25 through 48: the second list.
+
+App 49: the Autofill Library Service.
+
+Each app has a complete build specification with seventeen sections.
+
+Say "done" when you want to stop, or tell me what you want next.
+
