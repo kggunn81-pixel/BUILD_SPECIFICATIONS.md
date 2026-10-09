@@ -1,0 +1,545 @@
+Build Specification — App 12: N Calculator
+Completeness status: COMPLETE. All sections delivered in one pass. No truncation. Formatted for copy-paste into another conversation window. No tables, no boxes.
+
+What It Is
+A small utility for planning a simulation run under the Null-Model Protocol. It takes a target tail probability and a desired relative error, returns the required N using the formula in Section 8 of the Null-Model Protocol paper, and shows the standard tabulated values. It takes in a target tail probability and a desired relative error, and puts out the required N and the Monte Carlo uncertainty at that N. It is for planning a run.
+
+Core Requirements
+Functional requirements:
+
+Accept a target tail probability p.
+
+Accept a desired relative error r.
+
+Compute the required N using the formula N >= (1 - p) / (r^2 * p).
+
+Return the required N as an integer.
+
+Compute the Monte Carlo uncertainty at that N, which is approximately sqrt(p * (1 - p) / N).
+
+Show the standard tabulated values from Section 8 of the Null-Model Protocol paper.
+
+Accept a target tail probability only, and return the tabulated values at relative errors of 10 percent and 1 percent.
+
+Accept a required N only, and return the target tail probability and the relative error that are achievable at that N.
+
+Warn if the required N exceeds a practical limit (for example, 10^9).
+
+Warn if the target tail probability is below the resolution of direct Monte Carlo.
+
+Support the command-line interface and the graphical interface.
+
+Non-functional requirements:
+
+Deterministic: same inputs produce same outputs.
+
+No network dependency.
+
+Fast: compute in under one second.
+
+Versioned: the tool records the formula version and the tool version.
+
+Reproducible: the tool records the inputs and the outputs.
+
+Input Specification
+Input 1. Target tail probability p. Required. A number between 0 and 1.
+
+Input 2. Desired relative error r. Required. A number between 0 and 1.
+
+Input 3. Mode. Optional. Values: compute_N (default), compute_tabulated, compute_from_N.
+
+Input 4. Required N. Required in compute_from_N mode. A positive integer.
+
+Input 5. Output format. Optional. Values: text (default), json.
+
+Input 6. Practical limit. Optional. The maximum N the tool will accept. Default 10^9.
+
+Input 7. Schema version. Optional. Selects the correct formula version.
+
+Output Specification
+Output 1. Required N. Integer. The required number of simulations.
+
+Output 2. Monte Carlo uncertainty. Number. The standard error of p at the required N.
+
+Output 3. Tabulated values. Text or JSON. The standard tabulated values from Section 8 of the Null-Model Protocol paper.
+
+Output 4. Achievable target tail. Number. In compute_from_N mode, the target tail probability achievable at the given N for the given relative error.
+
+Output 5. Achievable relative error. Number. In compute_from_N mode, the relative error achievable at the given N for the given target tail.
+
+Output 6. Warnings. Array of warning objects. Each warning has a code, a message, and the offending field.
+
+Output 7. Reproducibility record. JSON. The formula version, tool version, inputs, and outputs.
+
+Module-by-Module Specification
+Module 1: Input Loader
+Reads the inputs. Validates that the target tail probability is in (0, 1). Validates that the relative error is in (0, 1). Validates that the required N, if provided, is a positive integer.
+
+Module 2: N Calculator
+Computes the required N using the formula from Section 8 of the Null-Model Protocol paper.
+
+The formula is N >= (1 - p) / (r^2 * p).
+
+The result is rounded up to the nearest integer.
+
+Module 3: Monte Carlo Uncertainty Calculator
+Computes the Monte Carlo uncertainty at the required N.
+
+The formula is SE = sqrt(p * (1 - p) / N).
+
+Module 4: Tabulated Values Provider
+Provides the standard tabulated values from Section 8 of the Null-Model Protocol paper.
+
+For a target tail of 0.05, N = 1.9 * 10^3 for a 10 percent relative error, N = 1.9 * 10^5 for a 1 percent relative error.
+
+For a target tail of 0.01, N = 1.0 * 10^4 for a 10 percent relative error, N = 1.0 * 10^6 for a 1 percent relative error.
+
+For a target tail of 10^-3, N = 1.0 * 10^5 for a 10 percent relative error, N = 1.0 * 10^7 for a 1 percent relative error.
+
+For a target tail of 10^-4, N = 1.0 * 10^6 for a 10 percent relative error, N = 1.0 * 10^8 for a 1 percent relative error.
+
+For a target tail of 10^-5, N = 1.0 * 10^7 for a 10 percent relative error, N = 1.0 * 10^9 for a 1 percent relative error.
+
+Module 5: Inverse Calculator
+In compute_from_N mode, computes the achievable target tail probability and the achievable relative error at the given N.
+
+The achievable target tail probability at a given N and relative error r is p such that N = (1 - p) / (r^2 * p). Solving for p gives p = 1 / (1 + N * r^2).
+
+The achievable relative error at a given N and target tail p is r such that N = (1 - p) / (r^2 * p). Solving for r gives r = sqrt((1 - p) / (N * p)).
+
+Module 6: Warning Generator
+Generates warnings for the following conditions:
+
+The required N exceeds the practical limit.
+
+The target tail probability is below the resolution of direct Monte Carlo. The resolution is approximately 1 / (N + 1). If the target tail is below the resolution, the tool warns that the empirical exceedance probability is bounded below by 1 / (N + 1), and below that resolution the analyst should report a bound rather than a point estimate.
+
+The required N is below the minimum recommended for exploratory work. The Null-Model Protocol paper says N = 10^4 is a reasonable minimum for exploratory work.
+
+The relative error is above 0.5, which means the estimate is very imprecise.
+
+Module 7: Report Formatter
+Produces the text and JSON reports.
+
+Module 8: Reproducibility Recorder
+Records the formula version, tool version, inputs, and outputs.
+
+Module 9: Command-Line Interface
+Parses arguments. Invokes Modules 1 through 8. Prints the report to stdout.
+
+Module 10: Graphical Interface (optional)
+A small window with fields for the target tail probability and the desired relative error. Displays the required N, the Monte Carlo uncertainty, and the standard tabulated values in real time.
+
+Full Computation Specification
+6.1 Required N
+The required N for a target tail probability p and a desired relative error r is:
+
+N >= (1 - p) / (r^2 * p).
+
+The result is rounded up to the nearest integer.
+
+For p = 0.05 and r = 0.10, N = 0.95 / (0.01 * 0.05) = 1900.
+
+For p = 0.05 and r = 0.01, N = 0.95 / (0.0001 * 0.05) = 190000.
+
+For p = 0.01 and r = 0.10, N = 0.99 / (0.01 * 0.01) = 9900, rounded up to 10000.
+
+For p = 0.01 and r = 0.01, N = 0.99 / (0.0001 * 0.01) = 990000, rounded up to 1000000.
+
+For p = 0.001 and r = 0.10, N = 0.999 / (0.01 * 0.001) = 99900, rounded up to 100000.
+
+For p = 0.001 and r = 0.01, N = 0.999 / (0.0001 * 0.001) = 9990000, rounded up to 10000000.
+
+For p = 0.0001 and r = 0.10, N = 0.9999 / (0.01 * 0.0001) = 999900, rounded up to 1000000.
+
+For p = 0.0001 and r = 0.01, N = 0.9999 / (0.0001 * 0.0001) = 99990000, rounded up to 100000000.
+
+For p = 0.00001 and r = 0.10, N = 0.99999 / (0.01 * 0.00001) = 9999900, rounded up to 10000000.
+
+For p = 0.00001 and r = 0.01, N = 0.99999 / (0.0001 * 0.00001) = 999990000, rounded up to 1000000000.
+
+6.2 Monte Carlo Uncertainty
+The Monte Carlo uncertainty at the required N is:
+
+SE = sqrt(p * (1 - p) / N).
+
+For p = 0.05 and N = 1900, SE = sqrt(0.05 * 0.95 / 1900) = sqrt(0.000025) = 0.005.
+
+For p = 0.01 and N = 10000, SE = sqrt(0.01 * 0.99 / 10000) = sqrt(0.00000099) = 0.000995.
+
+For p = 0.001 and N = 100000, SE = sqrt(0.001 * 0.999 / 100000) = sqrt(0.00000000999) = 0.0000999.
+
+For p = 0.0001 and N = 1000000, SE = sqrt(0.0001 * 0.9999 / 1000000) = sqrt(0.00000000009999) = 0.000009999.
+
+For p = 0.00001 and N = 10000000, SE = sqrt(0.00001 * 0.99999 / 10000000) = sqrt(0.00000000000099999) = 0.00000099999.
+
+6.3 Tabulated Values
+The standard tabulated values from Section 8 of the Null-Model Protocol paper are:
+
+For a target tail of 0.05: N = 1.9 * 10^3 for a 10 percent relative error; N = 1.9 * 10^5 for a 1 percent relative error.
+
+For a target tail of 0.01: N = 1.0 * 10^4 for a 10 percent relative error; N = 1.0 * 10^6 for a 1 percent relative error.
+
+For a target tail of 10^-3: N = 1.0 * 10^5 for a 10 percent relative error; N = 1.0 * 10^7 for a 1 percent relative error.
+
+For a target tail of 10^-4: N = 1.0 * 10^6 for a 10 percent relative error; N = 1.0 * 10^8 for a 1 percent relative error.
+
+For a target tail of 10^-5: N = 1.0 * 10^7 for a 10 percent relative error; N = 1.0 * 10^9 for a 1 percent relative error.
+
+6.4 Inverse Calculations
+In compute_from_N mode, the achievable target tail probability at a given N and relative error r is:
+
+p = 1 / (1 + N * r^2).
+
+For N = 10000 and r = 0.10, p = 1 / (1 + 10000 * 0.01) = 1 / 101 = 0.0099.
+
+For N = 100000 and r = 0.01, p = 1 / (1 + 100000 * 0.0001) = 1 / 11 = 0.0909.
+
+The achievable relative error at a given N and target tail p is:
+
+r = sqrt((1 - p) / (N * p)).
+
+For N = 10000 and p = 0.05, r = sqrt(0.95 / (10000 * 0.05)) = sqrt(0.0019) = 0.0436.
+
+For N = 100000 and p = 0.001, r = sqrt(0.999 / (100000 * 0.001)) = sqrt(0.00999) = 0.0999.
+
+6.5 Warnings
+Warnings are generated for the following conditions:
+
+The required N exceeds the practical limit.
+
+The target tail probability is below the resolution of direct Monte Carlo (1 / (N + 1)).
+
+The required N is below the minimum recommended for exploratory work (N = 10^4).
+
+The relative error is above 0.5.
+
+6.6 Resolution
+The empirical exceedance probability is bounded below by 1 / (N + 1). Below that resolution, the analyst should report a bound rather than a point estimate.
+
+For N = 10^4, the resolution is about 10^-4. The analyst should state "p is less than about 10^-4".
+
+For N = 10^5, the resolution is about 10^-5. The analyst should state "p is less than about 10^-5".
+
+For N = 10^6, the resolution is about 10^-6. The analyst should state "p is less than about 10^-6".
+
+Core Logic as Executable Pseudocode
+7.1 Main Flow
+function runNCalculator(p, r, mode, requiredN, options):
+
+if mode == "compute_N": return computeN(p, r, options).
+
+else if mode == "compute_tabulated": return computeTabulated(p).
+
+else if mode == "compute_from_N": return computeFromN(requiredN, r, p, options).
+
+7.2 Compute N
+function computeN(p, r, options):
+
+validate(p in (0, 1)).
+
+validate(r in (0, 1)).
+
+N = ceil((1 - p) / (r^2 * p)).
+
+se = sqrt(p * (1 - p) / N).
+
+warnings = generateWarnings(p, r, N, se, options).
+
+return {N: N, monte_carlo_uncertainty: se, warnings: warnings, record: buildRecord(p, r, N, se, warnings)}.
+
+7.3 Compute Tabulated
+function computeTabulated(p):
+
+tabulatedValues = {0.05: {10_percent: 1900, 1_percent: 190000}, 0.01: {10_percent: 10000, 1_percent: 1000000}, 0.001: {10_percent: 100000, 1_percent: 10000000}, 0.0001: {10_percent: 1000000, 1_percent: 100000000}, 0.00001: {10_percent: 10000000, 1_percent: 1000000000}}.
+
+if p in tabulatedValues: return tabulatedValues[p].
+
+else: return computeN(p, 0.10, options) and computeN(p, 0.01, options).
+
+7.4 Compute From N
+function computeFromN(N, r, p, options):
+
+validate(N > 0).
+
+validate(r in (0, 1)).
+
+if p is not null: r = sqrt((1 - p) / (N * p)).
+
+else: p = 1 / (1 + N * r^2).
+
+se = sqrt(p * (1 - p) / N).
+
+warnings = generateWarnings(p, r, N, se, options).
+
+return {achievable_target_tail: p, achievable_relative_error: r, monte_carlo_uncertainty: se, warnings: warnings, record: buildRecord(p, r, N, se, warnings)}.
+
+7.5 Generate Warnings
+function generateWarnings(p, r, N, se, options):
+
+warnings = [].
+
+if N > options.practicalLimit: warnings.push({code: "N_EXCEEDS_PRACTICAL_LIMIT", message: "required N exceeds the practical limit of " + options.practicalLimit, field: "N"}).
+
+if p < 1 / (N + 1): warnings.push({code: "TARGET_TAIL_BELOW_RESOLUTION", message: "target tail is below the resolution of direct Monte Carlo; report a bound rather than a point estimate", field: "p"}).
+
+if N < 10000: warnings.push({code: "N_BELOW_EXPLORATORY_MINIMUM", message: "required N is below the minimum recommended for exploratory work (10^4)", field: "N"}).
+
+if r > 0.5: warnings.push({code: "RELATIVE_ERROR_HIGH", message: "relative error is above 0.5; the estimate is very imprecise", field: "r"}).
+
+return warnings.
+
+7.6 Build Record
+function buildRecord(p, r, N, se, warnings):
+
+return {formula_version: options.formulaVersion, tool_version: options.toolVersion, target_tail: p, relative_error: r, required_N: N, monte_carlo_uncertainty: se, warnings: warnings, timestamp: now()}.
+
+Data Model / JSON Schema for Internal State
+The calculator's internal state is a result object.
+
+Result object:
+
+formula_version (string)
+
+tool_version (string)
+
+target_tail (number)
+
+relative_error (number)
+
+required_N (integer or null)
+
+achievable_target_tail (number or null)
+
+achievable_relative_error (number or null)
+
+monte_carlo_uncertainty (number)
+
+warnings (array of warning objects)
+
+timestamp (ISO8601)
+
+Architecture
+Module breakdown:
+
+Input Loader. Reads and validates the inputs.
+
+N Calculator. Computes the required N.
+
+Monte Carlo Uncertainty Calculator. Computes the standard error.
+
+Tabulated Values Provider. Provides the standard tabulated values.
+
+Inverse Calculator. Computes the achievable target tail and relative error from N.
+
+Warning Generator. Generates warnings.
+
+Report Formatter. Produces the text and JSON reports.
+
+Reproducibility Recorder. Records the formula version, tool version, inputs, and outputs.
+
+Command-Line Interface. Parses arguments.
+
+Graphical Interface (optional). Interactive window.
+
+Data flow:
+
+Inputs go to the Input Loader. N Calculator computes the required N. Monte Carlo Uncertainty Calculator computes the standard error. Tabulated Values Provider provides the tabulated values. Inverse Calculator computes the inverse. Warning Generator generates warnings. Report Formatter produces the output. Reproducibility Recorder records.
+
+Technology Stack
+Recommended for the command-line tool:
+
+Language: Python 3.11+ or Node.js 20+.
+
+Numeric computation: math (standard library).
+
+JSON handling: standard library.
+
+CLI framework: argparse (Python) or commander (JS).
+
+Testing: pytest (Python) or Vitest (JS).
+
+Recommended for the graphical interface:
+
+Python: PyQt6 or Tkinter.
+
+JavaScript: React or Svelte.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The result conforms to the schema derived from Section 8 of the Null-Model Protocol paper.
+
+UI/UX Specification
+Command-line interface:
+
+Usage: n-calculator --target-tail P --relative-error R [--mode compute_N|compute_tabulated|compute_from_N] [--required-N N] [--format text|json] [--practical-limit L].
+
+Output on success: the required N, the Monte Carlo uncertainty, the tabulated values (if requested), and any warnings.
+
+Output on error: the error message and exit code 2.
+
+Graphical interface (optional):
+
+Fields for the target tail probability and the desired relative error.
+
+Real-time display of the required N, the Monte Carlo uncertainty, and the standard tabulated values.
+
+Warnings displayed as a list below the computed values.
+
+Validation Engine Design
+The calculator validates the following:
+
+Validation 1. Target tail probability. The target tail must be in (0, 1).
+
+Validation 2. Relative error. The relative error must be in (0, 1).
+
+Validation 3. Required N. In compute_from_N mode, the required N must be a positive integer.
+
+Validation 4. Mode. The mode must be one of the three permitted values.
+
+Validation 5. Practical limit. The required N should not exceed the practical limit.
+
+Validation 6. Resolution. The target tail should not be below the resolution of direct Monte Carlo.
+
+Testing Strategy
+Unit tests:
+
+N Calculator for each combination of p and r.
+
+Monte Carlo Uncertainty Calculator for each combination of p and N.
+
+Tabulated Values Provider for each tabulated value.
+
+Inverse Calculator for each combination of N and r, and N and p.
+
+Warning Generator for each warning code.
+
+Integration tests:
+
+Compute N for p = 0.05 and r = 0.10. Verify N = 1900.
+
+Compute N for p = 0.01 and r = 0.01. Verify N = 1000000.
+
+Compute tabulated values for p = 0.05. Verify the tabulated values.
+
+Compute from N for N = 10000 and r = 0.10. Verify p = 0.0099.
+
+Compute from N for N = 10000 and p = 0.05. Verify r = 0.0436.
+
+Worked-example tests:
+
+Section 8 of the Null-Model Protocol paper: verify the tabulated values.
+
+Section 11.1 of the Null-Model Protocol paper: N = 10^4 gives a standard error of about 5.5 * 10^-4 and a relative error of about 18 percent for p = 2.99 * 10^-3.
+
+Regression tests:
+
+Formula determinism.
+
+Warning generation consistency.
+
+Build Phases
+Phase 1. Input Loader. Read and validate the inputs.
+
+Phase 2. N Calculator. Compute the required N.
+
+Phase 3. Monte Carlo Uncertainty Calculator. Compute the standard error.
+
+Phase 4. Tabulated Values Provider. Provide the tabulated values.
+
+Phase 5. Inverse Calculator. Compute the inverse.
+
+Phase 6. Warning Generator. Generate warnings.
+
+Phase 7. Report Formatter. Produce the text and JSON reports.
+
+Phase 8. Reproducibility Recorder. Record the formula version, tool version, inputs, and outputs.
+
+Phase 9. Command-Line Interface.
+
+Phase 10. Graphical Interface (optional).
+
+Phase 11. Worked-example tests.
+
+Phase 12. Integration testing and hardening.
+
+Phase 13. Packaging.
+
+Dependencies
+Python path:
+
+math (numeric computation, standard library).
+
+argparse (command-line, standard library).
+
+json (JSON handling, standard library).
+
+PyQt6 or Tkinter (optional graphical interface).
+
+pytest (testing).
+
+Node.js path:
+
+Math (standard library).
+
+commander (command-line).
+
+JSON (standard library).
+
+React or Svelte (optional graphical interface).
+
+Vitest (testing).
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The result conforms to the schema derived from Section 8 of the Null-Model Protocol paper.
+
+Deployment Notes
+Command-line tool:
+
+Package as a standalone executable (PyInstaller or pkg).
+
+Distribute via pip, npm, or a direct download.
+
+No server required.
+
+Graphical interface:
+
+Package as a desktop application.
+
+Distribute via the platform's app store or a direct download.
+
+No server required.
+
+Reproducibility:
+
+Record the formula version and the tool version.
+
+Provide a version pin for the formula.
+
+Open Questions to Resolve Before Building
+Question 1. Which runtime first? Python or Node.js. Decision affects the CLI framework and the packaging.
+
+Question 2. What is the default practical limit? Options: 10^6, 10^9, or no limit. Decision needed.
+
+Question 3. What is the default mode? Options: compute_N, compute_tabulated, compute_from_N. Decision needed.
+
+Question 4. Should the tool support batch computation (multiple p and r combinations)? Decision needed.
+
+Question 5. How should the tool handle the case where the target tail is zero? Options: fail, warn, or return infinity. Decision needed.
+
+Question 6. How should the tool handle the case where the relative error is zero? Options: fail, warn, or return infinity. Decision needed.
+
+Question 7. How should the tool handle the case where the required N exceeds the practical limit? Options: warn, fail, or return the value. Decision needed.
+
+Question 8. Should the tool support the adaptive or importance-sampling variants mentioned in Section 8 of the Null-Model Protocol paper? Decision needed.
+
+Question 9. Should the tool integrate with the Pipeline Specification Wizard (App 8) and the Full-Pipeline Simulator (App 9)? Decision needed: shared schema registry, or independent.
+
+Question 10. How should the tool report the resolution? Options: report 1 / (N + 1), report the target tail, or report both. Decision needed.
+
+End of build specification for App 12.
