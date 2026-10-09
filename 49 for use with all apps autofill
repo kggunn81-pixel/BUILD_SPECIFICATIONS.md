@@ -1,0 +1,1368 @@
+App 49: The Autofill Library Service
+Completeness status: COMPLETE. All sections delivered in one pass. No truncation.
+
+What It Is
+A shared service that provides autofill for any app in the suite. Given a name, an identifier, or a description, the service looks up a pre-loaded library entry and returns a set of field values that the calling app can use to fill in its input form. The user types one thing, the service fills in the rest, and the user reviews and edits. The service is built once and called by every app. The mechanism is shared. The library contents are per app.
+
+It reuses the STAG Schema Library (App 17), the Provenance-Aware Annotation Database (App 20), the PROV-O Exporter (App 3), the Physics Knowledge Library (App 23), and the Revision History Viewer (App 7).
+
+It is for every app in the suite, and for the users of those apps.
+
+Core Requirements
+Functional requirements:
+
+Accept a lookup query from a calling app.
+
+Match the query against one or more registered libraries.
+
+Return the best-matching library entry or entries.
+
+Return the field values from the matched entry so the calling app can fill its form.
+
+Support fuzzy matching: partial names, misspellings, abbreviations, and aliases.
+
+Support disambiguation: when more than one entry matches, return all matches with a confidence score, and let the calling app or the user choose.
+
+Support library registration: each app registers its library with the service.
+
+Support library entry submission: a user can submit a new entry to a library, with provenance.
+
+Support library entry curation: a moderator can approve, reject, or edit a library entry.
+
+Support library versioning: each library has a version, and each entry has a version.
+
+Support provenance: every entry has a depositor, a date, a source, and a tool version.
+
+Support the STAG schema for entries that are STAG annotations.
+
+Support the Null-Model Protocol schema for entries that are pipeline specifications.
+
+Support arbitrary schemas for other entry types.
+
+Support a REST API for lookups, registrations, and submissions.
+
+Support a GraphQL API for flexible queries.
+
+Support a command-line interface for administration.
+
+Support authentication and authorization.
+
+Support audit logging.
+
+Support backup and restore.
+
+Support a web interface for browsing libraries, submitting entries, and moderating.
+
+Support the library registry: a list of all registered libraries, with their contents and versions.
+
+Support cross-library lookup: a single query can match across multiple libraries.
+
+Support the confidence score: each match has a confidence between 0 and 1.
+
+Support the calling app's preference: the calling app can restrict the lookup to one library or a set of libraries.
+
+Support the calling app's field filter: the calling app can ask for only some of the fields.
+
+Non-functional requirements:
+
+Deterministic: same query and same library produce the same result.
+
+Fast: a lookup returns in under 100 milliseconds for a library of up to 100,000 entries.
+
+Scalable: support up to 10^7 library entries across all libraries.
+
+Versioned: the service records the library version, the entry version, and the service version.
+
+Reproducible: the service records the provenance for every entry.
+
+Portable: works on Linux, macOS, and Windows.
+
+Well-documented: API documentation, library registration documentation, and user guide.
+
+Input Specification
+Input 1. Lookup query. Required for lookups. A query object with fields for the query string, the query type, the library filter, the field filter, and the confidence threshold.
+
+Input 2. Library registration. Required for registering a library. A registration object with fields for the library ID, the library name, the library schema, the library version, the entry type, and the library description.
+
+Input 3. Library entry submission. Required for submitting an entry. A submission object with fields for the library ID, the entry fields, the depositor ID, the depositor affiliation, and the provenance.
+
+Input 4. Curation action. Required for curating an entry. A curation object with fields for the entry ID, the action, the moderator ID, and the curation notes.
+
+Input 5. Authentication credentials. Required for authenticated operations.
+
+Input 6. Query. Required for read operations. A query object with fields for the library ID, the entry ID, the depositor, the date range, and keywords.
+
+Input 7. Aggregation query. Required for aggregation operations. A query object with fields for the aggregation dimension and the filter.
+
+Input 8. Bulk import file. Optional. A file containing multiple entries in JSON or JSON Lines format.
+
+Input 9. Bulk export query. Optional. A query object selecting the entries to export.
+
+Output Specification
+Output 1. Lookup result. JSON. The list of matching entries, with confidence scores and the field values.
+
+Output 2. Library registration result. JSON. The registration ID and the status.
+
+Output 3. Submission result. JSON. The entry ID and the status.
+
+Output 4. Curation result. JSON. The entry ID and the new status.
+
+Output 5. Query result. JSON. The list of entries matching the query, with pagination.
+
+Output 6. Aggregation result. JSON. The counts by the aggregation dimension.
+
+Output 7. PROV-O serialization. Turtle or JSON-LD. The entry mapped to PROV-O.
+
+Output 8. Turtle serialization. Turtle. The entry as an RDF graph.
+
+Output 9. Bulk export file. JSON or JSON Lines. The entries matching the bulk export query.
+
+Output 10. Audit log entry. JSON. The operation, the entry ID, the user, the timestamp, and the result.
+
+Output 11. API response. JSON. The result of the API operation, with HTTP status.
+
+Output 12. GraphQL response. JSON. The result of the GraphQL query.
+
+Output 13. Backup file. A database dump or a JSON archive.
+
+Module-by-Module Specification
+Module 1. Library Registry.
+
+Holds the list of registered libraries.
+
+Each registration has:
+
+library_id
+
+library_name
+
+library_schema
+
+library_version
+
+entry_type
+
+library_description
+
+registration_date
+
+registrar_id
+
+registrar_affiliation
+
+provenance
+
+keywords
+
+notes
+
+moderation_status
+
+version
+
+Module 2. Library Entry Store.
+
+Holds the library entries.
+
+Each entry has:
+
+entry_id
+
+library_id
+
+entry_fields
+
+entry_schema_version
+
+depositor_id
+
+depositor_affiliation
+
+deposit_date
+
+provenance
+
+keywords
+
+notes
+
+moderation_status
+
+version
+
+supersedes
+
+superseded_by
+
+Module 3. Lookup Engine.
+
+Executes a lookup query against one or more libraries.
+
+Matches the query string against the entries.
+
+Returns the matching entries with confidence scores.
+
+Module 4. Fuzzy Matcher.
+
+Matches a query string against entry names and identifiers.
+
+Supports partial names, misspellings, abbreviations, and aliases.
+
+Uses string similarity algorithms and a pre-computed alias index.
+
+Module 5. Disambiguator.
+
+When more than one entry matches, ranks the matches by confidence and returns all of them above the confidence threshold.
+
+Provides the calling app with the information needed to choose.
+
+Module 6. Fill-in Engine.
+
+Takes a matched entry and returns the field values in a format the calling app can use to fill its form.
+
+Supports the field filter so the calling app can ask for only some of the fields.
+
+Module 7. Submission Engine.
+
+Accepts a new entry from a user.
+
+Validates it against the library schema.
+
+Stores it with provenance.
+
+Sets its moderation status to pending.
+
+Module 8. Curation Workflow.
+
+Lets a moderator approve, reject, or edit a submitted entry.
+
+Records the moderation action with the moderator ID and the curation notes.
+
+Module 9. Library Version Manager.
+
+Manages library versions.
+
+Each library has a version.
+
+Each entry has a version.
+
+A new library version can be published with a set of entries.
+
+Module 10. Cross-Library Lookup.
+
+Supports lookup across multiple libraries in one query.
+
+Returns the matches grouped by library.
+
+Module 11. REST API.
+
+Provides the REST API.
+
+Endpoints for lookups, registrations, submissions, curation, queries, aggregations, exports, and imports.
+
+Module 12. GraphQL API.
+
+Provides the GraphQL API.
+
+The schema exposes the libraries, the entries, the lookups, and the registrations.
+
+Module 13. Command-Line Interface.
+
+Provides the command-line interface for administration.
+
+Commands for initialising, migrating, backing up, restoring, importing, exporting, querying, aggregating, moderating, and auditing.
+
+Module 14. Authentication and Authorization.
+
+Provides authentication (API keys, OAuth, or JWT) and authorization (role-based access control: reader, depositor, moderator, admin).
+
+Module 15. Audit Logging.
+
+Logs every operation with the user, the timestamp, the result, and the details.
+
+Module 16. Backup and Restore.
+
+Provides backup and restore.
+
+Backup produces a database dump or a JSON archive.
+
+Restore loads the backup.
+
+Module 17. Web Interface.
+
+Provides a web interface for browsing libraries, submitting entries, and moderating.
+
+Module 18. Provenance Recorder.
+
+Records the provenance for every entry: the depositor, the date, the source, and the tool version.
+
+Module 19. Migration Manager.
+
+Manages database migrations.
+
+Each schema version has a migration script.
+
+Full Specification
+6.1 Library Registry Schema
+The library registry holds the list of registered libraries.
+
+Each registration has:
+
+library_id. A stable identifier. Examples: scale_atlas_library, stag_annotation_library, pipeline_specification_library.
+
+library_name. The human-readable name.
+
+library_schema. The JSON Schema for the entries in this library.
+
+library_version. A semantic version.
+
+entry_type. The kind of entry. Examples: scale, annotation, pipeline_specification, work, system.
+
+library_description. A short description.
+
+registration_date.
+
+registrar_id.
+
+registrar_affiliation.
+
+provenance. An object with source, tool_version, and notes.
+
+keywords.
+
+notes.
+
+moderation_status. One of pending, approved, rejected.
+
+version.
+
+6.2 Library Entry Schema
+The library entry store holds the library entries.
+
+Each entry has:
+
+entry_id. A unique identifier.
+
+library_id. The library this entry belongs to.
+
+entry_fields. The field values, conforming to the library schema.
+
+entry_schema_version.
+
+depositor_id.
+
+depositor_affiliation.
+
+deposit_date.
+
+provenance. An object with source, tool_version, and notes.
+
+keywords.
+
+notes.
+
+moderation_status. One of pending, approved, rejected.
+
+version.
+
+supersedes.
+
+superseded_by.
+
+6.3 Lookup Query Schema
+A lookup query has:
+
+query_string. What the user typed.
+
+query_type. One of name, identifier, description, partial.
+
+library_filter. If provided, the lookup is restricted to these libraries.
+
+field_filter. If provided, only these fields are returned.
+
+confidence_threshold. The minimum confidence for a match. Default 0.5.
+
+max_results. The maximum number of matches. Default 10.
+
+6.4 Lookup Result Schema
+A lookup result has:
+
+query_string.
+
+matches. An array of match objects.
+
+Each match object has:
+
+entry_id.
+
+library_id.
+
+confidence. A number between 0 and 1.
+
+match_type. One of exact, fuzzy, alias.
+
+entry_fields. The field values.
+
+field_filter_applied. A boolean.
+
+6.5 The Lookup Algorithm
+The lookup algorithm has four steps.
+
+Step 1. Normalise the query string.
+
+Lowercase, trim, remove punctuation, expand known abbreviations.
+
+Step 2. Search the alias index.
+
+Each entry has an alias list, including its name, its identifiers, and common variants.
+
+If the normalised query matches an alias exactly, return that entry with confidence 1.0.
+
+Step 3. Search by string similarity.
+
+For each entry, compute a string similarity score between the normalised query and the entry's name and identifiers.
+
+Use a similarity algorithm such as Jaro-Winkler or Levenshtein.
+
+Keep the entries above the confidence threshold.
+
+Step 4. Rank and return.
+
+Sort the matches by confidence.
+
+Apply the library filter and the field filter.
+
+Apply the maximum results limit.
+
+Return the matches.
+
+6.6 The Disambiguation Rules
+When more than one entry matches, the disambiguator ranks them and returns all of them above the confidence threshold.
+
+The calling app can then present them to the user, or choose automatically if one match is clearly better.
+
+The ranking uses three factors.
+
+String similarity. Higher similarity means higher confidence.
+
+Alias match. An exact alias match means higher confidence.
+
+Cross-library agreement. If the same name appears in multiple libraries and the entries agree, the confidence is higher.
+
+6.7 The Fill-in Rules
+The fill-in engine takes a matched entry and returns its field values.
+
+The rules are:
+
+Return only the fields requested in the field filter, if a filter is provided.
+
+Return the fields in the order the calling app requests them.
+
+Return the confidence score alongside the fields.
+
+Return the entry ID so the calling app can record provenance.
+
+6.8 The Submission Rules
+The submission engine accepts a new entry.
+
+The rules are:
+
+Validate the entry against the library schema.
+
+Require a depositor ID and a depositor affiliation.
+
+Require a provenance record with a source and a tool version.
+
+Set the moderation status to pending.
+
+Record the deposit date.
+
+Assign an entry ID.
+
+Store the entry.
+
+6.9 The Curation Rules
+The curation workflow accepts an action from a moderator.
+
+The actions are:
+
+Approve. Set the moderation status to approved.
+
+Reject. Set the moderation status to rejected.
+
+Edit. Update the entry fields, keeping the provenance and adding a curation note.
+
+Each action records the moderator ID and the curation notes.
+
+6.10 The Library Version Rules
+Each library has a version.
+
+Each entry has a version.
+
+A new library version can be published with a set of entries.
+
+The rules are:
+
+A library version is a semantic version.
+
+An entry version is incremented when the entry is edited.
+
+A library version is incremented when the set of entries changes in a way that affects the schema or the contents.
+
+A new library version does not change the entry IDs. It changes the library version.
+
+Core Logic as Executable Pseudocode
+7.1 Lookup Flow
+function lookup(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. normalisedQuery = normalise(query.query_string).
+
+Step 3. aliasMatches = searchAliasIndex(normalisedQuery, query.library_filter).
+
+If aliasMatches is not empty:
+
+matches = build matches with confidence 1.0 and match_type alias.
+
+return the matches with the field filter applied.
+
+Step 4. similarityMatches = searchBySimilarity(normalisedQuery, query.library_filter, query.confidence_threshold).
+
+Step 5. ranked = rankMatches(similarityMatches).
+
+Step 6. limited = ranked.slice(0, query.max_results).
+
+Step 7. matches = build matches with match_type fuzzy.
+
+Step 8. return the matches with the field filter applied.
+
+7.2 Register Library
+function registerLibrary(registration, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. validationResult = validateLibraryRegistration(registration).
+
+If invalid, return an error with the validation details.
+
+Step 3. libraryId = generateLibraryId().
+
+Set the registration fields: library_id, registration_date, registrar_id, registrar_affiliation, moderation_status pending, version 1.
+
+Step 4. insertLibraryRegistration(registration).
+
+Step 5. insertProvenance.
+
+Step 6. insertAuditLog.
+
+Step 7. return the library_id and the status registered.
+
+7.3 Submit Entry
+function submitEntry(submission, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. library = selectLibraryRegistration(submission.library_id).
+
+If library is null, return an error.
+
+Step 3. validationResult = validateEntry(submission.entry_fields, library.library_schema).
+
+If invalid, return an error with the validation details.
+
+Step 4. entryId = generateEntryId().
+
+Set the submission fields: entry_id, deposit_date, depositor_id, depositor_affiliation, moderation_status pending, version 1.
+
+Step 5. insertEntry(submission).
+
+Step 6. updateAliasIndex.
+
+Step 7. insertProvenance.
+
+Step 8. insertAuditLog.
+
+Step 9. return the entry_id and the status submitted.
+
+7.4 Curate Entry
+function curateEntry(entryId, action, curationNotes, auth):
+
+Step 1. validateAuth(auth, "moderator"). If not authorized, return an error.
+
+Step 2. entry = selectEntry(entryId).
+
+If entry is null, return an error.
+
+Step 3. If the action is approve, set the moderation status to approved.
+
+If the action is reject, set the moderation status to rejected.
+
+If the action is edit, update the entry fields and increment the version.
+
+Step 4. insertCurationRecord.
+
+Step 5. insertAuditLog.
+
+Step 6. return the entry_id and the status.
+
+7.5 Normalise Query
+function normalise(queryString):
+
+Step 1. lowercase.
+
+Step 2. trim.
+
+Step 3. remove punctuation.
+
+Step 4. expand abbreviations.
+
+Step 5. return the result.
+
+7.6 Search Alias Index
+function searchAliasIndex(normalisedQuery, libraryFilter):
+
+Step 1. results = empty.
+
+Step 2. For each entry in the selected libraries:
+
+For each alias in the entry:
+
+If the normalised alias equals the normalised query, add the entry to the results and break.
+
+Step 3. return the results.
+
+7.7 Search by Similarity
+function searchBySimilarity(normalisedQuery, libraryFilter, confidenceThreshold):
+
+Step 1. results = empty.
+
+Step 2. For each entry in the selected libraries:
+
+Compute nameSimilarity.
+
+Compute idSimilarity.
+
+Take the maximum as similarity.
+
+If similarity is at or above the threshold, add the entry to the results.
+
+Step 3. return the results.
+
+7.8 Rank Matches
+function rankMatches(matches):
+
+Sort by confidence in descending order.
+
+Return the sorted matches.
+
+7.9 Apply Field Filter
+function applyFieldFilter(matches, fieldFilter):
+
+If the field filter is null, return the matches unchanged.
+
+Otherwise, for each match, keep only the requested fields.
+
+Return the filtered matches.
+
+Data Model
+The service's internal state is the library registry, the entry store, and the alias index.
+
+Library registration object:
+
+library_id.
+
+library_name.
+
+library_schema.
+
+library_version.
+
+entry_type.
+
+library_description.
+
+registration_date.
+
+registrar_id.
+
+registrar_affiliation.
+
+provenance.
+
+keywords.
+
+notes.
+
+moderation_status.
+
+version.
+
+Entry object:
+
+entry_id.
+
+library_id.
+
+entry_fields.
+
+entry_schema_version.
+
+depositor_id.
+
+depositor_affiliation.
+
+deposit_date.
+
+provenance.
+
+keywords.
+
+notes.
+
+moderation_status.
+
+version.
+
+supersedes.
+
+superseded_by.
+
+Lookup query object:
+
+query_string.
+
+query_type.
+
+library_filter.
+
+field_filter.
+
+confidence_threshold.
+
+max_results.
+
+Lookup result object:
+
+query_string.
+
+matches.
+
+Match object:
+
+entry_id.
+
+library_id.
+
+confidence.
+
+match_type.
+
+entry_fields.
+
+Architecture
+Module breakdown:
+
+Library Registry.
+
+Library Entry Store.
+
+Lookup Engine.
+
+Fuzzy Matcher.
+
+Disambiguator.
+
+Fill-in Engine.
+
+Submission Engine.
+
+Curation Workflow.
+
+Library Version Manager.
+
+Cross-Library Lookup.
+
+REST API.
+
+GraphQL API.
+
+Command-Line Interface.
+
+Authentication and Authorization.
+
+Audit Logging.
+
+Backup and Restore.
+
+Web Interface.
+
+Provenance Recorder.
+
+Migration Manager.
+
+Data flow:
+
+API requests go to the REST or GraphQL API.
+
+The API calls the lookup engine, the submission engine, the curation workflow, or the query engine.
+
+The library registry and the entry store hold the data.
+
+The alias index speeds up lookups.
+
+The audit logging records every operation.
+
+The authentication and authorization check access.
+
+The moderation workflow handles curation.
+
+The backup and restore handle backup.
+
+The web interface provides browsing, submitting, and moderating.
+
+Technology Stack
+Recommended for the database:
+
+Database: PostgreSQL 15+ or SQLite 3.40+.
+
+Language: Python 3.11+ or Node.js 20+.
+
+ORM: SQLAlchemy (Python) or Prisma (JS).
+
+Migrations: Alembic (Python) or Prisma Migrate (JS).
+
+Fuzzy matching: rapidfuzz (Python) or fuse.js (JS).
+
+Full-text search: PostgreSQL tsvector or SQLite FTS5.
+
+Recommended for the REST API:
+
+Framework: FastAPI (Python) or Express (JS).
+
+Authentication: FastAPI Users (Python) or Passport (JS).
+
+Recommended for the GraphQL API:
+
+Framework: Strawberry (Python) or Apollo Server (JS).
+
+Recommended for the command-line interface:
+
+Framework: Click (Python) or Commander (JS).
+
+Recommended for the web interface:
+
+Frontend: React or Svelte.
+
+Backend: the same as the REST API.
+
+Recommended for deployment:
+
+Containerization: Docker.
+
+Orchestration: Docker Compose or Kubernetes.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The STAG schema (Artifact 2, Appendix B.1).
+
+The Null-Model Protocol schema (from App 8 and App 9).
+
+The PROV-O exporter (App 3).
+
+The STAG schema library (App 17).
+
+The provenance database (App 20).
+
+The Physics Knowledge Library (App 23).
+
+The revision history viewer (App 7).
+
+UI/UX Specification
+REST API:
+
+Base URL: https://api.example.com/v1.
+
+Authentication: Bearer token in the Authorization header.
+
+Endpoints:
+
+GET /libraries. List registered libraries.
+
+GET /libraries/{id}. Get a library registration.
+
+POST /libraries. Register a library.
+
+PUT /libraries/{id}. Update a library registration.
+
+GET /libraries/{id}/entries. List the entries in a library.
+
+GET /entries/{id}. Get an entry.
+
+POST /entries. Submit an entry.
+
+PUT /entries/{id}. Update an entry.
+
+DELETE /entries/{id}. Delete an entry.
+
+POST /lookup. Execute a lookup.
+
+POST /query. Execute a query.
+
+POST /aggregate. Execute an aggregation query.
+
+POST /curate/{id}. Curate an entry.
+
+GET /audit. List audit log entries.
+
+Responses in JSON.
+
+HTTP status codes: 200 for success, 201 for created, 204 for deleted, 400 for bad request, 401 for unauthorized, 403 for forbidden, 404 for not found, 409 for conflict, 422 for unprocessable entity, 500 for internal server error.
+
+GraphQL API:
+
+Endpoint: https://api.example.com/graphql.
+
+Schema exposes the libraries, the entries, the lookups, and the registrations.
+
+Command-line interface:
+
+Usage: autofill-service [command] [options].
+
+Commands: init, migrate, backup, restore, import, export, query, aggregate, curate, audit.
+
+Web interface:
+
+A browsable list of libraries.
+
+A browsable list of entries in each library.
+
+A submission form for adding a new entry.
+
+A moderation view for curators.
+
+A lookup form for testing lookups.
+
+Validation Engine Design
+The service validates the following:
+
+Validation 1. Library registration validity. Every registration is validated against the library registration schema.
+
+Validation 2. Entry validity. Every entry is validated against the library schema for its library.
+
+Validation 3. Query validity. Every query is validated against the lookup query schema.
+
+Validation 4. Referential integrity. Every entry's library_id must resolve to a registered library.
+
+Validation 5. Version chain acyclicity. The version chain must be acyclic.
+
+Validation 6. Provenance completeness. Every entry must have a provenance record.
+
+Validation 7. Audit completeness. Every operation must have an audit log entry.
+
+Validation 8. Moderation completeness. Every entry must have a moderation record.
+
+Validation 9. Alias index consistency. The alias index must reflect the current entries.
+
+Testing Strategy
+Unit tests:
+
+Library Registry for valid and invalid registrations.
+
+Library Entry Store for valid and invalid entries.
+
+Lookup Engine for exact, fuzzy, and alias matches.
+
+Fuzzy Matcher for partial names, misspellings, abbreviations, and aliases.
+
+Disambiguator for ranking and filtering.
+
+Fill-in Engine for field filtering and ordering.
+
+Submission Engine for valid and invalid submissions.
+
+Curation Workflow for approve, reject, and edit.
+
+Library Version Manager for version increments.
+
+Cross-Library Lookup for multi-library queries.
+
+REST API for each endpoint.
+
+GraphQL API for each query and mutation.
+
+Command-Line Interface for each command.
+
+Authentication and Authorization for each role.
+
+Audit Logging for each operation.
+
+Backup and Restore for each format.
+
+Web Interface for each view.
+
+Provenance Recorder for the record structure.
+
+Migration Manager for each migration.
+
+Integration tests:
+
+Register a library.
+
+Submit an entry.
+
+Look up the entry.
+
+Verify the field values.
+
+Submit an entry with an alias.
+
+Look up the alias.
+
+Verify the match.
+
+Submit two entries with similar names.
+
+Look up the shared part.
+
+Verify the disambiguation.
+
+Curate an entry.
+
+Verify the moderation status.
+
+Look up across two libraries.
+
+Verify the cross-library result.
+
+Backup the database.
+
+Restore the database.
+
+Verify the data is identical.
+
+Worked-example tests:
+
+Register the Scale Atlas library.
+
+Submit the nine scales for the hydrogen atom.
+
+Look up hydrogen atom.
+
+Verify that all nine scales are returned.
+
+Register the STAG annotation library.
+
+Submit a pre-loaded annotation for the hydrogen atom.
+
+Look up hydrogen atom.
+
+Verify that the annotation is returned.
+
+Register the pipeline specification library.
+
+Submit a pre-loaded pipeline specification for the Kirkwood gaps.
+
+Look up Kirkwood gaps.
+
+Verify that the specification is returned.
+
+Look up a misspelled name.
+
+Verify that the fuzzy matcher returns the correct entry.
+
+Look up an abbreviation.
+
+Verify that the alias index returns the correct entry.
+
+Regression tests:
+
+Lookup determinism.
+
+Query consistency.
+
+Aggregation consistency.
+
+Audit log consistency.
+
+Moderation consistency.
+
+Alias index consistency.
+
+Build Phases
+Phase 1. Library Registry.
+
+Phase 2. Library Entry Store.
+
+Phase 3. Lookup Engine.
+
+Phase 4. Fuzzy Matcher.
+
+Phase 5. Disambiguator.
+
+Phase 6. Fill-in Engine.
+
+Phase 7. Submission Engine.
+
+Phase 8. Curation Workflow.
+
+Phase 9. Library Version Manager.
+
+Phase 10. Cross-Library Lookup.
+
+Phase 11. REST API.
+
+Phase 12. GraphQL API.
+
+Phase 13. Command-Line Interface.
+
+Phase 14. Authentication and Authorization.
+
+Phase 15. Audit Logging.
+
+Phase 16. Backup and Restore.
+
+Phase 17. Web Interface.
+
+Phase 18. Provenance Recorder.
+
+Phase 19. Migration Manager.
+
+Phase 20. Worked-example tests.
+
+Phase 21. Integration testing and hardening.
+
+Phase 22. Packaging and deployment.
+
+Dependencies
+Python path:
+
+SQLAlchemy.
+
+Alembic.
+
+FastAPI.
+
+Strawberry.
+
+FastAPI Users.
+
+Click.
+
+rapidfuzz.
+
+psycopg2.
+
+sqlite3.
+
+jsonschema.
+
+hashlib.
+
+json.
+
+pytest.
+
+Node.js path:
+
+Prisma.
+
+Express.
+
+Apollo Server.
+
+Passport.
+
+Commander.
+
+fuse.js.
+
+pg.
+
+better-sqlite3.
+
+ajv.
+
+crypto.
+
+JSON.
+
+Vitest.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The STAG schema (Artifact 2, Appendix B.1).
+
+The Null-Model Protocol schema (from App 8 and App 9).
+
+The PROV-O exporter (App 3).
+
+The STAG schema library (App 17).
+
+The provenance database (App 20).
+
+The Physics Knowledge Library (App 23).
+
+The revision history viewer (App 7).
+
+Deployment Notes
+Database:
+
+PostgreSQL for multi-user deployments.
+
+SQLite for single-user deployments.
+
+Backup and restore via pg_dump and pg_restore (PostgreSQL) or the SQLite backup API.
+
+REST API:
+
+Deploy with Docker.
+
+Stateless.
+
+Scale horizontally.
+
+Use a reverse proxy for TLS.
+
+Log every request for audit.
+
+GraphQL API:
+
+Deploy alongside the REST API.
+
+Use a query depth limit and a query complexity limit to prevent abuse.
+
+Command-line interface:
+
+Package as a standalone executable (PyInstaller or pkg).
+
+Distribute via pip, npm, or a direct download.
+
+Web interface:
+
+Deploy the frontend as a static bundle.
+
+Backend with FastAPI or Express.
+
+Reproducibility:
+
+Record the library version, the entry version, and the service version.
+
+Record the provenance for every entry.
+
+Provide a version pin for the schemas.
+
+Open Questions to Resolve Before Building
+Question 1. Which runtime first? Python or Node.js. The decision affects the ORM, the fuzzy matching library, and the packaging.
+
+Question 2. Which database first? PostgreSQL or SQLite. The decision affects the full-text search implementation and the deployment model.
+
+Question 3. How should the service handle the fuzzy matching threshold? Options: a fixed default, a per-library default, or a per-query value.
+
+Question 4. How should the service handle the alias index? Options: built from the entry fields automatically, entered by the depositor manually, or both.
+
+Question 5. How should the service handle the cross-library lookup? Options: return all matches from all libraries, or return matches grouped by library.
+
+Question 6. How should the service handle the curation workflow? Options: entries are pending until approved, entries are auto-approved, or entries require a moderator.
+
+Question 7. How should the service handle the library version? Options: each library version is a snapshot, or each library version is a set of changes.
+
+Question 8. How should the service handle the entry version? Options: each edit creates a new version, or each edit updates the existing version.
+
+Question 9. How should the service handle the library schema? Options: each library has its own schema, or all libraries share a common schema.
+
+Question 10. How should the service handle the confidence score? Options: a single number, or a set of sub-scores for string similarity, alias match, and cross-library agreement.
+
+Question 11. Should the service integrate with the STAG schema library (App 17), the provenance database (App 20), the PROV-O exporter (App 3), the Physics Knowledge Library (App 23), and the revision history viewer (App 7)?
+
+Question 12. Should the service support federation with other instances of itself?
+
+Question 13. Should the service support an offline mode?
+
+Question 14. How should the service handle a lookup that returns no matches? Options: return an empty result, or suggest the closest matches regardless of confidence.
+
+Question 15. How should the service handle a lookup that returns a very large number of matches? Options: cap the results, or paginate.
+
+Question 16. How should the service handle the deprecation of a library or an entry? Options: mark it deprecated, remove it, or keep it with a flag.
+
+Question 17. How should the service handle a user who submits an entry that already exists? Options: reject the submission, create a new version, or create a duplicate with a cross-reference.
+
+Question 18. Should the service support bulk lookup?
+
+Question 19. Should the service support a suggest mode that returns suggestions as the user types?
+
+Question 20. Should the service support a learn mode that improves the alias index from user queries?
+
+Library Registration
+Each app in the suite that uses autofill registers its library with the service.
+
+The registration states:
+
+the library ID
+
+the library name
+
+the library schema
+
+the library version
+
+the entry type
+
+the library description
+
+Here are the libraries for the apps that use autofill.
+
+Scale Atlas library. library_id is scale_atlas_library. entry_type is scale. Used by App 27.
+
+STAG annotation library. library_id is stag_annotation_library. entry_type is annotation. Used by App 1, App 2, App 5, App 6, App 7, App 14, App 15, App 20, App 21, App 23.
+
+Pipeline specification library. library_id is pipeline_specification_library. entry_type is pipeline_specification. Used by App 8, App 9, App 10, App 14, App 15.
+
+Dataset library. library_id is dataset_library. entry_type is dataset. Used by App 9, App 10, App 13, App 14.
+
+Work library. library_id is work_library. entry_type is work. Used by App 23.
+
+Anomaly library. library_id is anomaly_library. entry_type is anomaly. Used by App 25.
+
+Replication library. library_id is replication_library. entry_type is replication. Used by App 26.
+
+Instrument library. library_id is instrument_library. entry_type is instrument. Used by App 28.
+
+Model library. library_id is model_library. entry_type is model. Used by App 29.
+
+Misconception library. library_id is misconception_library. entry_type is misconception. Used by App 31.
+
+Legal case library. library_id is legal_case_library. entry_type is legal_case. Used by App 37.
+
+Historical claim library. library_id is historical_claim_library. entry_type is historical_claim. Used by App 38.
+
+Economic indicator library. library_id is economic_indicator_library. entry_type is economic_indicator. Used by App 39.
+
+Medical claim library. library_id is medical_claim_library. entry_type is medical_claim. Used by App 40.
+
+Psychological effect library. library_id is psychological_effect_library. entry_type is psychological_effect. Used by App 41.
+
+Climate attribution library. library_id is climate_attribution_library. entry_type is climate_attribution. Used by App 42.
+
+Philosophical argument library. library_id is philosophical_argument_library. entry_type is philosophical_argument. Used by App 43.
+
+Mathematical conjecture library. library_id is mathematical_conjecture_library. entry_type is mathematical_conjecture. Used by App 44.
+
+Each app registers its library once.
+
+After that, users can submit entries, and other users can look them up.
+
+When a new app is added to the suite, it registers its library with the service.
+
+That is the only change required.
+
+The service does not need to know about the new app in advance.
+
+The app tells the service what its library is, and the service serves lookups from it.
+
+End of build specification for App 49, the Autofill Library Service.
+
