@@ -1,0 +1,1868 @@
+Build Specification — App 46: The Evidence Aggregator
+Completeness status: COMPLETE. All sections delivered in one pass. No truncation. Formatted for copy-paste. Long lists are broken into short lines.
+
+1. What It Is
+A provenance-aware, versioned system that takes all the evidence for a claim from multiple sources and produces a structured summary of the strength of evidence. A claim is a statement about the world. The evidence for it is scattered across studies, datasets, replications, critiques, and meta-analyses. The Evidence Aggregator collects that evidence, evaluates its quality, weights it, and produces an aggregate assessment. It is the meta-analytic layer of the suite.
+
+It reuses:
+
+the Physics Knowledge Library (App 23)
+
+the Full-Pipeline Simulator (App 9)
+
+the Null-Model Protocol Library (App 18)
+
+the Numerical Verification Tool (App 22)
+
+the Provenance-Aware Annotation Database (App 20)
+
+the PROV-O Exporter (App 3)
+
+the Revision History Viewer (App 7)
+
+the Effective-Null Builder (App 11)
+
+the Replication Tracker (App 26)
+
+the Anomaly Register (App 25)
+
+the Medical Claim Verifier (App 40)
+
+the Psychological Effect Registry (App 41)
+
+the Climate Attribution Registry (App 42)
+
+the Evidence Aggregator (App 46)
+
+the Autofill Library Service (App 49)
+
+It is for reviewers, meta-analysts, decision-makers, and anyone who has to weigh evidence from multiple sources.
+
+2. Core Requirements
+Functional requirements:
+
+Accept a claim from a user or from another app in the suite.
+
+Collect the evidence for the claim from one or more sources.
+
+Store the collected evidence with its source, its type, its quality, and its provenance.
+
+Evaluate the quality of each piece of evidence: high, moderate, low, very_low, or not_assessed.
+
+Weight the evidence by its quality, its sample size, its effect size, and its independence from other evidence.
+
+Compute an aggregate strength of evidence: strong, moderate, weak, or inconclusive.
+
+Compute an aggregate uncertainty: the confidence interval around the aggregate.
+
+Detect and report the sources of heterogeneity: where the evidence disagrees and why.
+
+Detect and report the sources of bias: publication bias, selection bias, measurement bias, and so on.
+
+Detect and report the gaps: where the evidence is missing and what kind of evidence is needed.
+
+Record the aggregation method: fixed_effect, random_effects, Bayesian, or other.
+
+Record the sensitivity analyses: what happens to the aggregate under different assumptions.
+
+Record the provenance: the sources, the collection date, the aggregation tool version.
+
+Enforce provenance completeness.
+
+Enforce versioning.
+
+Enforce supersession acyclicity.
+
+Support querying by aggregation ID, claim, source, evidence type, quality, aggregate strength, depositor, deposit date, and keywords.
+
+Support full-text search of the claim description, the evidence summaries, and the notes.
+
+Support aggregation queries: count by source, by evidence type, by quality, by aggregate strength, by year.
+
+Support exporting an aggregation as JSON, PROV-O, and Turtle.
+
+Support importing an aggregation from JSON.
+
+Support bulk import and bulk export.
+
+Support a REST API for CRUD operations.
+
+Support a GraphQL API for flexible queries.
+
+Support a command-line interface for administration.
+
+Support authentication and authorization.
+
+Support audit logging.
+
+Support backup and restore.
+
+Support a web interface.
+
+Support moderation.
+
+Support linking an aggregation to a Physics Knowledge Library work.
+
+Support linking an aggregation to a Full-Pipeline Simulator result.
+
+Support linking an aggregation to a Null-Model Protocol result.
+
+Support linking an aggregation to a Numerical Verification Tool result.
+
+Support linking an aggregation to a Replication Tracker record.
+
+Support the forest plot: a visualisation of the evidence with its effect sizes and confidence intervals.
+
+Support the funnel plot: a visualisation of publication bias.
+
+Support the heterogeneity map: a visualisation of where the evidence agrees and disagrees.
+
+Support the evidence quality view: a visualisation of the quality of each piece of evidence.
+
+Support the bias assessment view: a visualisation of the sources of bias.
+
+Support the gap analysis view: a visualisation of what evidence is missing.
+
+Non-functional requirements:
+
+Deterministic.
+
+Fast: query a typical aggregation in under 100 milliseconds.
+
+Scalable: support up to 10^6 aggregations.
+
+Versioned: the system records the STAG schema version, the Null-Model Protocol schema version, the evidence aggregation schema version, and the system version.
+
+Reproducible.
+
+Portable.
+
+Well-documented.
+
+3. Input Specification
+Input 1. Evidence aggregation deposit. Required. A deposit object conforming to the evidence aggregation schema.
+
+Input 2. Claim reference. Required. A reference to a claim in one of the other apps.
+
+Input 3. Evidence sources. Required. One or more sources of evidence.
+
+Input 4. Files. Optional. Studies, datasets, or reports.
+
+Input 5. Provenance record. Required.
+
+Input 6. Work reference. Optional.
+
+Input 7. Full-Pipeline Simulator result reference. Optional.
+
+Input 8. Null-Model Protocol result reference. Optional.
+
+Input 9. Numerical verification result reference. Optional.
+
+Input 10. Replication Tracker record reference. Optional.
+
+Input 11. Query.
+
+Input 12. Aggregation query.
+
+Input 13. Authentication credentials.
+
+Input 14. Bulk import file.
+
+Input 15. Bulk export query.
+
+4. Output Specification
+Output 1. Evidence aggregation record. JSON.
+
+Output 2. PROV-O serialization.
+
+Output 3. Turtle serialization.
+
+Output 4. Query result. JSON.
+
+Output 5. Aggregation result. JSON.
+
+Output 6. Full-text search result. JSON.
+
+Output 7. Forest plot. JSON or a rendered plot.
+
+Output 8. Funnel plot. JSON or a rendered plot.
+
+Output 9. Heterogeneity map. JSON or a rendered map.
+
+Output 10. Evidence quality view. JSON or a rendered view.
+
+Output 11. Bias assessment view. JSON or a rendered view.
+
+Output 12. Gap analysis view. JSON or a rendered view.
+
+Output 13. Related aggregations. JSON.
+
+Output 14. Bulk export file.
+
+Output 15. Audit log entry. JSON.
+
+Output 16. API response. JSON.
+
+Output 17. GraphQL response. JSON.
+
+Output 18. Backup file.
+
+5. Module-by-Module Specification
+Module 1. Evidence Aggregation Schema.
+
+Defines the structure of an evidence aggregation deposit.
+
+Module 2. Database Schema.
+
+The tables and indexes.
+
+Module 3. Aggregation Loader.
+
+Reads and validates an evidence aggregation deposit.
+
+Module 4. Aggregation Writer.
+
+Writes an evidence aggregation deposit to the database.
+
+Module 5. Aggregation Reader.
+
+Reads an evidence aggregation deposit from the database.
+
+Module 6. Aggregation Updater.
+
+Updates an evidence aggregation deposit.
+
+Module 7. Aggregation Deleter.
+
+Deletes an evidence aggregation deposit.
+
+Module 8. Query Engine.
+
+Executes queries.
+
+Module 9. Full-Text Search Engine.
+
+Executes full-text search.
+
+Module 10. Aggregation Engine.
+
+Executes the meta-analytic aggregation.
+
+Module 11. Exporter.
+
+Exports an aggregation as JSON, PROV-O, and Turtle.
+
+Module 12. Importer.
+
+Imports an aggregation from JSON.
+
+Module 13. Bulk Import and Export.
+
+Bulk operations.
+
+Module 14. REST API.
+
+HTTP endpoints.
+
+Module 15. GraphQL API.
+
+GraphQL endpoint.
+
+Module 16. Command-Line Interface.
+
+Administration commands.
+
+Module 17. Authentication and Authorization.
+
+Access control.
+
+Module 18. Audit Logging.
+
+Logs operations.
+
+Module 19. Backup and Restore.
+
+Database backup and restore.
+
+Module 20. Web Interface.
+
+Depositing, browsing, querying.
+
+Module 21. Moderation Workflow.
+
+Moderation of aggregations.
+
+Module 22. Forest Plot.
+
+Visualises the evidence with its effect sizes and confidence intervals.
+
+Module 23. Funnel Plot.
+
+Visualises publication bias.
+
+Module 24. Heterogeneity Map.
+
+Visualises where the evidence agrees and disagrees.
+
+Module 25. Evidence Quality View.
+
+Visualises the quality of each piece of evidence.
+
+Module 26. Bias Assessment View.
+
+Visualises the sources of bias.
+
+Module 27. Gap Analysis View.
+
+Visualises what evidence is missing.
+
+Module 28. Related-Aggregation Finder.
+
+Finds aggregations related to a given one.
+
+Module 29. Migration Manager.
+
+Database migrations.
+
+6. Full Evidence Aggregation Specification
+6.1 Evidence Aggregation Schema
+The evidence aggregation schema defines the structure of an evidence aggregation deposit.
+
+It has the following fields:
+
+aggregation_id. A string. Required.
+
+aggregation_name. A string. Required.
+
+claim_id. A string. Required.
+
+claim_description. A string. Required.
+
+source_app. An enum. Required. The values are physics_knowledge_library, replication_tracker, anomaly_register, medical_claim_verifier, psychological_effect_registry, climate_attribution_registry, historical_claim_registry, mathematical_conjecture_registry, other.
+
+evidence_sources. An array of evidence objects. Required.
+
+aggregate_strength. An enum. Required. The values are strong, moderate, weak, inconclusive.
+
+aggregate_uncertainty. An object. Required. It contains confidence_interval and standard_error.
+
+aggregation_method. An enum. Required. The values are fixed_effect, random_effects, Bayesian, other.
+
+heterogeneity. An object. Required. It contains I_squared, tau_squared, Q_statistic, and sources.
+
+bias_assessment. An object. Required. It contains publication_bias, selection_bias, measurement_bias, and other_bias.
+
+gap_analysis. An object. Required. It contains missing_evidence_types and recommendations.
+
+sensitivity_analyses. An array of sensitivity analysis objects. Optional.
+
+related_aggregations. An array of aggregation relations. Optional.
+
+provenance. An object. Required.
+
+work_reference. A string. Optional.
+
+full_pipeline_result_reference. A string. Optional.
+
+null_model_result_reference. A string. Optional.
+
+verification_result_reference. A string. Optional.
+
+replication_tracker_reference. A string. Optional.
+
+keywords. An array of strings. Optional.
+
+notes. A string. Optional.
+
+moderation_status. An enum. The values are pending, approved, rejected.
+
+version. An integer.
+
+supersedes. A string. Optional.
+
+superseded_by. A string. Optional.
+
+Each evidence object has:
+
+evidence_id. A string.
+
+evidence_description. A string.
+
+evidence_type. An enum. The values are study, dataset, replication, meta_analysis, critique, observation, other.
+
+source_reference. A string.
+
+source_app. A string. Optional.
+
+effect_size. An object. Optional. It contains value and units.
+
+confidence_interval. An object. Optional. It contains lower and upper.
+
+p_value. A number. Optional.
+
+sample_size. An integer. Optional.
+
+quality. An enum. The values are high, moderate, low, very_low, not_assessed.
+
+weight. A number. Optional.
+
+independence. An enum. The values are independent, partially_independent, shared_assumption, unknown.
+
+notes. A string. Optional.
+
+Each sensitivity analysis object has:
+
+analysis_id. A string.
+
+analysis_description. A string.
+
+analysis_method. An enum. The values are leave_one_out, quality_weighted, outliers_removed, different_model, other.
+
+analysis_result. An object. It contains aggregate_strength, aggregate_uncertainty, and notes.
+
+Each aggregation relation has:
+
+relation_id. A string.
+
+related_aggregation_id. A string.
+
+relation_type. An enum. The values are same_claim, same_source_app, supersedes, superseded_by, related, independent.
+
+relation_note. A string. Optional.
+
+6.2 Database Schema
+The database has the following tables.
+
+evidence_aggregation. Holds the evidence aggregation records.
+
+Its fields are:
+
+aggregation_id
+
+aggregation_name
+
+claim_id
+
+claim_description
+
+source_app
+
+aggregate_strength
+
+aggregate_uncertainty
+
+aggregation_method
+
+heterogeneity
+
+bias_assessment
+
+gap_analysis
+
+provenance
+
+keywords
+
+notes
+
+moderation_status
+
+version
+
+supersedes
+
+superseded_by
+
+created_at
+
+updated_at
+
+evidence. Holds the evidence records.
+
+Its fields are:
+
+evidence_id
+
+aggregation_id
+
+evidence_description
+
+evidence_type
+
+source_reference
+
+source_app
+
+effect_size
+
+confidence_interval
+
+p_value
+
+sample_size
+
+quality
+
+weight
+
+independence
+
+notes
+
+created_at
+
+sensitivity_analysis. Holds the sensitivity analysis records.
+
+Its fields are:
+
+analysis_id
+
+aggregation_id
+
+analysis_description
+
+analysis_method
+
+analysis_result
+
+created_at
+
+aggregation_relation. Holds the aggregation relations.
+
+Its fields are:
+
+relation_id
+
+aggregation_id
+
+related_aggregation_id
+
+relation_type
+
+relation_note
+
+created_at
+
+work_link. Holds the work links.
+
+Its fields are:
+
+link_id
+
+aggregation_id
+
+work_id
+
+created_at
+
+full_pipeline_link. Holds the full-pipeline links.
+
+Its fields are:
+
+link_id
+
+aggregation_id
+
+result_id
+
+created_at
+
+null_model_link. Holds the Null-Model Protocol links.
+
+Its fields are:
+
+link_id
+
+aggregation_id
+
+result_id
+
+created_at
+
+verification_link. Holds the verification links.
+
+Its fields are:
+
+link_id
+
+aggregation_id
+
+verification_id
+
+created_at
+
+replication_tracker_link. Holds the Replication Tracker links.
+
+Its fields are:
+
+link_id
+
+aggregation_id
+
+replication_id
+
+created_at
+
+provenance. Holds the provenance records.
+
+Its fields are:
+
+provenance_id
+
+aggregation_id
+
+depositor_id
+
+depositor_affiliation
+
+timestamp
+
+source
+
+tool_version
+
+operation
+
+created_at
+
+audit_log. Holds the audit log entries.
+
+Its fields are:
+
+audit_id
+
+operation
+
+record_type
+
+record_id
+
+depositor_id
+
+timestamp
+
+result
+
+details
+
+created_at
+
+moderation. Holds the moderation records.
+
+Its fields are:
+
+moderation_id
+
+aggregation_id
+
+moderator_id
+
+moderation_status
+
+moderation_date
+
+moderation_notes
+
+created_at
+
+6.3 Referential Integrity
+Every evidence.aggregation_id must exist in evidence_aggregation.
+
+Every sensitivity_analysis.aggregation_id must exist in evidence_aggregation.
+
+Every aggregation_relation.aggregation_id and aggregation_relation.related_aggregation_id must exist in evidence_aggregation.
+
+Every work_link.aggregation_id must exist in evidence_aggregation.
+
+Every full_pipeline_link.aggregation_id must exist in evidence_aggregation.
+
+Every null_model_link.aggregation_id must exist in evidence_aggregation.
+
+Every verification_link.aggregation_id must exist in evidence_aggregation.
+
+Every replication_tracker_link.aggregation_id must exist in evidence_aggregation.
+
+Every provenance.aggregation_id must exist in evidence_aggregation.
+
+Every moderation.aggregation_id must exist in evidence_aggregation.
+
+The version chain must be acyclic.
+
+The aggregation relation must be symmetric where appropriate.
+
+6.4 Indexes
+The database has indexes on:
+
+evidence_aggregation.aggregation_id
+
+evidence_aggregation.aggregation_name
+
+evidence_aggregation.claim_id
+
+evidence_aggregation.source_app
+
+evidence_aggregation.aggregate_strength
+
+evidence_aggregation.aggregation_method
+
+evidence_aggregation.moderation_status
+
+evidence_aggregation.keywords
+
+evidence.aggregation_id
+
+evidence.evidence_type
+
+evidence.quality
+
+evidence.independence
+
+sensitivity_analysis.aggregation_id
+
+aggregation_relation.aggregation_id
+
+aggregation_relation.related_aggregation_id
+
+work_link.aggregation_id
+
+full_pipeline_link.aggregation_id
+
+null_model_link.aggregation_id
+
+verification_link.aggregation_id
+
+replication_tracker_link.aggregation_id
+
+provenance.aggregation_id
+
+provenance.depositor_id
+
+audit_log.operation
+
+audit_log.record_id
+
+moderation.aggregation_id
+
+moderation.moderation_status
+
+Full-text search indexes on the claim description, the evidence summaries, and the notes.
+
+7. Core Logic as Executable Pseudocode
+7.1 Create Evidence Aggregation
+function createEvidenceAggregation(aggregation, files, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Validate the aggregation against the schema. If invalid, return an error with the details.
+
+Step 3. If the work reference is present, look it up. If null, flag it as unresolved.
+
+Step 4. If the full-pipeline result reference is present, look it up. If null, flag it as unresolved.
+
+Step 5. If the null-model result reference is present, look it up. If null, flag it as unresolved.
+
+Step 6. If the verification result reference is present, look it up. If null, flag it as unresolved.
+
+Step 7. If the replication tracker reference is present, look it up. If null, flag it as unresolved.
+
+Step 8. Generate an aggregation ID. Set the fields: version 1, moderation_status pending, deposit_date now, depositor_id from auth, depositor_affiliation from auth, provenance from provenance.
+
+Step 9. Insert the evidence aggregation.
+
+Step 10. Insert the evidence records, the sensitivity analyses, and the aggregation relations.
+
+Step 11. Insert the links if present.
+
+Step 12. Insert the provenance.
+
+Step 13. Insert the moderation record.
+
+Step 14. Insert the audit log entry.
+
+Step 15. Return the aggregation_id and the status created.
+
+7.2 Read Evidence Aggregation
+function readEvidenceAggregation(aggregationId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the aggregation. If null, return an error.
+
+Step 3. Read the evidence, the sensitivity analyses, the relations, the links, the provenance, and the moderation.
+
+Step 4. Reconstruct the deposit.
+
+Step 5. Insert the audit log entry.
+
+Step 6. Return the deposit.
+
+7.3 Update Evidence Aggregation
+function updateEvidenceAggregation(aggregationId, aggregation, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Read the existing aggregation. If null, return an error.
+
+Step 3. Validate the new aggregation.
+
+Step 4. Increment the version. Update the supersedes and superseded_by fields.
+
+Step 5. Insert a provenance record with operation update.
+
+Step 6. Insert an audit log entry.
+
+Step 7. Return the aggregation_id, the version, and the status updated.
+
+7.4 Delete Evidence Aggregation
+function deleteEvidenceAggregation(aggregationId, provenance, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Read the existing aggregation. If null, return an error.
+
+Step 3. If soft delete, mark as deleted. Otherwise, remove.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the aggregation_id and the status deleted.
+
+7.5 Run Aggregation
+function runAggregation(aggregationId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the aggregation. If null, return an error.
+
+Step 3. Read the evidence.
+
+Step 4. Compute the aggregate effect size using the specified method.
+
+Step 5. Compute the aggregate uncertainty.
+
+Step 6. Compute the heterogeneity: I-squared, tau-squared, Q-statistic.
+
+Step 7. Assess the bias: publication bias, selection bias, measurement bias.
+
+Step 8. Assess the gaps: what evidence is missing.
+
+Step 9. Update the aggregate_strength, aggregate_uncertainty, heterogeneity, bias_assessment, and gap_analysis fields.
+
+Step 10. Insert the audit log entry.
+
+Step 11. Return the aggregation.
+
+7.6 Compute Aggregate Effect Size
+function computeAggregateEffectSize(evidence, method):
+
+Step 1. For each piece of evidence, extract the effect size, the confidence interval, and the weight.
+
+Step 2. If the method is fixed_effect, compute the inverse-variance weighted mean.
+
+Step 3. If the method is random_effects, compute the DerSimonian-Laird or restricted maximum likelihood estimate.
+
+Step 4. If the method is Bayesian, compute the posterior mean.
+
+Step 5. Compute the confidence interval around the aggregate.
+
+Step 6. Return the aggregate effect size and the confidence interval.
+
+7.7 Compute Heterogeneity
+function computeHeterogeneity(evidence):
+
+Step 1. Compute the Q-statistic.
+
+Step 2. Compute the I-squared statistic.
+
+Step 3. Compute the tau-squared statistic.
+
+Step 4. Identify the sources of heterogeneity: which evidence disagrees with the rest and why.
+
+Step 5. Return the heterogeneity.
+
+7.8 Assess Bias
+function assessBias(evidence):
+
+Step 1. For publication bias, run a funnel plot asymmetry test and a trim-and-fill analysis.
+
+Step 2. For selection bias, review the study designs and the inclusion criteria.
+
+Step 3. For measurement bias, review the measurement methods and the instruments.
+
+Step 4. For other bias, review the funding sources, the conflicts of interest, and the study registration.
+
+Step 5. Return the bias assessment.
+
+7.9 Assess Gaps
+function assessGaps(evidence, claim):
+
+Step 1. Identify the evidence types present: study, dataset, replication, meta_analysis, critique, observation.
+
+Step 2. Identify the evidence types missing.
+
+Step 3. Identify the populations, the settings, and the outcome measures missing.
+
+Step 4. Recommend what kind of evidence is needed.
+
+Step 5. Return the gap analysis.
+
+7.10 Query Evidence Aggregations
+function queryEvidenceAggregations(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the query.
+
+Step 3. Read the matching aggregations.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the aggregations, the count, and the pagination.
+
+7.11 Aggregate Evidence Aggregations
+function aggregateEvidenceAggregations(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the aggregation.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the results.
+
+7.12 Full-Text Search
+function fullTextSearch(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the search.
+
+Step 3. Read the matching aggregations.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the aggregations and the count.
+
+7.13 Export Evidence Aggregation
+function exportEvidenceAggregation(aggregationId, format, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the deposit.
+
+Step 3. If json, output the deposit. If provo, export to PROV-O. If turtle, serialize to Turtle.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the output and the format.
+
+7.14 Bulk Import
+function bulkImport(file, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Parse the file.
+
+Step 3. For each aggregation, call createEvidenceAggregation.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the results and the count.
+
+7.15 Bulk Export
+function bulkExport(query, format, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the matching aggregations.
+
+Step 3. If json, output the list. If jsonl, output one line per aggregation. If provo, export each one.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the output and the count.
+
+7.16 Moderate Evidence Aggregation
+function moderateEvidenceAggregation(aggregationId, moderationStatus, moderationNotes, auth):
+
+Step 1. validateAuth(auth, "moderator"). If not authorized, return an error.
+
+Step 2. Read the existing aggregation. If null, return an error.
+
+Step 3. Update the moderation status. Insert a moderation record.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the aggregation_id and the status.
+
+7.17 Forest Plot
+function forestPlot(aggregationId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the aggregation. If null, return an error.
+
+Step 3. Read the evidence.
+
+Step 4. Build the forest plot with each piece of evidence's effect size and confidence interval, and the aggregate.
+
+Step 5. Return the forest plot.
+
+7.18 Funnel Plot
+function funnelPlot(aggregationId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the aggregation. If null, return an error.
+
+Step 3. Read the evidence.
+
+Step 4. Build the funnel plot with the effect size on the x-axis and the standard error on the y-axis.
+
+Step 5. Return the funnel plot.
+
+7.19 Heterogeneity Map
+function heterogeneityMap(aggregationId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the aggregation. If null, return an error.
+
+Step 3. Read the evidence.
+
+Step 4. Build the heterogeneity map with the evidence grouped by source, quality, and direction.
+
+Step 5. Return the map.
+
+7.20 Evidence Quality View
+function evidenceQualityView(aggregationId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the aggregation. If null, return an error.
+
+Step 3. Read the evidence.
+
+Step 4. Build the view with the quality of each piece of evidence.
+
+Step 5. Return the view.
+
+7.21 Bias Assessment View
+function biasAssessmentView(aggregationId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the aggregation. If null, return an error.
+
+Step 3. Read the bias assessment.
+
+Step 4. Build the view with the sources of bias.
+
+Step 5. Return the view.
+
+7.22 Gap Analysis View
+function gapAnalysisView(aggregationId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the aggregation. If null, return an error.
+
+Step 3. Read the gap analysis.
+
+Step 4. Build the view with what evidence is missing.
+
+Step 5. Return the view.
+
+7.23 Find Related Aggregations
+function findRelatedAggregations(aggregationId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the aggregation. If null, return an error.
+
+Step 3. Find aggregations with the same claim, the same source app, or the same evidence.
+
+Step 4. Return the related aggregations.
+
+7.24 Audit Log
+function auditLog(query, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Build and execute the query.
+
+Step 3. Return the results.
+
+7.25 Backup
+function backup(auth, options):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. If sql, dump as SQL. If json, dump as JSON.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the output and the format.
+
+7.26 Restore
+function restore(file, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Load the database from the file.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the status restored.
+
+8. Data Model
+The system's internal state is the set of tables. The API's internal state is a request object and a response object.
+
+Request object:
+
+operation
+
+resource
+
+record_id
+
+record_json
+
+query
+
+auth
+
+Response object:
+
+status
+
+result
+
+error
+
+audit_id
+
+9. Architecture
+Module breakdown:
+
+Evidence Aggregation Schema.
+
+Database Schema.
+
+Aggregation Loader.
+
+Aggregation Writer.
+
+Aggregation Reader.
+
+Aggregation Updater.
+
+Aggregation Deleter.
+
+Query Engine.
+
+Full-Text Search Engine.
+
+Aggregation Engine.
+
+Exporter.
+
+Importer.
+
+Bulk Import and Export.
+
+REST API.
+
+GraphQL API.
+
+Command-Line Interface.
+
+Authentication and Authorization.
+
+Audit Logging.
+
+Backup and Restore.
+
+Web Interface.
+
+Moderation Workflow.
+
+Forest Plot.
+
+Funnel Plot.
+
+Heterogeneity Map.
+
+Evidence Quality View.
+
+Bias Assessment View.
+
+Gap Analysis View.
+
+Related-Aggregation Finder.
+
+Migration Manager.
+
+Data flow:
+
+API requests go to the REST or GraphQL API.
+
+The API calls the aggregation loader, writer, reader, updater, deleter, query engine, search engine, aggregation engine, exporter, or importer.
+
+The aggregation engine computes the aggregate effect size, the heterogeneity, the bias assessment, and the gap analysis.
+
+The database schema stores the data.
+
+The audit logging records every operation.
+
+The authentication and authorization check access.
+
+The moderation workflow handles moderation.
+
+The forest plot, the funnel plot, the heterogeneity map, the evidence quality view, the bias assessment view, and the gap analysis view visualise.
+
+The related-aggregation finder finds relations.
+
+The backup and restore handle backup.
+
+The web interface provides depositing, browsing, and querying.
+
+10. Technology Stack
+Recommended for the database:
+
+Database: PostgreSQL 15+ or SQLite 3.40+.
+
+Language: Python 3.11+ or Node.js 20+.
+
+ORM: SQLAlchemy or Prisma.
+
+Migrations: Alembic or Prisma Migrate.
+
+Full-text search: PostgreSQL tsvector or SQLite FTS5.
+
+Statistical computation: SciPy, statsmodels, or metafor (Python) or metafor (R) or meta-analysis libraries (JS).
+
+Recommended for the REST API:
+
+Framework: FastAPI or Express.
+
+Authentication: FastAPI Users or Passport.
+
+Recommended for the GraphQL API:
+
+Framework: Strawberry or Apollo Server.
+
+Recommended for the command-line interface:
+
+Framework: Click or Commander.
+
+Recommended for the web interface:
+
+Frontend: React or Svelte.
+
+Backend: the same as the REST API.
+
+Recommended for deployment:
+
+Containerization: Docker.
+
+Orchestration: Docker Compose or Kubernetes.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The Null-Model Protocol schema (from App 8 and App 9).
+
+The PROV-O exporter (App 3).
+
+The STAG schema library (App 17).
+
+The Null-Model Protocol library (App 18).
+
+The full-pipeline simulator (App 9).
+
+The effective-null builder (App 11).
+
+The provenance database (App 20).
+
+The revision history viewer (App 7).
+
+The Physics Knowledge Library (App 23).
+
+The Numerical Verification Tool (App 22).
+
+The Replication Tracker (App 26).
+
+The Anomaly Register (App 25).
+
+The Medical Claim Verifier (App 40).
+
+The Psychological Effect Registry (App 41).
+
+The Climate Attribution Registry (App 42).
+
+The Autofill Library Service (App 49).
+
+11. UI/UX Specification
+REST API:
+
+Base URL: https://api.example.com/v1.
+
+Authentication: Bearer token.
+
+Endpoints:
+
+GET /aggregations.
+
+GET /aggregations/{id}.
+
+POST /aggregations.
+
+PUT /aggregations/{id}.
+
+DELETE /aggregations/{id}.
+
+POST /aggregations/{id}/run.
+
+GET /aggregations/{id}/provo.
+
+GET /aggregations/{id}/turtle.
+
+GET /aggregations/{id}/evidence.
+
+GET /aggregations/{id}/sensitivity-analyses.
+
+GET /aggregations/{id}/relations.
+
+GET /aggregations/{id}/related.
+
+GET /aggregations/{id}/work.
+
+GET /aggregations/{id}/full-pipeline.
+
+GET /aggregations/{id}/null-model.
+
+GET /aggregations/{id}/verification.
+
+GET /aggregations/{id}/replication-tracker.
+
+GET /aggregations/by-source-app/{source_app}.
+
+GET /aggregations/by-strength/{strength}.
+
+GET /aggregations/by-method/{method}.
+
+GET /aggregations/{id}/forest-plot.
+
+GET /aggregations/{id}/funnel-plot.
+
+GET /aggregations/{id}/heterogeneity-map.
+
+GET /aggregations/{id}/evidence-quality-view.
+
+GET /aggregations/{id}/bias-assessment-view.
+
+GET /aggregations/{id}/gap-analysis-view.
+
+POST /query.
+
+POST /aggregate.
+
+POST /search.
+
+POST /bulk/import.
+
+POST /bulk/export.
+
+POST /moderate/{id}.
+
+GET /audit.
+
+Responses in JSON.
+
+HTTP status codes: 200, 201, 204, 400, 401, 403, 404, 409, 422, 500.
+
+GraphQL API:
+
+Endpoint: https://api.example.com/graphql.
+
+Schema exposes the entities and their relationships.
+
+Command-line interface:
+
+Usage: evidence-aggregator [command] [options].
+
+Commands: init, migrate, backup, restore, import, export, query, aggregate, moderate, audit, run.
+
+Web interface:
+
+A browsable list of aggregations.
+
+A deposit form.
+
+A search box.
+
+A filter panel.
+
+An aggregation view.
+
+A forest plot.
+
+A funnel plot.
+
+A heterogeneity map.
+
+An evidence quality view.
+
+A bias assessment view.
+
+A gap analysis view.
+
+A detail view for each aggregation.
+
+A moderation view.
+
+12. Validation Engine Design
+The system validates the following.
+
+Validation 1. Aggregation validity. Every aggregation is validated against the schema.
+
+Validation 2. Referential integrity.
+
+Validation 3. Version chain acyclicity.
+
+Validation 4. Work resolution.
+
+Validation 5. Full-pipeline result resolution.
+
+Validation 6. Null-model result resolution.
+
+Validation 7. Verification result resolution.
+
+Validation 8. Replication tracker record resolution.
+
+Validation 9. Provenance completeness.
+
+Validation 10. Audit completeness.
+
+Validation 11. Moderation completeness.
+
+Validation 12. Method consistency. The aggregation method must be consistent with the evidence.
+
+Validation 13. Effect size consistency. The effect sizes must be consistent with the units.
+
+Validation 14. Strength consistency. The aggregate strength must be consistent with the effect size and the uncertainty.
+
+Validation 15. Heterogeneity consistency. The heterogeneity must be consistent with the evidence.
+
+Validation 16. Bias consistency. The bias assessment must be consistent with the evidence.
+
+Validation 17. Gap consistency. The gap analysis must be consistent with the evidence.
+
+13. Testing Strategy
+Unit tests:
+
+Evidence Aggregation Schema for valid and invalid aggregations.
+
+Database Schema for each table and index.
+
+Aggregation Loader.
+
+Aggregation Writer.
+
+Aggregation Reader.
+
+Aggregation Updater.
+
+Aggregation Deleter.
+
+Query Engine.
+
+Full-Text Search Engine.
+
+Aggregation Engine.
+
+Exporter.
+
+Importer.
+
+Bulk Import and Export.
+
+REST API.
+
+GraphQL API.
+
+Command-Line Interface.
+
+Authentication and Authorization.
+
+Audit Logging.
+
+Backup and Restore.
+
+Web Interface.
+
+Moderation Workflow.
+
+Forest Plot.
+
+Funnel Plot.
+
+Heterogeneity Map.
+
+Evidence Quality View.
+
+Bias Assessment View.
+
+Gap Analysis View.
+
+Related-Aggregation Finder.
+
+Migration Manager.
+
+Integration tests:
+
+Create an aggregation. Read it back.
+
+Update an aggregation.
+
+Run an aggregation. Verify the aggregate.
+
+Delete an aggregation.
+
+Query by each field.
+
+Aggregate by each dimension.
+
+Search by full text.
+
+Export as JSON, PROV-O, and Turtle.
+
+Bulk import and export.
+
+Backup and restore.
+
+Moderate an aggregation.
+
+Generate the forest plot.
+
+Generate the funnel plot.
+
+Generate the heterogeneity map.
+
+Generate the evidence quality view.
+
+Generate the bias assessment view.
+
+Generate the gap analysis view.
+
+Worked-example tests:
+
+Aggregate the evidence for the claim that smoking causes lung cancer.
+
+Aggregate the evidence for the claim that statins reduce cardiovascular events.
+
+Aggregate the evidence for the claim that the MMR vaccine does not cause autism.
+
+Aggregate the evidence for the claim that the ego depletion effect is real.
+
+Aggregate the evidence for the claim that the Mediterranean diet reduces cardiovascular risk.
+
+Aggregate the evidence for the claim that anthropogenic greenhouse gases cause global warming.
+
+Aggregate the evidence for the claim that the Riemann hypothesis is true.
+
+Aggregate the evidence for the claim that the collapse of the Bronze Age had multiple causes.
+
+Regression tests:
+
+Aggregation determinism.
+
+Query consistency.
+
+Aggregation consistency.
+
+Audit log consistency.
+
+Moderation consistency.
+
+Method consistency.
+
+Effect size consistency.
+
+Strength consistency.
+
+Heterogeneity consistency.
+
+Bias consistency.
+
+Gap consistency.
+
+14. Build Phases
+Phase 1. Evidence Aggregation Schema.
+
+Phase 2. Database Schema.
+
+Phase 3. Aggregation Loader.
+
+Phase 4. Aggregation Writer.
+
+Phase 5. Aggregation Reader.
+
+Phase 6. Aggregation Updater.
+
+Phase 7. Aggregation Deleter.
+
+Phase 8. Query Engine.
+
+Phase 9. Full-Text Search Engine.
+
+Phase 10. Aggregation Engine.
+
+Phase 11. Exporter.
+
+Phase 12. Importer.
+
+Phase 13. Bulk Import and Export.
+
+Phase 14. REST API.
+
+Phase 15. GraphQL API.
+
+Phase 16. Command-Line Interface.
+
+Phase 17. Authentication and Authorization.
+
+Phase 18. Audit Logging.
+
+Phase 19. Backup and Restore.
+
+Phase 20. Web Interface.
+
+Phase 21. Moderation Workflow.
+
+Phase 22. Forest Plot.
+
+Phase 23. Funnel Plot.
+
+Phase 24. Heterogeneity Map.
+
+Phase 25. Evidence Quality View.
+
+Phase 26. Bias Assessment View.
+
+Phase 27. Gap Analysis View.
+
+Phase 28. Related-Aggregation Finder.
+
+Phase 29. Migration Manager.
+
+Phase 30. Worked-example tests.
+
+Phase 31. Integration testing and hardening.
+
+Phase 32. Packaging and deployment.
+
+15. Dependencies
+Python path:
+
+SQLAlchemy.
+
+Alembic.
+
+FastAPI.
+
+Strawberry.
+
+FastAPI Users.
+
+Click.
+
+psycopg2.
+
+sqlite3.
+
+jsonschema.
+
+hashlib.
+
+json.
+
+numpy.
+
+scipy.
+
+statsmodels.
+
+pytest.
+
+Node.js path:
+
+Prisma.
+
+Express.
+
+Apollo Server.
+
+Passport.
+
+Commander.
+
+pg.
+
+better-sqlite3.
+
+ajv.
+
+crypto.
+
+JSON.
+
+mathjs.
+
+Vitest.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The Null-Model Protocol schema (from App 8 and App 9).
+
+The PROV-O exporter (App 3).
+
+The STAG schema library (App 17).
+
+The Null-Model Protocol library (App 18).
+
+The full-pipeline simulator (App 9).
+
+The effective-null builder (App 11).
+
+The provenance database (App 20).
+
+The revision history viewer (App 7).
+
+The Physics Knowledge Library (App 23).
+
+The Numerical Verification Tool (App 22).
+
+The Replication Tracker (App 26).
+
+The Anomaly Register (App 25).
+
+The Medical Claim Verifier (App 40).
+
+The Psychological Effect Registry (App 41).
+
+The Climate Attribution Registry (App 42).
+
+The Autofill Library Service (App 49).
+
+16. Deployment Notes
+Database:
+
+PostgreSQL for multi-user deployments.
+
+SQLite for single-user deployments.
+
+Backup and restore via pg_dump and pg_restore or the SQLite backup API.
+
+REST API:
+
+Deploy with Docker. Stateless. Scale horizontally.
+
+Use a reverse proxy for TLS.
+
+Log every request for audit.
+
+GraphQL API:
+
+Deploy alongside the REST API.
+
+Use a query depth limit and a query complexity limit.
+
+Command-line interface:
+
+Package as a standalone executable.
+
+Distribute via pip, npm, or a direct download.
+
+Web interface:
+
+Deploy the frontend as a static bundle.
+
+Backend with FastAPI or Express.
+
+Reproducibility:
+
+Record the STAG schema version, the Null-Model Protocol schema version, the evidence aggregation schema version, and the system version.
+
+Record the provenance for every deposit.
+
+Provide a version pin for the schemas and codebook.
+
+17. Open Questions to Resolve Before Building
+Question 1. Which runtime first? Python or Node.js.
+
+Question 2. Which database first? PostgreSQL or SQLite.
+
+Question 3. How should the system handle the source app? A fixed set of apps, or an open set.
+
+Question 4. How should the system handle the aggregate strength? A fixed set of four values, or an open set.
+
+Question 5. How should the system handle the aggregation method? A fixed set of four values, or an open set.
+
+Question 6. How should the system handle the evidence type? A fixed set, or an open set.
+
+Question 7. How should the system handle the evidence quality? A fixed set of five values, or a continuous scale.
+
+Question 8. How should the system handle the independence? A fixed set of four values, or an open set.
+
+Question 9. How should the system handle the sensitivity analysis method? A fixed set, or an open set.
+
+Question 10. How should the system handle the relation between aggregations? Manual entry, or automatic detection.
+
+Question 11. How should the system handle the moderation workflow? Pending until approved, auto-approved, or require a moderator.
+
+Question 12. How should the system handle the work reference? Required, optional, or optional depending on the source app.
+
+Question 13. How should the system handle the full-pipeline result reference? Required, optional, or optional depending on the source app.
+
+Question 14. How should the system handle the Null-Model Protocol result reference? Required, optional, or optional depending on the source app.
+
+Question 15. How should the system handle the verification result reference? Required, optional, or optional depending on the source app.
+
+Question 16. How should the system handle the Replication Tracker reference? Required, optional, or optional depending on the source app.
+
+Question 17. How should the system handle the forest plot? A standard forest plot, an enhanced forest plot, or both.
+
+Question 18. How should the system handle the funnel plot? A standard funnel plot, a contour-enhanced funnel plot, or both.
+
+Question 19. How should the system handle the heterogeneity map? A heat map, a network graph, or both.
+
+Question 20. How should the system handle the evidence quality view? A bar chart, a heat map, or both.
+
+Question 21. How should the system handle the bias assessment view? A table, a traffic-light plot, or both.
+
+Question 22. How should the system handle the gap analysis view? A list, a heat map, or both.
+
+Question 23. Should the system integrate with the STAG schema library (App 17), the Null-Model Protocol library (App 18), the full-pipeline simulator (App 9), the effective-null builder (App 11), the provenance database (App 20), the revision history viewer (App 7), the Physics Knowledge Library (App 23), the Numerical Verification Tool (App 22), the Replication Tracker (App 26), the Anomaly Register (App 25), the Medical Claim Verifier (App 40), the Psychological Effect Registry (App 41), and the Climate Attribution Registry (App 42)?
+
+Question 24. Should the system support federation with other instances of itself?
+
+Question 25. How should the system handle the deposit of an aggregation that is already in the system? Reject, create a new version, or create a separate record with a cross-reference.
+
+Question 26. Should the system support autofill via App 49? If so, which library does it register?
+
+Question 27. Should the system support a living review function that updates the aggregation as new evidence appears?
+
+Question 28. Should the system support a decision-maker view that shows the aggregate strength of evidence for a set of claims?
+
+Question 29. Should the system support a guideline view that shows the evidence behind a clinical or policy guideline?
+
+Question 30. Should the system support a "what would change the conclusion" function that shows what evidence would be needed to overturn the aggregate?
+
+End of build specification for App 46, the Evidence Aggregator.
+
+Say "47" when you want the next one, the Replication Cost Estimator.
+
