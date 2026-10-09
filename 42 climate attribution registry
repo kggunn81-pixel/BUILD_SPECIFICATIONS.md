@@ -1,0 +1,1734 @@
+Build Specification — App 42: The Climate Attribution Registry
+Completeness status: COMPLETE. All sections delivered in one pass. No truncation. Formatted for copy-paste. Long lists are broken into short lines.
+
+1. What It Is
+A provenance-aware, versioned registry of climate attribution claims. A climate attribution claim is a statement that a specific event, trend, or phenomenon is attributable, in whole or in part, to a specific cause: anthropogenic greenhouse gas emissions, natural variability, volcanic activity, solar variation, land-use change, and so on. The Climate Attribution Registry records each claim with its event or trend, its attributed cause, its evidence, its models, its uncertainty, its confidence level, and its provenance.
+
+It reuses:
+
+the Physics Knowledge Library (App 23)
+
+the Full-Pipeline Simulator (App 9)
+
+the Null-Model Protocol Library (App 18)
+
+the Provenance-Aware Annotation Database (App 20)
+
+the PROV-O Exporter (App 3)
+
+the Revision History Viewer (App 7)
+
+the Numerical Verification Tool (App 22)
+
+the Evidence Aggregator (App 46)
+
+the Autofill Library Service (App 49)
+
+It is for climate scientists, policymakers, journalists, students, and anyone who wants to know what is attributed to what and with what confidence.
+
+2. Core Requirements
+Functional requirements:
+
+Accept deposits of climate attribution claims from users.
+
+Store each claim with its event or trend, its attributed cause, and its provenance.
+
+Record the event or trend: the description, the period, the region, and the type.
+
+Record the attributed cause: the cause, the mechanism, and the contribution estimate.
+
+Record the evidence: the observations, the models, the statistical analyses, and the physical reasoning.
+
+Record the models used: the climate models, their versions, their resolutions, and their ensemble members.
+
+Record the uncertainty: the confidence interval, the probability, and the sources of uncertainty.
+
+Record the confidence level: very_high, high, medium, low, or very_low.
+
+Record the attribution method: fraction_of_attributable_risk, probabilistic_event_attribution, trend_attribution, or other.
+
+Record the counterfactual baseline: the world without the attributed cause.
+
+Record the revisions: how the claim has changed over time, and why.
+
+Enforce provenance completeness.
+
+Enforce versioning.
+
+Enforce supersession acyclicity.
+
+Support querying by attribution ID, event, cause, region, period, confidence level, attribution method, depositor, deposit date, and keywords.
+
+Support full-text search of the event description, the cause, the evidence, and the notes.
+
+Support aggregation queries: count by cause, by region, by period, by confidence level, by attribution method, by year.
+
+Support exporting a claim as JSON, PROV-O, and Turtle.
+
+Support importing a claim from JSON.
+
+Support bulk import and bulk export.
+
+Support a REST API for CRUD operations.
+
+Support a GraphQL API for flexible queries.
+
+Support a command-line interface for administration.
+
+Support authentication and authorization.
+
+Support audit logging.
+
+Support backup and restore.
+
+Support a web interface.
+
+Support moderation.
+
+Support linking a claim to a Physics Knowledge Library work if the claim is described in a deposited work.
+
+Support linking a claim to a Full-Pipeline Simulator result.
+
+Support linking a claim to a Null-Model Protocol result.
+
+Support linking a claim to a Numerical Verification Tool result.
+
+Support the attribution map: a visualisation of attributions by region and by event type.
+
+Support the attribution confidence view: a visualisation of the confidence levels across claims.
+
+Support the attribution timeline: a visualisation of how the attribution has changed over time.
+
+Support the counterfactual view: a visualisation of the world with and without the attributed cause.
+
+Support the cause comparison view: a visualisation that compares two or more causes for the same event.
+
+Non-functional requirements:
+
+Deterministic.
+
+Fast: query a typical attribution in under 100 milliseconds.
+
+Scalable: support up to 10^6 attributions.
+
+Versioned: the registry records the STAG schema version, the Null-Model Protocol schema version, the attribution schema version, and the registry version.
+
+Reproducible.
+
+Portable.
+
+Well-documented.
+
+3. Input Specification
+Input 1. Climate attribution deposit. Required. A deposit object conforming to the attribution schema.
+
+Input 2. Files. Optional. Studies, reports, or model outputs.
+
+Input 3. Provenance record. Required.
+
+Input 4. Work reference. Optional.
+
+Input 5. Full-Pipeline Simulator result reference. Optional.
+
+Input 6. Null-Model Protocol result reference. Optional.
+
+Input 7. Numerical verification result reference. Optional.
+
+Input 8. Query.
+
+Input 9. Aggregation query.
+
+Input 10. Authentication credentials.
+
+Input 11. Bulk import file.
+
+Input 12. Bulk export query.
+
+4. Output Specification
+Output 1. Climate attribution record. JSON.
+
+Output 2. PROV-O serialization.
+
+Output 3. Turtle serialization.
+
+Output 4. Query result. JSON.
+
+Output 5. Aggregation result. JSON.
+
+Output 6. Full-text search result. JSON.
+
+Output 7. Attribution map. JSON or a rendered map.
+
+Output 8. Attribution confidence view. JSON or a rendered view.
+
+Output 9. Attribution timeline. JSON or a rendered timeline.
+
+Output 10. Counterfactual view. JSON or a rendered view.
+
+Output 11. Cause comparison view. JSON or a rendered graph.
+
+Output 12. Related attributions. JSON.
+
+Output 13. Bulk export file.
+
+Output 14. Audit log entry. JSON.
+
+Output 15. API response. JSON.
+
+Output 16. GraphQL response. JSON.
+
+Output 17. Backup file.
+
+5. Module-by-Module Specification
+Module 1. Climate Attribution Schema.
+
+Defines the structure of a climate attribution deposit.
+
+Module 2. Database Schema.
+
+The tables and indexes.
+
+Module 3. Attribution Loader.
+
+Reads and validates a climate attribution deposit.
+
+Module 4. Attribution Writer.
+
+Writes a climate attribution deposit to the database.
+
+Module 5. Attribution Reader.
+
+Reads a climate attribution deposit from the database.
+
+Module 6. Attribution Updater.
+
+Updates a climate attribution deposit.
+
+Module 7. Attribution Deleter.
+
+Deletes a climate attribution deposit.
+
+Module 8. Query Engine.
+
+Executes queries.
+
+Module 9. Full-Text Search Engine.
+
+Executes full-text search.
+
+Module 10. Aggregation Engine.
+
+Executes aggregation queries.
+
+Module 11. Exporter.
+
+Exports an attribution as JSON, PROV-O, and Turtle.
+
+Module 12. Importer.
+
+Imports an attribution from JSON.
+
+Module 13. Bulk Import and Export.
+
+Bulk operations.
+
+Module 14. REST API.
+
+HTTP endpoints.
+
+Module 15. GraphQL API.
+
+GraphQL endpoint.
+
+Module 16. Command-Line Interface.
+
+Administration commands.
+
+Module 17. Authentication and Authorization.
+
+Access control.
+
+Module 18. Audit Logging.
+
+Logs operations.
+
+Module 19. Backup and Restore.
+
+Database backup and restore.
+
+Module 20. Web Interface.
+
+Depositing, browsing, querying.
+
+Module 21. Moderation Workflow.
+
+Moderation of attributions.
+
+Module 22. Attribution Map.
+
+Visualises attributions by region and by event type.
+
+Module 23. Attribution Confidence View.
+
+Visualises the confidence levels across claims.
+
+Module 24. Attribution Timeline.
+
+Visualises how the attribution has changed over time.
+
+Module 25. Counterfactual View.
+
+Visualises the world with and without the attributed cause.
+
+Module 26. Cause Comparison View.
+
+Compares two or more causes for the same event.
+
+Module 27. Related-Attribution Finder.
+
+Finds attributions related to a given one.
+
+Module 28. Migration Manager.
+
+Database migrations.
+
+6. Full Climate Attribution Specification
+6.1 Climate Attribution Schema
+The climate attribution schema defines the structure of a climate attribution deposit.
+
+It has the following fields:
+
+attribution_id. A string. Required.
+
+attribution_name. A string. Required.
+
+event_or_trend. An object. Required. It contains description, event_type, period, and region.
+
+attributed_cause. An object. Required. It contains cause_name, cause_type, mechanism, and contribution_estimate.
+
+counterfactual_baseline. An object. Required. It contains description and assumptions.
+
+attribution_method. An enum. Required. The values are fraction_of_attributable_risk, probabilistic_event_attribution, trend_attribution, other.
+
+evidence. An array of evidence objects. Required.
+
+models_used. An array of model objects. Optional.
+
+uncertainty. An object. Required. It contains confidence_interval, probability, and sources_of_uncertainty.
+
+confidence_level. An enum. Required. The values are very_high, high, medium, low, very_low.
+
+revisions. An array of revision objects. Optional.
+
+related_attributions. An array of attribution relations. Optional.
+
+provenance. An object. Required.
+
+work_reference. A string. Optional.
+
+full_pipeline_result_reference. A string. Optional.
+
+null_model_result_reference. A string. Optional.
+
+verification_result_reference. A string. Optional.
+
+keywords. An array of strings. Optional.
+
+notes. A string. Optional.
+
+moderation_status. An enum. The values are pending, approved, rejected.
+
+version. An integer.
+
+supersedes. A string. Optional.
+
+superseded_by. A string. Optional.
+
+The event_or_trend object has:
+
+description. A string.
+
+event_type. An enum. The values are heatwave, drought, flood, storm, wildfire, cold_snap, sea_level_rise, ocean_acidification, glacier_retreat, species_range_shift, crop_yield_change, other.
+
+period. An object. It contains start_date and end_date.
+
+region. An object. It contains region_name, latitude_range, and longitude_range.
+
+The attributed_cause object has:
+
+cause_name. A string.
+
+cause_type. An enum. The values are anthropogenic_greenhouse_gases, anthropogenic_aerosols, land_use_change, volcanic_activity, solar_variation, natural_variability, other.
+
+mechanism. A string.
+
+contribution_estimate. An object. It contains value, units, and confidence_interval.
+
+The counterfactual_baseline object has:
+
+description. A string.
+
+assumptions. An array of strings.
+
+Each evidence object has:
+
+evidence_id. A string.
+
+evidence_type. An enum. The values are observational, model_based, statistical, physical_reasoning, paleoclimate, other.
+
+source_reference. A string.
+
+source_summary. A string.
+
+strength. An enum. The values are strong, moderate, weak, not_assessed.
+
+notes. A string. Optional.
+
+Each model object has:
+
+model_id. A string.
+
+model_name. A string.
+
+model_version. A string.
+
+model_resolution. A string.
+
+ensemble_members. An integer.
+
+model_reference. A string.
+
+notes. A string. Optional.
+
+The uncertainty object has:
+
+confidence_interval. An object. It contains lower and upper.
+
+probability. A number. Optional.
+
+sources_of_uncertainty. An array of uncertainty source objects.
+
+Each uncertainty source object has:
+
+source_id. A string.
+
+source_name. A string.
+
+source_description. A string.
+
+source_type. An enum. The values are observational, model_structural, model_parametric, internal_variability, scenario, other.
+
+Each revision object has:
+
+revision_id. A string.
+
+revision_date. A string in ISO8601 format.
+
+revision_description. A string.
+
+previous_position. A string.
+
+new_position. A string.
+
+reason. A string.
+
+source. A string.
+
+notes. A string. Optional.
+
+Each attribution relation has:
+
+relation_id. A string.
+
+related_attribution_id. A string.
+
+relation_type. An enum. The values are same_event, same_cause, same_region, related, independent.
+
+relation_note. A string. Optional.
+
+6.2 Database Schema
+The database has the following tables.
+
+climate_attribution. Holds the climate attribution records.
+
+Its fields are:
+
+attribution_id
+
+attribution_name
+
+event_or_trend
+
+attributed_cause
+
+counterfactual_baseline
+
+attribution_method
+
+uncertainty
+
+confidence_level
+
+provenance
+
+keywords
+
+notes
+
+moderation_status
+
+version
+
+supersedes
+
+superseded_by
+
+created_at
+
+updated_at
+
+evidence. Holds the evidence records.
+
+Its fields are:
+
+evidence_id
+
+attribution_id
+
+evidence_type
+
+source_reference
+
+source_summary
+
+strength
+
+notes
+
+created_at
+
+model. Holds the model records.
+
+Its fields are:
+
+model_id
+
+attribution_id
+
+model_name
+
+model_version
+
+model_resolution
+
+ensemble_members
+
+model_reference
+
+notes
+
+created_at
+
+uncertainty_source. Holds the uncertainty source records.
+
+Its fields are:
+
+source_id
+
+attribution_id
+
+source_name
+
+source_description
+
+source_type
+
+created_at
+
+revision. Holds the revision records.
+
+Its fields are:
+
+revision_id
+
+attribution_id
+
+revision_date
+
+revision_description
+
+previous_position
+
+new_position
+
+reason
+
+source
+
+notes
+
+created_at
+
+attribution_relation. Holds the attribution relations.
+
+Its fields are:
+
+relation_id
+
+attribution_id
+
+related_attribution_id
+
+relation_type
+
+relation_note
+
+created_at
+
+work_link. Holds the work links.
+
+Its fields are:
+
+link_id
+
+attribution_id
+
+work_id
+
+created_at
+
+full_pipeline_link. Holds the full-pipeline links.
+
+Its fields are:
+
+link_id
+
+attribution_id
+
+result_id
+
+created_at
+
+null_model_link. Holds the Null-Model Protocol links.
+
+Its fields are:
+
+link_id
+
+attribution_id
+
+result_id
+
+created_at
+
+verification_link. Holds the verification links.
+
+Its fields are:
+
+link_id
+
+attribution_id
+
+verification_id
+
+created_at
+
+provenance. Holds the provenance records.
+
+Its fields are:
+
+provenance_id
+
+attribution_id
+
+depositor_id
+
+depositor_affiliation
+
+timestamp
+
+source
+
+tool_version
+
+operation
+
+created_at
+
+audit_log. Holds the audit log entries.
+
+Its fields are:
+
+audit_id
+
+operation
+
+record_type
+
+record_id
+
+depositor_id
+
+timestamp
+
+result
+
+details
+
+created_at
+
+moderation. Holds the moderation records.
+
+Its fields are:
+
+moderation_id
+
+attribution_id
+
+moderator_id
+
+moderation_status
+
+moderation_date
+
+moderation_notes
+
+created_at
+
+6.3 Referential Integrity
+Every evidence.attribution_id must exist in climate_attribution.
+
+Every model.attribution_id must exist in climate_attribution.
+
+Every uncertainty_source.attribution_id must exist in climate_attribution.
+
+Every revision.attribution_id must exist in climate_attribution.
+
+Every attribution_relation.attribution_id and attribution_relation.related_attribution_id must exist in climate_attribution.
+
+Every work_link.attribution_id must exist in climate_attribution.
+
+Every full_pipeline_link.attribution_id must exist in climate_attribution.
+
+Every null_model_link.attribution_id must exist in climate_attribution.
+
+Every verification_link.attribution_id must exist in climate_attribution.
+
+Every provenance.attribution_id must exist in climate_attribution.
+
+Every moderation.attribution_id must exist in climate_attribution.
+
+The version chain must be acyclic.
+
+The attribution relation must be symmetric where appropriate.
+
+6.4 Indexes
+The database has indexes on:
+
+climate_attribution.attribution_id
+
+climate_attribution.attribution_name
+
+climate_attribution.attribution_method
+
+climate_attribution.confidence_level
+
+climate_attribution.moderation_status
+
+climate_attribution.keywords
+
+evidence.attribution_id
+
+evidence.evidence_type
+
+model.attribution_id
+
+uncertainty_source.attribution_id
+
+revision.attribution_id
+
+attribution_relation.attribution_id
+
+attribution_relation.related_attribution_id
+
+work_link.attribution_id
+
+full_pipeline_link.attribution_id
+
+null_model_link.attribution_id
+
+verification_link.attribution_id
+
+provenance.attribution_id
+
+provenance.depositor_id
+
+audit_log.operation
+
+audit_log.record_id
+
+moderation.attribution_id
+
+moderation.moderation_status
+
+Full-text search indexes on the event description, the cause, the evidence, and the notes.
+
+7. Core Logic as Executable Pseudocode
+7.1 Create Climate Attribution
+function createClimateAttribution(attribution, files, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Validate the attribution against the schema. If invalid, return an error with the details.
+
+Step 3. If the work reference is present, look it up. If null, flag it as unresolved.
+
+Step 4. If the full-pipeline result reference is present, look it up. If null, flag it as unresolved.
+
+Step 5. If the null-model result reference is present, look it up. If null, flag it as unresolved.
+
+Step 6. If the verification result reference is present, look it up. If null, flag it as unresolved.
+
+Step 7. Generate an attribution ID. Set the fields: version 1, moderation_status pending, deposit_date now, depositor_id from auth, depositor_affiliation from auth, provenance from provenance.
+
+Step 8. Insert the climate attribution.
+
+Step 9. Insert the evidence records, the model records, the uncertainty source records, the revision records, and the attribution relations.
+
+Step 10. Insert the links if present.
+
+Step 11. Insert the provenance.
+
+Step 12. Insert the moderation record.
+
+Step 13. Insert the audit log entry.
+
+Step 14. Return the attribution_id and the status created.
+
+7.2 Read Climate Attribution
+function readClimateAttribution(attributionId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the attribution. If null, return an error.
+
+Step 3. Read the evidence, the models, the uncertainty sources, the revisions, the relations, the links, the provenance, and the moderation.
+
+Step 4. Reconstruct the deposit.
+
+Step 5. Insert the audit log entry.
+
+Step 6. Return the deposit.
+
+7.3 Update Climate Attribution
+function updateClimateAttribution(attributionId, attribution, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Read the existing attribution. If null, return an error.
+
+Step 3. Validate the new attribution.
+
+Step 4. Increment the version. Update the supersedes and superseded_by fields.
+
+Step 5. Insert a provenance record with operation update.
+
+Step 6. Insert an audit log entry.
+
+Step 7. Return the attribution_id, the version, and the status updated.
+
+7.4 Delete Climate Attribution
+function deleteClimateAttribution(attributionId, provenance, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Read the existing attribution. If null, return an error.
+
+Step 3. If soft delete, mark as deleted. Otherwise, remove.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the attribution_id and the status deleted.
+
+7.5 Query Climate Attributions
+function queryClimateAttributions(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the query.
+
+Step 3. Read the matching attributions.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the attributions, the count, and the pagination.
+
+7.6 Aggregate Climate Attributions
+function aggregateClimateAttributions(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the aggregation.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the results.
+
+7.7 Full-Text Search
+function fullTextSearch(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the search.
+
+Step 3. Read the matching attributions.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the attributions and the count.
+
+7.8 Export Climate Attribution
+function exportClimateAttribution(attributionId, format, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the deposit.
+
+Step 3. If json, output the deposit. If provo, export to PROV-O. If turtle, serialize to Turtle.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the output and the format.
+
+7.9 Bulk Import
+function bulkImport(file, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Parse the file.
+
+Step 3. For each attribution, call createClimateAttribution.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the results and the count.
+
+7.10 Bulk Export
+function bulkExport(query, format, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the matching attributions.
+
+Step 3. If json, output the list. If jsonl, output one line per attribution. If provo, export each one.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the output and the count.
+
+7.11 Moderate Climate Attribution
+function moderateClimateAttribution(attributionId, moderationStatus, moderationNotes, auth):
+
+Step 1. validateAuth(auth, "moderator"). If not authorized, return an error.
+
+Step 2. Read the existing attribution. If null, return an error.
+
+Step 3. Update the moderation status. Insert a moderation record.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the attribution_id and the status.
+
+7.12 Attribution Map
+function attributionMap(auth, options):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read all attributions.
+
+Step 3. Build the map with regions as regions and event types as positions.
+
+Step 4. Return the map.
+
+7.13 Attribution Confidence View
+function attributionConfidenceView(auth, options):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read all attributions.
+
+Step 3. Build the view with the confidence levels across claims.
+
+Step 4. Return the view.
+
+7.14 Attribution Timeline
+function attributionTimeline(attributionId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the attribution. If null, return an error.
+
+Step 3. Read the revisions.
+
+Step 4. Build the timeline with the revisions over time.
+
+Step 5. Return the timeline.
+
+7.15 Counterfactual View
+function counterfactualView(attributionId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the attribution. If null, return an error.
+
+Step 3. Read the counterfactual baseline.
+
+Step 4. Build the view with the world with and without the attributed cause.
+
+Step 5. Return the view.
+
+7.16 Cause Comparison View
+function causeComparisonView(eventId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read all attributions for the event.
+
+Step 3. Build the comparison by overlaying the contribution estimates.
+
+Step 4. Return the comparison.
+
+7.17 Find Related Attributions
+function findRelatedAttributions(attributionId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the attribution. If null, return an error.
+
+Step 3. Find attributions with the same event, the same cause, or the same region.
+
+Step 4. Return the related attributions.
+
+7.18 Audit Log
+function auditLog(query, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Build and execute the query.
+
+Step 3. Return the results.
+
+7.19 Backup
+function backup(auth, options):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. If sql, dump as SQL. If json, dump as JSON.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the output and the format.
+
+7.20 Restore
+function restore(file, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Load the database from the file.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the status restored.
+
+8. Data Model
+The registry's internal state is the set of tables. The API's internal state is a request object and a response object.
+
+Request object:
+
+operation
+
+resource
+
+record_id
+
+record_json
+
+query
+
+auth
+
+Response object:
+
+status
+
+result
+
+error
+
+audit_id
+
+9. Architecture
+Module breakdown:
+
+Climate Attribution Schema.
+
+Database Schema.
+
+Attribution Loader.
+
+Attribution Writer.
+
+Attribution Reader.
+
+Attribution Updater.
+
+Attribution Deleter.
+
+Query Engine.
+
+Full-Text Search Engine.
+
+Aggregation Engine.
+
+Exporter.
+
+Importer.
+
+Bulk Import and Export.
+
+REST API.
+
+GraphQL API.
+
+Command-Line Interface.
+
+Authentication and Authorization.
+
+Audit Logging.
+
+Backup and Restore.
+
+Web Interface.
+
+Moderation Workflow.
+
+Attribution Map.
+
+Attribution Confidence View.
+
+Attribution Timeline.
+
+Counterfactual View.
+
+Cause Comparison View.
+
+Related-Attribution Finder.
+
+Migration Manager.
+
+Data flow:
+
+API requests go to the REST or GraphQL API.
+
+The API calls the attribution loader, writer, reader, updater, deleter, query engine, search engine, aggregation engine, exporter, or importer.
+
+The database schema stores the data.
+
+The audit logging records every operation.
+
+The authentication and authorization check access.
+
+The moderation workflow handles moderation.
+
+The attribution map, the attribution confidence view, the attribution timeline, the counterfactual view, and the cause comparison view visualise.
+
+The related-attribution finder finds relations.
+
+The backup and restore handle backup.
+
+The web interface provides depositing, browsing, and querying.
+
+10. Technology Stack
+Recommended for the database:
+
+Database: PostgreSQL 15+ or SQLite 3.40+.
+
+Language: Python 3.11+ or Node.js 20+.
+
+ORM: SQLAlchemy or Prisma.
+
+Migrations: Alembic or Prisma Migrate.
+
+Full-text search: PostgreSQL tsvector or SQLite FTS5.
+
+Recommended for the REST API:
+
+Framework: FastAPI or Express.
+
+Authentication: FastAPI Users or Passport.
+
+Recommended for the GraphQL API:
+
+Framework: Strawberry or Apollo Server.
+
+Recommended for the command-line interface:
+
+Framework: Click or Commander.
+
+Recommended for the web interface:
+
+Frontend: React or Svelte.
+
+Backend: the same as the REST API.
+
+Recommended for deployment:
+
+Containerization: Docker.
+
+Orchestration: Docker Compose or Kubernetes.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The Null-Model Protocol schema (from App 8 and App 9).
+
+The PROV-O exporter (App 3).
+
+The STAG schema library (App 17).
+
+The Null-Model Protocol library (App 18).
+
+The full-pipeline simulator (App 9).
+
+The provenance database (App 20).
+
+The revision history viewer (App 7).
+
+The Physics Knowledge Library (App 23).
+
+The Numerical Verification Tool (App 22).
+
+The Evidence Aggregator (App 46).
+
+The Autofill Library Service (App 49).
+
+11. UI/UX Specification
+REST API:
+
+Base URL: https://api.example.com/v1.
+
+Authentication: Bearer token.
+
+Endpoints:
+
+GET /attributions.
+
+GET /attributions/{id}.
+
+POST /attributions.
+
+PUT /attributions/{id}.
+
+DELETE /attributions/{id}.
+
+GET /attributions/{id}/provo.
+
+GET /attributions/{id}/turtle.
+
+GET /attributions/{id}/evidence.
+
+GET /attributions/{id}/models.
+
+GET /attributions/{id}/uncertainty-sources.
+
+GET /attributions/{id}/revisions.
+
+GET /attributions/{id}/related.
+
+GET /attributions/{id}/work.
+
+GET /attributions/{id}/full-pipeline.
+
+GET /attributions/{id}/null-model.
+
+GET /attributions/{id}/verification.
+
+GET /attributions/by-event-type/{event_type}.
+
+GET /attributions/by-cause/{cause}.
+
+GET /attributions/by-region/{region}.
+
+GET /attributions/by-confidence/{confidence}.
+
+GET /attributions/{id}/timeline.
+
+GET /attributions/{id}/counterfactual-view.
+
+GET /events/{event_id}/cause-comparison.
+
+POST /query.
+
+POST /aggregate.
+
+POST /search.
+
+GET /map.
+
+GET /confidence-view.
+
+POST /bulk/import.
+
+POST /bulk/export.
+
+POST /moderate/{id}.
+
+GET /audit.
+
+Responses in JSON.
+
+HTTP status codes: 200, 201, 204, 400, 401, 403, 404, 409, 422, 500.
+
+GraphQL API:
+
+Endpoint: https://api.example.com/graphql.
+
+Schema exposes the entities and their relationships.
+
+Command-line interface:
+
+Usage: climate-attribution-registry [command] [options].
+
+Commands: init, migrate, backup, restore, import, export, query, aggregate, moderate, audit.
+
+Web interface:
+
+A browsable list of attributions.
+
+A deposit form.
+
+A search box.
+
+A filter panel.
+
+An aggregation view.
+
+An attribution map.
+
+An attribution confidence view.
+
+An attribution timeline.
+
+A counterfactual view.
+
+A cause comparison view.
+
+A detail view for each attribution.
+
+A moderation view.
+
+12. Validation Engine Design
+The registry validates the following.
+
+Validation 1. Attribution validity. Every attribution is validated against the schema.
+
+Validation 2. Referential integrity.
+
+Validation 3. Version chain acyclicity.
+
+Validation 4. Work resolution.
+
+Validation 5. Full-pipeline result resolution.
+
+Validation 6. Null-model result resolution.
+
+Validation 7. Verification result resolution.
+
+Validation 8. Provenance completeness.
+
+Validation 9. Audit completeness.
+
+Validation 10. Moderation completeness.
+
+Validation 11. Confidence consistency. The confidence level must be consistent with the uncertainty.
+
+Validation 12. Contribution consistency. The contribution estimate must be consistent with the evidence.
+
+Validation 13. Counterfactual consistency. The counterfactual baseline must be consistent with the attributed cause.
+
+Validation 14. Method consistency. The attribution method must be consistent with the event type.
+
+13. Testing Strategy
+Unit tests:
+
+Climate Attribution Schema for valid and invalid attributions.
+
+Database Schema for each table and index.
+
+Attribution Loader.
+
+Attribution Writer.
+
+Attribution Reader.
+
+Attribution Updater.
+
+Attribution Deleter.
+
+Query Engine.
+
+Full-Text Search Engine.
+
+Aggregation Engine.
+
+Exporter.
+
+Importer.
+
+Bulk Import and Export.
+
+REST API.
+
+GraphQL API.
+
+Command-Line Interface.
+
+Authentication and Authorization.
+
+Audit Logging.
+
+Backup and Restore.
+
+Web Interface.
+
+Moderation Workflow.
+
+Attribution Map.
+
+Attribution Confidence View.
+
+Attribution Timeline.
+
+Counterfactual View.
+
+Cause Comparison View.
+
+Related-Attribution Finder.
+
+Migration Manager.
+
+Integration tests:
+
+Create an attribution. Read it back.
+
+Update an attribution.
+
+Delete an attribution.
+
+Query by each field.
+
+Aggregate by each dimension.
+
+Search by full text.
+
+Export as JSON, PROV-O, and Turtle.
+
+Bulk import and export.
+
+Backup and restore.
+
+Moderate an attribution.
+
+Generate the attribution map.
+
+Generate the attribution confidence view.
+
+Generate the attribution timeline.
+
+Generate the counterfactual view.
+
+Generate the cause comparison view.
+
+Worked-example tests:
+
+Deposit the attribution of the 2003 European heatwave.
+
+Deposit the attribution of the 2018 California wildfires.
+
+Deposit the attribution of Hurricane Harvey (2017).
+
+Deposit the attribution of the 2020 Siberian heatwave.
+
+Deposit the attribution of the Australian bushfires (2019-2020).
+
+Deposit the attribution of global sea-level rise.
+
+Deposit the attribution of the retreat of the Arctic sea ice.
+
+Deposit the attribution of ocean acidification.
+
+Deposit the attribution of the increase in extreme precipitation.
+
+Deposit the attribution of the increase in global mean temperature.
+
+Regression tests:
+
+Attribution determinism.
+
+Query consistency.
+
+Aggregation consistency.
+
+Audit log consistency.
+
+Moderation consistency.
+
+Confidence consistency.
+
+Contribution consistency.
+
+Counterfactual consistency.
+
+Method consistency.
+
+14. Build Phases
+Phase 1. Climate Attribution Schema.
+
+Phase 2. Database Schema.
+
+Phase 3. Attribution Loader.
+
+Phase 4. Attribution Writer.
+
+Phase 5. Attribution Reader.
+
+Phase 6. Attribution Updater.
+
+Phase 7. Attribution Deleter.
+
+Phase 8. Query Engine.
+
+Phase 9. Full-Text Search Engine.
+
+Phase 10. Aggregation Engine.
+
+Phase 11. Exporter.
+
+Phase 12. Importer.
+
+Phase 13. Bulk Import and Export.
+
+Phase 14. REST API.
+
+Phase 15. GraphQL API.
+
+Phase 16. Command-Line Interface.
+
+Phase 17. Authentication and Authorization.
+
+Phase 18. Audit Logging.
+
+Phase 19. Backup and Restore.
+
+Phase 20. Web Interface.
+
+Phase 21. Moderation Workflow.
+
+Phase 22. Attribution Map.
+
+Phase 23. Attribution Confidence View.
+
+Phase 24. Attribution Timeline.
+
+Phase 25. Counterfactual View.
+
+Phase 26. Cause Comparison View.
+
+Phase 27. Related-Attribution Finder.
+
+Phase 28. Migration Manager.
+
+Phase 29. Worked-example tests.
+
+Phase 30. Integration testing and hardening.
+
+Phase 31. Packaging and deployment.
+
+15. Dependencies
+Python path:
+
+SQLAlchemy.
+
+Alembic.
+
+FastAPI.
+
+Strawberry.
+
+FastAPI Users.
+
+Click.
+
+psycopg2.
+
+sqlite3.
+
+jsonschema.
+
+hashlib.
+
+json.
+
+pytest.
+
+Node.js path:
+
+Prisma.
+
+Express.
+
+Apollo Server.
+
+Passport.
+
+Commander.
+
+pg.
+
+better-sqlite3.
+
+ajv.
+
+crypto.
+
+JSON.
+
+Vitest.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The Null-Model Protocol schema (from App 8 and App 9).
+
+The PROV-O exporter (App 3).
+
+The STAG schema library (App 17).
+
+The Null-Model Protocol library (App 18).
+
+The full-pipeline simulator (App 9).
+
+The provenance database (App 20).
+
+The revision history viewer (App 7).
+
+The Physics Knowledge Library (App 23).
+
+The Numerical Verification Tool (App 22).
+
+The Evidence Aggregator (App 46).
+
+The Autofill Library Service (App 49).
+
+16. Deployment Notes
+Database:
+
+PostgreSQL for multi-user deployments.
+
+SQLite for single-user deployments.
+
+Backup and restore via pg_dump and pg_restore or the SQLite backup API.
+
+REST API:
+
+Deploy with Docker. Stateless. Scale horizontally.
+
+Use a reverse proxy for TLS.
+
+Log every request for audit.
+
+GraphQL API:
+
+Deploy alongside the REST API.
+
+Use a query depth limit and a query complexity limit.
+
+Command-line interface:
+
+Package as a standalone executable.
+
+Distribute via pip, npm, or a direct download.
+
+Web interface:
+
+Deploy the frontend as a static bundle.
+
+Backend with FastAPI or Express.
+
+Reproducibility:
+
+Record the STAG schema version, the Null-Model Protocol schema version, the attribution schema version, and the registry version.
+
+Record the provenance for every deposit.
+
+Provide a version pin for the schemas and codebook.
+
+17. Open Questions to Resolve Before Building
+Question 1. Which runtime first? Python or Node.js.
+
+Question 2. Which database first? PostgreSQL or SQLite.
+
+Question 3. How should the registry handle the event type? A fixed set, or an open set.
+
+Question 4. How should the registry handle the cause type? A fixed set of seven values, or an open set.
+
+Question 5. How should the registry handle the attribution method? A fixed set of four values, or an open set.
+
+Question 6. How should the registry handle the confidence level? A fixed set of five values, or a continuous scale.
+
+Question 7. How should the registry handle the evidence type? A fixed set, or an open set.
+
+Question 8. How should the registry handle the source type? A fixed set, or an open set.
+
+Question 9. How should the registry handle the relation between attributions? Manual entry, or automatic detection.
+
+Question 10. How should the registry handle the moderation workflow? Pending until approved, auto-approved, or require a moderator.
+
+Question 11. How should the registry handle the work reference? Required, optional, or optional depending on the event type.
+
+Question 12. How should the registry handle the full-pipeline result reference? Required, optional, or optional depending on the event type.
+
+Question 13. How should the registry handle the Null-Model Protocol result reference? Required, optional, or optional depending on the event type.
+
+Question 14. How should the registry handle the verification result reference? Required, optional, or optional depending on the event type.
+
+Question 15. How should the registry handle the attribution map? A scatter plot, a heat map, or both.
+
+Question 16. How should the registry handle the attribution confidence view? A bar chart, a heat map, or both.
+
+Question 17. How should the registry handle the attribution timeline? A line plot, a Gantt chart, or both.
+
+Question 18. How should the registry handle the counterfactual view? A side-by-side comparison, a time series, or both.
+
+Question 19. How should the registry handle the cause comparison view? A bar chart, a network graph, or both.
+
+Question 20. Should the registry integrate with the STAG schema library (App 17), the Null-Model Protocol library (App 18), the full-pipeline simulator (App 9), the provenance database (App 20), the revision history viewer (App 7), the Physics Knowledge Library (App 23), the Numerical Verification Tool (App 22), and the Evidence Aggregator (App 46)?
+
+Question 21. Should the registry support federation with other instances of itself?
+
+Question 22. How should the registry handle the deposit of an attribution that is already in the registry? Reject, create a new version, or create a separate record with a cross-reference.
+
+Question 23. Should the registry support autofill via App 49? If so, which library does it register?
+
+Question 24. Should the registry support a policy view that shows the attributions relevant to a policy decision?
+
+Question 25. Should the registry support a public communications view that shows the attributions and their confidence levels in plain language?
+
+Question 26. Should the registry support a litigation view that shows the attributions relevant to a legal case?
+
+End of build specification for App 42, the Climate Attribution Registry.
+
+Say "43" when you want the next one, the Philosophical Argument Graph.
+
