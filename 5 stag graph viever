@@ -1,0 +1,790 @@
+Build Specification — App 5: STAG Graph Viewer
+Completeness status: COMPLETE. All sections delivered in one pass. No truncation. Formatted for copy-paste into another conversation window. No tables, no boxes.
+
+What It Is
+An interactive viewer for a complete STAG (Scale-Transition Annotation Graph). It renders state nodes, event nodes, self-loops with a regime change, derived-from edges, and supersession chains. It shows each label with its anchoring status. It filters by label, anchoring status, and partition. It takes in one or more STAG JSON records and puts out an interactive graph and a static export. It is for reviewers, collaborators, and readers.
+
+Core Requirements
+Functional requirements:
+
+Load one or more STAG JSON records.
+
+Render state nodes as graph nodes, labelled with the node tuple (S, M, G) and the node ID.
+
+Render event nodes as graph nodes of a distinct visual kind, labelled with the event node ID.
+
+Render self-loops with a regime change as a distinct visual element.
+
+Render derived-from edges as a distinct visual kind, separate from transition edges.
+
+Render supersession chains as a distinct visual kind, separate from both transition edges and derived-from edges.
+
+Display each display label with its evidential anchoring status alongside, in every rendering (Artifact 1, Section 7.10).
+
+Display attached flags: not_determinable_flag, provisional_flag, threshold_sensitive_flag, regime_not_determinable, identity_partition_sensitive.
+
+Filter by display label.
+
+Filter by evidential anchoring status.
+
+Filter by partition ID and version.
+
+Filter by flag.
+
+Search by node ID, event node ID, or annotation ID.
+
+Select a node or edge and show its full annotation record.
+
+Export the graph as a static image (PNG, SVG) and as a data file (JSON, GraphML).
+
+Non-functional requirements:
+
+Deterministic layout: same input produces same layout.
+
+Interactive: pan, zoom, select, filter.
+
+Fast: render a graph with up to 1000 nodes and 2000 edges in under two seconds.
+
+No network dependency for core rendering.
+
+Versioned: the viewer records the schema version of each loaded record.
+
+Reproducible: the static export records the layout parameters and the filter state.
+
+Input Specification
+Input 1. STAG JSON record. Required. One or more records.
+
+Input 2. Schema version. Required. Selects the correct field interpretation.
+
+Input 3. Layout algorithm. Optional. Values: force-directed (default), hierarchical, circular, grid.
+
+Input 4. Filter state. Optional. A filter object with fields for label, anchoring status, partition ID, partition version, and flags.
+
+Input 5. Render options. Optional. Node size, edge width, label font size, color scheme.
+
+Input 6. Export format. Optional. Values: png, svg, json, graphml.
+
+Output Specification
+Output 1. Interactive graph. Rendered in the application window (desktop or web).
+
+Output 2. Static export. PNG, SVG, JSON, or GraphML.
+
+Output 3. Selected item detail. The full annotation record of the selected node or edge.
+
+Output 4. Filter state. JSON. The current filter state.
+
+Output 5. Layout parameters. JSON. The layout algorithm and its parameters.
+
+Output 6. Viewer metadata. JSON. Schema version, viewer version, timestamp, input file hash.
+
+Module-by-Module Specification
+Module 1: Record Loader
+Reads one or more STAG JSON records. Validates each against the JSON Schema for the selected version. Rejects malformed records with an error. Merges multiple records into a single graph if they share a partition or are linked by supersession.
+
+Module 2: Graph Builder
+Builds an internal graph from the records. Creates state nodes, event nodes, transition edges, derived-from edges, and supersession chains. Applies the well-formedness conditions from Artifact 1, Section 8.5:
+
+Every edge has a recorded node-identity decision for its endpoints.
+
+A self-loop carries regime_change.
+
+An event node has at least two incoming edges from state nodes or at least two outgoing edges to state nodes.
+
+Derived-from edges are disjoint from transition edges.
+
+Supersession chains are acyclic.
+
+Module 3: Layout Engine
+Computes node positions. Supports force-directed, hierarchical, circular, and grid layouts. Records the layout algorithm and its parameters for reproducibility.
+
+Force-directed layout: uses a standard spring-electrical model. Nodes repel, edges attract. Iterates until convergence or a maximum iteration count.
+
+Hierarchical layout: places nodes in layers based on the directed graph structure. Derived-from edges are placed below transition edges.
+
+Circular layout: places nodes on a circle.
+
+Grid layout: places nodes on a grid.
+
+Module 4: Renderer
+Draws the graph. Distinguishes state nodes from event nodes by shape. Distinguishes transition edges from derived-from edges from supersession chains by line style and color. Renders self-loops as circular arcs with a regime-change label. Renders display labels with anchoring status alongside.
+
+State node: circle or rounded rectangle.
+
+Event node: diamond or hexagon.
+
+Transition edge: solid line with arrowhead.
+
+Derived-from edge: dashed line with open arrowhead.
+
+Supersession chain: dotted line with double arrowhead.
+
+Self-loop: circular arc attached to the node, with a regime-change label.
+
+Display label: text near the node or edge, with the anchoring status in parentheses or as a badge.
+
+Flags: small icons or badges near the node or edge.
+
+Module 5: Interaction Handler
+Handles pan, zoom, select, and filter.
+
+Pan: drag the canvas.
+
+Zoom: scroll or pinch.
+
+Select: click a node or edge to show its full annotation record in a side panel.
+
+Filter: use the filter panel to hide or show nodes and edges by label, anchoring status, partition, or flag.
+
+Module 6: Filter Engine
+Applies the filter state to the graph. Hides nodes and edges that do not match. Updates the render in real time.
+
+Module 7: Detail Panel
+Shows the full annotation record of the selected node or edge. Groups fields by panel (matching the STAG annotation editor's panel order). Shows the derived display label and the anchoring status together.
+
+Module 8: Exporter
+Exports the graph as a static image (PNG, SVG) or as a data file (JSON, GraphML). Records the layout parameters and the filter state in the export.
+
+Module 9: Metadata Recorder
+Records the schema version, viewer version, timestamp, and input file hash in the viewer metadata.
+
+Module 10: Command-Line Interface (optional)
+A command-line wrapper that loads records, applies a layout, applies a filter, and exports a static image or data file without opening the interactive window.
+
+Full Rendering Specification
+6.1 State Nodes
+Visual kind: circle or rounded rectangle.
+
+Label: the node ID, followed by the tuple (S, M, G) on a second line.
+
+Color: by partition ID, or by display label if the node is part of a transition.
+
+Badges: display label, anchoring status, and flags.
+
+6.2 Event Nodes
+Visual kind: diamond or hexagon.
+
+Label: the event node ID, followed by the composition kind on a second line.
+
+Color: distinct from state nodes.
+
+Badges: display label, anchoring status, and flags.
+
+6.3 Transition Edges
+Visual kind: solid line with arrowhead.
+
+Label: the display label, with the anchoring status in parentheses or as a badge.
+
+Color: by display label.
+
+6.4 Derived-From Edges
+Visual kind: dashed line with open arrowhead.
+
+Label: the derivation kind (integration_out or truncation) and the derivation specification.
+
+Color: distinct from transition edges.
+
+6.5 Supersession Chains
+Visual kind: dotted line with double arrowhead.
+
+Label: the revision date and the theory version change.
+
+Color: distinct from both transition edges and derived-from edges.
+
+6.6 Self-Loops
+Visual kind: circular arc attached to the node.
+
+Label: the regime change (from the source regime to the target regime).
+
+Color: same as transition edges.
+
+6.7 Display Labels and Anchoring Status
+Every display label is rendered with its evidential anchoring status alongside. The viewer never renders a display label without the anchoring status. This is enforced by the renderer.
+
+The anchoring status is shown as a badge next to the label, with a color code: green for anchored, yellow for anchored_with_stated_limitations, orange for candidate, red for preliminary, grey for not_assessed, and light grey for not_applicable.
+
+6.8 Flags
+Flags are shown as small icons or badges near the node or edge. The flags are:
+
+not_determinable_flag: a question mark icon.
+
+provisional_flag: a tilde icon.
+
+threshold_sensitive_flag: a slider icon.
+
+regime_not_determinable: a question mark icon with a regime symbol.
+
+identity_partition_sensitive: a split icon.
+
+Core Logic as Executable Pseudocode
+7.1 Main Flow
+function viewGraph(records, options):
+
+Step 1. validatedRecords = [].
+
+for record in records:
+
+result = validate(record, options.schemaVersion).
+
+if result.valid: validatedRecords.push(record).
+
+else: return {error: "invalid record", details: result.errors}.
+
+Step 2. graph = buildGraph(validatedRecords).
+
+Step 3. layout = computeLayout(graph, options.layoutAlgorithm).
+
+Step 4. render(graph, layout, options.renderOptions).
+
+Step 5. attachInteractionHandler(graph).
+
+Step 6. attachFilterEngine(graph, options.filterState).
+
+Step 7. metadata = recordMetadata(validatedRecords, options).
+
+Step 8. return {graph, layout, metadata}.
+
+7.2 Build Graph
+function buildGraph(records):
+
+graph = new Graph().
+
+for record in records:
+
+for node in record.source_nodes and record.target_nodes:
+
+if not graph.hasNode(node.node_id):
+
+graph.addNode({id: node.node_id, type: "state", tuple: {S: node.S, M: node.M, G: node.G}, regime: node.regime_attribute, partition: record.partition_registry_id, display_label: node.derived_display_label, anchoring: node.evidential_anchoring, flags: extractFlags(node)}).
+
+for event in record.events:
+
+if not graph.hasNode(event.event_node_id):
+
+graph.addNode({id: event.event_node_id, type: "event", composition_kind: event.composition_kind, source_nodes: event.source_nodes, target_nodes: event.target_nodes}).
+
+for edge in record.edges:
+
+if edge.kind == "transition":
+
+graph.addEdge({source: edge.source, target: edge.target, type: "transition", display_label: edge.derived_display_label, anchoring: edge.evidential_anchoring, flags: extractFlags(edge)}).
+
+else if edge.kind == "derived_from":
+
+graph.addEdge({source: edge.source, target: edge.target, type: "derived_from", derivation_kind: edge.derivation_kind, derivation_specification: edge.derivation_specification}).
+
+else if edge.kind == "supersession":
+
+graph.addEdge({source: edge.source, target: edge.target, type: "supersession", revision_date: edge.revision_date, theory_version_change: edge.theory_version_change}).
+
+return graph.
+
+7.3 Compute Layout
+function computeLayout(graph, algorithm):
+
+if algorithm == "force_directed": return forceDirectedLayout(graph).
+
+else if algorithm == "hierarchical": return hierarchicalLayout(graph).
+
+else if algorithm == "circular": return circularLayout(graph).
+
+else if algorithm == "grid": return gridLayout(graph).
+
+else: return forceDirectedLayout(graph).
+
+7.4 Force-Directed Layout
+function forceDirectedLayout(graph):
+
+positions = initializeRandom(graph.nodes).
+
+for iteration in range(maxIterations):
+
+for each pair of nodes (a, b): applyRepulsion(a, b).
+
+for each edge (a, b): applyAttraction(a, b).
+
+updatePositions(positions).
+
+if converged(positions): break.
+
+return positions.
+
+7.5 Render
+function render(graph, layout, options):
+
+clearCanvas().
+
+for node in graph.nodes:
+
+drawNode(node, layout.positions[node.id], options).
+
+for edge in graph.edges:
+
+drawEdge(edge, layout.positions[edge.source], layout.positions[edge.target], options).
+
+drawLegend(options).
+
+drawFilterPanel(options.filterState).
+
+7.6 Draw Node
+function drawNode(node, position, options):
+
+if node.type == "state":
+
+drawCircle(position, options.nodeSize).
+
+drawText(node.id, position + offset).
+
+drawText("(" + node.tuple.S + ", " + node.tuple.M + ", " + node.tuple.G + ")", position + offset2).
+
+if node.display_label != null:
+
+drawBadge(node.display_label, position + offset3).
+
+drawBadge(node.anchoring, position + offset4).
+
+for flag in node.flags: drawFlag(flag, position + offset5).
+
+else if node.type == "event":
+
+drawDiamond(position, options.nodeSize).
+
+drawText(node.id, position + offset).
+
+drawText(node.composition_kind, position + offset2).
+
+7.7 Draw Edge
+function drawEdge(edge, sourcePos, targetPos, options):
+
+if edge.type == "transition":
+
+drawSolidLine(sourcePos, targetPos, options.edgeWidth).
+
+drawArrowhead(targetPos).
+
+if edge.display_label != null:
+
+drawBadge(edge.display_label, midpoint(sourcePos, targetPos) + offset).
+
+drawBadge(edge.anchoring, midpoint(sourcePos, targetPos) + offset2).
+
+else if edge.type == "derived_from":
+
+drawDashedLine(sourcePos, targetPos, options.edgeWidth).
+
+drawOpenArrowhead(targetPos).
+
+drawText(edge.derivation_kind, midpoint(sourcePos, targetPos) + offset).
+
+else if edge.type == "supersession":
+
+drawDottedLine(sourcePos, targetPos, options.edgeWidth).
+
+drawDoubleArrowhead(targetPos).
+
+drawText(edge.revision_date, midpoint(sourcePos, targetPos) + offset).
+
+7.8 Interaction Handler
+function attachInteractionHandler(graph):
+
+onPan(event): translateCanvas(event.dx, event.dy).
+
+onZoom(event): scaleCanvas(event.factor).
+
+onSelect(event): node = findNodeAt(event.x, event.y); if node: showDetailPanel(node).
+
+onFilterChange(filterState): applyFilter(graph, filterState).
+
+7.9 Filter Engine
+function applyFilter(graph, filterState):
+
+for node in graph.nodes:
+
+node.visible = matchesFilter(node, filterState).
+
+for edge in graph.edges:
+
+edge.visible = matchesFilter(edge, filterState) and graph.getNode(edge.source).visible and graph.getNode(edge.target).visible.
+
+redraw().
+
+function matchesFilter(element, filterState):
+
+if filterState.label != null and element.display_label not in filterState.label: return false.
+
+if filterState.anchoring != null and element.anchoring not in filterState.anchoring: return false.
+
+if filterState.partition_id != null and element.partition != filterState.partition_id: return false.
+
+if filterState.flags != null and not any(flag in element.flags for flag in filterState.flags): return false.
+
+return true.
+
+7.10 Detail Panel
+function showDetailPanel(node):
+
+record = findRecord(node.id).
+
+panel.clear().
+
+panel.addSection("Setup and Pre-Registration", record.setup).
+
+panel.addSection("Node Identity", record.node_identity).
+
+panel.addSection("Regime", record.regime_attribute).
+
+panel.addSection("Effective-Description Change", record.effective_description_change).
+
+panel.addSection("Intervention Classification", record.intervention_classification).
+
+panel.addSection("Cross-Domain Counterfactual Dependence", record.cross_domain_counterfactual_dependence).
+
+panel.addSection("Scale-Separation Record", record.scale_separation).
+
+panel.addSection("Partition Sensitivity", record.partition_sensitivity).
+
+panel.addSection("Derived Display Label", record.derived_display_label).
+
+panel.addSection("Evidential Anchoring", record.evidential_anchoring).
+
+panel.addSection("Flags", record.flags).
+
+panel.show().
+
+7.11 Exporter
+function exportGraph(graph, layout, filterState, format):
+
+if format == "png": return renderToPNG(graph, layout, filterState).
+
+else if format == "svg": return renderToSVG(graph, layout, filterState).
+
+else if format == "json": return serializeGraph(graph, layout, filterState).
+
+else if format == "graphml": return serializeGraphML(graph, layout, filterState).
+
+Data Model / JSON Schema for Internal State
+The viewer's internal state is a graph object and a layout object.
+
+Graph object:
+
+nodes (array of node objects)
+
+edges (array of edge objects)
+
+metadata (object: schema version, viewer version, timestamp, input file hash)
+
+Node object:
+
+id (string)
+
+type (state, event)
+
+tuple (object: S, M, G) for state nodes
+
+composition_kind (string) for event nodes
+
+regime_attribute (object) for state nodes
+
+partition (string)
+
+display_label (string or null)
+
+anchoring (string or null)
+
+flags (array of strings)
+
+Edge object:
+
+source (string)
+
+target (string)
+
+type (transition, derived_from, supersession)
+
+display_label (string or null) for transition edges
+
+anchoring (string or null) for transition edges
+
+derivation_kind (string or null) for derived_from edges
+
+derivation_specification (string or null) for derived_from edges
+
+revision_date (string or null) for supersession edges
+
+theory_version_change (string or null) for supersession edges
+
+flags (array of strings)
+
+Layout object:
+
+algorithm (string)
+
+parameters (object)
+
+positions (object: node ID to position)
+
+Filter state object:
+
+label (array of strings or null)
+
+anchoring (array of strings or null)
+
+partition_id (string or null)
+
+partition_version (string or null)
+
+flags (array of strings or null)
+
+Architecture
+Module breakdown:
+
+Record Loader. Reads and validates STAG JSON records.
+
+Graph Builder. Builds the internal graph from the records.
+
+Layout Engine. Computes node positions.
+
+Renderer. Draws the graph.
+
+Interaction Handler. Handles pan, zoom, select, filter.
+
+Filter Engine. Applies the filter state.
+
+Detail Panel. Shows the full annotation record of the selected node or edge.
+
+Exporter. Exports the graph as a static image or data file.
+
+Metadata Recorder. Records the schema version, viewer version, timestamp, and input file hash.
+
+Command-Line Interface (optional). A wrapper for batch export.
+
+Data flow:
+
+Records go to Record Loader. Graph Builder builds the graph. Layout Engine computes positions. Renderer draws the graph. Interaction Handler attaches events. Filter Engine applies filters. Detail Panel shows details. Exporter exports.
+
+Technology Stack
+Recommended for the desktop application:
+
+Language: Python 3.11+ or JavaScript/TypeScript (Node.js 20+).
+
+Graph rendering: NetworkX plus Matplotlib (Python) or D3.js, Cytoscape.js, or Sigma.js (JS).
+
+UI framework: PyQt6 or Tkinter (Python) or Electron plus React or Svelte (JS).
+
+JSON handling: standard library.
+
+Testing: pytest (Python) or Vitest (JS).
+
+Recommended for the web application:
+
+Frontend: React or Svelte with Cytoscape.js, Sigma.js, or D3.js.
+
+Backend (optional): FastAPI (Python) or Express (JS) for loading records from a server.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The graph conforms to the well-formedness conditions in Artifact 1, Section 8.5.
+
+UI/UX Specification
+Layout:
+
+Main canvas: the graph.
+
+Left sidebar: filter panel (label, anchoring status, partition, flags).
+
+Right sidebar: detail panel (full annotation record of the selected node or edge).
+
+Bottom bar: zoom controls, layout selector, export button.
+
+Top bar: record loader, search box.
+
+Navigation:
+
+Pan: drag the canvas.
+
+Zoom: scroll or pinch, or use the zoom controls.
+
+Select: click a node or edge.
+
+Filter: use the left sidebar.
+
+Export: use the bottom bar.
+
+Error display:
+
+Invalid records: a modal dialog with the validation errors.
+
+Missing fields: a warning badge on the affected node or edge.
+
+Unmapped fields: a warning badge on the affected node or edge.
+
+Display conventions:
+
+Every display label is rendered with its anchoring status alongside.
+
+Every flag is rendered as a badge.
+
+The viewer never renders a display label without the anchoring status.
+
+Validation Engine Design
+The viewer validates the following:
+
+Validation 1. Record validity. Each record is validated against the JSON Schema for the selected version.
+
+Validation 2. Graph well-formedness. The graph is checked against the well-formedness conditions in Artifact 1, Section 8.5.
+
+Validation 3. Display convention. The viewer checks that every display label has an anchoring status. If a label lacks an anchoring status, the viewer renders a warning badge.
+
+Validation 4. Flag consistency. The viewer checks that flags are consistent with the record's fields (for example, not_determinable_flag is true if and only if a dependent field is not_determinable).
+
+Testing Strategy
+Unit tests:
+
+Graph builder for each node and edge type.
+
+Layout engine for each algorithm.
+
+Renderer for each visual kind.
+
+Filter engine for each filter field.
+
+Detail panel for each record section.
+
+Exporter for each format.
+
+Integration tests:
+
+Load a single record and render.
+
+Load multiple records and merge.
+
+Apply a filter and verify the visible nodes and edges.
+
+Select a node and verify the detail panel.
+
+Export a static image and verify the output.
+
+Worked-example tests:
+
+Artifact 1, Section 11.1 (Fröhlich/Eliashberg): render the STAG-Definitional label with anchoring not_applicable and the not_determinable flag.
+
+Artifact 1, Section 11.2 (two-layer Ising): render the STAG-Discovered label with anchoring preliminary and the not_determinable flag.
+
+Artifact 1, Section 11.3 (two-band superconductor): render the STAG-None label.
+
+Artifact 1, Section 11.4 (glass transition): render the STAG-Unclassified label with reason inadmissible_partition.
+
+Artifact 1, Section 11.5 (QCD crossover): render the STAG-Unclassified label with reason not_tested.
+
+Regression tests:
+
+Force-directed layout determinism.
+
+Filter state round trip.
+
+Export round trip.
+
+Build Phases
+Phase 1. Record Loader. Read and validate STAG JSON records.
+
+Phase 2. Graph Builder. Build the internal graph.
+
+Phase 3. Layout Engine. Implement force-directed, hierarchical, circular, and grid layouts.
+
+Phase 4. Renderer. Draw the graph with all visual kinds.
+
+Phase 5. Interaction Handler. Pan, zoom, select, filter.
+
+Phase 6. Filter Engine. Apply the filter state.
+
+Phase 7. Detail Panel. Show the full annotation record of the selected node or edge.
+
+Phase 8. Exporter. Export as PNG, SVG, JSON, and GraphML.
+
+Phase 9. Metadata Recorder. Record the schema version, viewer version, timestamp, and input file hash.
+
+Phase 10. Command-Line Interface (optional).
+
+Phase 11. Worked-example tests. Load the five worked examples and verify outputs.
+
+Phase 12. Integration testing and hardening.
+
+Phase 13. Packaging. Standalone executable or web bundle.
+
+Dependencies
+Python path:
+
+NetworkX (graph structure).
+
+Matplotlib or PyQtGraph (rendering).
+
+PyQt6 or Tkinter (UI).
+
+jsonschema (record validation).
+
+pytest (testing).
+
+Node.js path:
+
+Cytoscape.js, Sigma.js, or D3.js (rendering).
+
+React or Svelte (UI).
+
+ajv (record validation).
+
+Vitest (testing).
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The graph conforms to the well-formedness conditions in Artifact 1, Section 8.5.
+
+Deployment Notes
+Desktop application:
+
+Package as a standalone executable (PyInstaller for Python, Electron for JS).
+
+Distribute via pip, npm, or a direct download.
+
+No server required.
+
+Web application:
+
+Deploy the frontend as a static bundle.
+
+Backend optional; if used, deploy with Docker.
+
+Scale horizontally if needed.
+
+Reproducibility:
+
+Record the layout algorithm and its parameters in the static export.
+
+Record the filter state in the static export.
+
+Record the schema version, viewer version, timestamp, and input file hash in the viewer metadata.
+
+Open Questions to Resolve Before Building
+Question 1. Which runtime first? Python or JavaScript. Decision affects the graph library and the packaging.
+
+Question 2. Which layout algorithm should be the default? Options: force-directed, hierarchical, circular, grid. The documents do not specify. Decision needed.
+
+Question 3. How should the viewer handle multiple records that are not linked? Options: render as separate graphs, merge into one graph with disconnected components, or prompt the user. Decision needed.
+
+Question 4. How should the viewer handle the not_determinable flag propagation? The documents specify that not_determinable propagates from the entailment basis to the intervention classification to the cross-domain counterfactual dependence. Decision needed: does the viewer check the propagation automatically, or does it trust the record?
+
+Question 5. How should the viewer handle a record that lacks a display label? Options: render with a "no label" badge, hide the node, or warn. Decision needed.
+
+Question 6. How should the viewer handle a self-loop? Options: render as a circular arc, render as a small loop with a regime-change label, or render as two nodes with a transition edge. Decision needed.
+
+Question 7. Should the viewer support editing the graph? The documents do not specify. Decision needed: read-only, or editable.
+
+Question 8. Should the viewer support side-by-side comparison of two records? Decision needed.
+
+Question 9. How should the viewer display the anchoring status when the label is not STAG-Discovered? Options: show "not_applicable", hide the anchoring badge, or show a default. Decision needed.
+
+Question 10. How should the viewer handle the SHACL shapes that are drafts? The documents state that SHACL validation has not been run. Decision needed: ship the draft shapes as-is, or mark them experimental.
+
+End of build specification for App 5
