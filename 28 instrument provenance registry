@@ -1,0 +1,1561 @@
+App 28: The Instrument Provenance Registry
+Completeness status: COMPLETE. All sections delivered in one pass. No truncation. Formatted for copy-paste. Long lists are broken into short lines.
+
+1. What It Is
+A provenance-aware, versioned database of scientific instruments. A scientific instrument is any device or procedure used to make a measurement: a telescope, a spectrometer, a particle detector, a survey questionnaire, a sequencing machine, a thermometer, an economic index. The Instrument Provenance Registry records each instrument with its measurement kernel, its selection function, its calibration history, its known biases, and its provenance.
+
+It reuses:
+
+the Effective-Null Builder (App 11)
+
+the Provenance-Aware Annotation Database (App 20)
+
+the Numerical Verification Tool (App 22)
+
+the PROV-O Exporter (App 3)
+
+the Revision History Viewer (App 7)
+
+the Physics Knowledge Library (App 23)
+
+the Autofill Library Service (App 49)
+
+It is for experimentalists, metrologists, survey designers, astronomers, and anyone who has to combine measurements from different instruments.
+
+2. Core Requirements
+Functional requirements:
+
+Accept deposits of instruments from users.
+
+Store each instrument with its name, its type, its field, its measurement kernel, its selection function, and its provenance.
+
+Record the calibration history: each calibration with its date, its source, and its correction.
+
+Record the known biases: each bias with its description, its magnitude, and its source.
+
+Record the measurement kernel: the probability density of observing a value given the true value.
+
+Record the selection function: the probability that an observation enters the sample.
+
+Record the instrument's operational range: the values over which the instrument is valid.
+
+Record the instrument's resolution: the smallest difference the instrument can distinguish.
+
+Record the instrument's precision: the repeatability of a measurement.
+
+Record the instrument's accuracy: the closeness to the true value.
+
+Record the instrument's uncertainties: the sources and magnitudes of the uncertainties.
+
+Record the provenance: the manufacturer, the model, the serial number, the date of manufacture, and the date of first use.
+
+Enforce provenance completeness.
+
+Enforce versioning.
+
+Enforce supersession acyclicity.
+
+Support querying by instrument ID, name, type, field, subfield, manufacturer, model, depositor, deposit date, and keywords.
+
+Support full-text search of the instrument description, the calibration notes, and the bias notes.
+
+Support aggregation queries: count by type, by field, by manufacturer, by year, by depositor.
+
+Support exporting an instrument as JSON, PROV-O, and Turtle.
+
+Support importing an instrument from JSON.
+
+Support bulk import and bulk export.
+
+Support a REST API for CRUD operations.
+
+Support a GraphQL API for flexible queries.
+
+Support a command-line interface for administration.
+
+Support authentication and authorization.
+
+Support audit logging.
+
+Support backup and restore.
+
+Support a web interface for depositing, browsing, and querying.
+
+Support moderation.
+
+Support linking an instrument to a STAG annotation if the instrument is part of a scale-transition claim.
+
+Support linking an instrument to a numerical verification result if the instrument's values have been verified.
+
+Support linking an instrument to a Physics Knowledge Library work if the instrument is described in a deposited work.
+
+Support linking an instrument to a dataset if the instrument produced the dataset.
+
+Support the instrument comparison view: a visualisation that compares two or more instruments by their measurement kernels and selection functions.
+
+Support the calibration timeline: a visualisation of the calibration history of an instrument.
+
+Support the bias map: a visualisation of the known biases of an instrument across its operational range.
+
+Non-functional requirements:
+
+Deterministic.
+
+Fast: query a typical instrument in under 100 milliseconds; aggregate over 10,000 instruments in under one second.
+
+Scalable: support up to 10^6 instruments.
+
+Versioned: the registry records the STAG schema version, the instrument schema version, and the registry version.
+
+Reproducible: the registry records the provenance for every deposit.
+
+Portable.
+
+Well-documented.
+
+3. Input Specification
+Input 1. Instrument deposit. Required for create and update operations. A deposit object conforming to the instrument schema.
+
+Input 2. Files. Optional. Documentation, calibration certificates, or specification sheets.
+
+Input 3. Provenance record. Required. The depositor ID, the timestamp, the source, and the tool version.
+
+Input 4. STAG annotation. Optional. A STAG record describing the instrument as part of a scale-transition claim.
+
+Input 5. Numerical verification result. Optional. A numerical verification result checking the instrument's values.
+
+Input 6. Work reference. Optional. A reference to a work in the Physics Knowledge Library where the instrument is described.
+
+Input 7. Dataset reference. Optional. A reference to a dataset the instrument produced.
+
+Input 8. Query. Required for read operations.
+
+Input 9. Aggregation query. Required for aggregation operations.
+
+Input 10. Authentication credentials.
+
+Input 11. Bulk import file.
+
+Input 12. Bulk export query.
+
+4. Output Specification
+Output 1. Instrument record. JSON.
+
+Output 2. PROV-O serialization.
+
+Output 3. Turtle serialization.
+
+Output 4. Query result. JSON.
+
+Output 5. Aggregation result. JSON.
+
+Output 6. Full-text search result. JSON.
+
+Output 7. Instrument comparison view. JSON or a rendered graph.
+
+Output 8. Calibration timeline. JSON or a rendered timeline.
+
+Output 9. Bias map. JSON or a rendered map.
+
+Output 10. Related instruments. JSON.
+
+Output 11. Bulk export file.
+
+Output 12. Audit log entry. JSON.
+
+Output 13. API response. JSON.
+
+Output 14. GraphQL response. JSON.
+
+Output 15. Backup file.
+
+5. Module-by-Module Specification
+Module 1. Instrument Schema.
+
+Defines the structure of an instrument deposit.
+
+Module 2. Database Schema.
+
+The tables and indexes.
+
+Module 3. Instrument Loader.
+
+Reads and validates an instrument deposit.
+
+Module 4. Instrument Writer.
+
+Writes an instrument deposit to the database.
+
+Module 5. Instrument Reader.
+
+Reads an instrument deposit from the database.
+
+Module 6. Instrument Updater.
+
+Updates an instrument deposit.
+
+Module 7. Instrument Deleter.
+
+Deletes an instrument deposit.
+
+Module 8. Query Engine.
+
+Executes queries.
+
+Module 9. Full-Text Search Engine.
+
+Executes full-text search.
+
+Module 10. Aggregation Engine.
+
+Executes aggregation queries.
+
+Module 11. Exporter.
+
+Exports an instrument as JSON, PROV-O, and Turtle.
+
+Module 12. Importer.
+
+Imports an instrument from JSON.
+
+Module 13. Bulk Import and Export.
+
+Bulk operations.
+
+Module 14. REST API.
+
+HTTP endpoints.
+
+Module 15. GraphQL API.
+
+GraphQL endpoint.
+
+Module 16. Command-Line Interface.
+
+Administration commands.
+
+Module 17. Authentication and Authorization.
+
+Access control.
+
+Module 18. Audit Logging.
+
+Logs operations.
+
+Module 19. Backup and Restore.
+
+Database backup and restore.
+
+Module 20. Web Interface.
+
+Depositing, browsing, querying.
+
+Module 21. Moderation Workflow.
+
+Moderation of instruments.
+
+Module 22. Instrument Comparison View.
+
+Compares two or more instruments by their measurement kernels and selection functions.
+
+Module 23. Calibration Timeline.
+
+Visualises the calibration history of an instrument.
+
+Module 24. Bias Map.
+
+Visualises the known biases of an instrument across its operational range.
+
+Module 25. Related-Instrument Finder.
+
+Finds instruments related to a given one.
+
+Module 26. Migration Manager.
+
+Database migrations.
+
+6. Full Instrument Specification
+6.1 Instrument Schema
+The instrument schema defines the structure of an instrument deposit.
+
+It has the following fields:
+
+instrument_id. A string. Required.
+
+instrument_name. A string. Required.
+
+description. A string. Required.
+
+instrument_type. A string. Required. Examples: telescope, spectrometer, particle_detector, survey_questionnaire, sequencing_machine, thermometer, economic_index, other.
+
+field. A string. Required.
+
+subfield. A string. Optional.
+
+manufacturer. A string. Optional.
+
+model. A string. Optional.
+
+serial_number. A string. Optional.
+
+date_of_manufacture. A string in ISO8601 format. Optional.
+
+date_of_first_use. A string in ISO8601 format. Optional.
+
+operational_range. An object. It contains lower, upper, and units.
+
+resolution. An object. It contains value and units.
+
+precision. An object. It contains value and units.
+
+accuracy. An object. It contains value and units.
+
+uncertainties. An array of uncertainty objects.
+
+measurement_kernel. An object. It contains type, parameters, and description.
+
+selection_function. An object. It contains type, parameters, and description.
+
+calibration_history. An array of calibration objects.
+
+known_biases. An array of bias objects.
+
+provenance. An object. It contains source, tool_version, and notes.
+
+stag_annotation. An object. Optional.
+
+numerical_verification_result. An object. Optional.
+
+work_reference. A string. Optional.
+
+dataset_reference. A string. Optional.
+
+keywords. An array of strings. Optional.
+
+notes. A string. Optional.
+
+moderation_status. An enum. The values are pending, approved, rejected.
+
+version. An integer.
+
+supersedes. A string. Optional.
+
+superseded_by. A string. Optional.
+
+Each uncertainty object has:
+
+uncertainty_id. A string.
+
+uncertainty_type. An enum. The values are statistical, systematic, calibration, environmental, other.
+
+description. A string.
+
+magnitude. An object. It contains value and units.
+
+source. A string.
+
+Each calibration object has:
+
+calibration_id. A string.
+
+calibration_date. A string in ISO8601 format.
+
+calibration_source. A string.
+
+calibration_reference. A string.
+
+correction. An object. It contains value and units.
+
+calibration_notes. A string. Optional.
+
+Each bias object has:
+
+bias_id. A string.
+
+bias_description. A string.
+
+bias_magnitude. An object. It contains value and units.
+
+bias_range. An object. It contains lower and upper.
+
+bias_source. A string.
+
+bias_correction. An object. Optional. It contains value and units.
+
+bias_notes. A string. Optional.
+
+6.2 Database Schema
+The database has the following tables.
+
+instrument. Holds the instrument records.
+
+Its fields are:
+
+instrument_id
+
+instrument_name
+
+description
+
+instrument_type
+
+field
+
+subfield
+
+manufacturer
+
+model
+
+serial_number
+
+date_of_manufacture
+
+date_of_first_use
+
+operational_range
+
+resolution
+
+precision
+
+accuracy
+
+measurement_kernel
+
+selection_function
+
+provenance
+
+keywords
+
+notes
+
+moderation_status
+
+version
+
+supersedes
+
+superseded_by
+
+created_at
+
+updated_at
+
+uncertainty. Holds the uncertainty records.
+
+Its fields are:
+
+uncertainty_id
+
+instrument_id
+
+uncertainty_type
+
+description
+
+magnitude
+
+source
+
+created_at
+
+calibration. Holds the calibration records.
+
+Its fields are:
+
+calibration_id
+
+instrument_id
+
+calibration_date
+
+calibration_source
+
+calibration_reference
+
+correction
+
+calibration_notes
+
+created_at
+
+bias. Holds the bias records.
+
+Its fields are:
+
+bias_id
+
+instrument_id
+
+bias_description
+
+bias_magnitude
+
+bias_range
+
+bias_source
+
+bias_correction
+
+bias_notes
+
+created_at
+
+stag_link. Holds the STAG links.
+
+Its fields are:
+
+link_id
+
+instrument_id
+
+annotation_id
+
+created_at
+
+verification_link. Holds the numerical verification links.
+
+Its fields are:
+
+link_id
+
+instrument_id
+
+verification_id
+
+created_at
+
+work_link. Holds the work links.
+
+Its fields are:
+
+link_id
+
+instrument_id
+
+work_id
+
+created_at
+
+dataset_link. Holds the dataset links.
+
+Its fields are:
+
+link_id
+
+instrument_id
+
+dataset_id
+
+created_at
+
+provenance. Holds the provenance records.
+
+Its fields are:
+
+provenance_id
+
+instrument_id
+
+depositor_id
+
+depositor_affiliation
+
+timestamp
+
+source
+
+tool_version
+
+operation
+
+created_at
+
+audit_log. Holds the audit log entries.
+
+Its fields are:
+
+audit_id
+
+operation
+
+record_type
+
+record_id
+
+depositor_id
+
+timestamp
+
+result
+
+details
+
+created_at
+
+moderation. Holds the moderation records.
+
+Its fields are:
+
+moderation_id
+
+instrument_id
+
+moderator_id
+
+moderation_status
+
+moderation_date
+
+moderation_notes
+
+created_at
+
+6.3 Referential Integrity
+The database enforces the following constraints.
+
+Every uncertainty.instrument_id must exist in instrument.
+
+Every calibration.instrument_id must exist in instrument.
+
+Every bias.instrument_id must exist in instrument.
+
+Every stag_link.instrument_id must exist in instrument.
+
+Every verification_link.instrument_id must exist in instrument.
+
+Every work_link.instrument_id must exist in instrument.
+
+Every dataset_link.instrument_id must exist in instrument.
+
+Every provenance.instrument_id must exist in instrument.
+
+Every moderation.instrument_id must exist in instrument.
+
+The version chain must be acyclic.
+
+6.4 Indexes
+The database has indexes on:
+
+instrument.instrument_id
+
+instrument.instrument_name
+
+instrument.instrument_type
+
+instrument.field
+
+instrument.subfield
+
+instrument.manufacturer
+
+instrument.model
+
+instrument.depositor_id
+
+instrument.moderation_status
+
+instrument.keywords
+
+uncertainty.instrument_id
+
+calibration.instrument_id
+
+calibration.calibration_date
+
+bias.instrument_id
+
+stag_link.instrument_id
+
+verification_link.instrument_id
+
+work_link.instrument_id
+
+dataset_link.instrument_id
+
+provenance.instrument_id
+
+provenance.depositor_id
+
+audit_log.operation
+
+audit_log.record_id
+
+moderation.instrument_id
+
+moderation.moderation_status
+
+Full-text search indexes on the description, the calibration notes, and the bias notes.
+
+7. Core Logic as Executable Pseudocode
+7.1 Create Instrument
+function createInstrument(instrument, files, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Validate the instrument against the schema. If invalid, return an error with the details.
+
+Step 3. If the STAG annotation is present, validate it.
+
+Step 4. If the verification result is present, validate it.
+
+Step 5. If the work reference is present, look it up. If null, flag it as unresolved.
+
+Step 6. If the dataset reference is present, look it up. If null, flag it as unresolved.
+
+Step 7. Generate an instrument ID. Set the fields: version 1, moderation_status pending, deposit_date now, depositor_id from auth, depositor_affiliation from auth, provenance from provenance.
+
+Step 8. Insert the instrument.
+
+Step 9. Insert the uncertainties, the calibrations, and the biases.
+
+Step 10. Insert the STAG link, the verification link, the work link, and the dataset link if present.
+
+Step 11. Insert the provenance.
+
+Step 12. Insert the moderation record.
+
+Step 13. Insert the audit log entry.
+
+Step 14. Return the instrument_id and the status created.
+
+7.2 Read Instrument
+function readInstrument(instrumentId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the instrument. If null, return an error.
+
+Step 3. Read the uncertainties, the calibrations, the biases, the links, the provenance, and the moderation.
+
+Step 4. Reconstruct the deposit.
+
+Step 5. Insert the audit log entry.
+
+Step 6. Return the deposit.
+
+7.3 Update Instrument
+function updateInstrument(instrumentId, instrument, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Read the existing instrument. If null, return an error.
+
+Step 3. Validate the new instrument.
+
+Step 4. Increment the version. Update the supersedes and superseded_by fields.
+
+Step 5. Insert a provenance record with operation update.
+
+Step 6. Insert an audit log entry.
+
+Step 7. Return the instrument_id, the version, and the status updated.
+
+7.4 Delete Instrument
+function deleteInstrument(instrumentId, provenance, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Read the existing instrument. If null, return an error.
+
+Step 3. If soft delete, mark as deleted. Otherwise, remove.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the instrument_id and the status deleted.
+
+7.5 Query Instruments
+function queryInstruments(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the query.
+
+Step 3. Read the matching instruments.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the instruments, the count, and the pagination.
+
+7.6 Aggregate Instruments
+function aggregateInstruments(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the aggregation.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the results.
+
+7.7 Full-Text Search
+function fullTextSearch(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the search.
+
+Step 3. Read the matching instruments.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the instruments and the count.
+
+7.8 Export Instrument
+function exportInstrument(instrumentId, format, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the deposit.
+
+Step 3. If json, output the deposit. If provo, export to PROV-O. If turtle, serialize to Turtle.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the output and the format.
+
+7.9 Bulk Import
+function bulkImport(file, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Parse the file.
+
+Step 3. For each instrument, call createInstrument.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the results and the count.
+
+7.10 Bulk Export
+function bulkExport(query, format, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the matching instruments.
+
+Step 3. If json, output the list. If jsonl, output one line per instrument. If provo, export each one.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the output and the count.
+
+7.11 Moderate Instrument
+function moderateInstrument(instrumentId, moderationStatus, moderationNotes, auth):
+
+Step 1. validateAuth(auth, "moderator"). If not authorized, return an error.
+
+Step 2. Read the existing instrument. If null, return an error.
+
+Step 3. Update the moderation status. Insert a moderation record.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the instrument_id and the status.
+
+7.12 Instrument Comparison View
+function instrumentComparisonView(instrumentIds, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read each instrument.
+
+Step 3. Build the comparison by overlaying the measurement kernels and the selection functions on the same axes.
+
+Step 4. Return the comparison.
+
+7.13 Calibration Timeline
+function calibrationTimeline(instrumentId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the instrument. If null, return an error.
+
+Step 3. Read the calibration records.
+
+Step 4. Build the timeline with the calibration dates, the sources, and the corrections.
+
+Step 5. Return the timeline.
+
+7.14 Bias Map
+function biasMap(instrumentId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the instrument. If null, return an error.
+
+Step 3. Read the bias records.
+
+Step 4. Build the map with the bias magnitudes across the operational range.
+
+Step 5. Return the map.
+
+7.15 Find Related Instruments
+function findRelatedInstruments(instrumentId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the instrument. If null, return an error.
+
+Step 3. Find instruments with the same type, the same field, or the same manufacturer.
+
+Step 4. Return the related instruments.
+
+7.16 Audit Log
+function auditLog(query, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Build and execute the query.
+
+Step 3. Return the results.
+
+7.17 Backup
+function backup(auth, options):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. If sql, dump as SQL. If json, dump as JSON.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the output and the format.
+
+7.18 Restore
+function restore(file, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Load the database from the file.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the status restored.
+
+8. Data Model
+The registry's internal state is the set of tables. The API's internal state is a request object and a response object.
+
+Request object:
+
+operation
+
+resource
+
+record_id
+
+record_json
+
+query
+
+auth
+
+Response object:
+
+status
+
+result
+
+error
+
+audit_id
+
+9. Architecture
+Module breakdown:
+
+Instrument Schema.
+
+Database Schema.
+
+Instrument Loader.
+
+Instrument Writer.
+
+Instrument Reader.
+
+Instrument Updater.
+
+Instrument Deleter.
+
+Query Engine.
+
+Full-Text Search Engine.
+
+Aggregation Engine.
+
+Exporter.
+
+Importer.
+
+Bulk Import and Export.
+
+REST API.
+
+GraphQL API.
+
+Command-Line Interface.
+
+Authentication and Authorization.
+
+Audit Logging.
+
+Backup and Restore.
+
+Web Interface.
+
+Moderation Workflow.
+
+Instrument Comparison View.
+
+Calibration Timeline.
+
+Bias Map.
+
+Related-Instrument Finder.
+
+Migration Manager.
+
+Data flow:
+
+API requests go to the REST or GraphQL API.
+
+The API calls the instrument loader, writer, reader, updater, deleter, query engine, search engine, aggregation engine, exporter, or importer.
+
+The database schema stores the data.
+
+The audit logging records every operation.
+
+The authentication and authorization check access.
+
+The moderation workflow handles moderation.
+
+The instrument comparison view, the calibration timeline, and the bias map visualise.
+
+The related-instrument finder finds relations.
+
+The backup and restore handle backup.
+
+The web interface provides depositing, browsing, and querying.
+
+10. Technology Stack
+Recommended for the database:
+
+Database: PostgreSQL 15+ or SQLite 3.40+.
+
+Language: Python 3.11+ or Node.js 20+.
+
+ORM: SQLAlchemy or Prisma.
+
+Migrations: Alembic or Prisma Migrate.
+
+Full-text search: PostgreSQL tsvector or SQLite FTS5.
+
+Recommended for the REST API:
+
+Framework: FastAPI or Express.
+
+Authentication: FastAPI Users or Passport.
+
+Recommended for the GraphQL API:
+
+Framework: Strawberry or Apollo Server.
+
+Recommended for the command-line interface:
+
+Framework: Click or Commander.
+
+Recommended for the web interface:
+
+Frontend: React or Svelte.
+
+Backend: the same as the REST API.
+
+Recommended for deployment:
+
+Containerization: Docker.
+
+Orchestration: Docker Compose or Kubernetes.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The STAG schema (Artifact 2, Appendix B.1).
+
+The PROV-O exporter (App 3).
+
+The STAG schema library (App 17).
+
+The effective-null builder (App 11).
+
+The provenance database (App 20).
+
+The numerical verification tool (App 22).
+
+The revision history viewer (App 7).
+
+The Physics Knowledge Library (App 23).
+
+The Autofill Library Service (App 49).
+
+11. UI/UX Specification
+REST API:
+
+Base URL: https://api.example.com/v1.
+
+Authentication: Bearer token.
+
+Endpoints:
+
+GET /instruments.
+
+GET /instruments/{id}.
+
+POST /instruments.
+
+PUT /instruments/{id}.
+
+DELETE /instruments/{id}.
+
+GET /instruments/{id}/provo.
+
+GET /instruments/{id}/turtle.
+
+GET /instruments/{id}/uncertainties.
+
+GET /instruments/{id}/calibrations.
+
+GET /instruments/{id}/biases.
+
+GET /instruments/{id}/related.
+
+GET /instruments/{id}/calibration-timeline.
+
+GET /instruments/{id}/bias-map.
+
+GET /instruments/{id}/stag.
+
+GET /instruments/{id}/verification.
+
+GET /instruments/{id}/work.
+
+GET /instruments/{id}/datasets.
+
+POST /compare. Compare two or more instruments.
+
+POST /query.
+
+POST /aggregate.
+
+POST /search.
+
+POST /bulk/import.
+
+POST /bulk/export.
+
+POST /moderate/{id}.
+
+GET /audit.
+
+Responses in JSON.
+
+HTTP status codes: 200, 201, 204, 400, 401, 403, 404, 409, 422, 500.
+
+GraphQL API:
+
+Endpoint: https://api.example.com/graphql.
+
+Schema exposes the entities and their relationships.
+
+Command-line interface:
+
+Usage: instrument-registry [command] [options].
+
+Commands: init, migrate, backup, restore, import, export, query, aggregate, moderate, audit.
+
+Web interface:
+
+A browsable list of instruments.
+
+A deposit form.
+
+A search box.
+
+A filter panel.
+
+An aggregation view.
+
+An instrument comparison view.
+
+A calibration timeline.
+
+A bias map.
+
+A detail view for each instrument.
+
+A moderation view.
+
+12. Validation Engine Design
+The registry validates the following.
+
+Validation 1. Instrument validity. Every instrument is validated against the schema.
+
+Validation 2. STAG annotation validity. Every STAG annotation is validated against the STAG schema.
+
+Validation 3. Numerical verification result validity.
+
+Validation 4. Referential integrity. Every foreign key reference must resolve.
+
+Validation 5. Version chain acyclicity.
+
+Validation 6. Work resolution. Every work_reference must resolve or be flagged.
+
+Validation 7. Dataset resolution. Every dataset_reference must resolve or be flagged.
+
+Validation 8. Provenance completeness.
+
+Validation 9. Audit completeness.
+
+Validation 10. Moderation completeness.
+
+Validation 11. Uncertainty consistency. The uncertainties must be consistent with the operational range.
+
+Validation 12. Calibration consistency. The calibration corrections must be consistent with the known biases.
+
+13. Testing Strategy
+Unit tests:
+
+Instrument Schema for valid and invalid instruments.
+
+Database Schema for each table and index.
+
+Instrument Loader for valid and invalid instruments.
+
+Instrument Writer for each table.
+
+Instrument Reader for each instrument type.
+
+Instrument Updater for versioning.
+
+Instrument Deleter for soft and hard deletes.
+
+Query Engine for each query field.
+
+Full-Text Search Engine for each search term.
+
+Aggregation Engine for each aggregation dimension.
+
+Exporter for each format.
+
+Importer for each format.
+
+Bulk Import and Export.
+
+REST API for each endpoint.
+
+GraphQL API.
+
+Command-Line Interface.
+
+Authentication and Authorization.
+
+Audit Logging.
+
+Backup and Restore.
+
+Web Interface.
+
+Moderation Workflow.
+
+Instrument Comparison View.
+
+Calibration Timeline.
+
+Bias Map.
+
+Related-Instrument Finder.
+
+Migration Manager.
+
+Integration tests:
+
+Create an instrument. Read it back.
+
+Update an instrument.
+
+Delete an instrument.
+
+Query by each field.
+
+Aggregate by each dimension.
+
+Search by full text.
+
+Export as JSON, PROV-O, and Turtle.
+
+Bulk import and export.
+
+Backup and restore.
+
+Moderate an instrument.
+
+Compare two instruments.
+
+Generate the calibration timeline.
+
+Generate the bias map.
+
+Worked-example tests:
+
+Deposit the Hubble Space Telescope.
+
+Deposit the Planck satellite.
+
+Deposit the Sloan Digital Sky Survey.
+
+Deposit the Large Hadron Collider.
+
+Deposit the Laser Interferometer Gravitational-Wave Observatory.
+
+Deposit the James Webb Space Telescope.
+
+Deposit a clinical thermometer.
+
+Deposit a survey questionnaire.
+
+Regression tests:
+
+Instrument determinism.
+
+Query consistency.
+
+Aggregation consistency.
+
+Audit log consistency.
+
+Moderation consistency.
+
+Uncertainty consistency.
+
+Calibration consistency.
+
+14. Build Phases
+Phase 1. Instrument Schema.
+
+Phase 2. Database Schema.
+
+Phase 3. Instrument Loader.
+
+Phase 4. Instrument Writer.
+
+Phase 5. Instrument Reader.
+
+Phase 6. Instrument Updater.
+
+Phase 7. Instrument Deleter.
+
+Phase 8. Query Engine.
+
+Phase 9. Full-Text Search Engine.
+
+Phase 10. Aggregation Engine.
+
+Phase 11. Exporter.
+
+Phase 12. Importer.
+
+Phase 13. Bulk Import and Export.
+
+Phase 14. REST API.
+
+Phase 15. GraphQL API.
+
+Phase 16. Command-Line Interface.
+
+Phase 17. Authentication and Authorization.
+
+Phase 18. Audit Logging.
+
+Phase 19. Backup and Restore.
+
+Phase 20. Web Interface.
+
+Phase 21. Moderation Workflow.
+
+Phase 22. Instrument Comparison View.
+
+Phase 23. Calibration Timeline.
+
+Phase 24. Bias Map.
+
+Phase 25. Related-Instrument Finder.
+
+Phase 26. Migration Manager.
+
+Phase 27. Worked-example tests.
+
+Phase 28. Integration testing and hardening.
+
+Phase 29. Packaging and deployment.
+
+15. Dependencies
+Python path:
+
+SQLAlchemy.
+
+Alembic.
+
+FastAPI.
+
+Strawberry.
+
+FastAPI Users.
+
+Click.
+
+psycopg2.
+
+sqlite3.
+
+jsonschema.
+
+hashlib.
+
+json.
+
+pytest.
+
+Node.js path:
+
+Prisma.
+
+Express.
+
+Apollo Server.
+
+Passport.
+
+Commander.
+
+pg.
+
+better-sqlite3.
+
+ajv.
+
+crypto.
+
+JSON.
+
+Vitest.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The STAG schema (Artifact 2, Appendix B.1).
+
+The PROV-O exporter (App 3).
+
+The STAG schema library (App 17).
+
+The effective-null builder (App 11).
+
+The provenance database (App 20).
+
+The numerical verification tool (App 22).
+
+The revision history viewer (App 7).
+
+The Physics Knowledge Library (App 23).
+
+The Autofill Library Service (App 49).
+
+16. Deployment Notes
+Database:
+
+PostgreSQL for multi-user deployments.
+
+SQLite for single-user deployments.
+
+Backup and restore via pg_dump and pg_restore or the SQLite backup API.
+
+REST API:
+
+Deploy with Docker. Stateless. Scale horizontally.
+
+Use a reverse proxy for TLS.
+
+Log every request for audit.
+
+GraphQL API:
+
+Deploy alongside the REST API.
+
+Use a query depth limit and a query complexity limit.
+
+Command-line interface:
+
+Package as a standalone executable.
+
+Distribute via pip, npm, or a direct download.
+
+Web interface:
+
+Deploy the frontend as a static bundle.
+
+Backend with FastAPI or Express.
+
+Reproducibility:
+
+Record the STAG schema version, the instrument schema version, and the registry version.
+
+Record the provenance for every deposit.
+
+Provide a version pin for the schemas and codebook.
+
+17. Open Questions to Resolve Before Building
+Question 1. Which runtime first? Python or Node.js.
+
+Question 2. Which database first? PostgreSQL or SQLite.
+
+Question 3. How should the registry handle the instrument type? A fixed set, or an open set.
+
+Question 4. How should the registry handle the measurement kernel? A fixed set of kernel types, or an open set.
+
+Question 5. How should the registry handle the selection function? A fixed set of function types, or an open set.
+
+Question 6. How should the registry handle the uncertainty types? A fixed set, or an open set.
+
+Question 7. How should the registry handle the calibration history? Every calibration, or only the most recent.
+
+Question 8. How should the registry handle the known biases? Every bias, or only the active ones.
+
+Question 9. How should the registry handle the operational range? A single range, or multiple ranges for different regimes.
+
+Question 10. How should the registry handle the moderation workflow? Pending until approved, auto-approved, or require a moderator.
+
+Question 11. How should the registry handle the STAG annotation? Required, optional, or optional depending on the instrument type.
+
+Question 12. How should the registry handle the numerical verification result? Required, optional, or optional depending on the instrument type.
+
+Question 13. How should the registry handle the work reference? Required, optional, or optional depending on the field.
+
+Question 14. How should the registry handle the dataset reference? Required, optional, or optional depending on the instrument type.
+
+Question 15. How should the registry handle the instrument comparison view? A kernel overlay, a selection-function overlay, or both.
+
+Question 16. How should the registry handle the calibration timeline? A linear timeline, a tree of calibrations, or both.
+
+Question 17. How should the registry handle the bias map? A heat map, a line plot, or both.
+
+Question 18. Should the registry integrate with the STAG schema library (App 17), the effective-null builder (App 11), the provenance database (App 20), the numerical verification tool (App 22), the revision history viewer (App 7), and the Physics Knowledge Library (App 23)?
+
+Question 19. Should the registry support federation with other instances of itself?
+
+Question 20. How should the registry handle the deposit of an instrument that is already in the registry? Reject, create a new version, or create a separate record with a cross-reference.
+
+Question 21. Should the registry support autofill via App 49? If so, which library does it register?
+
+End of build specification for App 28, the Instrument Provenance Registry
