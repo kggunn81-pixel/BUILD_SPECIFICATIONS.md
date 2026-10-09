@@ -1,0 +1,1520 @@
+Build Specification — App 37: The Legal Precedent Graph
+Completeness status: COMPLETE. All sections delivered in one pass. No truncation. Formatted for copy-paste. Long lists are broken into short lines.
+
+1. What It Is
+A provenance-aware, versioned graph of legal cases and the precedents they establish. Each case is a node. Each precedent is a directed edge from the case that establishes it to the case that follows it, or from the case that follows it to the case that establishes it. The Legal Precedent Graph records each case with its citation, its court, its date, its jurisdiction, its holding, the precedents it establishes, the precedents it follows, the precedents it distinguishes, and the cases that overrule it or are overruled by it.
+
+It reuses:
+
+the STAG Schema Library (App 17)
+
+the STAG Graph Viewer (App 5)
+
+the Provenance-Aware Annotation Database (App 20)
+
+the PROV-O Exporter (App 3)
+
+the Revision History Viewer (App 7)
+
+the Numerical Verification Tool (App 22)
+
+the Physics Knowledge Library (App 23)
+
+the Autofill Library Service (App 49)
+
+It is for lawyers, judges, legal scholars, law students, and anyone who works with legal precedent.
+
+2. Core Requirements
+Functional requirements:
+
+Accept deposits of legal cases from users.
+
+Store each case with its citation, its court, its date, its jurisdiction, and its provenance.
+
+Record the holding: the legal rule the case establishes.
+
+Record the precedents it establishes: the rules that later cases must follow.
+
+Record the precedents it follows: the earlier cases it relies on.
+
+Record the precedents it distinguishes: the earlier cases it declines to follow, with the reason.
+
+Record the precedents it overrules: the earlier cases it declares invalid.
+
+Record the cases that overrule it.
+
+Record the relation type: followed, distinguished, overruled, doubted, criticised, applied, considered, or other.
+
+Record the strength of the precedent: binding, persuasive, or not_assessed.
+
+Record the jurisdiction and the court hierarchy.
+
+Record the subject matter: the area of law.
+
+Record the key phrases and the key rules.
+
+Enforce provenance completeness.
+
+Enforce versioning.
+
+Enforce supersession acyclicity.
+
+Support querying by case ID, citation, court, date, jurisdiction, subject matter, holding, precedent type, precedent strength, depositor, deposit date, and keywords.
+
+Support full-text search of the case summary, the holding, and the notes.
+
+Support aggregation queries: count by court, by jurisdiction, by subject matter, by year, by precedent type.
+
+Support exporting a case as JSON, PROV-O, and Turtle.
+
+Support importing a case from JSON.
+
+Support bulk import and bulk export.
+
+Support a REST API for CRUD operations.
+
+Support a GraphQL API for flexible queries.
+
+Support a command-line interface for administration.
+
+Support authentication and authorization.
+
+Support audit logging.
+
+Support backup and restore.
+
+Support a web interface.
+
+Support moderation.
+
+Support linking a case to a Physics Knowledge Library work if the case is described in a deposited work.
+
+Support the precedent graph: a visualisation of the cases as nodes and the precedents as edges.
+
+Support the citation network: a visualisation of the citation relationships between cases.
+
+Support the precedent timeline: a visualisation of the precedents over time.
+
+Support the jurisdiction map: a visualisation of the cases by jurisdiction and court hierarchy.
+
+Non-functional requirements:
+
+Deterministic.
+
+Fast: query a typical case in under 100 milliseconds.
+
+Scalable: support up to 10^6 cases.
+
+Versioned: the graph records the STAG schema version, the legal case schema version, and the graph version.
+
+Reproducible.
+
+Portable.
+
+Well-documented.
+
+3. Input Specification
+Input 1. Legal case deposit. Required. A deposit object conforming to the legal case schema.
+
+Input 2. Files. Optional. The case text, the judgment, or the case notes.
+
+Input 3. Provenance record. Required.
+
+Input 4. Work reference. Optional.
+
+Input 5. Query.
+
+Input 6. Aggregation query.
+
+Input 7. Authentication credentials.
+
+Input 8. Bulk import file.
+
+Input 9. Bulk export query.
+
+4. Output Specification
+Output 1. Legal case record. JSON.
+
+Output 2. PROV-O serialization.
+
+Output 3. Turtle serialization.
+
+Output 4. Query result. JSON.
+
+Output 5. Aggregation result. JSON.
+
+Output 6. Full-text search result. JSON.
+
+Output 7. Precedent graph. JSON or a rendered graph.
+
+Output 8. Citation network. JSON or a rendered network.
+
+Output 9. Precedent timeline. JSON or a rendered timeline.
+
+Output 10. Jurisdiction map. JSON or a rendered map.
+
+Output 11. Related cases. JSON.
+
+Output 12. Bulk export file.
+
+Output 13. Audit log entry. JSON.
+
+Output 14. API response. JSON.
+
+Output 15. GraphQL response. JSON.
+
+Output 16. Backup file.
+
+5. Module-by-Module Specification
+Module 1. Legal Case Schema.
+
+Defines the structure of a legal case deposit.
+
+Module 2. Database Schema.
+
+The tables and indexes.
+
+Module 3. Legal Case Loader.
+
+Reads and validates a legal case deposit.
+
+Module 4. Legal Case Writer.
+
+Writes a legal case deposit to the database.
+
+Module 5. Legal Case Reader.
+
+Reads a legal case deposit from the database.
+
+Module 6. Legal Case Updater.
+
+Updates a legal case deposit.
+
+Module 7. Legal Case Deleter.
+
+Deletes a legal case deposit.
+
+Module 8. Query Engine.
+
+Executes queries.
+
+Module 9. Full-Text Search Engine.
+
+Executes full-text search.
+
+Module 10. Aggregation Engine.
+
+Executes aggregation queries.
+
+Module 11. Exporter.
+
+Exports a legal case as JSON, PROV-O, and Turtle.
+
+Module 12. Importer.
+
+Imports a legal case from JSON.
+
+Module 13. Bulk Import and Export.
+
+Bulk operations.
+
+Module 14. REST API.
+
+HTTP endpoints.
+
+Module 15. GraphQL API.
+
+GraphQL endpoint.
+
+Module 16. Command-Line Interface.
+
+Administration commands.
+
+Module 17. Authentication and Authorization.
+
+Access control.
+
+Module 18. Audit Logging.
+
+Logs operations.
+
+Module 19. Backup and Restore.
+
+Database backup and restore.
+
+Module 20. Web Interface.
+
+Depositing, browsing, querying.
+
+Module 21. Moderation Workflow.
+
+Moderation of legal cases.
+
+Module 22. Precedent Graph.
+
+Visualises the cases as nodes and the precedents as edges.
+
+Module 23. Citation Network.
+
+Visualises the citation relationships between cases.
+
+Module 24. Precedent Timeline.
+
+Visualises the precedents over time.
+
+Module 25. Jurisdiction Map.
+
+Visualises the cases by jurisdiction and court hierarchy.
+
+Module 26. Related-Case Finder.
+
+Finds cases related to a given one.
+
+Module 27. Migration Manager.
+
+Database migrations.
+
+6. Full Legal Case Specification
+6.1 Legal Case Schema
+The legal case schema defines the structure of a legal case deposit.
+
+It has the following fields:
+
+case_id. A string. Required.
+
+case_name. A string. Required.
+
+citation. A string. Required.
+
+court. A string. Required.
+
+date_decided. A string in ISO8601 format. Required.
+
+jurisdiction. A string. Required.
+
+subject_matter. An array of strings. Required.
+
+holding. An object. Required. It contains statement and rule_type.
+
+key_phrases. An array of strings. Optional.
+
+summary. A string. Required.
+
+precedents_established. An array of precedent objects. Optional.
+
+precedents_followed. An array of precedent objects. Optional.
+
+precedents_distinguished. An array of precedent objects. Optional.
+
+precedents_overruled. An array of precedent objects. Optional.
+
+overruled_by. An array of precedent objects. Optional.
+
+related_cases. An array of case relations. Optional.
+
+judges. An array of judge objects. Optional.
+
+parties. An array of party objects. Optional.
+
+provenance. An object. Required.
+
+work_reference. A string. Optional.
+
+keywords. An array of strings. Optional.
+
+notes. A string. Optional.
+
+moderation_status. An enum. The values are pending, approved, rejected.
+
+version. An integer.
+
+supersedes. A string. Optional.
+
+superseded_by. A string. Optional.
+
+Each precedent object has:
+
+precedent_id. A string.
+
+case_reference. A string.
+
+precedent_type. An enum. The values are followed, distinguished, overruled, doubted, criticised, applied, considered, other.
+
+precedent_strength. An enum. The values are binding, persuasive, not_assessed.
+
+precedent_reason. A string. Optional.
+
+notes. A string. Optional.
+
+Each case relation has:
+
+relation_id. A string.
+
+related_case_id. A string.
+
+relation_type. An enum. The values are same_subject, related, distinguished, overruled, affirmed, reversed, independent.
+
+relation_note. A string. Optional.
+
+Each judge object has:
+
+judge_id. A string.
+
+judge_name. A string.
+
+judge_role. An enum. The values are presiding, concurring, dissenting, other.
+
+Each party object has:
+
+party_id. A string.
+
+party_name. A string.
+
+party_role. An enum. The values are plaintiff, defendant, appellant, respondent, other.
+
+6.2 Database Schema
+The database has the following tables.
+
+legal_case. Holds the legal case records.
+
+Its fields are:
+
+case_id
+
+case_name
+
+citation
+
+court
+
+date_decided
+
+jurisdiction
+
+subject_matter
+
+holding
+
+key_phrases
+
+summary
+
+provenance
+
+keywords
+
+notes
+
+moderation_status
+
+version
+
+supersedes
+
+superseded_by
+
+created_at
+
+updated_at
+
+precedent. Holds the precedent records.
+
+Its fields are:
+
+precedent_id
+
+case_id
+
+case_reference
+
+precedent_type
+
+precedent_strength
+
+precedent_reason
+
+notes
+
+created_at
+
+case_relation. Holds the case relations.
+
+Its fields are:
+
+relation_id
+
+case_id
+
+related_case_id
+
+relation_type
+
+relation_note
+
+created_at
+
+judge. Holds the judge records.
+
+Its fields are:
+
+judge_id
+
+case_id
+
+judge_name
+
+judge_role
+
+created_at
+
+party. Holds the party records.
+
+Its fields are:
+
+party_id
+
+case_id
+
+party_name
+
+party_role
+
+created_at
+
+work_link. Holds the work links.
+
+Its fields are:
+
+link_id
+
+case_id
+
+work_id
+
+created_at
+
+provenance. Holds the provenance records.
+
+Its fields are:
+
+provenance_id
+
+case_id
+
+depositor_id
+
+depositor_affiliation
+
+timestamp
+
+source
+
+tool_version
+
+operation
+
+created_at
+
+audit_log. Holds the audit log entries.
+
+Its fields are:
+
+audit_id
+
+operation
+
+record_type
+
+record_id
+
+depositor_id
+
+timestamp
+
+result
+
+details
+
+created_at
+
+moderation. Holds the moderation records.
+
+Its fields are:
+
+moderation_id
+
+case_id
+
+moderator_id
+
+moderation_status
+
+moderation_date
+
+moderation_notes
+
+created_at
+
+6.3 Referential Integrity
+Every precedent.case_id must exist in legal_case.
+
+Every case_relation.case_id and case_relation.related_case_id must exist in legal_case.
+
+Every judge.case_id must exist in legal_case.
+
+Every party.case_id must exist in legal_case.
+
+Every work_link.case_id must exist in legal_case.
+
+Every provenance.case_id must exist in legal_case.
+
+Every moderation.case_id must exist in legal_case.
+
+The version chain must be acyclic.
+
+The case relation must be symmetric where appropriate.
+
+Every precedent.case_reference must resolve to a case in the graph, or be flagged as unresolved.
+
+6.4 Indexes
+The database has indexes on:
+
+legal_case.case_id
+
+legal_case.case_name
+
+legal_case.citation
+
+legal_case.court
+
+legal_case.date_decided
+
+legal_case.jurisdiction
+
+legal_case.subject_matter
+
+legal_case.moderation_status
+
+legal_case.keywords
+
+precedent.case_id
+
+precedent.case_reference
+
+precedent.precedent_type
+
+precedent.precedent_strength
+
+case_relation.case_id
+
+case_relation.related_case_id
+
+judge.case_id
+
+party.case_id
+
+work_link.case_id
+
+provenance.case_id
+
+provenance.depositor_id
+
+audit_log.operation
+
+audit_log.record_id
+
+moderation.case_id
+
+moderation.moderation_status
+
+Full-text search indexes on the summary, the holding, and the notes.
+
+7. Core Logic as Executable Pseudocode
+7.1 Create Legal Case
+function createLegalCase(legalCase, files, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Validate the case against the schema. If invalid, return an error with the details.
+
+Step 3. If the work reference is present, look it up. If null, flag it as unresolved.
+
+Step 4. Generate a case ID. Set the fields: version 1, moderation_status pending, deposit_date now, depositor_id from auth, depositor_affiliation from auth, provenance from provenance.
+
+Step 5. Insert the legal case.
+
+Step 6. Insert the precedent records, the case relations, the judges, and the parties.
+
+Step 7. Insert the work link if present.
+
+Step 8. Insert the provenance.
+
+Step 9. Insert the moderation record.
+
+Step 10. Insert the audit log entry.
+
+Step 11. Return the case_id and the status created.
+
+7.2 Read Legal Case
+function readLegalCase(caseId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the case. If null, return an error.
+
+Step 3. Read the precedents, the case relations, the judges, the parties, the links, the provenance, and the moderation.
+
+Step 4. Reconstruct the deposit.
+
+Step 5. Insert the audit log entry.
+
+Step 6. Return the deposit.
+
+7.3 Update Legal Case
+function updateLegalCase(caseId, legalCase, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Read the existing case. If null, return an error.
+
+Step 3. Validate the new case.
+
+Step 4. Increment the version. Update the supersedes and superseded_by fields.
+
+Step 5. Insert a provenance record with operation update.
+
+Step 6. Insert an audit log entry.
+
+Step 7. Return the case_id, the version, and the status updated.
+
+7.4 Delete Legal Case
+function deleteLegalCase(caseId, provenance, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Read the existing case. If null, return an error.
+
+Step 3. If soft delete, mark as deleted. Otherwise, remove.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the case_id and the status deleted.
+
+7.5 Query Legal Cases
+function queryLegalCases(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the query.
+
+Step 3. Read the matching cases.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the cases, the count, and the pagination.
+
+7.6 Aggregate Legal Cases
+function aggregateLegalCases(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the aggregation.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the results.
+
+7.7 Full-Text Search
+function fullTextSearch(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the search.
+
+Step 3. Read the matching cases.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the cases and the count.
+
+7.8 Export Legal Case
+function exportLegalCase(caseId, format, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the deposit.
+
+Step 3. If json, output the deposit. If provo, export to PROV-O. If turtle, serialize to Turtle.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the output and the format.
+
+7.9 Bulk Import
+function bulkImport(file, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Parse the file.
+
+Step 3. For each case, call createLegalCase.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the results and the count.
+
+7.10 Bulk Export
+function bulkExport(query, format, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the matching cases.
+
+Step 3. If json, output the list. If jsonl, output one line per case. If provo, export each one.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the output and the count.
+
+7.11 Moderate Legal Case
+function moderateLegalCase(caseId, moderationStatus, moderationNotes, auth):
+
+Step 1. validateAuth(auth, "moderator"). If not authorized, return an error.
+
+Step 2. Read the existing case. If null, return an error.
+
+Step 3. Update the moderation status. Insert a moderation record.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the case_id and the status.
+
+7.12 Precedent Graph
+function precedentGraph(auth, options):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read all legal cases.
+
+Step 3. Read all precedents.
+
+Step 4. Build the graph with cases as nodes and precedents as directed edges.
+
+Step 5. Return the graph.
+
+7.13 Citation Network
+function citationNetwork(auth, options):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read all legal cases.
+
+Step 3. Read all case relations.
+
+Step 4. Build the network with cases as nodes and citations as edges.
+
+Step 5. Return the network.
+
+7.14 Precedent Timeline
+function precedentTimeline(subjectMatter, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read all legal cases for the subject matter.
+
+Step 3. Build the timeline with the date decided and the precedents established.
+
+Step 4. Return the timeline.
+
+7.15 Jurisdiction Map
+function jurisdictionMap(auth, options):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read all legal cases.
+
+Step 3. Build the map with jurisdictions as regions and courts as positions within the hierarchy.
+
+Step 4. Return the map.
+
+7.16 Find Related Cases
+function findRelatedCases(caseId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the case. If null, return an error.
+
+Step 3. Find cases with the same subject matter, the same court, or the same precedents.
+
+Step 4. Return the related cases.
+
+7.17 Audit Log
+function auditLog(query, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Build and execute the query.
+
+Step 3. Return the results.
+
+7.18 Backup
+function backup(auth, options):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. If sql, dump as SQL. If json, dump as JSON.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the output and the format.
+
+7.19 Restore
+function restore(file, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Load the database from the file.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the status restored.
+
+8. Data Model
+The graph's internal state is the set of tables. The API's internal state is a request object and a response object.
+
+Request object:
+
+operation
+
+resource
+
+record_id
+
+record_json
+
+query
+
+auth
+
+Response object:
+
+status
+
+result
+
+error
+
+audit_id
+
+9. Architecture
+Module breakdown:
+
+Legal Case Schema.
+
+Database Schema.
+
+Legal Case Loader.
+
+Legal Case Writer.
+
+Legal Case Reader.
+
+Legal Case Updater.
+
+Legal Case Deleter.
+
+Query Engine.
+
+Full-Text Search Engine.
+
+Aggregation Engine.
+
+Exporter.
+
+Importer.
+
+Bulk Import and Export.
+
+REST API.
+
+GraphQL API.
+
+Command-Line Interface.
+
+Authentication and Authorization.
+
+Audit Logging.
+
+Backup and Restore.
+
+Web Interface.
+
+Moderation Workflow.
+
+Precedent Graph.
+
+Citation Network.
+
+Precedent Timeline.
+
+Jurisdiction Map.
+
+Related-Case Finder.
+
+Migration Manager.
+
+Data flow:
+
+API requests go to the REST or GraphQL API.
+
+The API calls the legal case loader, writer, reader, updater, deleter, query engine, search engine, aggregation engine, exporter, or importer.
+
+The database schema stores the data.
+
+The audit logging records every operation.
+
+The authentication and authorization check access.
+
+The moderation workflow handles moderation.
+
+The precedent graph, the citation network, the precedent timeline, and the jurisdiction map visualise.
+
+The related-case finder finds relations.
+
+The backup and restore handle backup.
+
+The web interface provides depositing, browsing, and querying.
+
+10. Technology Stack
+Recommended for the database:
+
+Database: PostgreSQL 15+ or SQLite 3.40+.
+
+Language: Python 3.11+ or Node.js 20+.
+
+ORM: SQLAlchemy or Prisma.
+
+Migrations: Alembic or Prisma Migrate.
+
+Full-text search: PostgreSQL tsvector or SQLite FTS5.
+
+Recommended for the REST API:
+
+Framework: FastAPI or Express.
+
+Authentication: FastAPI Users or Passport.
+
+Recommended for the GraphQL API:
+
+Framework: Strawberry or Apollo Server.
+
+Recommended for the command-line interface:
+
+Framework: Click or Commander.
+
+Recommended for the web interface:
+
+Frontend: React or Svelte.
+
+Backend: the same as the REST API.
+
+Recommended for deployment:
+
+Containerization: Docker.
+
+Orchestration: Docker Compose or Kubernetes.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The STAG schema (Artifact 2, Appendix B.1).
+
+The PROV-O exporter (App 3).
+
+The STAG schema library (App 17).
+
+The provenance database (App 20).
+
+The revision history viewer (App 7).
+
+The STAG Graph Viewer (App 5).
+
+The Physics Knowledge Library (App 23).
+
+The Numerical Verification Tool (App 22).
+
+The Autofill Library Service (App 49).
+
+11. UI/UX Specification
+REST API:
+
+Base URL: https://api.example.com/v1.
+
+Authentication: Bearer token.
+
+Endpoints:
+
+GET /cases.
+
+GET /cases/{id}.
+
+POST /cases.
+
+PUT /cases/{id}.
+
+DELETE /cases/{id}.
+
+GET /cases/{id}/provo.
+
+GET /cases/{id}/turtle.
+
+GET /cases/{id}/precedents.
+
+GET /cases/{id}/relations.
+
+GET /cases/{id}/judges.
+
+GET /cases/{id}/parties.
+
+GET /cases/{id}/related.
+
+GET /cases/{id}/work.
+
+GET /cases/by-court/{court}.
+
+GET /cases/by-jurisdiction/{jurisdiction}.
+
+GET /cases/by-subject/{subject}.
+
+GET /cases/{id}/precedent-timeline.
+
+GET /jurisdictions/map.
+
+POST /query.
+
+POST /aggregate.
+
+POST /search.
+
+GET /graph.
+
+GET /citation-network.
+
+POST /bulk/import.
+
+POST /bulk/export.
+
+POST /moderate/{id}.
+
+GET /audit.
+
+Responses in JSON.
+
+HTTP status codes: 200, 201, 204, 400, 401, 403, 404, 409, 422, 500.
+
+GraphQL API:
+
+Endpoint: https://api.example.com/graphql.
+
+Schema exposes the entities and their relationships.
+
+Command-line interface:
+
+Usage: legal-precedent-graph [command] [options].
+
+Commands: init, migrate, backup, restore, import, export, query, aggregate, moderate, audit.
+
+Web interface:
+
+A browsable list of cases.
+
+A deposit form.
+
+A search box.
+
+A filter panel.
+
+An aggregation view.
+
+A precedent graph.
+
+A citation network.
+
+A precedent timeline.
+
+A jurisdiction map.
+
+A detail view for each case.
+
+A moderation view.
+
+12. Validation Engine Design
+The graph validates the following.
+
+Validation 1. Case validity. Every case is validated against the schema.
+
+Validation 2. Referential integrity.
+
+Validation 3. Version chain acyclicity.
+
+Validation 4. Work resolution.
+
+Validation 5. Provenance completeness.
+
+Validation 6. Audit completeness.
+
+Validation 7. Moderation completeness.
+
+Validation 8. Precedent resolution. Every case_reference must resolve or be flagged.
+
+Validation 9. Precedent consistency. The precedent type and strength must be consistent.
+
+Validation 10. Date consistency. The date decided must be consistent with the precedents it follows.
+
+Validation 11. Court hierarchy consistency. The court must be consistent with the jurisdiction.
+
+13. Testing Strategy
+Unit tests:
+
+Legal Case Schema for valid and invalid cases.
+
+Database Schema for each table and index.
+
+Legal Case Loader.
+
+Legal Case Writer.
+
+Legal Case Reader.
+
+Legal Case Updater.
+
+Legal Case Deleter.
+
+Query Engine.
+
+Full-Text Search Engine.
+
+Aggregation Engine.
+
+Exporter.
+
+Importer.
+
+Bulk Import and Export.
+
+REST API.
+
+GraphQL API.
+
+Command-Line Interface.
+
+Authentication and Authorization.
+
+Audit Logging.
+
+Backup and Restore.
+
+Web Interface.
+
+Moderation Workflow.
+
+Precedent Graph.
+
+Citation Network.
+
+Precedent Timeline.
+
+Jurisdiction Map.
+
+Related-Case Finder.
+
+Migration Manager.
+
+Integration tests:
+
+Create a case. Read it back.
+
+Update a case.
+
+Delete a case.
+
+Query by each field.
+
+Aggregate by each dimension.
+
+Search by full text.
+
+Export as JSON, PROV-O, and Turtle.
+
+Bulk import and export.
+
+Backup and restore.
+
+Moderate a case.
+
+Generate the precedent graph.
+
+Generate the citation network.
+
+Generate the precedent timeline.
+
+Generate the jurisdiction map.
+
+Worked-example tests:
+
+Deposit Marbury v. Madison (1803).
+
+Deposit Brown v. Board of Education (1954).
+
+Deposit Roe v. Wade (1973).
+
+Deposit Donoghue v. Stevenson (1932).
+
+Deposit Mabo v. Queensland (1992).
+
+Deposit R v. Dudley and Stephens (1884).
+
+Deposit the case of Carlill v. Carbolic Smoke Ball Co (1893).
+
+Deposit the case of Hedley Byrne v. Heller (1964).
+
+Regression tests:
+
+Case determinism.
+
+Query consistency.
+
+Aggregation consistency.
+
+Audit log consistency.
+
+Moderation consistency.
+
+Precedent resolution.
+
+Precedent consistency.
+
+Date consistency.
+
+Court hierarchy consistency.
+
+14. Build Phases
+Phase 1. Legal Case Schema.
+
+Phase 2. Database Schema.
+
+Phase 3. Legal Case Loader.
+
+Phase 4. Legal Case Writer.
+
+Phase 5. Legal Case Reader.
+
+Phase 6. Legal Case Updater.
+
+Phase 7. Legal Case Deleter.
+
+Phase 8. Query Engine.
+
+Phase 9. Full-Text Search Engine.
+
+Phase 10. Aggregation Engine.
+
+Phase 11. Exporter.
+
+Phase 12. Importer.
+
+Phase 13. Bulk Import and Export.
+
+Phase 14. REST API.
+
+Phase 15. GraphQL API.
+
+Phase 16. Command-Line Interface.
+
+Phase 17. Authentication and Authorization.
+
+Phase 18. Audit Logging.
+
+Phase 19. Backup and Restore.
+
+Phase 20. Web Interface.
+
+Phase 21. Moderation Workflow.
+
+Phase 22. Precedent Graph.
+
+Phase 23. Citation Network.
+
+Phase 24. Precedent Timeline.
+
+Phase 25. Jurisdiction Map.
+
+Phase 26. Related-Case Finder.
+
+Phase 27. Migration Manager.
+
+Phase 28. Worked-example tests.
+
+Phase 29. Integration testing and hardening.
+
+Phase 30. Packaging and deployment.
+
+15. Dependencies
+Python path:
+
+SQLAlchemy.
+
+Alembic.
+
+FastAPI.
+
+Strawberry.
+
+FastAPI Users.
+
+Click.
+
+psycopg2.
+
+sqlite3.
+
+jsonschema.
+
+hashlib.
+
+json.
+
+pytest.
+
+Node.js path:
+
+Prisma.
+
+Express.
+
+Apollo Server.
+
+Passport.
+
+Commander.
+
+pg.
+
+better-sqlite3.
+
+ajv.
+
+crypto.
+
+JSON.
+
+Vitest.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The STAG schema (Artifact 2, Appendix B.1).
+
+The PROV-O exporter (App 3).
+
+The STAG schema library (App 17).
+
+The provenance database (App 20).
+
+The revision history viewer (App 7).
+
+The STAG Graph Viewer (App 5).
+
+The Physics Knowledge Library (App 23).
+
+The Numerical Verification Tool (App 22).
+
+The Autofill Library Service (App 49).
+
+16. Deployment Notes
+Database:
+
+PostgreSQL for multi-user deployments.
+
+SQLite for single-user deployments.
+
+Backup and restore via pg_dump and pg_restore or the SQLite backup API.
+
+REST API:
+
+Deploy with Docker. Stateless. Scale horizontally.
+
+Use a reverse proxy for TLS.
+
+Log every request for audit.
+
+GraphQL API:
+
+Deploy alongside the REST API.
+
+Use a query depth limit and a query complexity limit.
+
+Command-line interface:
+
+Package as a standalone executable.
+
+Distribute via pip, npm, or a direct download.
+
+Web interface:
+
+Deploy the frontend as a static bundle.
+
+Backend with FastAPI or Express.
+
+Reproducibility:
+
+Record the STAG schema version, the legal case schema version, and the graph version.
+
+Record the provenance for every deposit.
+
+Provide a version pin for the schemas and codebook.
+
+17. Open Questions to Resolve Before Building
+Question 1. Which runtime first? Python or Node.js.
+
+Question 2. Which database first? PostgreSQL or SQLite.
+
+Question 3. How should the graph handle the court hierarchy? A fixed taxonomy, or an open set.
+
+Question 4. How should the graph handle the jurisdiction? A fixed taxonomy, or an open set.
+
+Question 5. How should the graph handle the precedent type? A fixed set of eight values, or an open set.
+
+Question 6. How should the graph handle the precedent strength? A fixed set of three values, or an open set.
+
+Question 7. How should the graph handle the case relation? Manual entry, or automatic detection.
+
+Question 8. How should the graph handle the moderation workflow? Pending until approved, auto-approved, or require a moderator.
+
+Question 9. How should the graph handle the work reference? Required, optional, or optional depending on the case type.
+
+Question 10. How should the graph handle the precedent graph? A directed graph, a citation network, or both.
+
+Question 11. How should the graph handle the citation network? A directed graph, a heat map, or both.
+
+Question 12. How should the graph handle the precedent timeline? A line plot, a Gantt chart, or both.
+
+Question 13. How should the graph handle the jurisdiction map? A tree, a network graph, or both.
+
+Question 14. Should the graph integrate with the STAG schema library (App 17), the provenance database (App 20), the revision history viewer (App 7), the STAG Graph Viewer (App 5), and the Physics Knowledge Library (App 23)?
+
+Question 15. Should the graph support federation with other instances of itself?
+
+Question 16. How should the graph handle the deposit of a case that is already in the graph? Reject, create a new version, or create a separate record with a cross-reference.
+
+Question 17. Should the graph support autofill via App 49? If so, which library does it register?
+
+Question 18. Should the graph support a citator function that shows the subsequent history of a case?
+
+Question 19. Should the graph support a Shepardisation function that shows whether a case is still good law?
+
+Question 20. Should the graph support a conflict checker that identifies conflicting precedents?
+
+End of build specification for App 37, the Legal Precedent Graph.
