@@ -1,0 +1,691 @@
+Build Specification — App 1: STAG Annotation Editor
+Completeness status: COMPLETE. All sections delivered in one pass. No truncation. Formatted for copy-paste into another conversation window. No tables, no boxes.
+
+What It Is
+A desktop or web application where one annotator builds one STAG (Scale-Transition Annotation Graph) annotation record from start to finish. It walks the annotator through the specification's panels in order, enforces every schema rule, derives the display label and the anchoring status automatically, reports them together, and refuses to save a record that breaks a schema rule.
+
+Core Requirements
+Functional requirements:
+
+Walk the annotator through panels in specification order (Artifact 1, Section 7; Artifact 2, Appendix B).
+
+Enforce the node identity tuple rule: N = (S, M, G).
+
+Enforce the M-equivalence witness requirement (Rule 24).
+
+Enforce regime fallbacks (Rule 20).
+
+Enforce the entailment basis decision tree (Artifact 1, Section 7.3).
+
+Enforce the scale-separation record requirements (Artifact 1, Section 7.5).
+
+Enforce the partition audit (Rules 7, 26; Artifact 1, Sections 5.8, 7.7, 7.8).
+
+Derive the display label automatically (Artifact 1, Section 7.6).
+
+Derive the evidential anchoring status automatically (Artifact 1, Section 1.2; Rule 29).
+
+Report display label and anchoring status together in every rendering (Artifact 1, Section 7.10).
+
+Refuse to save a record that breaks any of the 32 semantic rules (Artifact 2, Appendix B.2).
+
+Non-functional requirements:
+
+Single-annotator, single-record workflow.
+
+Usable by domain scientists, ontology engineers, research groups.
+
+Output compatible with JSON Schema and SHACL schema (Artifact 2).
+
+Reproducible: same inputs produce same outputs.
+
+Deterministic derivation: no randomness in label or anchoring computation.
+
+Input Specification
+Declared partition. Partition ID, version, domain entries, partition kind, admissibility status, justification. Required.
+
+Declared granularity. The G component of the node tuple. Required.
+
+Candidate descriptions. Each with S, M, G components. Required.
+
+Matching rules. Pre-registered rules for S, M, G matching. Required.
+
+M-equivalence rule version. Version of the exact-reparametrization rule. Required.
+
+Model reference. The model or formalism. Required.
+
+Theory version. Theory/model version under which annotation is produced. Required.
+
+Annotator provenance. Annotator ID, date, affiliation. Required.
+
+Existing annotation. For revision or supersession workflows. Optional.
+
+Output Specification
+Annotation record. JSON, conforming to JSON Schema (Artifact 2, Appendix B.1).
+
+PROV-O serialization. Turtle or JSON-LD. Optional.
+
+SHACL validation report. Text or JSON. Pass or violations with rule numbers.
+
+Display label. Text. One of seven labels.
+
+Evidential anchoring status. Text. One of six values.
+
+Unclassified reason. Text. If label is STAG-Unclassified.
+
+Flags. Booleans: not_determinable_flag, provisional_flag, threshold_sensitive_flag, regime_not_determinable, identity_partition_sensitive.
+
+Audit log. Text or JSON. Rules checked, fields populated, flags attached.
+
+Panel-by-Panel Specification
+Panel 1: Setup and Pre-Registration
+Fields: annotation_id; theory_version; annotator; annotation_date; partition_registry_id; partition_version; partition_kind; partition_admissibility_status; partition_preregistration_date; partition_justification; domain entries; granularity G; matching rules for S, M, G; m_equivalence_rule_version; model_reference.
+
+Rules enforced: Rule 9 (declare matching rules, M-equivalence rule, granularity, partition justification before node identity finalized); Rule 11 (identify theory/model/version); Rule 6 (domain entries belong to partition); Artifact 1 Section 8.2 (admissibility criteria).
+
+Validation: Partition must be admissible or flagged framework-level. If framework-level, warn that cross-domain counterfactual claims will be Untestable (Rule 4).
+
+Panel 2: Candidate Descriptions and Node Identity
+Fields: For each candidate: S, M, G; primary_observable; domains_spanned; validity_regime; solution_method_attribute; purpose_attribute; component-level match decisions; node_identity (merged, new_node, uncertain, not_determinable); m_equivalence_basis; m_equivalence_witness.
+
+Rules enforced: Rule 8; Rule 16; Rule 14; Rule 24; Artifact 1 Section 5.3 (S/M/G matching rules; truncation rules; integrating out rules).
+
+Validation: Merged decision with different Lagrangians and missing m_equivalence_basis or m_equivalence_witness is a validation error. If S, M, G all match, force merged. If any component does not match, offer new_node or uncertain.
+
+Panel 3: Regime Attribute
+Fields: regime_attribute.value; domain_specific_label; framework_value_mapping; order_parameter; control_parameter_point; phase_diagram_source; value_bands_if_crossover; regime_band_source; regime_band_analyst_chosen.
+
+Rules enforced: Rule 15; Rule 20; Artifact 1 Section 5.2.
+
+Validation: If symmetric, broken, or crossover-band, require order_parameter, control_parameter_point, phase_diagram_source. If phase_diagram_source unavailable, force not_determinable and attach flag. If regime_band_source = analyst_chosen, regime_band_analyst_chosen must be true.
+
+Panel 4: Effective-Description Change
+Fields: effective_description_change (Yes-strong, Yes-weak, No, Uncertain); effective_description_change_kind; evidence per criterion; external_justification for ΔAPP and ΔEFT; EXPERT expert records.
+
+Rules enforced: Artifact 1 Section 4.1 (ΔDOF, ΔPC, ΔSYM, ΔAPP, ΔEFT, ΔCOL, ΔBIND, EXPERT definitions); Section 4.2 (Yes-strong, Yes-weak, No, Uncertain); Rule 5; Rule 23.
+
+Validation: If ΔDOF fires alone, set Yes-weak. If ΔAPP or ΔEFT fires, require external_justification. If EXPERT fires, require at least three expert records.
+
+Panel 5: Intervention Classification and Entailment Basis
+Fields: intervention_classification; entailment_basis; cited_structural_result; cited_numerical_result; intervention_source_domains; intervention_target_domain; intervention_kind; defining_coupling_intervention; cross_domain_intervention_available; reason_if_not_performed.
+
+Rules enforced: Artifact 1 Section 7.1 (E1 to E4 definitions and mapping); Section 7.3 (decision tree); Rule 18; Rule 31.
+
+Validation: Decision tree implemented as wizard. If annotator cannot decide, log and require second rater. If cited_structural_result required but missing, refuse. If any applicability condition lacks witness, force E4.
+
+Panel 6: Cross-Domain Counterfactual Dependence and Material-Change Test
+Fields: cross_domain_counterfactual_dependence; model_reference; counterfactual_intervention; counterfactual_description; counterfactual_result; material_change_test; material_change_test_justification; material_change_result; quantities_held_fixed; independence_of_material_change_evidence; material_change_test_result_independence; domain_mismatch.
+
+Rules enforced: Artifact 1 Section 7.2 (value definitions); Section 7.4 (material change); Rules 1, 3, 17, 19, 25, 28; Artifact 1 Section 13.2 (independence rating procedures).
+
+Validation: Two independence rating procedures implemented as guided questionnaires. If Yes or No and Non_definitional, require full material-change block. If Not_tested but intervention_classification is not Not_applicable, refuse.
+
+Panel 7: Scale-Separation Record
+Fields: ratio; expansion_parameter; scale_microscopic; scale_collective; source_each; scale_separation_source_kind; scale_inference_source; unit_conversion_if_needed; minimum; band_declared; band_min_ratio; band_max_ratio; band_source; band_source_citation; dimensionless; control_parameter_value; control_parameter_source; analyst_dependence_acknowledged; analyst_dependence_note.
+
+Rules enforced: Artifact 1 Section 7.5; Rule 7.
+
+Validation: Compute ratio and expansion parameter. Check ratio against minimum. If source_kind = model_internal, warn STAG-Discovered unreachable. If band_source = analyst_chosen, set analyst_dependence_acknowledged = true and warn condition (b) fails. Compute band_min_ratio.
+
+Panel 8: Partition Sensitivity and Identity-Splitting Audit
+Fields: partition_sensitivity; alternative_partition_ids; partition_untested_flag; splitting_partition_id; splitting_would_change_label; splitting_audit_note; identity_partition_sensitive.
+
+Rules enforced: Rule 7; Artifact 1 Sections 5.8, 7.8.
+
+Validation: If merged and label above STAG-Unclassified, require identity-splitting audit. If new_node, require partition sensitivity instead. If splitting_would_change_label = true, set identity_partition_sensitive = true.
+
+Panel 9: Derived Display Label and Evidential Anchoring
+Fields computed: derived_display_label; evidential_anchoring or evidential_anchoring_status; unclassified_reason; not_determinable_flag; provisional_flag; threshold_sensitive_flag; regime_not_determinable; identity_partition_sensitive.
+
+Rules enforced: Artifact 1 Section 7.6 (decision tree); Section 1.2 (four anchoring conditions); Rules 21, 26, 29, 30, 33; Section 7.10.
+
+Validation: Compute label and anchoring status, display together. If any dependent field not_determinable, attach flag. If any dependent field inconclusive, attach provisional_flag. If STAG-Discovered, require anchoring status computed and displayed.
+
+Panel 10: Extension-Tier Fields
+Fields: threshold_provenance; characteristic_scale; reversibility; physical_status; graph_status; underlying_science_status; stag_implementation_status; statistical_gap_result; dependence_gap_discordance.
+
+Rules enforced: Artifact 1 Sections 6, 8.6, 8.8, 9, 10.
+
+Validation: Optional but required when applicable. If threshold_provenance populated, summary label must be consistent.
+
+Panel 11: Composition, Derived-From, Revision, Supersession
+Fields: composition; event_node; derived_from_source_node; derived_from_target_node; derivation_kind; derivation_specification; supersedes; superseded_by.
+
+Rules enforced: Rules 10, 12, 13, 22; Artifact 1 Section 8.5.
+
+Validation: If composite, require event node with at least two source nodes. If derived-from recorded, require derivation_kind and derivation_specification. Check supersession chains for cycles.
+
+Panel 12: Evidence, Uncertainty, Annotator Provenance
+Fields: evidence; uncertainty; alternative_classifications; annotator; protocol_cross_reference; confidence.
+
+Rules enforced: Artifact 1 Section 14.1; Section 12.
+
+Validation: Require annotator provenance and theory version before save. Require evidence for each core-tier field.
+
+Panel 13: Save and Export
+Actions: Validate entire record against JSON Schema, SHACL schema, and 32 semantic rules. If fail, display violations with rule numbers. If pass, save JSON. Optionally export PROV-O and SHACL report. Display label and anchoring status together with all flags.
+
+Full Rule Enforcement Table (All 32 Rules)
+Rule 1. Trigger: intervention_classification = Non_definitional and cross_domain_counterfactual_dependence = Yes or No. Action: Require model_reference, counterfactual_intervention, counterfactual_description, counterfactual_result, material_change_test, material_change_result.
+
+Rule 2. Trigger: Precedence as in Section 7.2. Action: Apply precedence order.
+
+Rule 3. Trigger: cross_domain_counterfactual_dependence = Yes. Action: Require source and target domains span at least two distinct declared domains.
+
+Rule 4. Trigger: partition_kind = framework_level. Action: Force cross_domain_counterfactual_dependence = Untestable and unclassified_reason = inadmissible_partition.
+
+Rule 5. Trigger: effective_description_change = Yes-strong and includes ΔAPP or ΔEFT. Action: Require external_justification.
+
+Rule 6. Trigger: All domain entries. Action: Must belong to partition_registry_id and partition_version.
+
+Rule 7. Trigger: derived_display_label = STAG-Discovered. Action: Require partition_sensitivity; scale_separation; ratio at or above minimum; source_kind = external_value or external_coefficient; band_declared, band_min_ratio, band_max_ratio; band_source; band_source_citation if external_reference; independence fields. If STAG-Definitional or STAG-Intra, require partition_sensitivity.
+
+Rule 8. Trigger: Node identity. Action: Established from (S, M, G) alone, before transition attributes.
+
+Rule 9. Trigger: Every annotation. Action: Declare tuple-matching rules, M-equivalence rule, granularity, partition justification before node identity finalized.
+
+Rule 10. Trigger: Supersession. Action: Must be acyclic.
+
+Rule 11. Trigger: Every annotation. Action: Identify theory, model, or scientific version.
+
+Rule 12. Trigger: composition = composite. Action: Require event_node and at least two source_nodes.
+
+Rule 13. Trigger: composition not composite. Action: event_node absent; self-loops carry regime_change.
+
+Rule 14. Trigger: validity_regime. Action: Must not be consulted when determining node identity.
+
+Rule 15. Trigger: Regime attribute. Action: Required for every node. If symmetric, broken, or crossover-band, require order_parameter, control_parameter_point, phase_diagram_source, domain_specific_label, framework_value_mapping. If crossover-band, require value_bands_if_crossover, regime_band_source, regime_band_analyst_chosen.
+
+Rule 16. Trigger: Two descriptions share S, M, G. Action: node_identity must be merged.
+
+Rule 17. Trigger: Not_tested. Action: Permitted only when intervention_classification = Not_applicable. Intervention performed with no result recorded is validation error. Intervention performed with result but uncertain material-change classification requires Uncertain.
+
+Rule 18. Trigger: intervention_classification = Definitional or Definitional(expertise-dependent). Action: Require cited_structural_result with result_reference, applicability_conditions, conditions_check (each condition plus condition_witness). Witness must name specific equation, term, kernel, parameter range, or regime condition and cite source. General property only is validation error. If any condition lacks witness, force E4 and Definitional(expertise-dependent). If numerical result cited for Non_definitional, require cited_numerical_result with citation, result_summary, classification_effect, citation_scope.
+
+Rule 19. Trigger: cross_domain_counterfactual_dependence = Intra_domain. Action: intervention_source_domains non-empty, contained within single declared domain; intervention_target_domain same domain; cross_domain_intervention_available populated.
+
+Rule 20. Trigger: regime_attribute.value = not_determinable. Action: Record regime_not_determinable = true; retain label with flag.
+
+Rule 21. Trigger: derived_display_label = STAG-Unclassified. Action: unclassified_reason populated and displayed.
+
+Rule 22. Trigger: Structural relation between two M's (integration_out or truncation). Action: Record as derived-from edge, not M-equivalence.
+
+Rule 23. Trigger: effective_description_change = Yes-weak. Action: derived_display_label = STAG-Unclassified with unclassified_reason = weak_effective_description_basis.
+
+Rule 24. Trigger: Merged decision on two descriptions with different Lagrangians. Action: m_equivalence_basis and m_equivalence_witness both populated.
+
+Rule 25. Trigger: domain_mismatch. Action: True if and only if intervention_target_domain not in set of domains to which source and target nodes are assigned under declared partition_id and partition_version.
+
+Rule 26. Trigger: agreement_outcome = inconclusive for any core-tier field on which derived label depends. Action: derived label reported with provisional_flag = true.
+
+Rule 27. Trigger: cross_domain_counterfactual_dependence = Intra_domain and material-change classification = Uncertain. Action: derived_display_label = STAG-Unclassified with unclassified_reason = uncertain.
+
+Rule 28. Trigger: material_change_test = class change. Action: material_change_test_justification must state classification scheme.
+
+Rule 29. Trigger: evidential_anchoring_status (STAG-Discovered only). Action: anchored if and only if all four conditions; anchored_with_stated_limitations if all four but at least one flagged interpretive or convention-dependent; preliminary if used to develop or illustrate codebook; candidate if proposed as possible instance. Operational: condition (a) cited_numerical_result.citation_scope = annotated_model or annotator computation; condition (b) band_source = external_reference, band_source_citation populated, band_min_ratio at or above minimum; condition (c) independence_of_material_change_evidence = independent; condition (d) material_change_test_result_independence = independent.
+
+Rule 30. Trigger: Non-STAG-Discovered annotations. Action: evidential_anchoring_status = not_applicable or not_assessed.
+
+Rule 31. Trigger: defining_coupling_intervention = true. Action: Second independent rater required; case excluded from STAG-Discovered unless second rater confirms intervention classification and material-change result.
+
+Rule 32. Trigger: agreement_outcome differs between 0.5 and 0.7 thresholds. Action: threshold_sensitive_flag = true; falsification status of dependent label reported as threshold-dependent.
+
+Rule 33. Trigger: Any field marked not_determinable because load-bearing source cannot be verified. Action: Label retained with not_determinable flag attached and displayed alongside; flag recorded under not_determinable_flag.
+
+Core Logic as Executable Pseudocode
+7.1 Display Label Derivation (Artifact 1, Section 7.6)
+function deriveDisplayLabel(record):
+
+Step 1. If record.effective_description_change == "No": return null (no transition recorded).
+
+Step 2. If record.effective_description_change == "Uncertain": return {label: "STAG-Unclassified", reason: "uncertain"}.
+
+Step 3. If record.effective_description_change == "Yes-weak": return {label: "STAG-Unclassified", reason: "weak_effective_description_basis"}.
+
+Step 4 (Yes-strong). Set cfd = record.cross_domain_counterfactual_dependence; ic = record.intervention_classification; ss = record.scale_separation.
+
+Step 4a. If cfd == "Intra_domain": if record.material_change_classification == "Uncertain" return {label: "STAG-Unclassified", reason: "uncertain"}; if ic in ["Definitional", "Definitional(expertise-dependent)"] return {label: "STAG-Intra-Definitional"}; if ic == "Non_definitional" return {label: "STAG-Intra-Non_definitional"}; if ic == "Not_applicable" return {label: "STAG-Intra"}.
+
+Step 4b. If ic in ["Definitional", "Definitional(expertise-dependent)"] and isCrossDomain(record): return {label: "STAG-Definitional"}.
+
+Step 4c. If ic == "Non_definitional" and cfd == "Yes" and scaleSeparationSatisfies(ss): return {label: "STAG-Discovered", anchoring: deriveAnchoringStatus(record)}.
+
+Step 4d. If cfd == "Yes" and (ss is null or ss.source_kind == "model_internal" or ss.ratio < ss.minimum): if ss is null return {label: "STAG-Unclassified", reason: "insufficient_scale_separation"}; return {label: "STAG-Unclassified", reason: "model_internal_scale_separation"}.
+
+Step 4e. If cfd == "No": return {label: "STAG-None"}.
+
+Step 4f. If cfd == "Not_tested": return {label: "STAG-Unclassified", reason: "not_tested"}.
+
+Step 4g. If cfd == "Untestable": return {label: "STAG-Unclassified", reason: "untestable_model or inadmissible_partition"}.
+
+Step 4h. If cfd == "Uncertain": return {label: "STAG-Unclassified", reason: "uncertain"}.
+
+Step 4i. If cfd == "not_determinable" or ic == "not_determinable": if isCrossDomain(record) return {label: "STAG-Definitional", not_determinable_flag: true}; if scaleSeparationSatisfies(ss) return {label: "STAG-Discovered", not_determinable_flag: true, anchoring: deriveAnchoringStatus(record)}.
+
+7.2 Evidential Anchoring Status (Artifact 1, Section 1.2; Rule 29)
+function deriveAnchoringStatus(record):
+
+If record.derived_display_label is not "STAG-Discovered": return "not_applicable" or "not_assessed".
+
+Set cond_a = (record.cited_numerical_result.citation_scope == "annotated_model") or record.material_change_computed_by_annotator.
+
+Set cond_b = (record.scale_separation.band_source == "external_reference") and (record.scale_separation.band_source_citation is populated) and (record.scale_separation.band_min_ratio >= record.scale_separation.minimum).
+
+Set cond_c = (record.independence_of_material_change_evidence == "independent").
+
+Set cond_d = (record.material_change_test_result_independence == "independent").
+
+If cond_a and cond_b and cond_c and cond_d: if anyConditionFlaggedInterpretive(record) return "anchored_with_stated_limitations"; return "anchored".
+
+If record.used_to_develop_codebook: return "preliminary".
+
+If record.proposed_as_possible_instance: return "candidate".
+
+Return "preliminary" (default for unanchored STAG-Discovered).
+
+7.3 Entailment Basis Decision Tree (Artifact 1, Section 7.3)
+function determineEntailmentBasis(intervention, sources):
+
+Step 1. If not setsTermOrKernelToZero(intervention): continue.
+
+Step 2. If followsFromSymbolicFormAlone(intervention): return "E1".
+
+Step 3. If hasCitableResult(intervention, sources): conditions = getApplicabilityConditions(intervention, sources); for c in conditions: if not hasWitness(c) return "E4"; if anyConditionUnconfirmableOrContested(conditions) return "E4"; return "E2".
+
+Step 4. If not hasCitableResult(intervention, sources): return "E3".
+
+Step 5. If cannotDecide(intervention, sources): logForSecondRater(); return "not_determinable".
+
+If not sourcesVerifiable(sources): return "not_determinable".
+
+7.4 Scale-Separation Satisfaction (Artifact 1, Section 7.5)
+function scaleSeparationSatisfies(ss):
+
+If ss is null: return false.
+
+If ss.source_kind == "model_internal": return false.
+
+If ss.ratio < ss.minimum: return false.
+
+If ss.source_kind == "external_value": return ss.has_external_scale_value.
+
+If ss.source_kind == "external_coefficient": return ss.has_external_coefficient and ss.band_declared.
+
+Return false.
+
+7.5 Partition Audit (Artifact 1, Sections 5.8, 7.7, 7.8)
+function runPartitionAudit(record):
+
+Set label = record.derived_display_label.
+
+If label in ["STAG-Unclassified", "STAG-None"]: return (audit not required).
+
+If label in ["STAG-Discovered", "STAG-Definitional", "STAG-Intra", "STAG-Intra-Definitional", "STAG-Intra-Non_definitional"]: require record.partition_sensitivity; require record.alternative_partition_ids.length >= 1; recomputeLabelsUnderAlternativePartitions(record).
+
+If record.node_identity == "merged" and label above STAG-Unclassified: require record.splitting_partition_id; require record.splitting_would_change_label (boolean); require record.splitting_audit_note; if record.splitting_would_change_label set record.identity_partition_sensitive = true.
+
+If record.partition.intra_domain_rate > 0.60: triggerAuditProcedure(record.partition).
+
+7.6 M-Equivalence Validation (Artifact 1, Section 5.3; Rule 24)
+function validateMEquivalence(record):
+
+If record.node_identity == "merged": if record.descriptions.have_different_lagrangians: if not record.m_equivalence_basis or not record.m_equivalence_witness raise ValidationError("Rule 24: merged decision on different Lagrangians requires both m_equivalence_basis and m_equivalence_witness"); if record.m_equivalence_basis not in ["field_redefinition", "basis_change", "gauge_fixing", "exact_duality"] raise ValidationError("M-equivalence restricted to exact reparametrizations").
+
+7.7 Derived-From vs. M-Equivalence (Rule 22)
+function classifyStructuralRelation(relation):
+
+If relation.kind in ["integration_out", "truncation"]: if relation.is_exact_effective_action return "M_equivalence"; else return "derived_from".
+
+Return "M_equivalence".
+
+Data Model / JSON Schema for Internal State
+The internal state is a single JSON object conforming to Artifact 2, Appendix B.1. Top-level keys:
+
+annotation_id (string)
+
+theory_version (string)
+
+annotator (object: id, affiliation)
+
+annotation_date (ISO8601)
+
+source_nodes (array of node_id)
+
+target_nodes (array of node_id)
+
+event_node_id (string or null)
+
+node_identity (object: S, M, G, primary_observable, decision, component_matches, matching_rule_version, m_equivalence_rule_version, m_equivalence_basis, m_equivalence_witness, solution_method_attribute, domains_spanned, granularity, confidence)
+
+domain_annotation (object)
+
+regime_attribute (object: value, domain_specific_label, framework_value_mapping, order_parameter, control_parameter_point, phase_diagram_source, value_bands_if_crossover, regime_band_source, regime_band_analyst_chosen, regime_not_determinable)
+
+validity_regime (string)
+
+purpose_attribute (string)
+
+composition (composite or non_composite)
+
+effective_description_change (Yes-strong, Yes-weak, No, Uncertain)
+
+effective_description_change_kind (string)
+
+intervention_classification (Definitional, Definitional(expertise-dependent), Non_definitional, Not_applicable, not_determinable)
+
+entailment_basis (E1, E2, E3, E4, not_determinable)
+
+cited_structural_result (object)
+
+cited_numerical_result (object)
+
+cross_domain_counterfactual_dependence (Yes, No, Definitional_only, Not_tested, Intra_domain, Untestable, Uncertain, not_determinable)
+
+intervention_source_domains (array)
+
+intervention_target_domain (string)
+
+intervention_kind (boundary_term, defining_coupling, subdominant_coupling, other)
+
+defining_coupling_intervention (boolean)
+
+cross_domain_intervention_available (Yes, No, Uncertain)
+
+reason_if_not_performed (string)
+
+domain_mismatch (boolean)
+
+model_reference (string)
+
+counterfactual_intervention (string)
+
+counterfactual_description (string)
+
+counterfactual_result (string)
+
+material_change_test (string)
+
+material_change_test_justification (string)
+
+material_change_result (string)
+
+quantities_held_fixed (array)
+
+independence_of_material_change_evidence (independent, shared_assumption, not_assessed)
+
+material_change_test_result_independence (independent, shared_assumption, not_assessed)
+
+partition_registry_id (string)
+
+partition_version (string)
+
+partition_kind (decompositional, framework_level)
+
+partition_admissibility_status (string)
+
+partition_preregistration_date (ISO8601)
+
+partition_justification (string)
+
+intra_domain_rate (number)
+
+partition_sensitivity (object)
+
+alternative_partition_ids (array)
+
+partition_untested_flag (boolean)
+
+splitting_partition_id (string)
+
+splitting_would_change_label (boolean)
+
+splitting_audit_note (string)
+
+identity_partition_sensitive (boolean)
+
+scale_separation (object)
+
+derived_from_source_node (string)
+
+derived_from_target_node (string)
+
+derivation_kind (integration_out, truncation)
+
+derivation_specification (string)
+
+derived_display_label (string, computed)
+
+evidential_anchoring (string, computed)
+
+unclassified_reason (string)
+
+threshold_provenance (object)
+
+characteristic_scale (object)
+
+reversibility (reversible, irreversible, condition-dependent, unknown)
+
+physical_status (D, E, P, O)
+
+graph_status (F, R, A)
+
+underlying_science_status (established, candidate, heuristic, open)
+
+stag_implementation_status (tested, pilot-tested, untested, disputed)
+
+statistical_gap_result (string)
+
+dependence_gap_discordance (string)
+
+agreement_outcome (pass, inconclusive, fail)
+
+provisional_flag (boolean)
+
+threshold_sensitive_flag (boolean)
+
+not_determinable_flag (boolean)
+
+evidential_anchoring_status (anchored, anchored_with_stated_limitations, candidate, preliminary, not_assessed, not_applicable)
+
+confidence (number)
+
+alternative_classifications (array)
+
+evidence (object)
+
+protocol_cross_reference (string)
+
+supersedes (string)
+
+superseded_by (string)
+
+Architecture
+Module breakdown:
+
+UI Layer. Panel renderer, form state manager, navigation controller.
+
+Panel Controllers. One per panel, each with field validation and rule hooks.
+
+Rule Engine. Executes the 32 semantic rules in order; returns violations.
+
+Label Derivation Engine. Implements Section 7.6 decision tree.
+
+Anchoring Engine. Implements Section 1.2 conditions.
+
+Entailment Basis Engine. Implements Section 7.3 decision tree.
+
+Scale-Separation Calculator. Computes ratio, expansion parameter, band minimum.
+
+Partition Audit Engine. Implements Sections 5.8, 7.7, 7.8.
+
+Schema Validator. Runs JSON Schema and SHACL.
+
+PROV-O Exporter. Maps record to PROV-O.
+
+Persistence Layer. Saves and loads JSON records.
+
+Audit Logger. Records rules checked, fields populated, flags attached.
+
+Data flow:
+
+User input goes to Panel Controller, which updates Form State. On panel exit, Rule Engine runs. Label Derivation Engine computes label. Anchoring Engine computes anchoring status. On save, Schema Validator runs. Then Persistence or Export.
+
+Technology Stack
+Recommended for desktop:
+
+Language: Python 3.11+ or TypeScript/Node.js.
+
+UI: PyQt6 or Tauri (Rust plus web frontend).
+
+JSON Schema: jsonschema (Python) or ajv (JS).
+
+SHACL: pyshacl (Python) or rdf-validate-shacl (JS).
+
+PROV-O: rdflib (Python) or n3 (JS).
+
+Recommended for web:
+
+Frontend: React or Svelte.
+
+Backend: FastAPI (Python) or Express (Node.js).
+
+Schema validation: jsonschema or ajv.
+
+SHACL: pyshacl or rdf-validate-shacl.
+
+Storage: SQLite (local) or PostgreSQL (server).
+
+Shared:
+
+Rule engine: plain functions, no framework dependency.
+
+Label and anchoring engines: pure functions, unit-testable.
+
+JSON Schema: Draft 2020-12.
+
+SHACL: SHACL Core.
+
+UI/UX Specification
+Layout: Left sidebar with panel navigation (13 panels, in order). Main area with active panel form. Right sidebar with live preview of derived label, anchoring status, and flags. Bottom bar with validation status and save/export buttons.
+
+Navigation: Linear progression enforced. Can go back. Cannot skip forward unless panel is optional. Panel completion indicator per panel. Save disabled until all required panels pass validation.
+
+Error display: Inline field errors (red border, message below field). Rule violations shown in a collapsible panel with rule number and offending field. Derived label and anchoring status always visible in right sidebar, never hidden.
+
+Flags display: not_determinable_flag shown as a banner above the label. provisional_flag shown as a badge next to the label. threshold_sensitive_flag shown as a badge. regime_not_determinable shown as a badge. identity_partition_sensitive shown as a badge.
+
+Validation Engine Design
+The rule engine executes rules in numeric order (1 to 33). Each rule is a function:
+
+function ruleN(record) returns ValidationResult.
+
+If not trigger(record): return PASS.
+
+If condition_satisfied(record): return PASS.
+
+Return FAIL with rule number N, offending field, and message.
+
+Rules run at two points: on panel exit (subset relevant to that panel) and on save (all rules).
+
+Testing Strategy
+Unit tests:
+
+Each rule function tested with a passing record and a failing record.
+
+Label derivation tested against all seven labels and all unclassified reasons.
+
+Anchoring derivation tested against all six values.
+
+Entailment basis tested against E1, E2, E3, E4, not_determinable.
+
+Scale-separation calculator tested against the worked example in Artifact 1, Section 11.2 (ratio 18.2, expansion parameter approximately 0.055).
+
+Integration tests:
+
+Full record built panel by panel, saved, reloaded, re-validated.
+
+PROV-O export tested against the Turtle serialization in Artifact 1, Section 8.5.
+
+SHACL validation tested against the worked examples.
+
+Worked-example tests:
+
+Artifact 1, Section 11.1 (Fröhlich/Eliashberg): label STAG-Definitional, anchoring not_applicable, not_determinable flag attached.
+
+Artifact 1, Section 11.2 (two-layer Ising): label STAG-Discovered, anchoring preliminary, not_determinable flag attached.
+
+Artifact 1, Section 11.3 (two-band superconductor): label STAG-None, anchoring not_assessed.
+
+Artifact 1, Section 11.4 (glass transition): label STAG-Unclassified, reason inadmissible_partition.
+
+Artifact 1, Section 11.5 (QCD crossover): label STAG-Unclassified, reason not_tested.
+
+Regression tests:
+
+Supersession chain acyclicity.
+
+Empty-W convention consistency.
+
+Tie-breaking rule consistency.
+
+Build Phases
+Phase 1. Data model and schema. Implement JSON Schema, internal state object, persistence layer.
+
+Phase 2. Rule engine. Implement all 32 rules as pure functions with unit tests.
+
+Phase 3. Label derivation engine. Implement Section 7.6 decision tree with unit tests.
+
+Phase 4. Anchoring engine. Implement Section 1.2 conditions with unit tests.
+
+Phase 5. Entailment basis engine. Implement Section 7.3 decision tree with unit tests.
+
+Phase 6. Scale-separation calculator. Implement computation and anchoring flag.
+
+Phase 7. Partition audit engine. Implement Sections 5.8, 7.7, 7.8.
+
+Phase 8. UI panels. Implement 13 panels with navigation and error display.
+
+Phase 9. Live preview. Implement right sidebar with label, anchoring status, flags.
+
+Phase 10. Save and export. Implement JSON save, PROV-O export, SHACL validation report.
+
+Phase 11. Worked-example tests. Load the five worked examples and verify outputs.
+
+Phase 12. Integration testing and hardening.
+
+Dependencies
+Python path: jsonschema, pyshacl, rdflib, PyQt6 (or Tauri if using Rust plus web frontend), pytest.
+
+JavaScript path: ajv, rdf-validate-shacl, n3, React or Svelte, Express or Fastify, Vitest or Jest.
+
+Shared: JSON Schema Draft 2020-12, SHACL Core, PROV-O vocabulary.
+
+Deployment Notes
+Desktop: package as standalone executable (PyInstaller for Python, Tauri build for Rust plus web). No server required. Local file storage.
+
+Web: deploy backend with FastAPI or Express. Frontend as static bundle. Storage in SQLite (single-user) or PostgreSQL (multi-user). HTTPS required for any multi-user deployment.
+
+Reproducibility: record software versions, schema versions, and rule engine version in every saved record under protocol_cross_reference.
+
+Open Questions to Resolve Before Building
+Question 1. Which runtime? Python or TypeScript. Decision affects UI framework, schema library, and packaging.
+
+Question 2. Desktop or web first? Desktop is simpler for single-annotator use. Web is needed for collaboration and journal submission checking.
+
+Question 3. How is the annotator's independence rating captured? The documents specify the rating procedure (list assumptions, classify as independent, shared_assumption, or not_assessed) but not the UI. Decision needed: free-text lists plus a dropdown, or a structured assumption-entry widget.
+
+Question 4. How is the entailment basis decision tree presented? The documents specify a five-step procedure. Decision needed: linear wizard, or a single form with conditional fields.
+
+Question 5. How are alternative partitions loaded for the partition sensitivity check? The documents require at least one alternative admissible partition. Decision needed: manual entry, or a partition registry lookup.
+
+Question 6. How is the SHACL validation report displayed? Decision needed: inline in the save panel, or as a separate export.
+
+Question 7. What is the minimum viable set of panels for a first release? The documents specify 13 panels. Decision needed: build all 13 at once, or build core-tier panels first (1 to 9) and add extension-tier panels (10 to 12) later.
+
+Question 8. How is the audit log structured? The documents require recording rules checked, fields populated, and flags attached, but not the format. Decision needed: JSON lines, or a structured object.
+
+Question 9. Where does the PROV-O export go? Decision needed: same file as the JSON record, separate file, or both.
+
+Question 10. How does the editor handle the not_determinable propagation? The documents specify that not_determinable propagates from the entailment basis to intervention_classification to cross_domain_counterfactual_dependence. Decision needed: automatic propagation, or manual confirmation at each step.
+
+End of build specification for App 1
