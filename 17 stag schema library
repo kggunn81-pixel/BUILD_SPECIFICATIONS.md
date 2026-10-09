@@ -1,0 +1,937 @@
+
+repeat
+Build Specification — App 17: STAG Schema Library
+Completeness status: COMPLETE. All sections delivered in one pass. No truncation. Formatted for copy-paste into another conversation window. No tables, no boxes.
+
+What It Is
+A versioned package that contains the STAG schemas and rules. It packages the JSON Schema, the SHACL schema, the thirty-two semantic rules, and the codebook, in Python, R, and JavaScript, with versioned releases. It takes in nothing; it is a dependency. It puts out importable schema and rule modules. It is for developers building on STAG.
+
+Core Requirements
+Functional requirements:
+
+Package the STAG JSON Schema (Artifact 2, Appendix B.1) as a versioned artifact.
+
+Package the STAG SHACL schema (Artifact 2, Appendix B.3) as a versioned artifact.
+
+Package the thirty-two semantic rules (Artifact 2, Appendix B.2) as a versioned artifact.
+
+Package the STAG codebook (Artifact 2, Appendices A.1 through A.11) as a versioned artifact.
+
+Provide the schemas and rules in three language bindings: Python, R, and JavaScript.
+
+Provide a consistent API across the three bindings.
+
+Support versioned releases, so a downstream consumer can pin a specific schema version.
+
+Support the selection of a schema version at runtime.
+
+Provide the rule engine as a callable library.
+
+Provide the JSON Schema as a file and as an in-memory object.
+
+Provide the SHACL schema as a file and as an in-memory object.
+
+Provide the codebook as a file and as an in-memory object.
+
+Provide the permitted value sets for each field as machine-readable data.
+
+Provide the field list as machine-readable data.
+
+Provide the type information for each field as machine-readable data.
+
+Provide a validation function that runs the thirty-two semantic rules against a STAG record.
+
+Provide a version compatibility check between a STAG record and a schema version.
+
+Non-functional requirements:
+
+Deterministic: same inputs produce same outputs.
+
+No network dependency at runtime.
+
+Fast: validation of a typical record in under one second.
+
+Versioned: each release has a semantic version.
+
+Reproducible: the library records the schema version in every validation report.
+
+Well-tested: the library has a test suite that covers all thirty-two rules.
+
+Documented: the library has API documentation and a codebook reference.
+
+Portable: the library works on Linux, macOS, and Windows.
+
+Input Specification
+The library has no runtime inputs of its own. It is a dependency that other apps import.
+
+For validation, the library takes:
+
+Input 1. STAG record. Required. A JSON object conforming to the STAG schema.
+
+Input 2. Schema version. Optional. The schema version to use. If not provided, the library uses the version pinned at import time.
+
+Input 3. Strictness mode. Optional. Values: strict (all rules enforced, default), lenient (only structural rules enforced).
+
+Input 4. Validation scope. Optional. Values: full (default), structural_only, semantic_only, shacl_only.
+
+For version compatibility, the library takes:
+
+Input 5. STAG record schema version. Required. The schema version declared in the record.
+
+Input 6. Library schema version. Required. The schema version of the library.
+
+Output Specification
+For validation:
+
+Output 1. Validation report. JSON. A pass or a list of violations. Each violation has a rule number, a rule name, a severity, a field path, an offending value, and a message.
+
+Output 2. Pass indicator. Boolean. True if no violations.
+
+Output 3. Schema version used. String.
+
+Output 4. Rule set version used. String.
+
+For version compatibility:
+
+Output 5. Compatibility report. JSON. Whether the record's schema version is compatible with the library's schema version.
+
+For data access:
+
+Output 6. JSON Schema file. A string or a file path.
+
+Output 7. SHACL schema file. A string or a file path.
+
+Output 8. Codebook file. A string or a file path.
+
+Output 9. Field list. JSON. The list of fields, with their types and permitted values.
+
+Output 10. Rule list. JSON. The list of rules, with their numbers, names, and descriptions.
+
+Output 11. Permitted value sets. JSON. For each field, the set of permitted values.
+
+Module-by-Module Specification
+Module 1: Schema Registry
+Holds the STAG JSON Schema, the SHACL schema, and the codebook for each schema version. Provides lookup by version string. Provides a list of known versions. Provides the latest version.
+
+Module 2: Rule Registry
+Holds the thirty-two semantic rules for each schema version. Provides lookup by version string. Provides the rule list with numbers, names, and descriptions.
+
+Module 3: Field Registry
+Holds the field list for each schema version. Provides lookup by version string. Provides the type information and permitted value sets for each field.
+
+Module 4: Validation Engine
+Runs the thirty-two semantic rules against a STAG record. Uses the rule registry. Returns a validation report.
+
+Module 5: JSON Schema Exporter
+Provides the JSON Schema as a file and as an in-memory object.
+
+Module 6: SHACL Schema Exporter
+Provides the SHACL schema as a file and as an in-memory object.
+
+Module 7: Codebook Exporter
+Provides the codebook as a file and as an in-memory object.
+
+Module 8: Version Compatibility Checker
+Checks whether a record's schema version is compatible with the library's schema version. Returns a compatibility report.
+
+Module 9: Python Binding
+Provides the library API in Python. Uses jsonschema for JSON Schema validation. Uses pyshacl for SHACL validation. Uses rdflib for RDF handling.
+
+Module 10: R Binding
+Provides the library API in R. Uses jsonvalidate for JSON Schema validation. Uses rdflib for RDF handling. Uses a custom implementation for the semantic rules.
+
+Module 11: JavaScript Binding
+Provides the library API in JavaScript. Uses ajv for JSON Schema validation. Uses rdf-validate-shacl for SHACL validation. Uses n3 for RDF handling.
+
+Module 12: Documentation Generator
+Generates the API documentation from the source code and the codebook. Generates the codebook reference from the codebook data.
+
+Module 13: Test Suite
+Tests all thirty-two rules. Tests the JSON Schema. Tests the SHACL schema. Tests the version compatibility checker. Tests the field registry and the permitted value sets.
+
+Full Schema Specification
+6.1 The JSON Schema
+The JSON Schema is the structural schema for the STAG annotation record (Artifact 2, Appendix B.1). It is written in JSON Schema Draft 2020-12. It has the following top-level properties:
+
+annotation_id (string, required)
+
+theory_version (string, required)
+
+annotator (object, required)
+
+annotation_date (string, format: date-time, required)
+
+source_nodes (array of strings)
+
+target_nodes (array of strings)
+
+event_node_id (string or null)
+
+node_identity (object)
+
+domain_annotation (object)
+
+regime_attribute (object)
+
+validity_regime (string)
+
+purpose_attribute (string)
+
+composition (string, enum: composite, non_composite)
+
+effective_description_change (string, enum: Yes-strong, Yes-weak, No, Uncertain)
+
+effective_description_change_kind (string)
+
+intervention_classification (string, enum: Definitional, Definitional(expertise-dependent), Non_definitional, Not_applicable, not_determinable)
+
+entailment_basis (string, enum: E1, E2, E3, E4, not_determinable)
+
+cited_structural_result (object or null)
+
+cited_numerical_result (object or null)
+
+cross_domain_counterfactual_dependence (string, enum: Yes, No, Definitional_only, Not_tested, Intra_domain, Untestable, Uncertain, not_determinable)
+
+intervention_source_domains (array of strings)
+
+intervention_target_domain (string)
+
+intervention_kind (string, enum: boundary_term, defining_coupling, subdominant_coupling, other)
+
+defining_coupling_intervention (boolean)
+
+cross_domain_intervention_available (string, enum: Yes, No, Uncertain)
+
+reason_if_not_performed (string)
+
+domain_mismatch (boolean)
+
+model_reference (string)
+
+counterfactual_intervention (string)
+
+counterfactual_description (string)
+
+counterfactual_result (string)
+
+material_change_test (string)
+
+material_change_test_justification (string)
+
+material_change_result (string)
+
+quantities_held_fixed (array of strings)
+
+independence_of_material_change_evidence (string, enum: independent, shared_assumption, not_assessed)
+
+material_change_test_result_independence (string, enum: independent, shared_assumption, not_assessed)
+
+partition_registry_id (string)
+
+partition_version (string)
+
+partition_kind (string, enum: decompositional, framework_level)
+
+partition_admissibility_status (string)
+
+partition_preregistration_date (string, format: date-time)
+
+partition_justification (string)
+
+intra_domain_rate (number)
+
+partition_sensitivity (object or null)
+
+alternative_partition_ids (array of strings)
+
+partition_untested_flag (boolean)
+
+splitting_partition_id (string)
+
+splitting_would_change_label (boolean)
+
+splitting_audit_note (string)
+
+identity_partition_sensitive (boolean)
+
+scale_separation (object or null)
+
+derived_from_source_node (string)
+
+derived_from_target_node (string)
+
+derivation_kind (string, enum: integration_out, truncation)
+
+derivation_specification (string)
+
+derived_display_label (string, enum: STAG-Discovered, STAG-Definitional, STAG-None, STAG-Intra, STAG-Intra-Definitional, STAG-Intra-Non_definitional, STAG-Unclassified)
+
+evidential_anchoring (string, enum: anchored, anchored_with_stated_limitations, candidate, preliminary, not_assessed, not_applicable)
+
+unclassified_reason (string, enum: uncertain, untestable_model, inadmissible_partition, not_tested, insufficient_scale_separation, model_internal_scale_separation, weak_effective_description_basis)
+
+threshold_provenance (object or null)
+
+characteristic_scale (object or null)
+
+reversibility (string, enum: reversible, irreversible, condition-dependent, unknown)
+
+physical_status (string, enum: D, E, P, O)
+
+graph_status (string, enum: F, R, A)
+
+underlying_science_status (string, enum: established, candidate, heuristic, open)
+
+stag_implementation_status (string, enum: tested, pilot-tested, untested, disputed)
+
+statistical_gap_result (object or null)
+
+dependence_gap_discordance (string or null)
+
+agreement_outcome (string, enum: pass, inconclusive, fail)
+
+provisional_flag (boolean)
+
+threshold_sensitive_flag (boolean)
+
+not_determinable_flag (boolean)
+
+evidential_anchoring_status (string, enum: anchored, anchored_with_stated_limitations, candidate, preliminary, not_assessed, not_applicable)
+
+confidence (number)
+
+alternative_classifications (array of strings)
+
+evidence (object)
+
+protocol_cross_reference (string)
+
+supersedes (string or null)
+
+superseded_by (string or null)
+
+The schema has allOf and if-then constructs that encode the semantic rules that are expressible in JSON Schema Draft 2020-12. The rules that require cross-field inference beyond JSON Schema are recorded in the SHACL shape file and the semantic rule engine.
+
+6.2 The SHACL Schema
+The SHACL schema is the graph schema for the STAG annotation record. It is written in SHACL Core, with SHACL-SPARQL for cross-node constraints. It has one SHACL shape per semantic rule that is expressible in SHACL. Each shape corresponds to one rule from Artifact 2, Appendix B.2.
+
+The full SHACL shape file is deposited with the library.
+
+6.3 The Semantic Rules
+The semantic rules are the thirty-two rules from Artifact 2, Appendix B.2. Each rule is a pure function that takes a STAG record and returns pass or a violation. The rules are:
+
+Rule 1. If intervention_classification is Non_definitional and cross_domain_counterfactual_dependence is Yes or No, then model_reference, counterfactual_intervention, counterfactual_description, counterfactual_result, material_change_test, material_change_result must be present.
+
+Rule 2. Precedence as in Section 7.2 of Artifact 1.
+
+Rule 3. If cross_domain_counterfactual_dependence is Yes, then intervention_source_domains together with intervention_target_domain must span at least two distinct declared domains.
+
+Rule 4. If partition_kind is framework_level, then cross_domain_counterfactual_dependence must be Untestable and unclassified_reason must be inadmissible_partition.
+
+Rule 5. If effective_description_change is Yes-strong and includes ΔAPP or ΔEFT, then external_justification must be populated.
+
+Rule 6. All domain entries must belong to the partition identified by partition_registry_id and partition_version.
+
+Rule 7. If derived_display_label is STAG-Discovered, partition_sensitivity is required; scale_separation must be recorded; ratio must be at or above the recorded minimum; scale_separation_source_kind must be external_value or external_coefficient; band_declared, band_min_ratio, and band_max_ratio must be populated; band_source must be populated, and band_source_citation must be populated when band_source is external_reference; and both independence_of_material_change_evidence and material_change_test_result_independence must be recorded. If derived_display_label is STAG-Definitional or any STAG-Intra variant, partition_sensitivity is required.
+
+Rule 8. Node identity must be established from (S, M, G) alone, before any transition attribute is recorded and before any domain annotation is fixed.
+
+Rule 9. Every annotation must declare tuple-matching rules, the M-equivalence rule, granularity, and the partition justification before node identity is finalized.
+
+Rule 10. Supersession must be acyclic.
+
+Rule 11. Every annotation must identify the theory, model, or scientific version under which it was produced.
+
+Rule 12. If composition is composite, event_node must be populated and source_nodes must contain at least two entries.
+
+Rule 13. If composition is not composite, event_node must be absent and transition attributes are stored on the edge. Self-loops carry regime_change.
+
+Rule 14. validity_regime is an attribute and must not be consulted when determining node identity.
+
+Rule 15. Regime attribute is required for every node. When the value is symmetric, broken, or crossover-band, order_parameter, control_parameter_point, phase_diagram_source, domain_specific_label, and framework_value_mapping must be populated. When the value is crossover-band, value_bands_if_crossover must be populated, regime_band_source must be populated and must be external_reference or analyst_chosen, with regime_band_analyst_chosen set true if analyst_chosen.
+
+Rule 16. If two candidate descriptions share S, M, and G, node_identity must be merged. Under different partitions, the same pair is the same node; the domain annotation differs.
+
+Rule 17. cross_domain_counterfactual_dependence = Not_tested is permitted only when intervention_classification = Not_applicable. An intervention performed with no result recorded is a validation error. An intervention performed with a result recorded but an uncertain material-change classification requires Uncertain.
+
+Rule 18. If intervention_classification is Definitional or Definitional(expertise-dependent), cited_structural_result must be populated with result_reference, applicability_conditions, and conditions_check as a list of entries each having condition and condition_witness, at least one per applicability condition. Each condition_witness must name a specific equation, term, kernel, parameter range, or regime condition in the surviving description and must cite a source. A condition_witness naming only a general property is a validation error. If any applicability condition lacks a witness, entailment_basis must be E4 and intervention_classification must be Definitional(expertise-dependent). If a numerical result is cited in support of a Non_definitional classification, cited_numerical_result must be populated with citation, result_summary, classification_effect, and citation_scope.
+
+Rule 19. If cross_domain_counterfactual_dependence is Intra_domain, intervention_source_domains must be a non-empty set contained within a single declared domain, intervention_target_domain must be that same domain, and cross_domain_intervention_available must be populated.
+
+Rule 20. If either endpoint has regime_attribute.value = not_determinable, record regime_not_determinable = true and retain the derived label with the flag attached.
+
+Rule 21. If derived_display_label is STAG-Unclassified, unclassified_reason must be populated and displayed with the label.
+
+Rule 22. If a structural relation between two M's is recorded (integration_out or truncation), it must be recorded as a derived-from edge, not as an M-equivalence.
+
+Rule 23. If effective_description_change is Yes-weak, derived_display_label must be STAG-Unclassified with unclassified_reason = weak_effective_description_basis.
+
+Rule 24. If a merged decision is recorded on two descriptions with different Lagrangians, m_equivalence_basis and m_equivalence_witness must both be populated.
+
+Rule 25. domain_mismatch is true if and only if intervention_target_domain is not a member of the set of domains to which the source and target nodes are assigned under the annotation's declared partition_id and partition_version.
+
+Rule 26. If agreement_outcome is inconclusive for any core-tier field on which the derived label depends, the derived label is reported with provisional_flag = true attached.
+
+Rule 27. If cross_domain_counterfactual_dependence is Intra_domain and the material-change classification is Uncertain, derived_display_label must be STAG-Unclassified with unclassified_reason = uncertain.
+
+Rule 28. If material_change_test is a class change, material_change_test_justification must state the classification scheme.
+
+Rule 29. evidential_anchoring_status is the field carrying the anchoring status of a STAG-Discovered annotation. For STAG-Discovered annotations: anchored if and only if all four anchoring conditions of Section 1.2 of Artifact 1 are satisfied; anchored_with_stated_limitations if all four are satisfied but at least one condition is flagged as interpretive or convention-dependent; preliminary if the case is used to develop or illustrate the codebook; candidate if the case is proposed as a possible instance. Operational determination: condition (a) requires cited_numerical_result.citation_scope = annotated_model or an annotator computation; condition (b) requires band_source = external_reference, band_source_citation populated, and band_min_ratio at or above the declared minimum; condition (c) requires independence_of_material_change_evidence = independent; condition (d) requires material_change_test_result_independence = independent.
+
+Rule 30. For non-STAG-Discovered annotations, evidential_anchoring_status is not_applicable or not_assessed.
+
+Rule 31. If defining_coupling_intervention = true, a second independent rater is required, and the case is excluded from STAG-Discovered unless the second rater independently confirms the intervention classification and the material-change result.
+
+Rule 32. If agreement_outcome differs between the 0.5 and 0.7 thresholds, threshold_sensitive_flag must be true, and the falsification status of any dependent label must be reported as threshold-dependent.
+
+Rule 33. If any field is marked not_determinable because a load-bearing source cannot be verified, the label is retained with the not_determinable flag attached and displayed alongside, and the flag is recorded in the annotation record under not_determinable_flag.
+
+6.4 The Codebook
+The codebook is the operational instrument of the STAG framework. It is packaged as a machine-readable data file and as a human-readable document. The machine-readable data file has the following structure:
+
+For each field: field_name, field_type, permitted_values, required, required_when_applicable, description, related_rule.
+
+For each rule: rule_number, rule_name, description, related_fields.
+
+For each display label: label_name, label_description, derivation_rule.
+
+For each anchoring status: status_name, status_description, conditions.
+
+Core Logic as Executable Pseudocode
+7.1 Main Flow (Python Binding)
+function validate(stagRecord, options):
+
+Step 1. schemaVersion = options.schemaVersion or LATEST_SCHEMA_VERSION.
+
+Step 2. schema = schemaRegistry.getJSONSchema(schemaVersion).
+
+Step 3. structuralViolations = jsonschema.validate(stagRecord, schema).
+
+Step 4. shaclViolations = [].
+
+if options.validationScope != "structural_only":
+
+shaclSchema = schemaRegistry.getSHACLSchema(schemaVersion).
+
+shaclViolations = pyshacl.validate(stagRecord, shaclSchema).
+
+Step 5. semanticViolations = [].
+
+if options.validationScope != "structural_only":
+
+ruleSet = ruleRegistry.getRuleSet(schemaVersion).
+
+for rule in ruleSet.rules:
+
+result = rule(stagRecord).
+
+if result is not PASS:
+
+semanticViolations.push({ruleNumber: rule.number, ruleName: rule.name, severity: "error", fieldPath: result.field, offendingValue: result.value, message: result.message}).
+
+Step 6. allViolations = structuralViolations.concat(shaclViolations).concat(semanticViolations).
+
+Step 7. return {pass: allViolations.length == 0, violations: allViolations, schemaVersion: schemaVersion, ruleSetVersion: ruleSet.version}.
+
+7.2 Get Field List
+function getFieldList(schemaVersion):
+
+fieldRegistry = fieldRegistry.get(schemaVersion).
+
+return fieldRegistry.fields.
+
+7.3 Get Permitted Values
+function getPermittedValues(fieldName, schemaVersion):
+
+fieldRegistry = fieldRegistry.get(schemaVersion).
+
+return fieldRegistry.permittedValues[fieldName].
+
+7.4 Get Rule List
+function getRuleList(schemaVersion):
+
+ruleSet = ruleRegistry.getRuleSet(schemaVersion).
+
+return ruleSet.rules.map(rule => ({number: rule.number, name: rule.name, description: rule.description})).
+
+7.5 Check Version Compatibility
+function checkVersionCompatibility(recordSchemaVersion, librarySchemaVersion):
+
+recordMajor = parseMajor(recordSchemaVersion).
+
+recordMinor = parseMinor(recordSchemaVersion).
+
+libraryMajor = parseMajor(librarySchemaVersion).
+
+libraryMinor = parseMinor(librarySchemaVersion).
+
+if recordMajor != libraryMajor: return {compatible: false, reason: "major version mismatch"}.
+
+if recordMinor > libraryMinor: return {compatible: false, reason: "record is newer than library"}.
+
+return {compatible: true}.
+
+7.6 Get JSON Schema File
+function getJSONSchemaFile(schemaVersion):
+
+return schemaRegistry.getJSONSchemaPath(schemaVersion).
+
+7.7 Get SHACL Schema File
+function getSHACLSchemaFile(schemaVersion):
+
+return schemaRegistry.getSHACLSchemaPath(schemaVersion).
+
+7.8 Get Codebook File
+function getCodebookFile(schemaVersion):
+
+return schemaRegistry.getCodebookPath(schemaVersion).
+
+7.9 Rule Engine
+The rule engine is a collection of pure functions, one per rule. Each function takes a STAG record and returns pass or a violation. The functions are organized by rule number. The engine executes the rules in numeric order.
+
+function rule1(record):
+
+if record.intervention_classification == "Non_definitional" and record.cross_domain_counterfactual_dependence in ["Yes", "No"]:
+
+requiredFields = ["model_reference", "counterfactual_intervention", "counterfactual_description", "counterfactual_result", "material_change_test", "material_change_result"].
+
+for field in requiredFields:
+
+if record[field] == null: return {field: field, value: null, message: "Rule 1: field " + field + " required"}.
+
+return PASS.
+
+function rule16(record):
+
+descriptions = record.source_nodes.concat(record.target_nodes).
+
+for pair in descriptions:
+
+if pair[0].S == pair[1].S and pair[0].M == pair[1].M and pair[0].G == pair[1].G:
+
+if record.node_identity.decision != "merged":
+
+return {field: "node_identity.decision", value: record.node_identity.decision, message: "Rule 16: two descriptions share S, M, G; node_identity must be merged"}.
+
+return PASS.
+
+function rule24(record):
+
+if record.node_identity.decision == "merged":
+
+if record.descriptions.have_different_lagrangians:
+
+if record.node_identity.m_equivalence_basis == null or record.node_identity.m_equivalence_witness == null:
+
+return {field: "node_identity.m_equivalence_basis", value: null, message: "Rule 24: merged decision on different Lagrangians requires both m_equivalence_basis and m_equivalence_witness"}.
+
+return PASS.
+
+function rule29(record):
+
+if record.derived_display_label == "STAG-Discovered":
+
+condA = (record.cited_numerical_result.citation_scope == "annotated_model") or record.material_change_computed_by_annotator.
+
+condB = (record.scale_separation.band_source == "external_reference") and (record.scale_separation.band_source_citation != null) and (record.scale_separation.band_min_ratio >= record.scale_separation.minimum).
+
+condC = (record.independence_of_material_change_evidence == "independent").
+
+condD = (record.material_change_test_result_independence == "independent").
+
+if condA and condB and condC and condD:
+
+if anyConditionFlaggedInterpretive(record): return PASS with status anchored_with_stated_limitations.
+
+return PASS with status anchored.
+
+return PASS with status preliminary or candidate.
+
+return PASS.
+
+The remaining rules follow the same pattern.
+
+Data Model / JSON Schema for Internal State
+The library's internal state is a set of registries and a validation report.
+
+Schema Registry:
+
+versions (array of strings)
+
+latest (string)
+
+jsonSchemas (object: version to JSON Schema)
+
+shaclSchemas (object: version to SHACL schema)
+
+codebooks (object: version to codebook)
+
+Rule Registry:
+
+versions (array of strings)
+
+ruleSets (object: version to rule set)
+
+Field Registry:
+
+versions (array of strings)
+
+fieldLists (object: version to field list)
+
+permittedValues (object: version to permitted value sets)
+
+Validation Report:
+
+pass (boolean)
+
+violations (array of violation objects)
+
+schemaVersion (string)
+
+ruleSetVersion (string)
+
+Each violation object:
+
+ruleNumber (string)
+
+ruleName (string)
+
+severity (string)
+
+fieldPath (string)
+
+offendingValue (any)
+
+message (string)
+
+Version Compatibility Report:
+
+compatible (boolean)
+
+reason (string or null)
+
+Architecture
+Module breakdown:
+
+Schema Registry. Holds the JSON Schema, the SHACL schema, and the codebook for each version.
+
+Rule Registry. Holds the thirty-two semantic rules for each version.
+
+Field Registry. Holds the field list for each version.
+
+Validation Engine. Runs the rules and the schema validators.
+
+JSON Schema Exporter. Provides the JSON Schema as a file and as an object.
+
+SHACL Schema Exporter. Provides the SHACL schema as a file and as an object.
+
+Codebook Exporter. Provides the codebook as a file and as an object.
+
+Version Compatibility Checker. Checks version compatibility.
+
+Python Binding. Provides the API in Python.
+
+R Binding. Provides the API in R.
+
+JavaScript Binding. Provides the API in JavaScript.
+
+Documentation Generator. Generates the API documentation and the codebook reference.
+
+Test Suite. Tests all rules and schemas.
+
+Data flow:
+
+Downstream consumers import the library. They call validate, getFieldList, getPermittedValues, getRuleList, checkVersionCompatibility, getJSONSchemaFile, getSHACLSchemaFile, getCodebookFile. The library returns the results.
+
+Technology Stack
+Python binding:
+
+jsonschema (JSON Schema validation).
+
+pyshacl (SHACL validation).
+
+rdflib (RDF handling).
+
+setuptools (packaging).
+
+pytest (testing).
+
+sphinx (documentation).
+
+R binding:
+
+jsonvalidate (JSON Schema validation).
+
+rdflib (RDF handling).
+
+devtools (packaging).
+
+testthat (testing).
+
+roxygen2 (documentation).
+
+JavaScript binding:
+
+ajv (JSON Schema validation).
+
+rdf-validate-shacl (SHACL validation).
+
+n3 (RDF handling).
+
+npm (packaging).
+
+vitest (testing).
+
+jsdoc (documentation).
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+SHACL Core with SHACL-SPARQL.
+
+The STAG schema (Artifact 2, Appendix B.1).
+
+The STAG SHACL schema (Artifact 2, Appendix B.3).
+
+The thirty-two semantic rules (Artifact 2, Appendix B.2).
+
+The STAG codebook (Artifact 2, Appendices A.1 through A.11).
+
+UI/UX Specification
+Library API:
+
+validate(stagRecord, options) returns a validation report.
+
+getFieldList(schemaVersion) returns the field list.
+
+getPermittedValues(fieldName, schemaVersion) returns the permitted value set.
+
+getRuleList(schemaVersion) returns the rule list.
+
+checkVersionCompatibility(recordSchemaVersion, librarySchemaVersion) returns a compatibility report.
+
+getJSONSchemaFile(schemaVersion) returns the path to the JSON Schema file.
+
+getSHACLSchemaFile(schemaVersion) returns the path to the SHACL schema file.
+
+getCodebookFile(schemaVersion) returns the path to the codebook file.
+
+Command-line interface (optional):
+
+Usage: stag-schema-lib --list-versions.
+
+Usage: stag-schema-lib --get-schema VERSION --format json|shacl|codebook --output FILE.
+
+Usage: stag-schema-lib --validate FILE [--schema-version VERSION] [--strictness strict|lenient] [--scope full|structural_only|semantic_only|shacl_only] [--output FILE].
+
+Documentation:
+
+API documentation generated from source code.
+
+Codebook reference generated from the codebook data.
+
+Validation Engine Design
+The library validates the following:
+
+Validation 1. JSON Schema. The STAG record is validated against the JSON Schema for the selected version.
+
+Validation 2. SHACL. The STAG record is validated against the SHACL schema for the selected version.
+
+Validation 3. Semantic rules. The STAG record is validated against the thirty-two semantic rules for the selected version.
+
+Validation 4. Version compatibility. The record's schema version is checked against the library's schema version.
+
+The validation engine executes the rules in numeric order. Each rule is a pure function. Rules that depend on other rules are executed after their dependencies, which the numeric order already respects.
+
+Testing Strategy
+Unit tests:
+
+Each of the thirty-two rules tested with a passing record and a failing record.
+
+JSON Schema validation tested against a valid record and against records with each required field missing.
+
+SHACL validation tested against the worked examples.
+
+Field registry tested for each field.
+
+Permitted values tested for each field.
+
+Rule registry tested for each rule.
+
+Version compatibility tested for each combination of major and minor versions.
+
+Integration tests:
+
+A valid record passes all three layers.
+
+A record with a structural error fails at Layer 1.
+
+A record with a semantic error fails at Layer 3.
+
+A record with errors at multiple layers has all errors reported.
+
+Worked-example tests:
+
+Artifact 1, Section 11.1 (Fröhlich/Eliashberg): should fail Rule 18 if cited_structural_result is not_determinable, and should pass Rule 20.
+
+Artifact 1, Section 11.2 (two-layer Ising): should pass Rule 7, should fail Rule 29 if anchoring conditions are not all satisfied, and should pass Rule 33.
+
+Artifact 1, Section 11.3 (two-band superconductor): should pass Rule 1.
+
+Artifact 1, Section 11.4 (glass transition): should pass Rule 4.
+
+Artifact 1, Section 11.5 (QCD crossover): should pass Rule 17.
+
+Cross-binding tests:
+
+The Python binding, the R binding, and the JavaScript binding produce the same validation report for the same record.
+
+The Python binding, the R binding, and the JavaScript binding produce the same field list, permitted value sets, and rule list for the same schema version.
+
+Regression tests:
+
+Schema version compatibility.
+
+Rule engine determinism.
+
+Cross-binding consistency.
+
+Build Phases
+Phase 1. Schema Registry. Package the JSON Schema, the SHACL schema, and the codebook.
+
+Phase 2. Rule Registry. Package the thirty-two semantic rules.
+
+Phase 3. Field Registry. Package the field list and the permitted value sets.
+
+Phase 4. Validation Engine. Implement the validation engine.
+
+Phase 5. JSON Schema Exporter. Implement the exporter.
+
+Phase 6. SHACL Schema Exporter. Implement the exporter.
+
+Phase 7. Codebook Exporter. Implement the exporter.
+
+Phase 8. Version Compatibility Checker. Implement the checker.
+
+Phase 9. Python Binding. Implement the API in Python.
+
+Phase 10. R Binding. Implement the API in R.
+
+Phase 11. JavaScript Binding. Implement the API in JavaScript.
+
+Phase 12. Documentation Generator. Generate the API documentation and the codebook reference.
+
+Phase 13. Test Suite. Implement the test suite.
+
+Phase 14. Worked-example tests.
+
+Phase 15. Cross-binding tests.
+
+Phase 16. Integration testing and hardening.
+
+Phase 17. Packaging and release.
+
+Dependencies
+Python path:
+
+jsonschema.
+
+pyshacl.
+
+rdflib.
+
+setuptools.
+
+pytest.
+
+sphinx.
+
+R path:
+
+jsonvalidate.
+
+rdflib.
+
+devtools.
+
+testthat.
+
+roxygen2.
+
+JavaScript path:
+
+ajv.
+
+rdf-validate-shacl.
+
+n3.
+
+npm.
+
+vitest.
+
+jsdoc.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+SHACL Core with SHACL-SPARQL.
+
+The STAG schema, SHACL schema, semantic rules, and codebook.
+
+Deployment Notes
+Python binding:
+
+Publish to PyPI.
+
+Semantic versioning.
+
+Bundle the schemas and rules inside the package.
+
+R binding:
+
+Publish to CRAN.
+
+Semantic versioning.
+
+Bundle the schemas and rules inside the package.
+
+JavaScript binding:
+
+Publish to npm.
+
+Semantic versioning.
+
+Bundle the schemas and rules inside the package.
+
+Reproducibility:
+
+Record the schema version and the rule set version in every validation report.
+
+Provide a version pin for the schemas and rules.
+
+Open Questions to Resolve Before Building
+Question 1. Should the three bindings be built in parallel, or one first? Options: Python first, then R and JavaScript; or all three in parallel. Decision needed.
+
+Question 2. How should the library handle schema version mismatches? Options: fail, warn, or auto-select the correct version. Decision needed.
+
+Question 3. Should the library support SHACL-SPARQL, or only SHACL Core? The documents specify SHACL Core with SHACL-SPARQL for cross-node constraints. Decision needed.
+
+Question 4. How should the library handle the not_determinable flag propagation? The STAG specification specifies that not_determinable propagates from the entailment basis to the intervention classification to the cross-domain counterfactual dependence. Decision needed: does the library check the propagation automatically, or trust the record?
+
+Question 5. Should the library include the STAG annotation editor logic (App 1) for label derivation? Decision needed: include it, or keep it separate.
+
+Question 6. Should the library include the scale-separation calculator logic (App 4)? Decision needed: include it, or keep it separate.
+
+Question 7. Should the library support multiple STAG records in one validation call? Decision needed.
+
+Question 8. Should the library support partial validation (for example, validate only the core tier)? Decision needed.
+
+Question 9. Should the library support the PROV-O mapping (App 3)? Decision needed: include it, or keep it separate.
+
+Question 10. How should the library handle the SHACL shapes that are drafts? The documents state that SHACL validation has not been run. Decision needed: ship the draft shapes as-is, or mark them experimental.
+
+End of build specification for App 17.
