@@ -1,0 +1,1942 @@
+Build Specification — App 40: The Medical Claim Verifier
+Completeness status: COMPLETE. All sections delivered in one pass. No truncation. Formatted for copy-paste. Long lists are broken into short lines.
+
+1. What It Is
+A provenance-aware, versioned system that records medical claims, their evidence, their replication status, and their revisions. A medical claim is a statement about health, disease, treatment, prevention, diagnosis, or prognosis. The Medical Claim Verifier records each claim with its description, its condition, its intervention, its outcome, the evidence for it, the evidence against it, its replication status, its revisions, and its provenance.
+
+It reuses:
+
+the Physics Knowledge Library (App 23)
+
+the Full-Pipeline Simulator (App 9)
+
+the Null-Model Protocol Library (App 18)
+
+the STAG Audit Tool (App 21)
+
+the Provenance-Aware Annotation Database (App 20)
+
+the PROV-O Exporter (App 3)
+
+the Revision History Viewer (App 7)
+
+the Numerical Verification Tool (App 22)
+
+the Replication Tracker (App 26)
+
+the Evidence Aggregator (App 46)
+
+the Autofill Library Service (App 49)
+
+It is for clinicians, medical researchers, journal editors, patients, and anyone who wants to know what the evidence for a medical claim actually is.
+
+2. Core Requirements
+Functional requirements:
+
+Accept deposits of medical claims from users.
+
+Store each claim with its description, its condition, its intervention, its outcome, and its provenance.
+
+Record the evidence for the claim: the studies, the trials, the meta-analyses, the sample sizes, the effect sizes, the confidence intervals.
+
+Record the evidence against the claim: contrary studies, null results, safety concerns, methodological criticisms.
+
+Record the replication status: not_replicated, replicated, partially_replicated, failed_replication, or uncertain.
+
+Record the revisions: how the claim has changed over time, and why.
+
+Record the level of evidence: systematic_review, randomized_controlled_trial, cohort_study, case_control_study, case_series, case_report, expert_opinion, or other.
+
+Record the grade of recommendation: strong_for, weak_for, weak_against, strong_against, or uncertain.
+
+Record the population and the clinical setting.
+
+Record the safety profile and the adverse events.
+
+Record the conflicts of interest and the funding sources.
+
+Enforce provenance completeness.
+
+Enforce versioning.
+
+Enforce supersession acyclicity.
+
+Support querying by claim ID, description, condition, intervention, outcome, replication status, level of evidence, grade, depositor, deposit date, and keywords.
+
+Support full-text search of the claim description, the evidence, and the notes.
+
+Support aggregation queries: count by condition, by intervention, by level of evidence, by grade, by replication status, by year, by funder.
+
+Support exporting a claim as JSON, PROV-O, and Turtle.
+
+Support importing a claim from JSON.
+
+Support bulk import and bulk export.
+
+Support a REST API for CRUD operations.
+
+Support a GraphQL API for flexible queries.
+
+Support a command-line interface for administration.
+
+Support authentication and authorization.
+
+Support audit logging.
+
+Support backup and restore.
+
+Support a web interface.
+
+Support moderation.
+
+Support linking a claim to a Physics Knowledge Library work if the claim is described in a deposited work.
+
+Support linking a claim to a Full-Pipeline Simulator result if the claim has been tested statistically.
+
+Support linking a claim to a Null-Model Protocol result.
+
+Support linking a claim to a Numerical Verification Tool result.
+
+Support linking a claim to a Replication Tracker record.
+
+Support the claim map: a visualisation of claims by condition and by intervention.
+
+Support the evidence hierarchy view: a visualisation of the evidence for and against a claim, ordered by level of evidence.
+
+Support the replication funnel: a visualisation of the path from the original study to the replication.
+
+Support the safety profile view: a visualisation of the adverse events and the safety signals.
+
+Support the revision timeline: a visualisation of how a claim has changed over time.
+
+Non-functional requirements:
+
+Deterministic.
+
+Fast: query a typical claim in under 100 milliseconds.
+
+Scalable: support up to 10^6 claims.
+
+Versioned: the system records the STAG schema version, the Null-Model Protocol schema version, the medical claim schema version, and the system version.
+
+Reproducible.
+
+Portable.
+
+Well-documented.
+
+3. Input Specification
+Input 1. Medical claim deposit. Required. A deposit object conforming to the medical claim schema.
+
+Input 2. Files. Optional. Studies, trials, meta-analyses, or patient information leaflets.
+
+Input 3. Provenance record. Required.
+
+Input 4. Work reference. Optional.
+
+Input 5. Full-Pipeline Simulator result reference. Optional.
+
+Input 6. Null-Model Protocol result reference. Optional.
+
+Input 7. Numerical verification result reference. Optional.
+
+Input 8. Replication Tracker record reference. Optional.
+
+Input 9. Query.
+
+Input 10. Aggregation query.
+
+Input 11. Authentication credentials.
+
+Input 12. Bulk import file.
+
+Input 13. Bulk export query.
+
+4. Output Specification
+Output 1. Medical claim record. JSON.
+
+Output 2. PROV-O serialization.
+
+Output 3. Turtle serialization.
+
+Output 4. Query result. JSON.
+
+Output 5. Aggregation result. JSON.
+
+Output 6. Full-text search result. JSON.
+
+Output 7. Claim map. JSON or a rendered map.
+
+Output 8. Evidence hierarchy view. JSON or a rendered view.
+
+Output 9. Replication funnel. JSON or a rendered funnel.
+
+Output 10. Safety profile view. JSON or a rendered view.
+
+Output 11. Revision timeline. JSON or a rendered timeline.
+
+Output 12. Related claims. JSON.
+
+Output 13. Bulk export file.
+
+Output 14. Audit log entry. JSON.
+
+Output 15. API response. JSON.
+
+Output 16. GraphQL response. JSON.
+
+Output 17. Backup file.
+
+5. Module-by-Module Specification
+Module 1. Medical Claim Schema.
+
+Defines the structure of a medical claim deposit.
+
+Module 2. Database Schema.
+
+The tables and indexes.
+
+Module 3. Claim Loader.
+
+Reads and validates a medical claim deposit.
+
+Module 4. Claim Writer.
+
+Writes a medical claim deposit to the database.
+
+Module 5. Claim Reader.
+
+Reads a medical claim deposit from the database.
+
+Module 6. Claim Updater.
+
+Updates a medical claim deposit.
+
+Module 7. Claim Deleter.
+
+Deletes a medical claim deposit.
+
+Module 8. Query Engine.
+
+Executes queries.
+
+Module 9. Full-Text Search Engine.
+
+Executes full-text search.
+
+Module 10. Aggregation Engine.
+
+Executes aggregation queries.
+
+Module 11. Exporter.
+
+Exports a claim as JSON, PROV-O, and Turtle.
+
+Module 12. Importer.
+
+Imports a claim from JSON.
+
+Module 13. Bulk Import and Export.
+
+Bulk operations.
+
+Module 14. REST API.
+
+HTTP endpoints.
+
+Module 15. GraphQL API.
+
+GraphQL endpoint.
+
+Module 16. Command-Line Interface.
+
+Administration commands.
+
+Module 17. Authentication and Authorization.
+
+Access control.
+
+Module 18. Audit Logging.
+
+Logs operations.
+
+Module 19. Backup and Restore.
+
+Database backup and restore.
+
+Module 20. Web Interface.
+
+Depositing, browsing, querying.
+
+Module 21. Moderation Workflow.
+
+Moderation of claims.
+
+Module 22. Claim Map.
+
+Visualises claims by condition and by intervention.
+
+Module 23. Evidence Hierarchy View.
+
+Visualises the evidence for and against a claim, ordered by level of evidence.
+
+Module 24. Replication Funnel.
+
+Visualises the path from the original study to the replication.
+
+Module 25. Safety Profile View.
+
+Visualises the adverse events and the safety signals.
+
+Module 26. Revision Timeline.
+
+Visualises how a claim has changed over time.
+
+Module 27. Related-Claim Finder.
+
+Finds claims related to a given one.
+
+Module 28. Migration Manager.
+
+Database migrations.
+
+6. Full Medical Claim Specification
+6.1 Medical Claim Schema
+The medical claim schema defines the structure of a medical claim deposit.
+
+It has the following fields:
+
+claim_id. A string. Required.
+
+claim_name. A string. Required.
+
+claim_description. A string. Required.
+
+condition. An array of strings. Required.
+
+intervention. An object. Required. It contains intervention_type, intervention_name, and intervention_description.
+
+outcome. An array of outcome objects. Required.
+
+population. An object. Required. It contains population_description, age_range, and inclusion_criteria.
+
+clinical_setting. An array of strings. Required.
+
+evidence_for. An array of evidence objects. Required.
+
+evidence_against. An array of evidence objects. Optional.
+
+replication_status. An enum. Required. The values are not_replicated, replicated, partially_replicated, failed_replication, uncertain.
+
+level_of_evidence. An enum. Required. The values are systematic_review, randomized_controlled_trial, cohort_study, case_control_study, case_series, case_report, expert_opinion, other.
+
+grade_of_recommendation. An enum. Required. The values are strong_for, weak_for, weak_against, strong_against, uncertain.
+
+safety_profile. An object. Required. It contains adverse_events, serious_adverse_events, and safety_signals.
+
+conflicts_of_interest. An array of conflict objects. Optional.
+
+funding_sources. An array of funding objects. Optional.
+
+revisions. An array of revision objects. Optional.
+
+related_claims. An array of claim relations. Optional.
+
+provenance. An object. Required.
+
+work_reference. A string. Optional.
+
+full_pipeline_result_reference. A string. Optional.
+
+null_model_result_reference. A string. Optional.
+
+verification_result_reference. A string. Optional.
+
+replication_tracker_reference. A string. Optional.
+
+keywords. An array of strings. Optional.
+
+notes. A string. Optional.
+
+moderation_status. An enum. The values are pending, approved, rejected.
+
+version. An integer.
+
+supersedes. A string. Optional.
+
+superseded_by. A string. Optional.
+
+The intervention object has:
+
+intervention_type. An enum. The values are drug, device, surgery, behavioural, lifestyle, diagnostic, preventive, other.
+
+intervention_name. A string.
+
+intervention_description. A string.
+
+dose. A string. Optional.
+
+duration. A string. Optional.
+
+Each outcome object has:
+
+outcome_id. A string.
+
+outcome_name. A string.
+
+outcome_type. An enum. The values are primary, secondary, safety, surrogate, patient_reported, other.
+
+outcome_description. A string.
+
+effect_size. An object. Optional. It contains value and units.
+
+confidence_interval. An object. Optional. It contains lower and upper.
+
+p_value. A number. Optional.
+
+notes. A string. Optional.
+
+Each evidence object has:
+
+evidence_id. A string.
+
+study_type. An enum. The values are systematic_review, meta_analysis, randomized_controlled_trial, cohort_study, case_control_study, case_series, case_report, expert_opinion, other.
+
+study_reference. A string.
+
+study_summary. A string.
+
+sample_size. An integer. Optional.
+
+population. A string. Optional.
+
+effect_size. An object. Optional. It contains value and units.
+
+confidence_interval. An object. Optional. It contains lower and upper.
+
+p_value. A number. Optional.
+
+quality. An enum. The values are high, moderate, low, very_low, not_assessed.
+
+notes. A string. Optional.
+
+The safety_profile object has:
+
+adverse_events. An array of adverse event objects.
+
+serious_adverse_events. An array of serious adverse event objects.
+
+safety_signals. An array of safety signal objects.
+
+Each adverse event object has:
+
+event_id. A string.
+
+event_name. A string.
+
+event_frequency. An enum. The values are very_common, common, uncommon, rare, very_rare, unknown.
+
+event_description. A string.
+
+notes. A string. Optional.
+
+Each serious adverse event object has:
+
+event_id. A string.
+
+event_name. A string.
+
+event_description. A string.
+
+notes. A string. Optional.
+
+Each safety signal object has:
+
+signal_id. A string.
+
+signal_description. A string.
+
+signal_status. An enum. The values are confirmed, potential, refuted, under_investigation.
+
+notes. A string. Optional.
+
+Each conflict object has:
+
+conflict_id. A string.
+
+conflict_type. An enum. The values are financial, personal, academic, institutional, other.
+
+conflict_description. A string.
+
+Each funding object has:
+
+funding_id. A string.
+
+funder_name. A string.
+
+funder_type. An enum. The values are government, industry, non_profit, university, other.
+
+funding_description. A string.
+
+Each revision object has:
+
+revision_id. A string.
+
+revision_date. A string in ISO8601 format.
+
+revision_description. A string.
+
+previous_position. A string.
+
+new_position. A string.
+
+reason. A string.
+
+source. A string.
+
+notes. A string. Optional.
+
+Each claim relation has:
+
+relation_id. A string.
+
+related_claim_id. A string.
+
+relation_type. An enum. The values are same_condition, same_intervention, same_outcome, alternative, complement, related, independent.
+
+relation_note. A string. Optional.
+
+6.2 Database Schema
+The database has the following tables.
+
+medical_claim. Holds the medical claim records.
+
+Its fields are:
+
+claim_id
+
+claim_name
+
+claim_description
+
+condition
+
+intervention
+
+population
+
+clinical_setting
+
+replication_status
+
+level_of_evidence
+
+grade_of_recommendation
+
+safety_profile
+
+provenance
+
+keywords
+
+notes
+
+moderation_status
+
+version
+
+supersedes
+
+superseded_by
+
+created_at
+
+updated_at
+
+outcome. Holds the outcome records.
+
+Its fields are:
+
+outcome_id
+
+claim_id
+
+outcome_name
+
+outcome_type
+
+outcome_description
+
+effect_size
+
+confidence_interval
+
+p_value
+
+notes
+
+created_at
+
+evidence. Holds the evidence records.
+
+Its fields are:
+
+evidence_id
+
+claim_id
+
+evidence_category
+
+study_type
+
+study_reference
+
+study_summary
+
+sample_size
+
+population
+
+effect_size
+
+confidence_interval
+
+p_value
+
+quality
+
+notes
+
+created_at
+
+adverse_event. Holds the adverse event records.
+
+Its fields are:
+
+event_id
+
+claim_id
+
+event_name
+
+event_frequency
+
+event_description
+
+notes
+
+created_at
+
+serious_adverse_event. Holds the serious adverse event records.
+
+Its fields are:
+
+event_id
+
+claim_id
+
+event_name
+
+event_description
+
+notes
+
+created_at
+
+safety_signal. Holds the safety signal records.
+
+Its fields are:
+
+signal_id
+
+claim_id
+
+signal_description
+
+signal_status
+
+notes
+
+created_at
+
+conflict. Holds the conflict of interest records.
+
+Its fields are:
+
+conflict_id
+
+claim_id
+
+conflict_type
+
+conflict_description
+
+created_at
+
+funding. Holds the funding records.
+
+Its fields are:
+
+funding_id
+
+claim_id
+
+funder_name
+
+funder_type
+
+funding_description
+
+created_at
+
+revision. Holds the revision records.
+
+Its fields are:
+
+revision_id
+
+claim_id
+
+revision_date
+
+revision_description
+
+previous_position
+
+new_position
+
+reason
+
+source
+
+notes
+
+created_at
+
+claim_relation. Holds the claim relations.
+
+Its fields are:
+
+relation_id
+
+claim_id
+
+related_claim_id
+
+relation_type
+
+relation_note
+
+created_at
+
+work_link. Holds the work links.
+
+Its fields are:
+
+link_id
+
+claim_id
+
+work_id
+
+created_at
+
+full_pipeline_link. Holds the full-pipeline links.
+
+Its fields are:
+
+link_id
+
+claim_id
+
+result_id
+
+created_at
+
+null_model_link. Holds the Null-Model Protocol links.
+
+Its fields are:
+
+link_id
+
+claim_id
+
+result_id
+
+created_at
+
+verification_link. Holds the verification links.
+
+Its fields are:
+
+link_id
+
+claim_id
+
+verification_id
+
+created_at
+
+replication_tracker_link. Holds the Replication Tracker links.
+
+Its fields are:
+
+link_id
+
+claim_id
+
+replication_id
+
+created_at
+
+provenance. Holds the provenance records.
+
+Its fields are:
+
+provenance_id
+
+claim_id
+
+depositor_id
+
+depositor_affiliation
+
+timestamp
+
+source
+
+tool_version
+
+operation
+
+created_at
+
+audit_log. Holds the audit log entries.
+
+Its fields are:
+
+audit_id
+
+operation
+
+record_type
+
+record_id
+
+depositor_id
+
+timestamp
+
+result
+
+details
+
+created_at
+
+moderation. Holds the moderation records.
+
+Its fields are:
+
+moderation_id
+
+claim_id
+
+moderator_id
+
+moderation_status
+
+moderation_date
+
+moderation_notes
+
+created_at
+
+6.3 Referential Integrity
+Every outcome.claim_id must exist in medical_claim.
+
+Every evidence.claim_id must exist in medical_claim.
+
+Every adverse_event.claim_id must exist in medical_claim.
+
+Every serious_adverse_event.claim_id must exist in medical_claim.
+
+Every safety_signal.claim_id must exist in medical_claim.
+
+Every conflict.claim_id must exist in medical_claim.
+
+Every funding.claim_id must exist in medical_claim.
+
+Every revision.claim_id must exist in medical_claim.
+
+Every claim_relation.claim_id and claim_relation.related_claim_id must exist in medical_claim.
+
+Every work_link.claim_id must exist in medical_claim.
+
+Every full_pipeline_link.claim_id must exist in medical_claim.
+
+Every null_model_link.claim_id must exist in medical_claim.
+
+Every verification_link.claim_id must exist in medical_claim.
+
+Every replication_tracker_link.claim_id must exist in medical_claim.
+
+Every provenance.claim_id must exist in medical_claim.
+
+Every moderation.claim_id must exist in medical_claim.
+
+The version chain must be acyclic.
+
+The claim relation must be symmetric where appropriate.
+
+6.4 Indexes
+The database has indexes on:
+
+medical_claim.claim_id
+
+medical_claim.claim_name
+
+medical_claim.condition
+
+medical_claim.replication_status
+
+medical_claim.level_of_evidence
+
+medical_claim.grade_of_recommendation
+
+medical_claim.moderation_status
+
+medical_claim.keywords
+
+outcome.claim_id
+
+outcome.outcome_type
+
+evidence.claim_id
+
+evidence.evidence_category
+
+evidence.study_type
+
+adverse_event.claim_id
+
+serious_adverse_event.claim_id
+
+safety_signal.claim_id
+
+conflict.claim_id
+
+funding.claim_id
+
+revision.claim_id
+
+claim_relation.claim_id
+
+claim_relation.related_claim_id
+
+work_link.claim_id
+
+full_pipeline_link.claim_id
+
+null_model_link.claim_id
+
+verification_link.claim_id
+
+replication_tracker_link.claim_id
+
+provenance.claim_id
+
+provenance.depositor_id
+
+audit_log.operation
+
+audit_log.record_id
+
+moderation.claim_id
+
+moderation.moderation_status
+
+Full-text search indexes on the claim description, the evidence, and the notes.
+
+7. Core Logic as Executable Pseudocode
+7.1 Create Medical Claim
+function createMedicalClaim(claim, files, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Validate the claim against the schema. If invalid, return an error with the details.
+
+Step 3. If the work reference is present, look it up. If null, flag it as unresolved.
+
+Step 4. If the full-pipeline result reference is present, look it up. If null, flag it as unresolved.
+
+Step 5. If the null-model result reference is present, look it up. If null, flag it as unresolved.
+
+Step 6. If the verification result reference is present, look it up. If null, flag it as unresolved.
+
+Step 7. If the replication tracker reference is present, look it up. If null, flag it as unresolved.
+
+Step 8. Generate a claim ID. Set the fields: version 1, moderation_status pending, deposit_date now, depositor_id from auth, depositor_affiliation from auth, provenance from provenance.
+
+Step 9. Insert the medical claim.
+
+Step 10. Insert the outcome records, the evidence records, the adverse events, the serious adverse events, the safety signals, the conflicts, the funding sources, the revisions, and the claim relations.
+
+Step 11. Insert the links if present.
+
+Step 12. Insert the provenance.
+
+Step 13. Insert the moderation record.
+
+Step 14. Insert the audit log entry.
+
+Step 15. Return the claim_id and the status created.
+
+7.2 Read Medical Claim
+function readMedicalClaim(claimId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the claim. If null, return an error.
+
+Step 3. Read the outcomes, the evidence, the safety profile, the conflicts, the funding, the revisions, the relations, the links, the provenance, and the moderation.
+
+Step 4. Reconstruct the deposit.
+
+Step 5. Insert the audit log entry.
+
+Step 6. Return the deposit.
+
+7.3 Update Medical Claim
+function updateMedicalClaim(claimId, claim, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Read the existing claim. If null, return an error.
+
+Step 3. Validate the new claim.
+
+Step 4. Increment the version. Update the supersedes and superseded_by fields.
+
+Step 5. Insert a provenance record with operation update.
+
+Step 6. Insert an audit log entry.
+
+Step 7. Return the claim_id, the version, and the status updated.
+
+7.4 Delete Medical Claim
+function deleteMedicalClaim(claimId, provenance, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Read the existing claim. If null, return an error.
+
+Step 3. If soft delete, mark as deleted. Otherwise, remove.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the claim_id and the status deleted.
+
+7.5 Query Medical Claims
+function queryMedicalClaims(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the query.
+
+Step 3. Read the matching claims.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the claims, the count, and the pagination.
+
+7.6 Aggregate Medical Claims
+function aggregateMedicalClaims(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the aggregation.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the results.
+
+7.7 Full-Text Search
+function fullTextSearch(query, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Build and execute the search.
+
+Step 3. Read the matching claims.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the claims and the count.
+
+7.8 Export Medical Claim
+function exportMedicalClaim(claimId, format, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the deposit.
+
+Step 3. If json, output the deposit. If provo, export to PROV-O. If turtle, serialize to Turtle.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the output and the format.
+
+7.9 Bulk Import
+function bulkImport(file, provenance, auth):
+
+Step 1. validateAuth(auth, "depositor"). If not authorized, return an error.
+
+Step 2. Parse the file.
+
+Step 3. For each claim, call createMedicalClaim.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the results and the count.
+
+7.10 Bulk Export
+function bulkExport(query, format, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the matching claims.
+
+Step 3. If json, output the list. If jsonl, output one line per claim. If provo, export each one.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the output and the count.
+
+7.11 Moderate Medical Claim
+function moderateMedicalClaim(claimId, moderationStatus, moderationNotes, auth):
+
+Step 1. validateAuth(auth, "moderator"). If not authorized, return an error.
+
+Step 2. Read the existing claim. If null, return an error.
+
+Step 3. Update the moderation status. Insert a moderation record.
+
+Step 4. Insert an audit log entry.
+
+Step 5. Return the claim_id and the status.
+
+7.12 Claim Map
+function claimMap(auth, options):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read all medical claims.
+
+Step 3. Build the map with conditions as axes and interventions as positions.
+
+Step 4. Return the map.
+
+7.13 Evidence Hierarchy View
+function evidenceHierarchyView(claimId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the claim. If null, return an error.
+
+Step 3. Read the evidence for and the evidence against.
+
+Step 4. Build the view with the evidence ordered by level of evidence.
+
+Step 5. Return the view.
+
+7.14 Replication Funnel
+function replicationFunnel(claimId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the claim. If null, return an error.
+
+Step 3. Read the evidence and the replication tracker links.
+
+Step 4. Build the funnel with the original study, the replications, and the outcomes.
+
+Step 5. Return the funnel.
+
+7.15 Safety Profile View
+function safetyProfileView(claimId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the claim. If null, return an error.
+
+Step 3. Read the adverse events, the serious adverse events, and the safety signals.
+
+Step 4. Build the view with the adverse events and the safety signals.
+
+Step 5. Return the view.
+
+7.16 Revision Timeline
+function revisionTimeline(claimId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the claim. If null, return an error.
+
+Step 3. Read the revisions.
+
+Step 4. Build the timeline with the revisions over time.
+
+Step 5. Return the timeline.
+
+7.17 Find Related Claims
+function findRelatedClaims(claimId, auth):
+
+Step 1. validateAuth(auth, "reader"). If not authorized, return an error.
+
+Step 2. Read the claim. If null, return an error.
+
+Step 3. Find claims with the same condition, the same intervention, or the same outcome.
+
+Step 4. Return the related claims.
+
+7.18 Audit Log
+function auditLog(query, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Build and execute the query.
+
+Step 3. Return the results.
+
+7.19 Backup
+function backup(auth, options):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. If sql, dump as SQL. If json, dump as JSON.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the output and the format.
+
+7.20 Restore
+function restore(file, auth):
+
+Step 1. validateAuth(auth, "admin"). If not authorized, return an error.
+
+Step 2. Load the database from the file.
+
+Step 3. Insert an audit log entry.
+
+Step 4. Return the status restored.
+
+8. Data Model
+The system's internal state is the set of tables. The API's internal state is a request object and a response object.
+
+Request object:
+
+operation
+
+resource
+
+record_id
+
+record_json
+
+query
+
+auth
+
+Response object:
+
+status
+
+result
+
+error
+
+audit_id
+
+9. Architecture
+Module breakdown:
+
+Medical Claim Schema.
+
+Database Schema.
+
+Claim Loader.
+
+Claim Writer.
+
+Claim Reader.
+
+Claim Updater.
+
+Claim Deleter.
+
+Query Engine.
+
+Full-Text Search Engine.
+
+Aggregation Engine.
+
+Exporter.
+
+Importer.
+
+Bulk Import and Export.
+
+REST API.
+
+GraphQL API.
+
+Command-Line Interface.
+
+Authentication and Authorization.
+
+Audit Logging.
+
+Backup and Restore.
+
+Web Interface.
+
+Moderation Workflow.
+
+Claim Map.
+
+Evidence Hierarchy View.
+
+Replication Funnel.
+
+Safety Profile View.
+
+Revision Timeline.
+
+Related-Claim Finder.
+
+Migration Manager.
+
+Data flow:
+
+API requests go to the REST or GraphQL API.
+
+The API calls the claim loader, writer, reader, updater, deleter, query engine, search engine, aggregation engine, exporter, or importer.
+
+The database schema stores the data.
+
+The audit logging records every operation.
+
+The authentication and authorization check access.
+
+The moderation workflow handles moderation.
+
+The claim map, the evidence hierarchy view, the replication funnel, the safety profile view, and the revision timeline visualise.
+
+The related-claim finder finds relations.
+
+The backup and restore handle backup.
+
+The web interface provides depositing, browsing, and querying.
+
+10. Technology Stack
+Recommended for the database:
+
+Database: PostgreSQL 15+ or SQLite 3.40+.
+
+Language: Python 3.11+ or Node.js 20+.
+
+ORM: SQLAlchemy or Prisma.
+
+Migrations: Alembic or Prisma Migrate.
+
+Full-text search: PostgreSQL tsvector or SQLite FTS5.
+
+Recommended for the REST API:
+
+Framework: FastAPI or Express.
+
+Authentication: FastAPI Users or Passport.
+
+Recommended for the GraphQL API:
+
+Framework: Strawberry or Apollo Server.
+
+Recommended for the command-line interface:
+
+Framework: Click or Commander.
+
+Recommended for the web interface:
+
+Frontend: React or Svelte.
+
+Backend: the same as the REST API.
+
+Recommended for deployment:
+
+Containerization: Docker.
+
+Orchestration: Docker Compose or Kubernetes.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The Null-Model Protocol schema (from App 8 and App 9).
+
+The PROV-O exporter (App 3).
+
+The STAG schema library (App 17).
+
+The Null-Model Protocol library (App 18).
+
+The full-pipeline simulator (App 9).
+
+The provenance database (App 20).
+
+The revision history viewer (App 7).
+
+The Physics Knowledge Library (App 23).
+
+The Numerical Verification Tool (App 22).
+
+The Replication Tracker (App 26).
+
+The Evidence Aggregator (App 46).
+
+The Autofill Library Service (App 49).
+
+11. UI/UX Specification
+REST API:
+
+Base URL: https://api.example.com/v1.
+
+Authentication: Bearer token.
+
+Endpoints:
+
+GET /claims.
+
+GET /claims/{id}.
+
+POST /claims.
+
+PUT /claims/{id}.
+
+DELETE /claims/{id}.
+
+GET /claims/{id}/provo.
+
+GET /claims/{id}/turtle.
+
+GET /claims/{id}/outcomes.
+
+GET /claims/{id}/evidence-for.
+
+GET /claims/{id}/evidence-against.
+
+GET /claims/{id}/adverse-events.
+
+GET /claims/{id}/serious-adverse-events.
+
+GET /claims/{id}/safety-signals.
+
+GET /claims/{id}/conflicts.
+
+GET /claims/{id}/funding.
+
+GET /claims/{id}/revisions.
+
+GET /claims/{id}/related.
+
+GET /claims/{id}/work.
+
+GET /claims/{id}/full-pipeline.
+
+GET /claims/{id}/null-model.
+
+GET /claims/{id}/verification.
+
+GET /claims/{id}/replication-tracker.
+
+GET /claims/by-condition/{condition}.
+
+GET /claims/by-intervention/{intervention}.
+
+GET /claims/by-level-of-evidence/{level}.
+
+GET /claims/by-grade/{grade}.
+
+GET /claims/by-replication-status/{status}.
+
+GET /claims/{id}/evidence-hierarchy.
+
+GET /claims/{id}/replication-funnel.
+
+GET /claims/{id}/safety-profile.
+
+GET /claims/{id}/revision-timeline.
+
+POST /query.
+
+POST /aggregate.
+
+POST /search.
+
+GET /map.
+
+POST /bulk/import.
+
+POST /bulk/export.
+
+POST /moderate/{id}.
+
+GET /audit.
+
+Responses in JSON.
+
+HTTP status codes: 200, 201, 204, 400, 401, 403, 404, 409, 422, 500.
+
+GraphQL API:
+
+Endpoint: https://api.example.com/graphql.
+
+Schema exposes the entities and their relationships.
+
+Command-line interface:
+
+Usage: medical-claim-verifier [command] [options].
+
+Commands: init, migrate, backup, restore, import, export, query, aggregate, moderate, audit.
+
+Web interface:
+
+A browsable list of claims.
+
+A deposit form.
+
+A search box.
+
+A filter panel.
+
+An aggregation view.
+
+A claim map.
+
+An evidence hierarchy view.
+
+A replication funnel.
+
+A safety profile view.
+
+A revision timeline.
+
+A detail view for each claim.
+
+A moderation view.
+
+12. Validation Engine Design
+The system validates the following.
+
+Validation 1. Claim validity. Every claim is validated against the schema.
+
+Validation 2. Referential integrity.
+
+Validation 3. Version chain acyclicity.
+
+Validation 4. Work resolution.
+
+Validation 5. Full-pipeline result resolution.
+
+Validation 6. Null-model result resolution.
+
+Validation 7. Verification result resolution.
+
+Validation 8. Replication tracker record resolution.
+
+Validation 9. Provenance completeness.
+
+Validation 10. Audit completeness.
+
+Validation 11. Moderation completeness.
+
+Validation 12. Level of evidence consistency. The level must be consistent with the evidence.
+
+Validation 13. Grade consistency. The grade must be consistent with the level of evidence and the effect sizes.
+
+Validation 14. Replication status consistency. The replication status must be consistent with the replication tracker links.
+
+13. Testing Strategy
+Unit tests:
+
+Medical Claim Schema for valid and invalid claims.
+
+Database Schema for each table and index.
+
+Claim Loader.
+
+Claim Writer.
+
+Claim Reader.
+
+Claim Updater.
+
+Claim Deleter.
+
+Query Engine.
+
+Full-Text Search Engine.
+
+Aggregation Engine.
+
+Exporter.
+
+Importer.
+
+Bulk Import and Export.
+
+REST API.
+
+GraphQL API.
+
+Command-Line Interface.
+
+Authentication and Authorization.
+
+Audit Logging.
+
+Backup and Restore.
+
+Web Interface.
+
+Moderation Workflow.
+
+Claim Map.
+
+Evidence Hierarchy View.
+
+Replication Funnel.
+
+Safety Profile View.
+
+Revision Timeline.
+
+Related-Claim Finder.
+
+Migration Manager.
+
+Integration tests:
+
+Create a claim. Read it back.
+
+Update a claim.
+
+Delete a claim.
+
+Query by each field.
+
+Aggregate by each dimension.
+
+Search by full text.
+
+Export as JSON, PROV-O, and Turtle.
+
+Bulk import and export.
+
+Backup and restore.
+
+Moderate a claim.
+
+Generate the claim map.
+
+Generate the evidence hierarchy view.
+
+Generate the replication funnel.
+
+Generate the safety profile view.
+
+Generate the revision timeline.
+
+Worked-example tests:
+
+Deposit the claim that smoking causes lung cancer.
+
+Deposit the claim that the MMR vaccine does not cause autism.
+
+Deposit the claim that statins reduce cardiovascular events.
+
+Deposit the claim that hydroxychloroquine is effective against COVID-19.
+
+Deposit the claim that the Mediterranean diet reduces cardiovascular risk.
+
+Deposit the claim that the PSA test reduces prostate cancer mortality.
+
+Deposit the claim that acupuncture relieves chronic pain.
+
+Deposit the claim that the BCG vaccine protects against tuberculosis.
+
+Regression tests:
+
+Claim determinism.
+
+Query consistency.
+
+Aggregation consistency.
+
+Audit log consistency.
+
+Moderation consistency.
+
+Level of evidence consistency.
+
+Grade consistency.
+
+Replication status consistency.
+
+14. Build Phases
+Phase 1. Medical Claim Schema.
+
+Phase 2. Database Schema.
+
+Phase 3. Claim Loader.
+
+Phase 4. Claim Writer.
+
+Phase 5. Claim Reader.
+
+Phase 6. Claim Updater.
+
+Phase 7. Claim Deleter.
+
+Phase 8. Query Engine.
+
+Phase 9. Full-Text Search Engine.
+
+Phase 10. Aggregation Engine.
+
+Phase 11. Exporter.
+
+Phase 12. Importer.
+
+Phase 13. Bulk Import and Export.
+
+Phase 14. REST API.
+
+Phase 15. GraphQL API.
+
+Phase 16. Command-Line Interface.
+
+Phase 17. Authentication and Authorization.
+
+Phase 18. Audit Logging.
+
+Phase 19. Backup and Restore.
+
+Phase 20. Web Interface.
+
+Phase 21. Moderation Workflow.
+
+Phase 22. Claim Map.
+
+Phase 23. Evidence Hierarchy View.
+
+Phase 24. Replication Funnel.
+
+Phase 25. Safety Profile View.
+
+Phase 26. Revision Timeline.
+
+Phase 27. Related-Claim Finder.
+
+Phase 28. Migration Manager.
+
+Phase 29. Worked-example tests.
+
+Phase 30. Integration testing and hardening.
+
+Phase 31. Packaging and deployment.
+
+15. Dependencies
+Python path:
+
+SQLAlchemy.
+
+Alembic.
+
+FastAPI.
+
+Strawberry.
+
+FastAPI Users.
+
+Click.
+
+psycopg2.
+
+sqlite3.
+
+jsonschema.
+
+hashlib.
+
+json.
+
+pytest.
+
+Node.js path:
+
+Prisma.
+
+Express.
+
+Apollo Server.
+
+Passport.
+
+Commander.
+
+pg.
+
+better-sqlite3.
+
+ajv.
+
+crypto.
+
+JSON.
+
+Vitest.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The Null-Model Protocol schema (from App 8 and App 9).
+
+The PROV-O exporter (App 3).
+
+The STAG schema library (App 17).
+
+The Null-Model Protocol library (App 18).
+
+The full-pipeline simulator (App 9).
+
+The provenance database (App 20).
+
+The revision history viewer (App 7).
+
+The Physics Knowledge Library (App 23).
+
+The Numerical Verification Tool (App 22).
+
+The Replication Tracker (App 26).
+
+The Evidence Aggregator (App 46).
+
+The Autofill Library Service (App 49).
+
+16. Deployment Notes
+Database:
+
+PostgreSQL for multi-user deployments.
+
+SQLite for single-user deployments.
+
+Backup and restore via pg_dump and pg_restore or the SQLite backup API.
+
+REST API:
+
+Deploy with Docker. Stateless. Scale horizontally.
+
+Use a reverse proxy for TLS.
+
+Log every request for audit.
+
+GraphQL API:
+
+Deploy alongside the REST API.
+
+Use a query depth limit and a query complexity limit.
+
+Command-line interface:
+
+Package as a standalone executable.
+
+Distribute via pip, npm, or a direct download.
+
+Web interface:
+
+Deploy the frontend as a static bundle.
+
+Backend with FastAPI or Express.
+
+Reproducibility:
+
+Record the STAG schema version, the Null-Model Protocol schema version, the medical claim schema version, and the system version.
+
+Record the provenance for every deposit.
+
+Provide a version pin for the schemas and codebook.
+
+17. Open Questions to Resolve Before Building
+Question 1. Which runtime first? Python or Node.js.
+
+Question 2. Which database first? PostgreSQL or SQLite.
+
+Question 3. How should the system handle the condition? A fixed taxonomy, or an open set.
+
+Question 4. How should the system handle the intervention type? A fixed set, or an open set.
+
+Question 5. How should the system handle the outcome type? A fixed set, or an open set.
+
+Question 6. How should the system handle the study type? A fixed set, or an open set.
+
+Question 7. How should the system handle the quality? A fixed set of five values, or an open set.
+
+Question 8. How should the system handle the level of evidence? A fixed set of eight values, or an open set.
+
+Question 9. How should the system handle the grade of recommendation? A fixed set of five values, or an open set.
+
+Question 10. How should the system handle the replication status? A fixed set of five values, or an open set.
+
+Question 11. How should the system handle the relation between claims? Manual entry, or automatic detection.
+
+Question 12. How should the system handle the moderation workflow? Pending until approved, auto-approved, or require a moderator.
+
+Question 13. How should the system handle the work reference? Required, optional, or optional depending on the claim type.
+
+Question 14. How should the system handle the full-pipeline result reference? Required, optional, or optional depending on the claim type.
+
+Question 15. How should the system handle the Null-Model Protocol result reference? Required, optional, or optional depending on the claim type.
+
+Question 16. How should the system handle the verification result reference? Required, optional, or optional depending on the claim type.
+
+Question 17. How should the system handle the replication tracker reference? Required, optional, or optional depending on the claim type.
+
+Question 18. How should the system handle the claim map? A scatter plot, a heat map, or both.
+
+Question 19. How should the system handle the evidence hierarchy view? A forest plot, a table, or both.
+
+Question 20. How should the system handle the replication funnel? A linear funnel, a tree of replications, or both.
+
+Question 21. How should the system handle the safety profile view? A table, a heat map, or both.
+
+Question 22. How should the system handle the revision timeline? A line plot, a Gantt chart, or both.
+
+Question 23. Should the system integrate with the STAG schema library (App 17), the Null-Model Protocol library (App 18), the full-pipeline simulator (App 9), the provenance database (App 20), the revision history viewer (App 7), the Physics Knowledge Library (App 23), the Numerical Verification Tool (App 22), the Replication Tracker (App 26), and the Evidence Aggregator (App 46)?
+
+Question 24. Should the system support federation with other instances of itself?
+
+Question 25. How should the system handle the deposit of a claim that is already in the system? Reject, create a new version, or create a separate record with a cross-reference.
+
+Question 26. Should the system support autofill via App 49? If so, which library does it register?
+
+Question 27. Should the system support a patient view that shows the patient their own medical claims?
+
+Question 28. Should the system support a clinician view that shows the clinician the claims relevant to their patient?
+
+Question 29. Should the system support a guideline view that shows the guidelines that recommend or discourage a claim?
+
+Question 30. Should the system support a regulatory view that shows the regulatory status of a claim?
+
+End of build specification for App 40, the Medical Claim Verifier.
+
