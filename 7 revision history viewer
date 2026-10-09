@@ -1,0 +1,769 @@
+Build Specification — App 7: Revision History Viewer
+Completeness status: COMPLETE. All sections delivered in one pass. No truncation. Formatted for copy-paste into another conversation window. No tables, no boxes.
+
+What It Is
+An application that shows a timeline view of a STAG's revision chain. It shows supersessions, theory version changes, and per-field changes at each revision. It takes in a set of superseding STAG records, and puts out a timeline with a per-field change log. It is for long-lived annotation projects and reproducibility audits.
+
+Core Requirements
+Functional requirements:
+
+Load a set of superseding STAG JSON records.
+
+Order the records into a revision chain using the supersedes and superseded_by fields.
+
+Detect cycles in the revision chain and refuse to proceed if a cycle is found (Rule 10).
+
+Detect gaps in the revision chain (a record that supersedes a record not in the set).
+
+Detect branches in the revision chain (a record with more than one superseded_by).
+
+Render a timeline view of the revision chain.
+
+For each revision, show the revision date, the theory version, the annotator, and the derived display label with its anchoring status.
+
+Show supersessions as transitions between revisions.
+
+Show theory version changes as a distinct visual element.
+
+Show per-field changes at each revision. Each field that changed between a revision and its predecessor is listed with the old value and the new value.
+
+Show per-field changes grouped by panel (matching the STAG annotation editor's panel order).
+
+Filter the timeline by theory version, annotator, display label, anchoring status, or partition.
+
+Search the change log by field name.
+
+Export the timeline as a static image (PNG, SVG) and the change log as a data file (JSON, CSV).
+
+Non-functional requirements:
+
+Deterministic: same input produces same output.
+
+Fast: render a chain of up to 100 revisions in under two seconds.
+
+No network dependency.
+
+Versioned: the viewer records the schema version of each loaded record.
+
+Reproducible: the static export records the revision chain and the change log.
+
+Input Specification
+Input 1. STAG JSON records. Required. Two or more records that form a revision chain.
+
+Input 2. Schema version. Required. Selects the correct field interpretation.
+
+Input 3. Ordering rule. Optional. Values: by revision date (default), by explicit chain order, by supersedes and superseded_by.
+
+Input 4. Filter state. Optional. A filter object with fields for theory version, annotator, display label, anchoring status, and partition.
+
+Input 5. Render options. Optional. Timeline orientation, node size, label font size, color scheme.
+
+Input 6. Export format. Optional. Values: png, svg, json, csv.
+
+Output Specification
+Output 1. Timeline view. Rendered in the application window (desktop or web).
+
+Output 2. Change log. Text or JSON. For each revision, the list of fields that changed from the predecessor, with old and new values.
+
+Output 3. Static export. PNG, SVG, JSON, or CSV.
+
+Output 4. Chain metadata. JSON. The revision chain order, the number of revisions, the theory versions covered, the annotators, and any gaps or branches detected.
+
+Output 5. Filter state. JSON. The current filter state.
+
+Output 6. Viewer metadata. JSON. Schema version, viewer version, timestamp, input file hash.
+
+Module-by-Module Specification
+Module 1: Record Loader
+Reads the set of STAG JSON records. Validates each against the JSON Schema for the selected version. Rejects malformed records with an error.
+
+Module 2: Chain Builder
+Orders the records into a revision chain. Uses the supersedes and superseded_by fields, or the revision date, or the explicit chain order.
+
+Builds a directed graph where each node is a record and each edge is a supersession. Detects cycles. Detects gaps (a record that supersedes a record not in the set). Detects branches (a record with more than one superseded_by).
+
+Module 3: Cycle Detector
+Detects cycles in the revision chain. If a cycle is found, refuses to proceed and reports the cycle (Rule 10: supersession must be acyclic).
+
+Module 4: Gap Detector
+Detects gaps in the revision chain. A gap is a record that supersedes a record not in the set. Reports each gap with the missing record's ID.
+
+Module 5: Branch Detector
+Detects branches in the revision chain. A branch is a record with more than one superseded_by. Reports each branch with the record's ID and the IDs of its successors.
+
+Module 6: Change Calculator
+For each revision, computes the per-field changes from the predecessor. Compares each field and records the old value and the new value. Groups changes by panel (matching the STAG annotation editor's panel order).
+
+Module 7: Timeline Renderer
+Renders the timeline. Each revision is a point on the timeline. Supersessions are edges between points. Theory version changes are shown as distinct visual elements. Per-field changes are shown in a side panel.
+
+Module 8: Change Log Renderer
+Renders the change log. For each revision, a list of fields that changed, grouped by panel, with old and new values.
+
+Module 9: Filter Engine
+Applies the filter state to the timeline and the change log. Hides revisions that do not match the filter.
+
+Module 10: Search Engine
+Searches the change log by field name. Highlights matching fields in the change log and the timeline.
+
+Module 11: Detail Panel
+Shows the full annotation record of the selected revision.
+
+Module 12: Exporter
+Exports the timeline as a static image (PNG, SVG) and the change log as a data file (JSON, CSV).
+
+Module 13: Command-Line Interface (optional)
+A command-line wrapper that loads records, builds the chain, computes the change log, and exports the timeline and the change log without opening the interactive window.
+
+Full Rendering Specification
+6.1 Timeline
+Orientation: horizontal (default) or vertical.
+
+Each revision is a point on the timeline. The point is a circle with the revision date below it and the derived display label with the anchoring status above it.
+
+Supersessions are edges between points. Solid line with arrowhead.
+
+Theory version changes are shown as a distinct visual element: a vertical bar between two points, with the old and new theory versions labelled.
+
+Revision date is shown below each point.
+
+Annotator is shown as a small icon or label next to each point.
+
+Derived display label and anchoring status are shown above each point.
+
+6.2 Change Log
+For each revision, a list of fields that changed from the predecessor. Each entry has the field name, the old value, and the new value.
+
+Fields are grouped by panel (matching the STAG annotation editor's panel order).
+
+Changed fields are highlighted.
+
+Added fields are marked with a plus.
+
+Removed fields are marked with a minus.
+
+Unchanged fields are not listed.
+
+6.3 Color Scheme
+Revision point: by derived display label.
+
+Supersession edge: grey.
+
+Theory version change: blue.
+
+Changed field: yellow.
+
+Added field: green.
+
+Removed field: red.
+
+6.4 Flags
+Flags are shown as badges near the revision point. The flags are:
+
+not_determinable_flag: a question mark icon.
+
+provisional_flag: a tilde icon.
+
+threshold_sensitive_flag: a slider icon.
+
+regime_not_determinable: a question mark icon with a regime symbol.
+
+identity_partition_sensitive: a split icon.
+
+Core Logic as Executable Pseudocode
+7.1 Main Flow
+function viewRevisionHistory(records, options):
+
+Step 1. validatedRecords = [].
+
+for record in records:
+
+result = validate(record, options.schemaVersion).
+
+if result.valid: validatedRecords.push(record).
+
+else: return {error: "invalid record", details: result.errors}.
+
+Step 2. chain = buildChain(validatedRecords, options.orderingRule).
+
+Step 3. if hasCycle(chain): return {error: "cycle detected", cycle: findCycle(chain)}.
+
+Step 4. gaps = findGaps(chain).
+
+Step 5. branches = findBranches(chain).
+
+Step 6. changeLog = computeChangeLog(chain).
+
+Step 7. renderTimeline(chain, changeLog, options.renderOptions).
+
+Step 8. attachFilterEngine(chain, changeLog, options.filterState).
+
+Step 9. attachSearchEngine(changeLog).
+
+Step 10. metadata = recordMetadata(validatedRecords, chain, gaps, branches, options).
+
+Step 11. return {chain, changeLog, gaps, branches, metadata}.
+
+7.2 Build Chain
+function buildChain(records, orderingRule):
+
+if orderingRule == "by_revision_date": return records.sortBy(record => record.annotation_date).
+
+else if orderingRule == "by_explicit_chain_order": return records.sortBy(record => record.chain_order).
+
+else if orderingRule == "by_supersedes": return buildChainFromSupersedes(records).
+
+function buildChainFromSupersedes(records):
+
+recordMap = {}.
+
+for record in records: recordMap[record.annotation_id] = record.
+
+roots = records.filter(record => record.supersedes == null).
+
+if roots.length == 0: return {error: "no root record found"}.
+
+if roots.length > 1: return {error: "multiple root records found"}.
+
+chain = [].
+
+current = roots[0].
+
+while current != null:
+
+chain.push(current).
+
+if current.superseded_by != null:
+
+current = recordMap[current.superseded_by].
+
+else: current = null.
+
+return chain.
+
+7.3 Cycle Detection
+function hasCycle(chain):
+
+visited = new Set().
+
+for record in chain:
+
+if visited.has(record.annotation_id): return true.
+
+visited.add(record.annotation_id).
+
+return false.
+
+7.4 Gap Detection
+function findGaps(chain):
+
+gaps = [].
+
+recordIds = new Set(chain.map(record => record.annotation_id)).
+
+for record in chain:
+
+if record.supersedes != null and not recordIds.has(record.supersedes):
+
+gaps.push({record: record.annotation_id, missing: record.supersedes}).
+
+return gaps.
+
+7.5 Branch Detection
+function findBranches(chain):
+
+branches = [].
+
+recordMap = {}.
+
+for record in chain: recordMap[record.annotation_id] = record.
+
+for record in chain:
+
+if record.superseded_by != null:
+
+successors = Array.isArray(record.superseded_by) ? record.superseded_by : [record.superseded_by].
+
+if successors.length > 1:
+
+branches.push({record: record.annotation_id, successors: successors}).
+
+return branches.
+
+7.6 Compute Change Log
+function computeChangeLog(chain):
+
+changeLog = [].
+
+for i in range(1, chain.length):
+
+previous = chain[i - 1].
+
+current = chain[i].
+
+changes = compareRecords(previous, current).
+
+changeLog.push({revision: current.annotation_id, date: current.annotation_date, theory_version: current.theory_version, annotator: current.annotator, changes: changes}).
+
+return changeLog.
+
+function compareRecords(previous, current):
+
+changes = [].
+
+allFields = union(keys(previous), keys(current)).
+
+for field in allFields:
+
+if not deepEqual(previous[field], current[field]):
+
+changes.push({field: field, old_value: previous[field], new_value: current[field], change_type: getChangeType(previous, current, field)}).
+
+return changes.
+
+function getChangeType(previous, current, field):
+
+if previous[field] == null and current[field] != null: return "added".
+
+if previous[field] != null and current[field] == null: return "removed".
+
+return "modified".
+
+7.7 Render Timeline
+function renderTimeline(chain, changeLog, options):
+
+clearCanvas().
+
+for i, record in enumerate(chain):
+
+position = computePosition(i, options.orientation).
+
+drawRevisionPoint(position, record, options).
+
+if i > 0:
+
+drawSupersessionEdge(previousPosition, position, options).
+
+if record.theory_version != chain[i - 1].theory_version:
+
+drawTheoryVersionChange(previousPosition, position, chain[i - 1].theory_version, record.theory_version, options).
+
+previousPosition = position.
+
+drawLegend(options).
+
+7.8 Draw Revision Point
+function drawRevisionPoint(position, record, options):
+
+drawCircle(position, options.nodeSize, color = getLabelColor(record.derived_display_label)).
+
+drawText(record.annotation_date, position + offset1).
+
+drawText(record.derived_display_label + " (" + record.evidential_anchoring + ")", position + offset2).
+
+drawText(record.annotator.id, position + offset3).
+
+for flag in extractFlags(record): drawFlag(flag, position + offset4).
+
+7.9 Filter Engine
+function applyFilter(chain, changeLog, filterState):
+
+for record in chain:
+
+record.visible = matchesFilter(record, filterState).
+
+for entry in changeLog:
+
+entry.visible = matchesFilter(entry, filterState) and chain.getRecord(entry.revision).visible.
+
+redraw().
+
+function matchesFilter(element, filterState):
+
+if filterState.theory_version != null and element.theory_version not in filterState.theory_version: return false.
+
+if filterState.annotator != null and element.annotator.id not in filterState.annotator: return false.
+
+if filterState.display_label != null and element.derived_display_label not in filterState.display_label: return false.
+
+if filterState.anchoring != null and element.evidential_anchoring not in filterState.anchoring: return false.
+
+if filterState.partition != null and element.partition_registry_id not in filterState.partition: return false.
+
+return true.
+
+7.10 Search Engine
+function searchChangeLog(changeLog, query):
+
+matches = [].
+
+for entry in changeLog:
+
+for change in entry.changes:
+
+if change.field.includes(query):
+
+matches.push({revision: entry.revision, field: change.field, old_value: change.old_value, new_value: change.new_value}).
+
+return matches.
+
+7.11 Exporter
+function exportTimeline(chain, changeLog, filterState, format):
+
+if format == "png": return renderToPNG(chain, changeLog, filterState).
+
+else if format == "svg": return renderToSVG(chain, changeLog, filterState).
+
+else if format == "json": return serializeChainAndChangeLog(chain, changeLog, filterState).
+
+else if format == "csv": return serializeChangeLogToCSV(changeLog, filterState).
+
+Data Model / JSON Schema for Internal State
+The viewer's internal state is a chain object, a change log object, and a metadata object.
+
+Chain object:
+
+records (array of STAG records, ordered)
+
+gaps (array of gap objects)
+
+branches (array of branch objects)
+
+Change log object:
+
+entries (array of change log entry objects)
+
+Each change log entry:
+
+revision (string)
+
+date (ISO8601)
+
+theory_version (string)
+
+annotator (object)
+
+changes (array of change objects)
+
+Each change object:
+
+field (string)
+
+old_value (any)
+
+new_value (any)
+
+change_type (added, removed, modified)
+
+Metadata object:
+
+schema_version (string)
+
+viewer_version (string)
+
+timestamp (ISO8601)
+
+input_file_hash (string)
+
+chain_length (integer)
+
+theory_versions_covered (array of strings)
+
+annotators (array of strings)
+
+gaps_count (integer)
+
+branches_count (integer)
+
+Filter state object:
+
+theory_version (array of strings or null)
+
+annotator (array of strings or null)
+
+display_label (array of strings or null)
+
+anchoring (array of strings or null)
+
+partition (array of strings or null)
+
+Architecture
+Module breakdown:
+
+Record Loader. Reads and validates STAG JSON records.
+
+Chain Builder. Orders records into a revision chain.
+
+Cycle Detector. Detects cycles.
+
+Gap Detector. Detects gaps.
+
+Branch Detector. Detects branches.
+
+Change Calculator. Computes per-field changes.
+
+Timeline Renderer. Renders the timeline.
+
+Change Log Renderer. Renders the change log.
+
+Filter Engine. Applies the filter state.
+
+Search Engine. Searches the change log.
+
+Detail Panel. Shows the full annotation record of the selected revision.
+
+Exporter. Exports the timeline and the change log.
+
+Command-Line Interface (optional).
+
+Data flow:
+
+Records go to Record Loader. Chain Builder builds the chain. Cycle, Gap, and Branch Detectors check the chain. Change Calculator computes the change log. Timeline Renderer and Change Log Renderer draw. Filter Engine and Search Engine attach. Detail Panel shows details. Exporter exports.
+
+Technology Stack
+Recommended for the desktop application:
+
+Language: Python 3.11+ or JavaScript/TypeScript (Node.js 20+).
+
+Rendering: Matplotlib or PyQtGraph (Python) or D3.js, Vis.js, or Cytoscape.js (JS).
+
+UI framework: PyQt6 or Tkinter (Python) or Electron plus React or Svelte (JS).
+
+JSON handling: standard library.
+
+CSV handling: standard library (csv module in Python, csv-stringify in JS).
+
+Testing: pytest (Python) or Vitest (JS).
+
+Recommended for the web application:
+
+Frontend: React or Svelte with D3.js or Vis.js.
+
+Backend (optional): FastAPI (Python) or Express (JS) for loading records from a server.
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The chain conforms to the well-formedness conditions in Artifact 1, Section 8.5 (supersession chains are acyclic).
+
+UI/UX Specification
+Layout:
+
+Main canvas: the timeline.
+
+Left sidebar: filter panel.
+
+Right sidebar: detail panel (full annotation record of the selected revision).
+
+Bottom panel: change log.
+
+Top bar: record loader, search box, export button.
+
+Navigation:
+
+Pan: drag the canvas.
+
+Zoom: scroll or pinch.
+
+Select: click a revision point to show its full record in the detail panel.
+
+Filter: use the left sidebar.
+
+Search: use the search box.
+
+Export: use the top bar.
+
+Error display:
+
+Invalid records: a modal dialog with the validation errors.
+
+Cycles: a modal dialog with the cycle path.
+
+Gaps: a warning badge on the affected revision.
+
+Branches: a warning badge on the affected revision.
+
+Display conventions:
+
+Every revision point shows the derived display label with its anchoring status.
+
+Every flag is rendered as a badge.
+
+The change log groups fields by panel.
+
+Validation Engine Design
+The viewer validates the following:
+
+Validation 1. Record validity. Each record is validated against the JSON Schema for the selected version.
+
+Validation 2. Chain well-formedness. The chain is checked for cycles, gaps, and branches.
+
+Validation 3. Supersession consistency. Each record's supersedes and superseded_by fields must be consistent with the chain order.
+
+Validation 4. Theory version consistency. Theory version changes must be recorded in the record's theory_version field.
+
+Validation 5. Display convention. Every revision point shows the derived display label with its anchoring status.
+
+Testing Strategy
+Unit tests:
+
+Chain builder for each ordering rule.
+
+Cycle detector for acyclic and cyclic chains.
+
+Gap detector for chains with and without gaps.
+
+Branch detector for chains with and without branches.
+
+Change calculator for each field type.
+
+Timeline renderer for each visual kind.
+
+Change log renderer for each change type.
+
+Filter engine for each filter field.
+
+Search engine for field name matching.
+
+Exporter for each format.
+
+Integration tests:
+
+Load a chain of two records. Compute the change log. Render the timeline.
+
+Load a chain of ten records. Compute the change log. Render the timeline.
+
+Load a chain with a cycle. Verify the error.
+
+Load a chain with a gap. Verify the gap warning.
+
+Load a chain with a branch. Verify the branch warning.
+
+Worked-example tests:
+
+A chain of two records where the second supersedes the first and changes the derived display label from STAG-Unclassified to STAG-Discovered. The change log should show the label change and the dependent field changes.
+
+A chain of three records where the theory version changes between the second and third. The timeline should show the theory version change.
+
+Regression tests:
+
+Chain builder determinism.
+
+Change log consistency.
+
+Filter state round trip.
+
+Export round trip.
+
+Build Phases
+Phase 1. Record Loader. Read and validate STAG JSON records.
+
+Phase 2. Chain Builder. Order records into a revision chain.
+
+Phase 3. Cycle Detector. Detect cycles.
+
+Phase 4. Gap Detector. Detect gaps.
+
+Phase 5. Branch Detector. Detect branches.
+
+Phase 6. Change Calculator. Compute per-field changes.
+
+Phase 7. Timeline Renderer. Render the timeline.
+
+Phase 8. Change Log Renderer. Render the change log.
+
+Phase 9. Filter Engine. Apply the filter state.
+
+Phase 10. Search Engine. Search the change log.
+
+Phase 11. Detail Panel. Show the full annotation record of the selected revision.
+
+Phase 12. Exporter. Export as PNG, SVG, JSON, and CSV.
+
+Phase 13. Command-Line Interface (optional).
+
+Phase 14. Worked-example tests.
+
+Phase 15. Integration testing and hardening.
+
+Phase 16. Packaging. Standalone executable or web bundle.
+
+Dependencies
+Python path:
+
+Matplotlib or PyQtGraph (rendering).
+
+PyQt6 or Tkinter (UI).
+
+jsonschema (record validation).
+
+csv (CSV handling, standard library).
+
+json (JSON handling, standard library).
+
+pytest (testing).
+
+Node.js path:
+
+D3.js, Vis.js, or Cytoscape.js (rendering).
+
+React or Svelte (UI).
+
+ajv (record validation).
+
+csv-stringify (CSV handling).
+
+Vitest (testing).
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+The chain conforms to the well-formedness conditions in Artifact 1, Section 8.5.
+
+Deployment Notes
+Desktop application:
+
+Package as a standalone executable (PyInstaller for Python, Electron for JS).
+
+Distribute via pip, npm, or a direct download.
+
+No server required.
+
+Web application:
+
+Deploy the frontend as a static bundle.
+
+Backend optional; if used, deploy with Docker.
+
+Scale horizontally if needed.
+
+Reproducibility:
+
+Record the revision chain and the change log in the static export.
+
+Record the schema version, viewer version, timestamp, and input file hash in the viewer metadata.
+
+Open Questions to Resolve Before Building
+Question 1. Which runtime first? Python or JavaScript. Decision affects the rendering library and the packaging.
+
+Question 2. What is the default ordering rule? Options: by revision date, by explicit chain order, by supersedes and superseded_by. The documents specify that supersession must be acyclic, but not the default ordering rule. Decision needed.
+
+Question 3. How should the viewer handle a chain with multiple roots? Options: fail, warn, or prompt the user. Decision needed.
+
+Question 4. How should the viewer handle a chain with multiple branches? Options: fail, warn, or render all branches. Decision needed.
+
+Question 5. How should the viewer handle a record that lacks a revision date? Options: use the annotation date, use the chain order, or fail. Decision needed.
+
+Question 6. How should the change log handle fields that are objects or arrays? Options: deep comparison, shallow comparison, or field-by-field comparison. Decision needed.
+
+Question 7. How should the viewer handle the not_determinable flag propagation? The documents specify that not_determinable propagates from the entailment basis to the intervention classification to the cross-domain counterfactual dependence. Decision needed: does the viewer check the propagation automatically, or does it trust the record?
+
+Question 8. Should the viewer support editing the chain? The documents do not specify. Decision needed: read-only, or editable.
+
+Question 9. Should the viewer support side-by-side comparison of two revisions? Decision needed.
+
+Question 10. How should the viewer report a change that is due to a theory version change versus a change that is due to a different annotation? Options: mark theory version changes distinctly, or only report field changes. Decision needed.
+
+End of build specification for App 7
