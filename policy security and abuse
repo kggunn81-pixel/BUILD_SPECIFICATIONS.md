@@ -1,0 +1,661 @@
+1. Purpose
+This policy states how the system is secured and how abuse is prevented, detected, and responded to. It is written to be read by users, by depositors, by institutions, by security researchers, and by anyone who wants to know that the system is safe to use.
+
+2. Scope
+This policy applies to:
+
+Every app in the suite.
+
+Every record in the system.
+
+Every user account.
+
+Every API.
+
+Every database.
+
+Every server.
+
+Every network connection.
+
+Every community space.
+
+It does not apply to:
+
+The code of an app that a user runs on their own machine, unless the app connects to the system.
+
+The data that a user keeps in their own storage.
+
+The legal entity's other systems, if one exists.
+
+3. Definitions
+Threat. Anything that could harm the system, its users, or its data.
+
+Threat actor. A person or group that poses a threat.
+
+Adversary. A threat actor who acts with intent to harm.
+
+Attack. An action by a threat actor to exploit a vulnerability.
+
+Vulnerability. A weakness in the system that could be exploited.
+
+Incident. An event that has harmed or could harm the system, its users, or its data.
+
+Abuse. The use of the system for a purpose that is not permitted by the policies.
+
+Security researcher. A person who studies the security of the system with the intent to improve it.
+
+Responsible disclosure. The practice of reporting a vulnerability privately and giving the project time to fix it before making it public.
+
+4. Principles
+The system is secured in accordance with the following principles.
+
+Defense in depth. Multiple layers of security.
+
+Least privilege. Users have the minimum access needed.
+
+Separation of duties. No single person controls everything.
+
+Fail safe. If a component fails, it fails in a way that does not harm the system.
+
+Minimize attack surface. The system exposes only what is needed.
+
+Assume breach. The system is designed to limit the harm of a breach.
+
+Continuous improvement. The system is improved as new threats are discovered.
+
+Transparency. The system's security measures are documented.
+
+5. The threat model
+The system's threat model identifies the following adversaries.
+
+The curious user. A user who explores the system beyond its intended use.
+
+The malicious user. A user who intends to harm the system, its users, or its data.
+
+The insider. A person with authorized access who abuses it.
+
+The competitor. A person or group who wants to harm the system for commercial or reputational reasons.
+
+The state actor. A person or group with significant resources who wants to harm the system.
+
+The automated attacker. A bot or script that attacks the system at scale.
+
+The accidental user. A user who makes a mistake that harms the system.
+
+The system identifies the following threats.
+
+Unauthorized access. A person gains access they are not authorized to have.
+
+Data breach. Data is exposed to unauthorized people.
+
+Data loss. Data is lost or destroyed.
+
+Data corruption. Data is altered in a way that is not intended.
+
+Denial of service. The system is made unavailable.
+
+Malware. Malicious software is introduced into the system.
+
+Social engineering. A person is tricked into revealing information or taking an action.
+
+Supply chain attack. A component the system depends on is compromised.
+
+Insider threat. A person with authorized access abuses it.
+
+Abuse of the system. A person uses the system for a purpose that is not permitted.
+
+6. Security measures
+The system employs the following security measures.
+
+Authentication. Users are authenticated before they access the system.
+
+Authorization. Users are authorized for the actions they perform.
+
+Encryption. Data is encrypted at rest and in transit.
+
+Access control. Access to data is controlled by the authorization layer.
+
+Audit logging. Every action is logged.
+
+Monitoring. The system is monitored for suspicious activity.
+
+Vulnerability scanning. The system is scanned for vulnerabilities.
+
+Penetration testing. The system is tested by security researchers.
+
+Incident response. The system has a plan for responding to incidents.
+
+Backup. The system is backed up regularly.
+
+Disaster recovery. The system has a plan for recovering from a disaster.
+
+Code review. Code is reviewed before it is merged.
+
+Dependency management. Dependencies are monitored for vulnerabilities.
+
+Configuration management. Configurations are managed to prevent misconfigurations.
+
+Patch management. Patches are applied promptly.
+
+Security training. Users with special access are trained.
+
+7. Authentication
+The system authenticates users by one or more of the following.
+
+A password.
+
+A passphrase.
+
+A multi-factor authentication method.
+
+An OAuth provider.
+
+A single sign-on provider.
+
+An API key.
+
+A certificate.
+
+The system requires strong passwords.
+
+The system requires passwords to be changed at a stated frequency, if the system requires password rotation.
+
+The system supports password recovery.
+
+The system supports account recovery.
+
+The system supports session management.
+
+The system supports logout.
+
+8. Authorization
+The system authorizes users by role-based access control.
+
+The system has the following roles.
+
+Reader. Can read public records.
+
+Depositor. Can read and deposit records.
+
+Moderator. Can read, deposit, and moderate records.
+
+App owner. Can manage a specific app.
+
+Schema owner. Can manage a specific schema.
+
+Admin. Can manage the system.
+
+Each role has a defined set of permissions.
+
+A user is assigned one or more roles.
+
+A user's roles are recorded.
+
+A user's access is checked before each action.
+
+9. Encryption
+The system encrypts data at rest.
+
+The system encrypts data in transit.
+
+The system uses standard encryption algorithms.
+
+The system uses keys of an appropriate length.
+
+The system manages keys securely.
+
+The system rotates keys at a stated frequency.
+
+The system's encryption methods are documented.
+
+10. Access control
+The system controls access to data by the authorization layer.
+
+A user may access data only if the user is authorized.
+
+A user's access is logged.
+
+A user's access may be revoked.
+
+A user's access may be restricted.
+
+A user's access is reviewed at a stated frequency.
+
+11. Audit logging
+The system logs every action.
+
+The log records who did what, when, and from where.
+
+The log records the outcome of the action.
+
+The log is stored securely.
+
+The log is protected from modification.
+
+The log is retained for a stated period.
+
+The log is available to administrators.
+
+The log is available to auditors.
+
+12. Monitoring
+The system monitors for suspicious activity.
+
+The monitoring includes:
+
+Failed login attempts.
+
+Unusual access patterns.
+
+Unusual data access.
+
+Unusual API usage.
+
+Unusual traffic.
+
+Errors.
+
+The monitoring generates alerts.
+
+The alerts are reviewed.
+
+The alerts are responded to.
+
+13. Vulnerability management
+The system scans for vulnerabilities.
+
+The system reviews dependencies for vulnerabilities.
+
+The system reviews the code for vulnerabilities.
+
+The system reviews the configuration for vulnerabilities.
+
+The system tests for vulnerabilities.
+
+The system tracks vulnerabilities.
+
+The system prioritizes vulnerabilities.
+
+The system fixes vulnerabilities.
+
+The system verifies the fixes.
+
+14. Responsible disclosure
+The system supports responsible disclosure.
+
+A security researcher who finds a vulnerability is asked to:
+
+Report the vulnerability privately.
+
+Give the project time to fix it.
+
+Not exploit the vulnerability.
+
+Not disclose the vulnerability publicly until it is fixed.
+
+The project will:
+
+Acknowledge the report promptly.
+
+Investigate the report.
+
+Fix the vulnerability.
+
+Credit the researcher, if the researcher agrees.
+
+Disclose the vulnerability after it is fixed.
+
+The project does not pursue legal action against a researcher who follows this policy.
+
+15. Incident response
+The system has an incident response plan.
+
+The plan includes:
+
+Preparation. The system is prepared for incidents.
+
+Detection. Incidents are detected.
+
+Analysis. Incidents are analyzed.
+
+Containment. Incidents are contained.
+
+Eradication. The cause of the incident is removed.
+
+Recovery. The system is recovered.
+
+Lessons learned. The incident is reviewed.
+
+The plan is documented.
+
+The plan is tested.
+
+The plan is updated.
+
+16. Breach notification
+If the system becomes aware of a data breach, the system notifies:
+
+The affected users.
+
+The supervisory authority, if required.
+
+The affected institutions, if required.
+
+The public, if required.
+
+The notification is made within the time required by law.
+
+The notification states:
+
+What happened.
+
+What data was affected.
+
+What the system is doing.
+
+What the affected users can do.
+
+How to contact the system.
+
+The breach is recorded.
+
+The response is reviewed.
+
+17. Backup
+The system is backed up regularly.
+
+The backup includes:
+
+The data.
+
+The configuration.
+
+The code.
+
+The logs.
+
+The backup is stored securely.
+
+The backup is tested.
+
+The backup is retained for a stated period.
+
+The backup is available for recovery.
+
+18. Disaster recovery
+The system has a disaster recovery plan.
+
+The plan states:
+
+How the system is recovered.
+
+How long recovery takes.
+
+Who is responsible.
+
+How the recovery is tested.
+
+The plan is documented.
+
+The plan is tested.
+
+The plan is updated.
+
+19. Abuse
+Abuse of the system includes:
+
+Submitting false evidence.
+
+Submitting false records.
+
+Submitting records that violate the privacy policy.
+
+Submitting records that violate the data policy.
+
+Flooding the system with records.
+
+Flooding the Autofill Library Service with fake entries.
+
+Poisoning the Meta-Science Dashboard.
+
+Attempting to gain unauthorized access.
+
+Attempting to disrupt the system.
+
+Attempting to harm other users.
+
+Using the system for an unlawful purpose.
+
+The system detects abuse.
+
+The system responds to abuse.
+
+The response may include:
+
+Warning the user.
+
+Restricting the user's access.
+
+Suspending the user's account.
+
+Terminating the user's account.
+
+Reporting the abuse to the authorities.
+
+The response is proportionate to the abuse.
+
+The response is recorded.
+
+20. Spam
+Spam is not permitted.
+
+Spam includes:
+
+Unsolicited commercial messages.
+
+Repetitive messages.
+
+Irrelevant messages.
+
+Messages that violate the code of conduct.
+
+Spam is detected.
+
+Spam is removed.
+
+Spam is reported.
+
+21. Harassment
+Harassment is not permitted.
+
+Harassment includes:
+
+Threatening behavior.
+
+Insulting behavior.
+
+Discriminatory behavior.
+
+Unwanted attention.
+
+Harassment is detected.
+
+Harassment is addressed.
+
+Harassment may result in removal from the community.
+
+22. Content moderation
+Content is moderated.
+
+Moderation includes:
+
+Reviewing deposits.
+
+Reviewing comments.
+
+Reviewing community posts.
+
+Reviewing appeals.
+
+Moderation follows the code of conduct.
+
+Moderation follows the quality and curation policy (57).
+
+Moderation follows the data policy (50).
+
+23. Reporting abuse
+Abuse is reported to the contact address stated in the repository.
+
+The report includes:
+
+What happened.
+
+When it happened.
+
+Who was involved.
+
+What the reporter wants.
+
+The report is acknowledged.
+
+The report is investigated.
+
+The report is responded to.
+
+The response is recorded.
+
+24. Security training
+Users with special access are trained in security.
+
+The training covers:
+
+Authentication.
+
+Authorization.
+
+Encryption.
+
+Access control.
+
+Audit logging.
+
+Incident response.
+
+The training is updated.
+
+The training is recorded.
+
+25. Compliance
+The system complies with:
+
+The General Data Protection Regulation (GDPR).
+
+The California Consumer Privacy Act (CCPA).
+
+The Health Insurance Portability and Accountability Act (HIPAA).
+
+The Family Educational Rights and Privacy Act (FERPA).
+
+Other applicable regulations.
+
+The system documents its compliance.
+
+The system reviews its compliance.
+
+The system updates its compliance.
+
+26. Third parties
+The system may use third-party services.
+
+The third-party services are reviewed for security.
+
+The third-party services are reviewed for privacy.
+
+The third-party services are reviewed for compliance.
+
+The third-party services are listed.
+
+The third-party services are documented.
+
+27. Amendments
+This policy may be amended by the governance body.
+
+An amendment takes effect at a stated date.
+
+An amendment is announced to the community.
+
+An amendment is recorded in the repository.
+
+28. Review
+This policy is reviewed at a stated frequency, which may be annually.
+
+The review considers whether the policy is still fit for purpose.
+
+The review considers whether the policy needs to be changed.
+
+The review may result in an amendment.
+
+The review is recorded.
+
+29. Contact
+Questions about this policy are directed to the contact address stated in the repository.
+
+Reports of a security incident are directed to the same address.
+
+Reports of abuse are directed to the same address.
+
+30. Effective date
+This policy takes effect on the date stated in the repository.
+
+31. Summary
+The system is secured with multiple layers.
+
+Users are authenticated.
+
+Users are authorized.
+
+Data is encrypted.
+
+Access is controlled.
+
+Actions are logged.
+
+The system is monitored.
+
+Vulnerabilities are managed.
+
+Responsible disclosure is supported.
+
+Incidents are responded to.
+
+Breaches are notified.
+
+Backups are taken.
+
+Disaster recovery is planned.
+
+Abuse is not permitted.
+
+Spam is not permitted.
+
+Harassment is not permitted.
+
+Content is moderated.
+
+Abuse is reported.
+
+Security training is provided.
+
+Compliance is maintained.
+
+Third parties are reviewed.
+
+The policy may be amended.
+
+The policy is reviewed.
+
+End of the Security and Abuse Policy.
+
+
+
