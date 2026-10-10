@@ -1,0 +1,466 @@
+1. Purpose
+This policy states how the system handles personal data, how it handles ethical issues, and how it complies with privacy regulations. It applies to every app in the suite that could hold personal data. It is written to be read by depositors, by institutions, by ethics boards, by data protection officers, and by the people whose data might be in the system.
+
+2. Scope
+This policy applies to:
+
+Every record that contains personal data.
+
+Every record that could be linked to a person.
+
+Every provenance record that identifies a depositor.
+
+Every audit log that records who did what.
+
+Every account, every session, every interaction.
+
+It does not apply to:
+
+Anonymised data that cannot be linked to a person.
+
+Aggregate data that does not identify a person.
+
+Public data that was already public and is deposited without change.
+
+3. Definitions
+Personal data. Any information relating to an identified or identifiable natural person.
+
+Data subject. The person to whom personal data relates.
+
+Processing. Any operation performed on personal data, including collection, storage, use, sharing, and deletion.
+
+Controller. The entity that determines the purposes and means of processing personal data.
+
+Processor. The entity that processes personal data on behalf of the controller.
+
+Consent. A freely given, specific, informed, and unambiguous indication of the data subject's wishes.
+
+Anonymisation. The process of making personal data impossible to link to a person.
+
+Pseudonymisation. The process of replacing identifying information with a pseudonym, while keeping the possibility of re-identification.
+
+Special category data. Personal data that reveals racial or ethnic origin, political opinions, religious or philosophical beliefs, trade union membership, genetic data, biometric data, health data, or data concerning a person's sex life or sexual orientation.
+
+Vulnerable person. A person who is under 18, or who is otherwise unable to give informed consent.
+
+4. Principles
+The system processes personal data in accordance with the following principles.
+
+Lawfulness. Personal data is processed lawfully.
+
+Fairness. Personal data is processed fairly.
+
+Transparency. The data subject is informed of the processing.
+
+Purpose limitation. Personal data is collected for specified, explicit, and legitimate purposes.
+
+Data minimisation. Personal data is adequate, relevant, and limited to what is necessary.
+
+Accuracy. Personal data is accurate and kept up to date.
+
+Storage limitation. Personal data is kept no longer than necessary.
+
+Integrity and confidentiality. Personal data is processed securely.
+
+Accountability. The controller is responsible for compliance.
+
+5. Legal bases
+The system processes personal data only if one of the following legal bases applies.
+
+Consent. The data subject has given consent.
+
+Contract. The processing is necessary for a contract.
+
+Legal obligation. The processing is necessary for a legal obligation.
+
+Vital interests. The processing is necessary to protect someone's life.
+
+Public task. The processing is necessary for a public task.
+
+Legitimate interests. The processing is necessary for legitimate interests, unless overridden by the data subject's rights.
+
+The legal basis is recorded for each processing activity.
+
+6. What personal data is collected
+The system collects the following personal data.
+
+Depositor data. Name, affiliation, email address, and other information needed to identify a depositor.
+
+Account data. Username, password hash, and session information.
+
+Audit data. Records of who did what, when, and from where.
+
+Provenance data. Records of who produced a record and when.
+
+Record data. Any personal data that a depositor includes in a record.
+
+If a depositor includes personal data in a record, the depositor is responsible for ensuring that the processing is lawful.
+
+7. What personal data is not collected
+The system does not collect the following personal data.
+
+Data that is not needed for the purposes of the system.
+
+Data that the data subject has not consented to.
+
+Data that is special category data, unless the data subject has given explicit consent or the processing is otherwise lawful.
+
+Data about vulnerable persons, unless the data subject's guardian has given consent or the processing is otherwise lawful.
+
+Data that is not relevant to the purposes of the system.
+
+8. How personal data is used
+Personal data is used for the following purposes.
+
+To provide the services of the system.
+
+To authenticate users.
+
+To authorise access.
+
+To record provenance.
+
+To conduct audits.
+
+To improve the system.
+
+To comply with legal obligations.
+
+To respond to legal requests.
+
+Personal data is not used for any other purpose without the consent of the data subject or another legal basis.
+
+9. How personal data is stored
+Personal data is stored securely.
+
+Personal data is encrypted at rest.
+
+Personal data is encrypted in transit.
+
+Personal data is stored in a location that complies with the applicable regulations.
+
+Personal data is backed up securely.
+
+Personal data is deleted when no longer needed.
+
+10. How personal data is shared
+Personal data is shared only if one of the following applies.
+
+The data subject has consented.
+
+The sharing is necessary for the services of the system.
+
+The sharing is necessary for a legal obligation.
+
+The sharing is necessary to protect someone's life.
+
+The sharing is necessary for a public task.
+
+The sharing is necessary for legitimate interests, unless overridden by the data subject's rights.
+
+Personal data is not sold.
+
+Personal data is not licensed to third parties.
+
+Personal data is not transferred to a country that does not provide an adequate level of protection, unless the transfer is lawful.
+
+11. How personal data is deleted
+Personal data is deleted when no longer needed.
+
+Personal data is deleted on the request of the data subject, subject to any legal requirement to retain it.
+
+Personal data is deleted when the account is closed.
+
+Personal data is deleted when the deposit is removed.
+
+Personal data is deleted in a way that cannot be recovered.
+
+The deletion is recorded in the audit log.
+
+12. Rights of the data subject
+The data subject has the following rights.
+
+The right to be informed. The data subject is informed of the processing.
+
+The right of access. The data subject can access their personal data.
+
+The right to rectification. The data subject can correct inaccurate personal data.
+
+The right to erasure. The data subject can request the deletion of their personal data.
+
+The right to restrict processing. The data subject can request that processing is restricted.
+
+The right to data portability. The data subject can obtain their personal data in a portable format.
+
+The right to object. The data subject can object to the processing.
+
+The right not to be subject to automated decision-making. The data subject is not subject to decisions based solely on automated processing.
+
+The right to withdraw consent. The data subject can withdraw consent at any time.
+
+The rights are exercised by contacting the contact address stated in the repository.
+
+13. Special category data
+Special category data is processed only if one of the following applies.
+
+The data subject has given explicit consent.
+
+The processing is necessary for employment law.
+
+The processing is necessary for social security law.
+
+The processing is necessary to protect the data subject's vital interests.
+
+The processing is necessary for a foundation, association, or non-profit body.
+
+The processing relates to data that the data subject has made public.
+
+The processing is necessary for legal claims.
+
+The processing is necessary for substantial public interest.
+
+The processing is necessary for preventive medicine, occupational medicine, or public health.
+
+The processing is necessary for archiving, research, or statistics.
+
+14. Vulnerable persons
+The system does not knowingly collect personal data about vulnerable persons without the consent of a guardian.
+
+The system does not knowingly process personal data about vulnerable persons in a way that is not in their best interests.
+
+The system does not knowingly use personal data about vulnerable persons for commercial purposes.
+
+If the system becomes aware that it holds personal data about a vulnerable person, the system takes steps to protect the data subject.
+
+15. Automated decision-making
+The system does not make decisions about data subjects based solely on automated processing.
+
+The system may make recommendations based on automated processing, but the final decision is made by a human.
+
+If the system makes a recommendation that could affect a data subject, the data subject is informed of the recommendation and the reasoning.
+
+16. Data protection officer
+The system has a data protection officer.
+
+The data protection officer is responsible for monitoring compliance with this policy.
+
+The data protection officer is the contact point for data subjects.
+
+The data protection officer is the contact point for the supervisory authority.
+
+The data protection officer reports to the governance body.
+
+17. Data protection impact assessment
+The system conducts a data protection impact assessment for every app that processes personal data.
+
+The assessment is conducted before the app is deployed.
+
+The assessment is reviewed when the app changes.
+
+The assessment is reviewed when the risks change.
+
+The assessment is recorded.
+
+18. Breach notification
+If the system becomes aware of a personal data breach, the system notifies the supervisory authority within 72 hours, unless the breach is unlikely to result in a risk to the data subjects.
+
+If the system becomes aware of a personal data breach, the system notifies the affected data subjects without undue delay, if the breach is likely to result in a high risk to their rights and freedoms.
+
+The system records the breach and the response.
+
+The system reviews the breach and takes steps to prevent a recurrence.
+
+19. Transfers
+Personal data is not transferred to a country outside the system's jurisdiction unless one of the following applies.
+
+The country is recognised as providing an adequate level of protection.
+
+The transfer is covered by appropriate safeguards.
+
+The transfer is covered by a specific derogation.
+
+The transfer is covered by the data subject's consent.
+
+The transfer is covered by the performance of a contract.
+
+The transfer is covered by a legal obligation.
+
+20. Ethics
+The system adheres to the following ethical principles.
+
+Respect for persons. The system respects the autonomy and dignity of every person.
+
+Beneficence. The system seeks to benefit the people it serves.
+
+Non-maleficence. The system seeks not to harm the people it serves.
+
+Justice. The system treats people fairly.
+
+Transparency. The system is open about what it does.
+
+Accountability. The system takes responsibility for its actions.
+
+21. Ethical review
+Every app that processes personal data undergoes ethical review.
+
+The ethical review is conducted by an ethics board.
+
+The ethics board is independent of the app's developers.
+
+The ethics board includes members with expertise in the app's domain.
+
+The ethics board includes members who are not affiliated with the system.
+
+The ethics board reviews the app's purposes, methods, and risks.
+
+The ethics board issues a decision.
+
+The decision is recorded.
+
+22. Research ethics
+Research that uses the system's data undergoes ethical review.
+
+The review is conducted by the researcher's institution.
+
+The review is conducted under the applicable research ethics regulations.
+
+The review considers the risks to the data subjects.
+
+The review considers the benefits of the research.
+
+The review considers the consent of the data subjects.
+
+The review considers the anonymisation of the data.
+
+The review considers the publication of the results.
+
+23. Medical data
+Medical data is handled under the applicable medical privacy regulations, in addition to this policy.
+
+Medical data is processed only for medical purposes.
+
+Medical data is processed only by people who are authorised.
+
+Medical data is not shared without the data subject's consent, unless the sharing is lawful.
+
+Medical data is retained for the period required by law.
+
+Medical data is deleted when no longer needed.
+
+24. Education data
+Education data is handled under the applicable education privacy regulations, in addition to this policy.
+
+Education data is processed only for education purposes.
+
+Education data is processed only by people who are authorised.
+
+Education data is not shared without the consent of the data subject or their guardian.
+
+Education data is retained for the period required by law.
+
+Education data is deleted when no longer needed.
+
+25. Children's data
+Children's data is handled under the applicable children's privacy regulations, in addition to this policy.
+
+Children's data is processed only with the consent of a guardian.
+
+Children's data is processed only for the child's benefit.
+
+Children's data is not used for commercial purposes.
+
+Children's data is not shared without the consent of a guardian.
+
+Children's data is retained for the period required by law.
+
+Children's data is deleted when no longer needed.
+
+26. Jurisdiction
+This policy is written to comply with the General Data Protection Regulation (GDPR) of the European Union.
+
+The policy also seeks to comply with other privacy regulations, including:
+
+The California Consumer Privacy Act (CCPA).
+
+The California Privacy Rights Act (CPRA).
+
+The Health Insurance Portability and Accountability Act (HIPAA).
+
+The Family Educational Rights and Privacy Act (FERPA).
+
+The Children's Online Privacy Protection Act (COPPA).
+
+Other applicable privacy regulations.
+
+If a regulation conflicts with this policy, the regulation prevails.
+
+27. Amendments
+This policy may be amended by the governance body.
+
+An amendment takes effect at a stated date.
+
+An amendment is announced to the community.
+
+An amendment is recorded in the repository.
+
+An amendment may not retroactively change the terms under which personal data was collected, unless the data subject consents.
+
+28. Reporting and disputes
+A privacy question is directed to the data protection officer.
+
+A privacy complaint is directed to the data protection officer.
+
+The data protection officer responds within a stated period.
+
+The data subject may complain to the supervisory authority.
+
+The data subject may seek a judicial remedy.
+
+29. Contact
+Questions about this policy are directed to the contact address stated in the repository.
+
+Reports of a privacy breach are directed to the same address.
+
+Requests to exercise the rights of a data subject are directed to the same address.
+
+30. Effective date
+This policy takes effect on the date stated in the repository.
+
+31. Summary
+The system processes personal data lawfully, fairly, and transparently.
+
+The system collects only what is needed.
+
+The system stores personal data securely.
+
+The system shares personal data only when lawful.
+
+The system deletes personal data when no longer needed.
+
+The data subject has rights, including access, rectification, erasure, and portability.
+
+Special category data is processed only when lawful.
+
+Vulnerable persons are protected.
+
+The system does not make decisions based solely on automated processing.
+
+The system has a data protection officer.
+
+The system conducts data protection impact assessments.
+
+The system notifies breaches.
+
+The system adheres to ethical principles.
+
+The system conducts ethical review.
+
+Medical data, education data, and children's data are handled under additional regulations.
+
+The system complies with GDPR and other privacy regulations.
+
+The governance body may amend this policy.
+
+The data protection officer handles questions and complaints.
+
+End of the Privacy and Ethics Policy.
