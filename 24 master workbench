@@ -1,0 +1,1425 @@
+Build Specification — App 24: The Master Workbench (Orchestrator Edition)
+Completeness status: COMPLETE. All sections delivered in one pass. No truncation. Formatted for copy-paste. Long lists are broken into short lines.
+
+This is the updated version. It encompasses all 49 apps. It supersedes the original App 24.
+
+1. What It Is
+A plugin host, index, and live data orchestrator for all 48 other apps in the suite (Apps 1 through 23, and Apps 25 through 49). It does three things.
+
+One. It hosts all 48 other apps.
+
+Two. It provides a shared parameter registry and a shared data bus, so a value entered in one app automatically flows to every other app that accepts that value.
+
+Three. It runs a dependency graph, so results from one app feed into the next, and the whole suite runs as a chain reaction from a minimum set of user inputs.
+
+It reuses the STAG Schema Library (App 17), the Null-Model Protocol Library (App 18), the Provenance-Aware Annotation Database (App 20), the PROV-O Exporter (App 3), the Autofill Library Service (App 49), and every other app in the suite. It is for research groups, labs, consortia, and anyone who uses more than one app.
+
+2. Core Requirements
+Functional requirements:
+
+Host all 48 other apps as plugins.
+
+Provide a shared parameter registry that defines every parameter used by any app, with its type, its permitted values, its units, and its producing apps and consuming apps.
+
+Provide a shared data bus that carries parameter values between apps.
+
+Provide a dependency graph that defines which app produces which parameter and which app consumes which parameter.
+
+When a user enters a parameter in one app, publish it on the data bus and update every app that consumes it.
+
+When an app produces a result parameter, publish it on the data bus and update every app that consumes it.
+
+Run the chain reaction: when an app receives new input, recompute its output, publish the output, and propagate.
+
+Support manual override: the user can freeze a parameter, so it is not overwritten by the chain reaction.
+
+Support the library (App 23) and the other storage apps as special cases. They store records. They do not participate in the chain reaction as producers or consumers of the statistical parameters, but they can be read from and written to.
+
+Support saving the entire session state: every parameter value, every frozen parameter, every app's state.
+
+Support loading a saved session.
+
+Support exporting the chain of computations: which app produced which parameter, and which app consumed it.
+
+Support a visualisation of the data flow: a graph showing the apps as nodes and the parameter flows as edges.
+
+Support a visualisation of the dependency graph.
+
+Support a "what-if" mode: change one parameter and see the effect propagate through the chain without committing.
+
+Support a "commit" mode: apply the change.
+
+Support a "reset" mode: clear all derived parameters and start from the user inputs.
+
+Support conflict resolution: if two apps produce the same parameter with different values, report the conflict and require the user to choose.
+
+Support the health check for each app.
+
+Support versioning and provenance.
+
+Support a command-line interface and a web interface.
+
+Support the plugin interface so new apps can be added.
+
+Support the shared schema registry.
+
+Support the shared authentication layer.
+
+Support the shared reporting layer.
+
+Support the unified search across all apps.
+
+Support the launcher, the workspace, the navigation, the status view, the configuration view, and the logging view.
+
+Non-functional requirements:
+
+Deterministic.
+
+Fast: propagate a change through the chain in under three seconds for a typical session.
+
+Scalable: support up to 10^7 records across all apps.
+
+Versioned: the orchestrator records the version of each app and the version of the shared core.
+
+Reproducible.
+
+Portable.
+
+Well-documented.
+
+3. Input Specification
+Input 1. Module registry file. Required. Lists the 48 apps, their versions, their dependencies, and their entry points.
+
+Input 2. Parameter registry file. Required. Lists every parameter, its type, its permitted values, its units, its producing apps, and its consuming apps.
+
+Input 3. Dependency graph file. Required. Lists which app produces which parameter and which app consumes which parameter.
+
+Input 4. User-entered parameters. Required for a session. The minimum set of values the user provides.
+
+Input 5. Frozen parameter list. Optional.
+
+Input 6. Session file. Optional.
+
+Input 7. App configuration file. Required for each app.
+
+Input 8. Plugin package. Optional. A new app to add to the registry.
+
+Input 9. Output format. Optional. Values: json, text, html.
+
+4. Output Specification
+Output 1. Session state. JSON. Every parameter value, every frozen parameter, every app's state.
+
+Output 2. Parameter registry view. JSON.
+
+Output 3. Data flow graph. JSON or a rendered graph.
+
+Output 4. Dependency graph. JSON or a rendered graph.
+
+Output 5. Chain of computations. JSON.
+
+Output 6. Conflict report. JSON.
+
+Output 7. Audit log. JSON.
+
+Output 8. Reproducibility record. JSON.
+
+Output 9. App registry view. JSON. All 48 apps with their versions.
+
+Output 10. Unified search result. JSON.
+
+Output 11. Backup file. A JSON archive or a database dump.
+
+5. Module-by-Module Specification
+Module 1. Module Registry.
+
+Holds the list of registered apps. Each entry has: module_id, module_name, module_version, module_description, module_dependencies, module_entry_point, module_api_endpoint, module_ui_route, module_status, module_configuration_schema, module_health_check.
+
+Module 2. Shared Schema Registry.
+
+Holds the shared schemas. It is the union of the STAG schema (App 17), the Null-Model Protocol schema (App 18), the deposit schema (App 23), and every domain schema registered by the domain apps.
+
+Module 3. Shared Provenance Database.
+
+Holds the provenance records for all apps. It reuses the Provenance-Aware Annotation Database (App 20) and extends it with the app identifier.
+
+Module 4. Shared Authentication Layer.
+
+Provides authentication and authorization (role-based access control: reader, depositor, moderator, admin, and app-specific roles).
+
+Module 5. Shared Reporting Layer.
+
+Provides reporting across apps.
+
+Module 6. Unified Search.
+
+Provides unified search across all apps.
+
+Module 7. Parameter Registry.
+
+Holds the parameter registry. Each entry has: parameter_id, parameter_name, parameter_type, parameter_permitted_values, parameter_units, parameter_produced_by, parameter_consumed_by, parameter_default, parameter_description.
+
+Module 8. Data Bus.
+
+Carries parameter values between apps. Each value has: parameter_id, parameter_value, produced_by, produced_at, frozen.
+
+Module 9. Dependency Graph.
+
+Holds the dependency graph. Each node is an app. Each edge is a parameter flow.
+
+Module 10. Orchestrator.
+
+Runs the chain reaction.
+
+Module 11. Conflict Resolver.
+
+Detects and resolves conflicts.
+
+Module 12. Manual Override.
+
+Lets the user freeze parameters.
+
+Module 13. Session Manager.
+
+Saves and loads session state.
+
+Module 14. Chain Reporter.
+
+Produces the chain of computations.
+
+Module 15. Data Flow Visualiser.
+
+Renders the data flow graph.
+
+Module 16. Dependency Graph Visualiser.
+
+Renders the dependency graph.
+
+Module 17. What-If Mode.
+
+Sandbox mode.
+
+Module 18. Commit Mode.
+
+Applies sandbox results.
+
+Module 19. Reset Mode.
+
+Clears derived parameters.
+
+Module 20. Launcher.
+
+Opens any app.
+
+Module 21. Workspace.
+
+Opens multiple apps side by side.
+
+Module 22. Navigation.
+
+Moves between apps.
+
+Module 23. Status View.
+
+Shows the health of each app.
+
+Module 24. Configuration View.
+
+Configures each app.
+
+Module 25. Logging View.
+
+Aggregates logs.
+
+Module 26. Plugin Interface.
+
+Allows new apps to be added.
+
+Module 27. Version Compatibility Checker.
+
+Checks version compatibility.
+
+Module 28. Health Check.
+
+Runs a health check.
+
+Module 29. Backup and Restore.
+
+Backs up and restores the shared core and each app.
+
+Module 30. Audit Logging.
+
+Logs operations.
+
+Module 31. Command-Line Interface.
+
+Administration.
+
+Module 32. REST API.
+
+HTTP endpoints.
+
+Module 33. GraphQL API.
+
+GraphQL endpoint.
+
+Module 34. Web Interface.
+
+User and administrator interface.
+
+Module 35. Reproducibility Recorder.
+
+Records versions, session state, and timestamp.
+
+Module 36. Migration Manager.
+
+Database migrations.
+
+6. Full App Registry
+Here are all 48 apps that App 24 hosts, with their versions and their key dependencies.
+
+The foundation apps
+App 1. STAG Annotation Editor. Depends on App 17, App 4, App 49.
+
+App 2. STAG Annotation Validator. Depends on App 17, App 49.
+
+App 3. PROV-O Exporter and Importer. Depends on App 17, App 49.
+
+App 4. Scale-Separation Record Calculator. Depends on App 49.
+
+App 5. STAG Graph Viewer. Depends on App 17, App 49.
+
+App 6. Partition Sensitivity Explorer. Depends on App 17, App 49.
+
+App 7. Revision History Viewer. Depends on App 17, App 49.
+
+App 8. Pipeline Specification Wizard. Depends on App 12, App 49.
+
+App 9. Full-Pipeline Simulator. Depends on App 18, App 11, App 12, App 49.
+
+App 10. Scan-Family Comparator. Depends on App 9, App 49.
+
+App 11. Effective-Null Builder. Depends on App 49.
+
+App 12. N Calculator. Depends on App 49.
+
+App 13. Gap-Score Reporter. Depends on App 49.
+
+App 14. STAG plus Null-Model Combined Workbench. Depends on App 1, App 2, App 8, App 9, App 17, App 18, App 49.
+
+App 15. Journal Submission Checker. Depends on App 2, App 9, App 21, App 49.
+
+App 16. Teaching and Training Sandbox. Depends on App 1, App 9, App 49.
+
+App 17. STAG Schema Library. No dependencies.
+
+App 18. Null-Model Protocol Library. No dependencies.
+
+App 19. Reproducibility Deposit Template. Depends on App 17, App 18, App 49.
+
+App 20. Provenance-Aware Annotation Database. Depends on App 17, App 3, App 49.
+
+App 21. STAG Audit Tool. Depends on App 17, App 49.
+
+App 22. Numerical Verification Tool. Depends on App 49.
+
+App 23. Physics Knowledge Library. Depends on App 17, App 18, App 3, App 20, App 14, App 49.
+
+The domain registries
+App 25. Anomaly Register. Depends on App 17, App 18, App 20, App 3, App 22, App 7, App 23, App 49.
+
+App 26. Replication Tracker. Depends on App 23, App 9, App 18, App 20, App 22, App 49.
+
+App 27. Scale Atlas. Depends on App 17, App 4, App 20, App 5, App 3, App 7, App 22, App 23, App 49.
+
+App 28. Instrument Provenance Registry. Depends on App 11, App 20, App 22, App 3, App 7, App 23, App 49.
+
+App 29. Model Registry. Depends on App 17, App 5, App 20, App 3, App 49.
+
+App 30. Counterfactual Explorer. Depends on App 1, App 9, App 17, App 18, App 14, App 20, App 22, App 23, App 49.
+
+App 31. Misconception Database. Depends on App 23, App 21, App 20, App 3, App 7, App 22, App 49.
+
+App 32. Method Tracker. Depends on App 1, App 16, App 17, App 20, App 7, App 49.
+
+App 33. Learning Provenance System. Depends on App 1, App 17, App 20, App 7, App 32, App 5, App 49.
+
+App 34. Cross-Subject Link Explorer. Depends on App 17, App 5, App 20, App 3, App 7, App 32, App 33, App 49.
+
+App 35. Argument Mapper for Students. Depends on App 1, App 17, App 5, App 20, App 7, App 33, App 49.
+
+App 36. Error Taxonomy. Depends on App 17, App 20, App 7, App 31, App 32, App 33, App 49.
+
+App 37. Legal Precedent Graph. Depends on App 17, App 5, App 20, App 3, App 7, App 22, App 23, App 49.
+
+App 38. Historical Claim Registry. Depends on App 23, App 1, App 17, App 20, App 3, App 7, App 22, App 49.
+
+App 39. Economic Indicator Provenance System. Depends on App 11, App 20, App 22, App 3, App 7, App 23, App 28, App 49.
+
+App 40. Medical Claim Verifier. Depends on App 23, App 9, App 18, App 21, App 20, App 3, App 7, App 22, App 26, App 46, App 49.
+
+App 41. Psychological Effect Registry. Depends on App 23, App 26, App 9, App 18, App 20, App 3, App 7, App 22, App 46, App 49.
+
+App 42. Climate Attribution Registry. Depends on App 23, App 9, App 18, App 20, App 3, App 7, App 22, App 46, App 49.
+
+App 43. Philosophical Argument Graph. Depends on App 1, App 17, App 5, App 20, App 3, App 7, App 35, App 49.
+
+App 44. Mathematical Conjecture Registry. Depends on App 23, App 20, App 22, App 3, App 7, App 5, App 49.
+
+The meta-level apps
+App 45. Claim Lifecycle Tracker. Depends on App 23, App 26, App 25, App 40, App 41, App 42, App 38, App 20, App 3, App 7, App 46, App 49.
+
+App 46. Evidence Aggregator. Depends on App 23, App 9, App 18, App 22, App 20, App 3, App 7, App 11, App 26, App 25, App 40, App 41, App 42, App 49.
+
+App 47. Replication Cost Estimator. Depends on App 23, App 12, App 8, App 11, App 20, App 3, App 7, App 28, App 26, App 49.
+
+App 48. Meta-Science Dashboard. Depends on App 23, App 26, App 25, App 40, App 41, App 42, App 38, App 44, App 45, App 46, App 20, App 3, App 7, App 49.
+
+The shared service
+App 49. Autofill Library Service. No dependencies.
+
+7. The Full Parameter Registry
+This is the complete parameter registry for all 49 apps. It adds the new parameters introduced by the second list to the parameters from the first list.
+
+Statistical parameters
+null_model. Enum: uniform, parametric, mixture, empirical, kde. Produced by App 8. Consumed by App 9, App 10, App 11, App 14.
+
+null_parameters. Object. Produced by App 8. Consumed by App 9, App 10, App 11, App 14.
+
+support_rule. Enum: S1, S2, S3. Produced by App 8. Consumed by App 9, App 10, App 14.
+
+support_padding. Number. Produced by App 8. Consumed by App 9, App 10, App 14.
+
+scan_family. Enum: adjacent, pair, fixed. Produced by App 8. Consumed by App 9, App 10, App 14.
+
+g_min_value. Number. Produced by App 8. Consumed by App 9, App 10, App 14.
+
+g_min_units. Enum: data, probability. Produced by App 8. Consumed by App 9, App 10, App 14.
+
+p_max. Number. Produced by App 8. Consumed by App 9, App 10, App 14.
+
+boundary_convention. Enum: B1, B2. Produced by App 8. Consumed by App 9, App 10, App 14.
+
+empty_w_convention. Enum: no_candidate, zero. Produced by App 8. Consumed by App 9, App 10, App 14.
+
+tie_breaking_rule. String. Produced by App 8. Consumed by App 9, App 14.
+
+gap_selection_rule. String. Produced by App 8. Consumed by App 9, App 14.
+
+tail_definition. Enum: greater_than_or_equal, greater_than. Produced by App 8. Consumed by App 9, App 14.
+
+N. Integer. Produced by App 8, App 12. Consumed by App 9, App 10, App 14.
+
+target_tail. Number. Produced by App 8, App 12. Consumed by App 12.
+
+relative_error. Number. Produced by App 8, App 12. Consumed by App 12.
+
+alpha. Number. Produced by App 8, App 12. Consumed by App 9, App 10, App 14, App 15, App 21.
+
+seed. Integer. Produced by App 8, App 9. Consumed by App 9, App 10, App 14.
+
+transformation. Enum: identity, log, other. Produced by App 8. Consumed by App 9, App 10, App 11, App 14.
+
+jittering_applied. Boolean. Produced by App 8. Consumed by App 9, App 10, App 11, App 14.
+
+jittering_scale. Number. Produced by App 8. Consumed by App 9, App 10, App 14.
+
+selection_effects_declared. Boolean. Produced by App 8. Consumed by App 9, App 10, App 11, App 14.
+
+selection_function. Object. Produced by App 8. Consumed by App 9, App 10, App 11, App 14.
+
+selection_order. Enum. Produced by App 8. Consumed by App 9, App 11, App 14.
+
+measurement_uncertainty_declared. Boolean. Produced by App 8. Consumed by App 9, App 10, App 11, App 14.
+
+measurement_kernel. Object. Produced by App 8. Consumed by App 9, App 10, App 11, App 14.
+
+dependence_declared. Boolean. Produced by App 8. Consumed by App 9, App 10, App 11, App 14.
+
+dependence_structure. Object. Produced by App 8. Consumed by App 9, App 10, App 11, App 14.
+
+clustering_step. String. Produced by App 8. Consumed by App 9, App 10, App 14.
+
+observed_data. Array. Produced by user. Consumed by App 9, App 10, App 13, App 14.
+
+observed_statistic. Number. Produced by App 9. Consumed by App 14, App 15, App 22.
+
+exceedance_probability. Number. Produced by App 9. Consumed by App 14, App 15, App 22.
+
+monte_carlo_uncertainty. Number. Produced by App 9, App 12. Consumed by App 14, App 15, App 22.
+
+empty_w_fraction. Number. Produced by App 9. Consumed by App 14.
+
+point_mass_at_zero. Number. Produced by App 9. Consumed by App 14.
+
+empirical_null_distribution. Array. Produced by App 9. Consumed by App 14, App 15.
+
+critical_value. Number. Produced by App 10. Consumed by App 14, App 15.
+
+power. Number. Produced by App 10. Consumed by App 14, App 15.
+
+effective_null. Object. Produced by App 11. Consumed by App 9, App 10, App 14.
+
+effective_null_continuity. Enum. Produced by App 11. Consumed by App 9, App 10, App 14.
+
+gap_score. Number. Produced by App 13. Consumed by App 14.
+
+candidate_gaps. Array. Produced by user. Consumed by App 13.
+
+expected_density. Object. Produced by user. Consumed by App 13.
+
+recommended_N. Integer. Produced by App 12. Consumed by App 8.
+
+practical_limit. Integer. Produced by App 12. Consumed by App 12.
+
+pipeline_specification. Object. Produced by App 8. Consumed by App 9, App 10, App 14, App 15.
+
+statistical_gap_result. Object. Produced by App 9, App 14. Consumed by App 15, App 20, App 21, App 23.
+
+dependence_gap_discordance. String. Produced by App 14. Consumed by App 15, App 20, App 21, App 23.
+
+dependence_gap_discordance_reason. String. Produced by App 14. Consumed by App 15, App 20, App 21, App 23.
+
+STAG parameters
+annotation_id. String. Produced by App 1. Consumed by App 2, App 3, App 5, App 6, App 7, App 14, App 15, App 20, App 21, App 23.
+
+theory_version. String. Produced by App 1. Consumed by App 2, App 3, App 5, App 7, App 14, App 15, App 20, App 21, App 23.
+
+annotator. Object. Produced by App 1. Consumed by App 2, App 3, App 5, App 7, App 14, App 15, App 20, App 21, App 23.
+
+source_nodes. Array. Produced by App 1. Consumed by App 2, App 3, App 5, App 6, App 7, App 14, App 15, App 20, App 21, App 23.
+
+target_nodes. Array. Produced by App 1. Consumed by App 2, App 3, App 5, App 6, App 7, App 14, App 15, App 20, App 21, App 23.
+
+event_node_id. String. Produced by App 1. Consumed by App 2, App 3, App 5, App 7, App 14, App 15, App 20, App 21, App 23.
+
+node_id. String. Produced by App 1. Consumed by App 2, App 3, App 5, App 6, App 7, App 14, App 15, App 20, App 21, App 23.
+
+node_tuple. Object. Produced by App 1. Consumed by App 2, App 3, App 5, App 6, App 7, App 14, App 15, App 20, App 21, App 23.
+
+node_identity_decision. Enum: merged, new_node, uncertain, not_determinable. Produced by App 1. Consumed by App 2, App 5, App 6, App 7, App 14, App 15, App 20, App 21, App 23.
+
+m_equivalence_basis. String. Produced by App 1. Consumed by App 2, App 5, App 6, App 7, App 14, App 15, App 20, App 21, App 23.
+
+m_equivalence_witness. String. Produced by App 1. Consumed by App 2, App 5, App 6, App 7, App 14, App 15, App 20, App 21, App 23.
+
+domain_annotation. Object. Produced by App 1. Consumed by App 2, App 5, App 6, App 7, App 14, App 15, App 20, App 21, App 23.
+
+partition_id. String. Produced by App 1, App 6. Consumed by App 2, App 5, App 6, App 7, App 14, App 15, App 20, App 21, App 23.
+
+partition_version. String. Produced by App 1, App 6. Consumed by App 2, App 5, App 6, App 7, App 14, App 15, App 20, App 21, App 23.
+
+partition_kind. Enum. Produced by App 1. Consumed by App 2, App 5, App 6, App 7, App 14, App 15, App 20, App 21, App 23.
+
+partition_admissibility_status. String. Produced by App 1. Consumed by App 2, App 5, App 6, App 7, App 14, App 15, App 20, App 21, App 23.
+
+partition_sensitivity. Object. Produced by App 1, App 6. Consumed by App 2, App 5, App 6, App 7, App 14, App 15, App 20, App 21, App 23.
+
+identity_partition_sensitive. Boolean. Produced by App 1, App 6. Consumed by App 2, App 5, App 7, App 14, App 15, App 20, App 21, App 23.
+
+splitting_partition_id. String. Produced by App 1, App 6. Consumed by App 2, App 5, App 7, App 14, App 15, App 20, App 21, App 23.
+
+splitting_would_change_label. Boolean. Produced by App 1, App 6. Consumed by App 2, App 5, App 7, App 14, App 15, App 20, App 21, App 23.
+
+splitting_audit_note. String. Produced by App 1, App 6. Consumed by App 2, App 5, App 7, App 14, App 15, App 20, App 21, App 23.
+
+regime_attribute. Object. Produced by App 1. Consumed by App 2, App 5, App 7, App 14, App 15, App 20, App 21, App 23.
+
+regime_not_determinable. Boolean. Produced by App 1. Consumed by App 2, App 5, App 7, App 14, App 15, App 20, App 21, App 23.
+
+effective_description_change. Enum: Yes-strong, Yes-weak, No, Uncertain. Produced by App 1. Consumed by App 2, App 5, App 6, App 7, App 14, App 15, App 20, App 21, App 23.
+
+effective_description_change_kind. String. Produced by App 1. Consumed by App 2, App 5, App 6, App 7, App 14, App 15, App 20, App 21, App 23.
+
+intervention_classification. Enum. Produced by App 1. Consumed by App 2, App 5, App 6, App 7, App 14, App 15, App 20, App 21, App 23.
+
+entailment_basis. Enum: E1, E2, E3, E4, not_determinable. Produced by App 1. Consumed by App 2, App 5, App 6, App 7, App 14, App 15, App 20, App 21, App 23.
+
+cited_structural_result. Object. Produced by App 1. Consumed by App 2, App 5, App 6, App 7, App 14, App 15, App 20, App 21, App 23.
+
+cited_numerical_result. Object. Produced by App 1. Consumed by App 2, App 5, App 6, App 7, App 14, App 15, App 20, App 21, App 23.
+
+cross_domain_counterfactual_dependence. Enum. Produced by App 1. Consumed by App 2, App 5, App 6, App 7, App 14, App 15, App 20, App 21, App 23.
+
+intervention_source_domains. Array. Produced by App 1. Consumed by App 2, App 5, App 6, App 7, App 14, App 15, App 20, App 21, App 23.
+
+intervention_target_domain. String. Produced by App 1. Consumed by App 2, App 5, App 6, App 7, App 14, App 15, App 20, App 21, App 23.
+
+intervention_kind. Enum. Produced by App 1. Consumed by App 2, App 5, App 6, App 7, App 14, App 15, App 20, App 21, App 23.
+
+defining_coupling_intervention. Boolean. Produced by App 1. Consumed by App 2, App 5, App 6, App 7, App 14, App 15, App 20, App 21, App 23.
+
+cross_domain_intervention_available. Enum. Produced by App 1. Consumed by App 2, App 5, App 6, App 7, App 14, App 15, App 20, App 21, App 23.
+
+domain_mismatch. Boolean. Produced by App 1. Consumed by App 2, App 5, App 6, App 7, App 14, App 15, App 20, App 21, App 23.
+
+model_reference. String. Produced by App 1. Consumed by App 2, App 5, App 6, App 7, App 14, App 15, App 20, App 21, App 23.
+
+counterfactual_intervention. String. Produced by App 1. Consumed by App 2, App 5, App 6, App 7, App 14, App 15, App 20, App 21, App 23.
+
+counterfactual_description. String. Produced by App 1. Consumed by App 2, App 5, App 6, App 7, App 14, App 15, App 20, App 21, App 23.
+
+counterfactual_result. String. Produced by App 1. Consumed by App 2, App 5, App 6, App 7, App 14, App 15, App 20, App 21, App 23.
+
+material_change_test. String. Produced by App 1. Consumed by App 2, App 5, App 6, App 7, App 14, App 15, App 20, App 21, App 23.
+
+material_change_test_justification. String. Produced by App 1. Consumed by App 2, App 5, App 6, App 7, App 14, App 15, App 20, App 21, App 23.
+
+material_change_result. String. Produced by App 1. Consumed by App 2, App 5, App 6, App 7, App 14, App 15, App 20, App 21, App 23.
+
+quantities_held_fixed. Array. Produced by App 1. Consumed by App 2, App 5, App 6, App 7, App 14, App 15, App 20, App 21, App 23.
+
+independence_of_material_change_evidence. Enum. Produced by App 1. Consumed by App 2, App 5, App 6, App 7, App 14, App 15, App 20, App 21, App 23.
+
+material_change_test_result_independence. Enum. Produced by App 1. Consumed by App 2, App 5, App 6, App 7, App 14, App 15, App 20, App 21, App 23.
+
+scale_separation. Object. Produced by App 1, App 4. Consumed by App 2, App 5, App 7, App 14, App 15, App 20, App 21, App 23.
+
+scale_separation_ratio. Number. Produced by App 4. Consumed by App 1, App 2, App 5, App 7, App 14, App 15, App 20, App 21, App 23.
+
+scale_separation_expansion_parameter. Number. Produced by App 4. Consumed by App 1, App 2, App 5, App 7, App 14, App 15, App 20, App 21, App 23.
+
+scale_separation_band_min_ratio. Number. Produced by App 4. Consumed by App 1, App 2, App 5, App 7, App 14, App 15, App 20, App 21, App 23.
+
+scale_separation_anchoring_flag. Boolean. Produced by App 4. Consumed by App 1, App 2, App 5, App 7, App 14, App 15, App 20, App 21, App 23.
+
+scale_separation_source_kind. Enum. Produced by App 4. Consumed by App 1, App 2, App 5, App 7, App 14, App 15, App 20, App 21, App 23.
+
+derived_display_label. Enum. Produced by App 1, App 6. Consumed by App 2, App 5, App 7, App 14, App 15, App 20, App 21, App 23.
+
+evidential_anchoring_status. Enum. Produced by App 1. Consumed by App 2, App 5, App 7, App 14, App 15, App 20, App 21, App 23.
+
+unclassified_reason. Enum. Produced by App 1, App 6. Consumed by App 2, App 5, App 7, App 14, App 15, App 20, App 21, App 23.
+
+not_determinable_flag. Boolean. Produced by App 1. Consumed by App 2, App 5, App 7, App 14, App 15, App 20, App 21, App 23.
+
+provisional_flag. Boolean. Produced by App 1, App 2. Consumed by App 5, App 7, App 14, App 15, App 20, App 21, App 23.
+
+threshold_sensitive_flag. Boolean. Produced by App 1, App 2. Consumed by App 5, App 7, App 14, App 15, App 20, App 21, App 23.
+
+agreement_outcome. Enum. Produced by App 2. Consumed by App 14, App 15, App 20, App 21, App 23.
+
+threshold_provenance. Object. Produced by App 1. Consumed by App 2, App 5, App 7, App 14, App 15, App 20, App 21, App 23.
+
+characteristic_scale. Object. Produced by App 1. Consumed by App 2, App 5, App 7, App 14, App 15, App 20, App 21, App 23.
+
+reversibility. Enum. Produced by App 1. Consumed by App 2, App 5, App 7, App 14, App 15, App 20, App 21, App 23.
+
+physical_status. Enum. Produced by App 1. Consumed by App 2, App 5, App 7, App 14, App 15, App 20, App 21, App 23.
+
+graph_status. Enum. Produced by App 1. Consumed by App 2, App 5, App 7, App 14, App 15, App 20, App 21, App 23.
+
+underlying_science_status. Enum. Produced by App 1. Consumed by App 2, App 5, App 7, App 14, App 15, App 20, App 21, App 23.
+
+stag_implementation_status. Enum. Produced by App 1. Consumed by App 2, App 5, App 7, App 14, App 15, App 20, App 21, App 23.
+
+alternative_classifications. Array. Produced by App 1. Consumed by App 2, App 5, App 7, App 14, App 15, App 20, App 21, App 23.
+
+evidence. Object. Produced by App 1. Consumed by App 2, App 5, App 7, App 14, App 15, App 20, App 21, App 23.
+
+protocol_cross_reference. String. Produced by App 1. Consumed by App 2, App 5, App 7, App 14, App 15, App 20, App 21, App 23.
+
+supersedes. String. Produced by App 1, App 7. Consumed by App 2, App 5, App 7, App 14, App 15, App 20, App 21, App 23.
+
+superseded_by. String. Produced by App 1, App 7. Consumed by App 2, App 5, App 7, App 14, App 15, App 20, App 21, App 23.
+
+validation_report. Object. Produced by App 2. Consumed by App 14, App 15, App 20, App 21, App 23.
+
+completeness_report. Object. Produced by App 2. Consumed by App 14, App 15, App 20, App 21, App 23.
+
+provo_document. String. Produced by App 3. Consumed by App 20, App 23.
+
+turtle_document. String. Produced by App 3. Consumed by App 20, App 23.
+
+graph_rendering. Object. Produced by App 5. Consumed by App 14, App 20, App 23.
+
+alternative_partition. Object. Produced by user. Consumed by App 6.
+
+recomputed_record. Object. Produced by App 6. Consumed by App 1, App 14, App 15, App 20, App 21, App 23.
+
+comparison_report. Object. Produced by App 6. Consumed by App 14, App 15, App 20, App 21, App 23.
+
+identity_splitting_audit. Object. Produced by App 6. Consumed by App 1, App 14, App 15, App 20, App 21, App 23.
+
+revision_chain. Array. Produced by App 7. Consumed by App 14, App 20, App 23.
+
+change_log. Array. Produced by App 7. Consumed by App 14, App 20, App 23.
+
+timeline_rendering. Object. Produced by App 7. Consumed by App 14, App 20, App 23.
+
+Library parameters
+work_id. String. Produced by App 23. Consumed by App 14, App 15, App 20, App 21.
+
+title. String. Produced by App 23. Consumed by App 14, App 15, App 20, App 21.
+
+authors. Array. Produced by App 23. Consumed by App 14, App 15, App 20, App 21.
+
+date. String. Produced by App 23. Consumed by App 14, App 15, App 20, App 21.
+
+publisher. String. Produced by App 23. Consumed by App 14, App 15, App 20, App 21.
+
+identifiers. Object. Produced by App 23. Consumed by App 14, App 15, App 20, App 21.
+
+work_type. Enum. Produced by App 23. Consumed by App 14, App 15, App 20, App 21.
+
+language. String. Produced by App 23. Consumed by App 14, App 15, App 20, App 21.
+
+license. String. Produced by App 23. Consumed by App 14, App 15, App 20, App 21.
+
+deposit_date. String. Produced by App 23. Consumed by App 14, App 15, App 20, App 21.
+
+depositor_id. String. Produced by App 23. Consumed by App 14, App 15, App 20, App 21.
+
+depositor_affiliation. String. Produced by App 23. Consumed by App 14, App 15, App 20, App 21.
+
+provenance. Object. Produced by App 23. Consumed by App 14, App 15, App 20, App 21.
+
+stag_annotations. Array. Produced by App 23. Consumed by App 14, App 15, App 20, App 21.
+
+null_model_results. Array. Produced by App 23. Consumed by App 14, App 15, App 20, App 21.
+
+files. Array. Produced by App 23. Consumed by App 14, App 15, App 20, App 21.
+
+abstract. String. Produced by App 23. Consumed by App 14, App 15, App 20, App 21.
+
+keywords. Array. Produced by App 23. Consumed by App 14, App 15, App 20, App 21.
+
+notes. String. Produced by App 23. Consumed by App 14, App 15, App 20, App 21.
+
+moderation_status. Enum. Produced by App 23. Consumed by App 14, App 15, App 20, App 21.
+
+version. Integer. Produced by App 23. Consumed by App 14, App 15, App 20, App 21.
+
+citation. String. Produced by App 23. Consumed by App 14, App 15, App 20, App 21.
+
+deposit_type. Enum. Produced by App 19, App 23. Consumed by App 23.
+
+Audit and verification parameters
+submitted_document. Object. Produced by user. Consumed by App 21, App 22.
+
+checklist. Object. Produced by user. Consumed by App 21.
+
+audit_report. Object. Produced by App 21. Consumed by App 15, App 20, App 23.
+
+falsification_report. Object. Produced by App 21. Consumed by App 15, App 20, App 23.
+
+validation_workflow_report. Object. Produced by App 21. Consumed by App 15, App 20, App 23.
+
+reporting_standard_report. Object. Produced by App 21. Consumed by App 15, App 20, App 23.
+
+source_list. Array. Produced by user. Consumed by App 22.
+
+verification_table. Array. Produced by App 22. Consumed by App 15, App 20, App 23.
+
+verification_summary. Object. Produced by App 22. Consumed by App 15, App 20, App 23.
+
+submission_checklist_report. Object. Produced by App 15. Consumed by App 20, App 23.
+
+cross_check_report. Object. Produced by App 15. Consumed by App 20, App 23.
+
+New domain parameters from the second list
+anomaly_id. String. Produced by App 25. Consumed by App 45, App 46, App 48.
+
+anomaly_status. Enum. Produced by App 25. Consumed by App 45, App 48.
+
+anomaly_type. Enum. Produced by App 25. Consumed by App 25, App 48.
+
+replication_id. String. Produced by App 26. Consumed by App 40, App 41, App 45, App 46, App 47, App 48.
+
+replication_status. Enum. Produced by App 26. Consumed by App 40, App 41, App 48.
+
+replication_outcome. Enum. Produced by App 26. Consumed by App 26, App 48.
+
+scale_id. String. Produced by App 27. Consumed by App 4, App 29, App 30, App 48.
+
+scale_value. Number. Produced by App 27. Consumed by App 27, App 30.
+
+scale_units. String. Produced by App 27. Consumed by App 27, App 30.
+
+instrument_id. String. Produced by App 28. Consumed by App 26, App 39, App 46, App 47, App 48.
+
+measurement_kernel_id. String. Produced by App 28. Consumed by App 8, App 9, App 11, App 26, App 46.
+
+selection_function_id. String. Produced by App 28. Consumed by App 8, App 9, App 11, App 26, App 46.
+
+model_id. String. Produced by App 29. Consumed by App 30, App 48.
+
+model_reference_id. String. Produced by App 29. Consumed by App 1, App 30.
+
+counterfactual_id. String. Produced by App 30. Consumed by App 45, App 46, App 48.
+
+counterfactual_dependence_classification. Enum. Produced by App 30. Consumed by App 14, App 45.
+
+misconception_id. String. Produced by App 31. Consumed by App 36, App 48.
+
+misconception_name. String. Produced by App 31. Consumed by App 31, App 36.
+
+method_id. String. Produced by App 32. Consumed by App 33, App 34, App 36, App 48.
+
+method_name. String. Produced by App 32. Consumed by App 32, App 33, App 34, App 36.
+
+learning_id. String. Produced by App 33. Consumed by App 34, App 35, App 36, App 48.
+
+concept_name. String. Produced by App 33, App 34. Consumed by App 33, App 34, App 36.
+
+proficiency_level. Enum. Produced by App 33. Consumed by App 33, App 34, App 36.
+
+cross_subject_link_id. String. Produced by App 34. Consumed by App 48.
+
+source_subject. String. Produced by App 34. Consumed by App 34, App 48.
+
+target_subject. String. Produced by App 34. Consumed by App 34, App 48.
+
+argument_id. String. Produced by App 35, App 43. Consumed by App 43, App 48.
+
+argument_conclusion. String. Produced by App 35, App 43. Consumed by App 35, App 43.
+
+argument_strength. Enum. Produced by App 35, App 43. Consumed by App 35, App 43, App 48.
+
+error_id. String. Produced by App 36. Consumed by App 45, App 48.
+
+error_type. Enum. Produced by App 36. Consumed by App 36, App 48.
+
+legal_case_id. String. Produced by App 37. Consumed by App 45, App 46, App 48.
+
+citation. String. Produced by App 37. Consumed by App 37, App 48.
+
+court. String. Produced by App 37. Consumed by App 37, App 48.
+
+jurisdiction. String. Produced by App 37. Consumed by App 37, App 48.
+
+historical_claim_id. String. Produced by App 38. Consumed by App 45, App 46, App 48.
+
+historical_period. Object. Produced by App 38. Consumed by App 38, App 48.
+
+historical_region. Array. Produced by App 38. Consumed by App 38, App 48.
+
+economic_indicator_id. String. Produced by App 39. Consumed by App 45, App 46, App 48.
+
+indicator_frequency. Enum. Produced by App 39. Consumed by App 39, App 48.
+
+indicator_institutional_source. Object. Produced by App 39. Consumed by App 39, App 48.
+
+medical_claim_id. String. Produced by App 40. Consumed by App 45, App 46, App 48.
+
+medical_condition. Array. Produced by App 40. Consumed by App 40, App 48.
+
+medical_intervention. Object. Produced by App 40. Consumed by App 40, App 48.
+
+level_of_evidence. Enum. Produced by App 40. Consumed by App 40, App 46, App 48.
+
+grade_of_recommendation. Enum. Produced by App 40. Consumed by App 40, App 46, App 48.
+
+psychological_effect_id. String. Produced by App 41. Consumed by App 45, App 46, App 48.
+
+effect_domain. Array. Produced by App 41. Consumed by App 41, App 48.
+
+original_effect_size. Object. Produced by App 41. Consumed by App 41, App 46, App 48.
+
+climate_attribution_id. String. Produced by App 42. Consumed by App 45, App 46, App 48.
+
+attribution_event_type. Enum. Produced by App 42. Consumed by App 42, App 48.
+
+attribution_cause_type. Enum. Produced by App 42. Consumed by App 42, App 48.
+
+attribution_confidence_level. Enum. Produced by App 42. Consumed by App 42, App 46, App 48.
+
+philosophical_argument_id. String. Produced by App 43. Consumed by App 45, App 46, App 48.
+
+philosophical_problem_type. Array. Produced by App 43. Consumed by App 43, App 48.
+
+philosophical_period. Enum. Produced by App 43. Consumed by App 43, App 48.
+
+philosopher_name. Array. Produced by App 43. Consumed by App 43, App 48.
+
+mathematical_conjecture_id. String. Produced by App 44. Consumed by App 45, App 46, App 48.
+
+conjecture_field. String. Produced by App 44. Consumed by App 44, App 48.
+
+conjecture_status. Enum. Produced by App 44. Consumed by App 44, App 45, App 48.
+
+conjecture_author. Array. Produced by App 44. Consumed by App 44, App 48.
+
+Meta-level parameters
+lifecycle_id. String. Produced by App 45. Consumed by App 46, App 48.
+
+lifecycle_current_status. Enum. Produced by App 45. Consumed by App 45, App 46, App 48.
+
+lifecycle_trajectory. Enum. Produced by App 45. Consumed by App 45, App 48.
+
+lifecycle_events. Array. Produced by App 45. Consumed by App 45, App 48.
+
+aggregation_id. String. Produced by App 46. Consumed by App 40, App 41, App 42, App 45, App 48.
+
+aggregate_strength. Enum. Produced by App 46. Consumed by App 40, App 41, App 42, App 45, App 48.
+
+aggregate_uncertainty. Object. Produced by App 46. Consumed by App 40, App 41, App 42, App 45, App 48.
+
+heterogeneity. Object. Produced by App 46. Consumed by App 46, App 48.
+
+bias_assessment. Object. Produced by App 46. Consumed by App 46, App 48.
+
+gap_analysis. Object. Produced by App 46. Consumed by App 46, App 48.
+
+estimate_id. String. Produced by App 47. Consumed by App 45, App 48.
+
+total_cost. Object. Produced by App 47. Consumed by App 47, App 48.
+
+cost_uncertainty. Object. Produced by App 47. Consumed by App 47, App 48.
+
+funding_gap. Object. Produced by App 47. Consumed by App 47, App 48.
+
+dashboard_id. String. Produced by App 48. Consumed by App 48.
+
+dashboard_field. String. Produced by App 48. Consumed by App 48.
+
+dashboard_metrics. Object. Produced by App 48. Consumed by App 48.
+
+dashboard_trends. Array. Produced by App 48. Consumed by App 48.
+
+Session and provenance parameters
+session_state. Object. Produced by App 24. Consumed by App 24.
+
+frozen_parameters. Array. Produced by App 24. Consumed by App 24.
+
+conflicts. Array. Produced by App 24. Consumed by App 24.
+
+audit_log. Array. Produced by App 20, App 21, App 22, App 23, App 24. Consumed by App 20, App 24.
+
+chain_of_computations. Array. Produced by App 24. Consumed by App 24.
+
+reproducibility_record. Object. Produced by App 24. Consumed by App 20, App 23.
+
+module_registry. Object. Produced by App 24. Consumed by App 24.
+
+parameter_registry. Object. Produced by App 24. Consumed by App 24.
+
+dependency_graph. Object. Produced by App 24. Consumed by App 24.
+
+Autofill parameters
+library_entry_id. String. Produced by App 49. Consumed by all apps that use autofill.
+
+library_match_confidence. Number. Produced by App 49. Consumed by all apps that use autofill.
+
+Reproducibility and deposit parameters
+deposit_repository. Object. Produced by App 19. Consumed by App 23.
+
+metadata. Object. Produced by App 19. Consumed by App 23.
+
+manifest. Object. Produced by App 19. Consumed by App 23.
+
+checklist_report. Object. Produced by App 19. Consumed by App 23.
+
+readme_content. String. Produced by App 19. Consumed by App 23.
+
+setup_script. String. Produced by App 19. Consumed by App 23.
+
+run_script. String. Produced by App 19. Consumed by App 23.
+
+check_script. String. Produced by App 19. Consumed by App 23.
+
+8. The Full Dependency Graph
+Level 0. No dependencies
+App 11. Effective-Null Builder.
+
+App 12. N Calculator.
+
+App 13. Gap-Score Reporter.
+
+App 17. STAG Schema Library.
+
+App 18. Null-Model Protocol Library.
+
+App 22. Numerical Verification Tool.
+
+App 24. Master Workbench.
+
+App 49. Autofill Library Service.
+
+Level 1. Depends only on Level 0
+App 1. STAG Annotation Editor. Depends on App 17, App 4, App 49.
+
+App 2. STAG Annotation Validator. Depends on App 17, App 49.
+
+App 3. PROV-O Exporter and Importer. Depends on App 17, App 49.
+
+App 4. Scale-Separation Record Calculator. Depends on App 49.
+
+App 5. STAG Graph Viewer. Depends on App 17, App 49.
+
+App 6. Partition Sensitivity Explorer. Depends on App 17, App 49.
+
+App 7. Revision History Viewer. Depends on App 17, App 49.
+
+App 8. Pipeline Specification Wizard. Depends on App 12, App 49.
+
+App 9. Full-Pipeline Simulator. Depends on App 18, App 11, App 12, App 49.
+
+App 19. Reproducibility Deposit Template. Depends on App 17, App 18, App 49.
+
+App 20. Provenance-Aware Annotation Database. Depends on App 17, App 3, App 49.
+
+App 21. STAG Audit Tool. Depends on App 17, App 49.
+
+Level 2. Depends on Level 1
+App 10. Scan-Family Comparator. Depends on App 9, App 49.
+
+App 14. STAG plus Null-Model Combined Workbench. Depends on App 1, App 2, App 8, App 9, App 17, App 18, App 49.
+
+App 25. Anomaly Register. Depends on App 17, App 18, App 20, App 3, App 22, App 7, App 23, App 49.
+
+App 26. Replication Tracker. Depends on App 23, App 9, App 18, App 20, App 22, App 49.
+
+App 27. Scale Atlas. Depends on App 17, App 4, App 20, App 5, App 3, App 7, App 22, App 23, App 49.
+
+App 28. Instrument Provenance Registry. Depends on App 11, App 20, App 22, App 3, App 7, App 23, App 49.
+
+App 29. Model Registry. Depends on App 17, App 5, App 20, App 3, App 49.
+
+App 30. Counterfactual Explorer. Depends on App 1, App 9, App 17, App 18, App 14, App 20, App 22, App 23, App 49.
+
+App 31. Misconception Database. Depends on App 23, App 21, App 20, App 3, App 7, App 22, App 49.
+
+App 32. Method Tracker. Depends on App 1, App 16, App 17, App 20, App 7, App 49.
+
+App 33. Learning Provenance System. Depends on App 1, App 17, App 20, App 7, App 32, App 5, App 49.
+
+App 34. Cross-Subject Link Explorer. Depends on App 17, App 5, App 20, App 3, App 7, App 32, App 33, App 49.
+
+App 35. Argument Mapper for Students. Depends on App 1, App 17, App 5, App 20, App 7, App 33, App 49.
+
+App 36. Error Taxonomy. Depends on App 17, App 20, App 7, App 31, App 32, App 33, App 49.
+
+App 37. Legal Precedent Graph. Depends on App 17, App 5, App 20, App 3, App 7, App 22, App 23, App 49.
+
+App 38. Historical Claim Registry. Depends on App 23, App 1, App 17, App 20, App 3, App 7, App 22, App 49.
+
+App 39. Economic Indicator Provenance System. Depends on App 11, App 20, App 22, App 3, App 7, App 23, App 28, App 49.
+
+App 40. Medical Claim Verifier. Depends on App 23, App 9, App 18, App 21, App 20, App 3, App 7, App 22, App 26, App 46, App 49.
+
+App 41. Psychological Effect Registry. Depends on App 23, App 26, App 9, App 18, App 20, App 3, App 7, App 22, App 46, App 49.
+
+App 42. Climate Attribution Registry. Depends on App 23, App 9, App 18, App 20, App 3, App 7, App 22, App 46, App 49.
+
+App 43. Philosophical Argument Graph. Depends on App 1, App 17, App 5, App 20, App 3, App 7, App 35, App 49.
+
+App 44. Mathematical Conjecture Registry. Depends on App 23, App 20, App 22, App 3, App 7, App 5, App 49.
+
+Level 3. Depends on Level 2
+App 15. Journal Submission Checker. Depends on App 2, App 9, App 21, App 49.
+
+App 16. Teaching and Training Sandbox. Depends on App 1, App 9, App 49.
+
+App 23. Physics Knowledge Library. Depends on App 17, App 18, App 3, App 20, App 14, App 49.
+
+App 46. Evidence Aggregator. Depends on App 23, App 9, App 18, App 22, App 20, App 3, App 7, App 11, App 26, App 25, App 40, App 41, App 42, App 49.
+
+App 47. Replication Cost Estimator. Depends on App 23, App 12, App 8, App 11, App 20, App 3, App 7, App 28, App 26, App 49.
+
+Level 4. Depends on Level 3
+App 45. Claim Lifecycle Tracker. Depends on App 23, App 26, App 25, App 40, App 41, App 42, App 38, App 20, App 3, App 7, App 46, App 49.
+
+Level 5. Depends on Level 4
+App 48. Meta-Science Dashboard. Depends on App 23, App 26, App 25, App 40, App 41, App 42, App 38, App 44, App 45, App 46, App 20, App 3, App 7, App 49.
+
+9. The Chain Reaction
+Here is what happens when a user enters the minimum set of parameters.
+
+Round 1.
+
+App 12 (N Calculator) consumes target_tail, relative_error. Produces N, recommended_N, monte_carlo_uncertainty.
+
+App 11 (Effective-Null Builder) consumes null_model, support_rule, selection_function, measurement_kernel. Produces effective_null.
+
+App 4 (Scale-Separation Record Calculator) consumes the two scales, their sources, the band. Produces scale_separation_ratio, scale_separation_anchoring_flag.
+
+App 13 (Gap-Score Reporter) consumes observed_data, candidate_gaps, expected_density. Produces gap_score.
+
+App 22 (Numerical Verification Tool) consumes submitted_document, source_list. Produces verification_table.
+
+App 49 (Autofill Library Service) consumes the user's lookup query. Produces the field values.
+
+Round 2.
+
+App 8 (Pipeline Specification Wizard) consumes recommended_N. Produces pipeline_specification, N, alpha, seed.
+
+App 1 (STAG Annotation Editor) consumes scale_separation. Produces annotation_id, derived_display_label, evidential_anchoring_status.
+
+App 2 (STAG Annotation Validator) consumes annotation_id. Produces validation_report.
+
+App 9 (Full-Pipeline Simulator) consumes pipeline_specification and effective_null. Produces observed_statistic, exceedance_probability, monte_carlo_uncertainty.
+
+Round 3.
+
+App 3 (PROV-O Exporter) consumes annotation_id. Produces provo_document.
+
+App 5 (STAG Graph Viewer) consumes annotation_id. Produces graph_rendering.
+
+App 6 (Partition Sensitivity Explorer) consumes annotation_id and alternative_partition. Produces recomputed_record.
+
+App 7 (Revision History Viewer) consumes annotation_id. Produces revision_chain, change_log.
+
+App 10 (Scan-Family Comparator) consumes pipeline_specification and effective_null. Produces critical_value, power.
+
+App 14 (STAG plus Null-Model Combined Workbench) consumes annotation_id, validation_report, pipeline_specification, statistical_gap_result, critical_value, power. Produces dependence_gap_discordance.
+
+Round 4.
+
+App 15 (Journal Submission Checker) consumes submitted_document, annotation_id, pipeline_specification, statistical_gap_result, audit_report. Produces submission_checklist_report.
+
+App 16 (Teaching and Training Sandbox) consumes example_selection, parameter_changes. Produces recomputed_label, recomputed_statistic.
+
+App 20 (Provenance-Aware Annotation Database) consumes annotation_id, provo_document. Produces stored_records.
+
+App 21 (STAG Audit Tool) consumes submitted_document, checklist. Produces audit_report.
+
+Round 5.
+
+App 19 (Reproducibility Deposit Template) consumes author_code, author_data, author_seeds, author_results. Produces deposit_repository.
+
+App 25 through App 44 (the domain registries) consume the user's deposits and the foundation apps. They produce their domain records.
+
+Round 6.
+
+App 23 (Physics Knowledge Library) consumes work_id, stag_annotations, null_model_results, statistical_gap_result, provo_document, audit_report, verification_table, submission_checklist_report, deposit_repository. Produces stored works.
+
+App 46 (Evidence Aggregator) consumes the evidence from App 25, App 26, App 40, App 41, App 42. Produces aggregate_strength.
+
+App 47 (Replication Cost Estimator) consumes the study characteristics, the N Calculator, the Pipeline Specification Wizard, the Effective-Null Builder, the Instrument Provenance Registry, the Replication Tracker. Produces total_cost.
+
+Round 7.
+
+App 45 (Claim Lifecycle Tracker) consumes the claims from App 23, App 25, App 26, App 38, App 40, App 41, App 42, and the evidence from App 46. Produces lifecycle_events.
+
+Round 8.
+
+App 48 (Meta-Science Dashboard) consumes the data from App 23, App 25, App 26, App 38, App 40, App 41, App 42, App 44, App 45, App 46. Produces dashboard_metrics.
+
+Settled. No app's inputs change. The chain reaction stops.
+
+10. The Minimum User Input Set
+The user does not need to enter every parameter. The orchestrator fills in the rest. The minimum set the user must enter is:
+
+observed_data. The data.
+
+null_model. The null density.
+
+support_rule. S1, S2, or S3.
+
+scan_family. Adjacent, pair, or fixed.
+
+g_min_value. The minimum gap width.
+
+tail_definition. Greater-than-or-equal or greater-than.
+
+alpha. The nominal level.
+
+And for the domain apps, the user enters the name of the system, the study, the claim, or the concept. The Autofill Library Service (App 49) fills in the rest.
+
+Everything else is either computed by an app or has a default.
+
+11. The Full Chain of Computations
+Here is the chain, in order, for a typical session.
+
+App 49 (Autofill Library Service): user query to field values.
+
+App 12 (N Calculator): target_tail, relative_error to N, recommended_N.
+
+App 11 (Effective-Null Builder): null_model, support_rule, selection_function, measurement_kernel to effective_null.
+
+App 4 (Scale-Separation Record Calculator): two scales, sources, band to scale_separation.
+
+App 8 (Pipeline Specification Wizard): scientific_question, recommended_N to pipeline_specification.
+
+App 1 (STAG Annotation Editor): partition, granularity, scale_separation to annotation_id.
+
+App 2 (STAG Annotation Validator): annotation_id to validation_report.
+
+App 3 (PROV-O Exporter): annotation_id to provo_document.
+
+App 5 (STAG Graph Viewer): annotation_id to graph_rendering.
+
+App 6 (Partition Sensitivity Explorer): annotation_id, alternative_partition to recomputed_record.
+
+App 7 (Revision History Viewer): annotation_id, supersession chain to revision_chain.
+
+App 9 (Full-Pipeline Simulator): pipeline_specification, observed_data, effective_null to observed_statistic.
+
+App 10 (Scan-Family Comparator): pipeline_specification, observed_data, effective_null to critical_value.
+
+App 14 (STAG plus Null-Model Combined Workbench): annotation_id, validation_report, pipeline_specification, statistical_gap_result, critical_value to dependence_gap_discordance.
+
+App 15 (Journal Submission Checker): submitted_document, annotation_id, pipeline_specification, statistical_gap_result, audit_report to submission_checklist_report.
+
+App 21 (STAG Audit Tool): submitted_document, checklist to audit_report.
+
+App 22 (Numerical Verification Tool): submitted_document, source_list to verification_table.
+
+App 13 (Gap-Score Reporter): observed_data, candidate_gaps, expected_density to gap_score.
+
+App 20 (Provenance-Aware Annotation Database): annotation_id, provo_document to stored_records.
+
+App 19 (Reproducibility Deposit Template): author_code, author_data, author_seeds, author_results to deposit_repository.
+
+App 16 (Teaching and Training Sandbox): example_selection, parameter_changes to recomputed_label.
+
+App 25 through App 44 (the domain registries): user deposits to domain records.
+
+App 23 (Physics Knowledge Library): the records and results to stored works.
+
+App 46 (Evidence Aggregator): evidence from the domain registries to aggregate_strength.
+
+App 47 (Replication Cost Estimator): study characteristics to total_cost.
+
+App 45 (Claim Lifecycle Tracker): claims and evidence to lifecycle_events.
+
+App 48 (Meta-Science Dashboard): the data from all the other apps to dashboard_metrics.
+
+12. Data Model
+The orchestrator's internal state is a session object.
+
+Session object:
+
+parameters. Object: parameter_id to value.
+
+frozen_parameters. Array of parameter_ids.
+
+module_states. Object: module_id to state.
+
+conflicts. Array of conflict objects.
+
+audit_log. Array of audit log entries.
+
+reproducibility_record. Object: master_version, shared_core_version, module_versions, timestamp.
+
+Parameter object:
+
+parameter_id. String.
+
+parameter_value. Any.
+
+produced_by. String.
+
+produced_at. ISO8601.
+
+frozen. Boolean.
+
+Conflict object:
+
+parameter_id. String.
+
+current_value. Any.
+
+proposed_value. Any.
+
+proposed_by. String.
+
+timestamp. ISO8601.
+
+13. Architecture
+Module breakdown:
+
+Module Registry.
+
+Shared Schema Registry.
+
+Shared Provenance Database.
+
+Shared Authentication Layer.
+
+Shared Reporting Layer.
+
+Unified Search.
+
+Parameter Registry.
+
+Data Bus.
+
+Dependency Graph.
+
+Orchestrator.
+
+Conflict Resolver.
+
+Manual Override.
+
+Session Manager.
+
+Chain Reporter.
+
+Data Flow Visualiser.
+
+Dependency Graph Visualiser.
+
+What-If Mode.
+
+Commit Mode.
+
+Reset Mode.
+
+Launcher.
+
+Workspace.
+
+Navigation.
+
+Status View.
+
+Configuration View.
+
+Logging View.
+
+Plugin Interface.
+
+Version Compatibility Checker.
+
+Health Check.
+
+Backup and Restore.
+
+Audit Logging.
+
+Command-Line Interface.
+
+REST API.
+
+GraphQL API.
+
+Web Interface.
+
+Reproducibility Recorder.
+
+Migration Manager.
+
+Data flow:
+
+The module registry, parameter registry, and dependency graph are loaded.
+
+The data bus is created.
+
+The apps are started in dependency order.
+
+The user enters parameters.
+
+The orchestrator propagates them through the dependency graph.
+
+Each app recomputes when its inputs are available.
+
+The results are published on the data bus.
+
+The chain reaction continues until it settles.
+
+14. Technology Stack
+Recommended for the orchestrator:
+
+Language: Python 3.11+ or Node.js 20+.
+
+Framework: FastAPI (Python) or Express (JS).
+
+Plugin system: importlib (Python) or dynamic import (JS).
+
+Dependency resolution: networkx (Python) or graphlib (JS).
+
+Shared core: the STAG schema library (App 17), the Null-Model Protocol library (App 18), the provenance database (App 20), the authentication layer, the reporting layer.
+
+Web interface: React or Svelte.
+
+GraphQL: Strawberry (Python) or Apollo Server (JS).
+
+Database: PostgreSQL 15+ or SQLite 3.40+.
+
+Containerization: Docker.
+
+Testing: pytest (Python) or Vitest (JS).
+
+Shared:
+
+JSON Schema Draft 2020-12.
+
+All schemas from all apps.
+
+All libraries from all apps.
+
+All databases from all apps.
+
+15. Deployment Notes
+Master:
+
+Package as a standalone executable.
+
+Distribute via pip, npm, or a direct download.
+
+Provide a Docker image.
+
+Provide a Docker Compose file for the full stack.
+
+Apps:
+
+Each app is packaged separately.
+
+The master loads the apps from the module registry.
+
+Each app can be updated independently.
+
+Shared core:
+
+The shared core is packaged with the master.
+
+The shared core can be updated independently.
+
+Reproducibility:
+
+Record the master version, the shared core version, the app versions, the configuration, and the timestamp.
+
+Record the provenance for every operation.
+
+Provide a version pin for the schemas.
+
+16. Open Questions to Resolve Before Building
+Question 1. Which runtime first? Python or Node.js.
+
+Question 2. Which database first? PostgreSQL or SQLite.
+
+Question 3. How should the master handle an app that fails to start? Fail the master, skip the app, or retry.
+
+Question 4. How should the master handle an app that crashes after starting? Restart it, mark it as error, or notify the administrator.
+
+Question 5. How should the master handle a new app that is registered at runtime? Load it immediately, or require a restart.
+
+Question 6. How should the master handle an app that has an incompatible version? Fail the master, skip the app, or load it in a compatibility mode.
+
+Question 7. How should the master handle the shared schema registry? One schema registry for all apps, or one per app.
+
+Question 8. How should the master handle the shared provenance database? One database for all apps, or one per app.
+
+Question 9. How should the master handle the shared authentication layer? One authentication layer for all apps, or one per app.
+
+Question 10. How should the master handle the shared reporting layer? One reporting layer for all apps, or one per app.
+
+Question 11. How should the master handle the not_determinable flag propagation? Check it automatically, or trust the records.
+
+Question 12. Should the master support federation with other masters?
+
+Question 13. Should the master support multi-tenancy?
+
+Question 14. Should the master support a marketplace for apps?
+
+Question 15. How should the master handle the backup and restore of the shared core and each app? One backup for all, or one per app.
+
+Question 16. How should the master handle the migration of the shared core and each app? One migration for all, or one per app.
+
+Question 17. How should the master handle the chain reaction when the graph is large? Optimise the propagation, or accept the delay.
+
+Question 18. How should the master handle a conflict when two apps produce different values for the same parameter? Always ask the user, or apply a priority order.
+
+Question 19. How should the master handle a parameter that is produced by an app that is not running? Block the dependent apps, or use the last known value.
+
+Question 20. How should the master handle the autofill service when it is not available? Block the apps that use it, or fall back to manual input.
+
+End of build specification for App 24, the Master Workbench (Orchestrator Edition).
+
+This version supersedes the original App 24. It encompasses all 49 apps.
+
+When you are ready to continue, tell me what you want next.
+
+
