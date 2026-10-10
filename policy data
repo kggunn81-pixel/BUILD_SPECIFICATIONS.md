@@ -1,0 +1,338 @@
+1. Purpose
+This policy states how data deposited in the system is owned, used, shared, and removed. It applies to every app in the suite. It is written to be read by depositors, by institutions, by journals, and by funders.
+
+2. Scope
+This policy applies to:
+
+Every record deposited in any app in the suite.
+
+Every annotation, every statistical result, every provenance record, every work, every claim, every reference, every file.
+
+Every derived record, including aggregations, dashboards, lifecycles, and cross-references.
+
+It does not apply to:
+
+The code of the apps, which is governed by the software license.
+
+The schemas, which are governed by the schema license.
+
+The documentation, which is governed by the documentation license.
+
+3. Definitions
+Depositor. The person or institution that submits a record to the system.
+
+Deposit. A record submitted to the system by a depositor.
+
+Record. Any structured item stored in any app in the suite.
+
+Original deposit. The deposit as first submitted.
+
+Derived record. A record computed from one or more deposits, such as an aggregation, a dashboard, a lifecycle, or a cross-reference.
+
+Personal data. Any information relating to an identified or identifiable natural person.
+
+Confidential data. Data that is not public but is shared with the system under a specific agreement.
+
+Restricted data. Data that is subject to legal restrictions on its use or distribution.
+
+Public data. Data that is already public or that the depositor chooses to make public.
+
+4. Ownership
+The depositor retains ownership of the deposit.
+
+The depositor grants the system a non-exclusive, worldwide, royalty-free license to store, process, display, and distribute the deposit, subject to the conditions in this policy.
+
+The depositor grants the system the right to create derived records from the deposit.
+
+The depositor grants the system the right to include the deposit in aggregations and dashboards.
+
+The depositor grants the system the right to share the deposit with other apps in the suite.
+
+The depositor grants the system the right to preserve the deposit for archival purposes.
+
+The depositor does not transfer copyright to the system.
+
+The depositor does not transfer ownership of any patent, trademark, or other intellectual property right.
+
+5. License of the deposit
+Every deposit must have a license.
+
+The license must be one of the following:
+
+Creative Commons CC0.
+
+Creative Commons CC-BY.
+
+Creative Commons CC-BY-SA.
+
+Creative Commons CC-BY-NC.
+
+Open Data Commons ODC-BY.
+
+Open Data Commons ODbL.
+
+Public domain.
+
+A custom license that is compatible with the system's terms.
+
+The depositor chooses the license.
+
+The license is recorded in the deposit.
+
+If the depositor does not choose a license, the default is Creative Commons CC-BY.
+
+6. Rights of the depositor
+The depositor may view the deposit.
+
+The depositor may update the deposit.
+
+The depositor may delete the deposit, subject to Section 12.
+
+The depositor may export the deposit.
+
+The depositor may see who has accessed the deposit.
+
+The depositor may see how the deposit has been used.
+
+7. Rights of the system
+The system may store the deposit.
+
+The system may process the deposit.
+
+The system may display the deposit.
+
+The system may distribute the deposit under the license chosen by the depositor.
+
+The system may create derived records.
+
+The system may include the deposit in aggregations and dashboards.
+
+The system may share the deposit with other apps in the suite.
+
+The system may preserve the deposit for archival purposes.
+
+The system may use the deposit for research, subject to Section 10.
+
+The system may use the deposit to improve the system, subject to Section 10.
+
+8. Rights of third parties
+A third party may access the deposit under the license chosen by the depositor.
+
+A third party may use the deposit under the license chosen by the depositor.
+
+A third party may cite the deposit.
+
+A third party may create derived works from the deposit under the license chosen by the depositor.
+
+A third party may not claim ownership of the deposit.
+
+A third party may not misrepresent the deposit.
+
+A third party may not use the deposit for unlawful purposes.
+
+9. Personal data
+Personal data is handled under the Privacy and Ethics Policy (51).
+
+No personal data may be deposited without the consent of the data subject, unless the deposit is legally permitted without consent.
+
+No personal data may be deposited unless the deposit complies with the applicable privacy regulations.
+
+No personal data may be deposited unless the deposit is necessary for the purpose of the system.
+
+No personal data may be deposited unless the deposit is proportionate to the purpose.
+
+No personal data may be deposited unless the deposit is accurate.
+
+No personal data may be deposited unless the deposit is kept up to date.
+
+No personal data may be deposited unless the deposit is stored securely.
+
+No personal data may be deposited unless the deposit is deleted when no longer needed.
+
+10. Confidential data
+Confidential data is deposited under a specific agreement.
+
+The agreement states what can be done with the data.
+
+The agreement states who can access the data.
+
+The agreement states how long the data will be held.
+
+The agreement states how the data will be deleted.
+
+The agreement states the conditions of any publication.
+
+The agreement is recorded in the deposit.
+
+The system may not use confidential data for any purpose other than the purpose stated in the agreement.
+
+11. Restricted data
+Restricted data is deposited under the restrictions stated by the depositor.
+
+The restrictions are recorded in the deposit.
+
+The restrictions may include:
+
+A restriction on who can access the data.
+
+A restriction on how the data can be used.
+
+A restriction on how the data can be shared.
+
+A restriction on how long the data can be held.
+
+The system may not use restricted data in a way that violates the restrictions.
+
+12. Removal of a deposit
+The depositor may remove a deposit at any time.
+
+The removal is recorded in the provenance record.
+
+The removal is reversible for a stated period, during which the deposit can be restored.
+
+After the stated period, the deposit is permanently removed.
+
+The permanent removal removes the deposit and all its derived records, subject to Section 13.
+
+The permanent removal removes the files associated with the deposit.
+
+The permanent removal removes the provenance record, subject to any legal requirement to retain it.
+
+13. Derived records
+A derived record is created from one or more deposits.
+
+When a deposit is removed, the derived records that depend on it are recomputed or removed, subject to the following.
+
+An aggregation that depends on the removed deposit is recomputed without it.
+
+A dashboard that depends on the removed deposit is recomputed without it.
+
+A lifecycle that depends on the removed deposit is retained, with the removed deposit marked as removed.
+
+A cross-reference that depends on the removed deposit is removed.
+
+The system records the removal of the deposit in the derived records.
+
+The system notifies the users of the derived records that the deposit has been removed.
+
+14. Reuse of a deposit
+A deposit may be reused under the license chosen by the depositor.
+
+The reuse must credit the depositor.
+
+The reuse must state the license.
+
+The reuse must state any modifications made.
+
+The reuse may not imply endorsement by the depositor.
+
+The reuse may not imply endorsement by the system.
+
+The reuse may not misrepresent the deposit.
+
+15. Commercial use
+Commercial use of a deposit is permitted if the license chosen by the depositor permits it.
+
+If the license prohibits commercial use, the deposit may not be used commercially.
+
+The system may offer a commercial service that uses the deposits, subject to the license of each deposit.
+
+The system may not sell the deposits.
+
+The system may not license the deposits to third parties.
+
+The system may not use the deposits to train commercial models without the permission of the depositor.
+
+16. Archival and preservation
+The system preserves the deposits for archival purposes.
+
+The preservation includes the deposit, its provenance, and its license.
+
+The preservation is in a format that is expected to be readable in the future.
+
+The preservation is in a location that is expected to be available in the future.
+
+The preservation is subject to the license chosen by the depositor.
+
+The depositor may request that the deposit not be preserved, subject to any legal requirement to preserve it.
+
+17. Access control
+Access to a deposit is controlled by the authentication and authorization layer of the system.
+
+A user may access a deposit if:
+
+The deposit is public and the user is authenticated, or
+
+The deposit is public and the user is not authenticated, if the system allows anonymous access, or
+
+The deposit is confidential or restricted and the user has been granted access by the depositor or by the system.
+
+Access is logged in the audit log.
+
+18. Jurisdiction
+The system is operated under the laws of the jurisdiction in which the system's operator is based.
+
+The depositor is responsible for complying with the laws of the depositor's jurisdiction.
+
+The depositor is responsible for complying with any applicable export controls.
+
+The depositor is responsible for complying with any applicable sanctions.
+
+The system may refuse a deposit if the deposit would violate the system's jurisdiction's laws.
+
+19. Amendments
+This policy may be amended by the governance body of the system.
+
+An amendment takes effect at a stated date.
+
+An amendment is announced to the community.
+
+An amendment is recorded in the repository.
+
+An amendment may not retroactively change the terms under which a deposit was made, unless the depositor consents.
+
+20. Reporting and disputes
+A dispute about this policy is reported to the governance body.
+
+The governance body reviews the dispute.
+
+The governance body issues a decision.
+
+The decision is recorded.
+
+The decision may be appealed under the governance model (52).
+
+21. Contact
+Questions about this policy are directed to the contact address stated in the repository.
+
+Reports of a violation of this policy are directed to the same address.
+
+22. Effective date
+This policy takes effect on the date stated in the repository.
+
+23. Summary
+The depositor keeps ownership.
+
+The depositor chooses the license.
+
+The system stores, processes, displays, and distributes the deposit under that license.
+
+The system creates derived records.
+
+The system preserves the deposit for archival purposes.
+
+The depositor may remove the deposit at any time.
+
+Personal data is handled under the Privacy and Ethics Policy.
+
+Confidential data is handled under a specific agreement.
+
+Restricted data is handled under the restrictions stated by the depositor.
+
+Commercial use is permitted only if the license permits it.
+
+The governance body may amend this policy.
+
+The governance body resolves disputes.
+
+End of the Data Policy.
