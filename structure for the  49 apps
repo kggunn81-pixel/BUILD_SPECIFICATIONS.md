@@ -1,0 +1,224 @@
+Repository Structure
+This repository contains the build specifications for a suite of 49 software tools for computational philosophy of science. The tools implement two methodological proposals: the STAG framework for annotating scale-dependent scientific claims, and the Null-Model Protocol for testing empirical gap claims against an explicitly specified null model.
+
+This file explains how the repository is organised.
+
+Top-level files
+README.md — the front page of the repository. What the project is, what it does, how to get involved.
+
+STRUCTURE.md — this file. How the repository is organised.
+
+BUILD_SPECIFICATIONS.md — the full build specifications for all 49 apps. One file. The catalogue.
+
+CONTRIBUTING.md — how to contribute to the project.
+
+LICENSE — the license.
+
+Folders
+specs/ — the individual build specifications for each app, grouped by layer.
+
+specs/01-foundation/ — the six foundation tools that everything else depends on.
+
+specs/02-annotation-and-statistics/ — the eight tools that record and test claims.
+
+specs/03-storage-and-audit/ — the nine tools that store and present the records.
+
+specs/04-domain-registries/ — the twenty domain registries that apply the same pattern to different fields.
+
+specs/05-meta-level/ — the four meta-level tools that watch over everything else.
+
+specs/06-orchestrator-and-services/ — the orchestrator and the autofill service.
+
+policy/ — the policy documents. Data policy, privacy policy, governance, security, sustainability.
+
+codebook/ — the four source documents that the specifications are based on.
+
+docs/ — longer documents. Walkthroughs, tutorials, guides.
+
+examples/ — worked examples.
+
+schemas/ — the JSON Schema and SHACL schema files.
+
+The five layers
+The 49 apps are organised into five layers. Each layer builds on the one below it.
+
+Layer 1. The foundation. Six tools. These are the base. Everything else depends on them.
+
+Layer 2. The annotation and statistical tools. Eight tools. These do the core work: record a claim, test a claim.
+
+Layer 3. The storage, visualisation, and audit tools. Nine tools. These store and present the records.
+
+Layer 4. The domain registries. Twenty tools. These are the same pattern applied to different fields. Each one is a registry of claims, with evidence, status, and provenance.
+
+Layer 5. The meta-level tools. Four tools. These watch over everything else.
+
+Plus the orchestrator and the autofill service. Two more.
+
+How to navigate
+If you want to understand the project, start with the README.md.
+
+If you want to see the full catalogue, open BUILD_SPECIFICATIONS.md.
+
+If you want to see the individual specifications, open the specs/ folder. Each subfolder is a layer. Each file in a subfolder is one app.
+
+If you want to build one app, pick one from specs/01-foundation/. They are the smallest and the simplest.
+
+If you want to understand the policies, open the policy/ folder.
+
+If you want to understand the source material, open the codebook/ folder.
+
+The count
+49 apps.
+
+5 layers.
+
+6 foundation tools.
+
+8 annotation and statistical tools.
+
+9 storage and audit tools.
+
+20 domain registries.
+
+4 meta-level tools.
+
+2 orchestrator and services.
+
+5 policy documents.
+
+4 source documents.
+
+File 2: SPECS_INDEX.md
+Copy everything between the lines and save it as specs/SPECS_INDEX.md inside the specs/ folder.
+
+Index of Build Specifications
+This is the index of the 49 build specifications. They are grouped by layer. Each entry gives the app number, the app name, and a one-line description.
+
+Layer 1. Foundation
+App 11. Effective-Null Builder. Constructs the effective null after selection and measurement.
+
+App 12. N Calculator. Plans a simulation run. Tells you how many simulations you need.
+
+App 13. Gap-Score Reporter. Descriptive tool for screening candidate gaps. Not calibrated.
+
+App 17. STAG Schema Library. The schemas and rules as a versioned package.
+
+App 18. Null-Model Protocol Library. The protocol as a versioned software library.
+
+App 22. Numerical Verification Tool. Checks reported numbers against declared sources.
+
+Layer 2. Annotation and statistics
+App 1. STAG Annotation Editor. Builds one STAG annotation record from start to finish.
+
+App 2. STAG Annotation Validator. Checks an annotation file against the schemas and rules.
+
+App 3. PROV-O Exporter and Importer. Converts a STAG record to and from PROV-O.
+
+App 4. Scale-Separation Record Calculator. Builds and checks one scale-separation record.
+
+App 8. Pipeline Specification Wizard. Produces a machine-readable pipeline specification.
+
+App 9. Full-Pipeline Simulator. The core engine of the Null-Model Protocol.
+
+App 10. Scan-Family Comparator. Runs the same data under several scan families.
+
+Layer 3. Storage, visualisation, and audit
+App 5. STAG Graph Viewer. Interactive viewer for a complete STAG.
+
+App 6. Partition Sensitivity Explorer. Re-derives labels under an alternative partition.
+
+App 7. Revision History Viewer. Timeline view of a STAG's revision chain.
+
+App 14. STAG plus Null-Model Combined Workbench. Uses both layers together.
+
+App 15. Journal Submission Checker. Checks a submission against the reporting standards.
+
+App 16. Teaching and Training Sandbox. Interactive environment with the worked examples.
+
+App 19. Reproducibility Deposit Template. Template for a reproducible deposit.
+
+App 20. Provenance-Aware Annotation Database. Stores annotations with their provenance.
+
+App 21. STAG Audit Tool. Runs the checklist audit against a submitted document.
+
+App 23. Physics Knowledge Library. Stores works with their annotations and statistical results.
+
+Layer 4. Domain registries
+App 25. Anomaly Register. Records scientific anomalies with their evidence and status.
+
+App 26. Replication Tracker. Records attempts to replicate a published result.
+
+App 27. Scale Atlas. Records characteristic scales across fields.
+
+App 28. Instrument Provenance Registry. Records scientific instruments and their properties.
+
+App 29. Model Registry. Records scientific models and their relations.
+
+App 30. Counterfactual Explorer. Explores what happens under interventions.
+
+App 31. Misconception Database. Records student misconceptions.
+
+App 32. Method Tracker. Records methods a student has learned.
+
+App 33. Learning Provenance System. Records what a student has learned.
+
+App 34. Cross-Subject Link Explorer. Shows how concepts appear across subjects.
+
+App 35. Argument Mapper for Students. Maps arguments for practice.
+
+App 36. Error Taxonomy. Records student errors and what they reveal.
+
+App 37. Legal Precedent Graph. Records legal cases and precedents.
+
+App 38. Historical Claim Registry. Records historical claims and their evidence.
+
+App 39. Economic Indicator Provenance System. Records economic indicators and their assumptions.
+
+App 40. Medical Claim Verifier. Records medical claims and their evidence.
+
+App 41. Psychological Effect Registry. Records psychological effects and their replication status.
+
+App 42. Climate Attribution Registry. Records climate attribution claims and their uncertainty.
+
+App 43. Philosophical Argument Graph. Records philosophical arguments and their objections.
+
+App 44. Mathematical Conjecture Registry. Records open mathematical conjectures and their state.
+
+Layer 5. Meta-level
+App 45. Claim Lifecycle Tracker. Tracks a claim from proposal to resolution.
+
+App 46. Evidence Aggregator. Collects all the evidence for a claim and computes the aggregate strength.
+
+App 47. Replication Cost Estimator. Estimates the cost of replicating a study.
+
+App 48. Meta-Science Dashboard. Shows the state of a field.
+
+Layer 6. Orchestrator and services
+App 24. Master Workbench. Hosts all the apps and runs the chain reaction.
+
+App 49. Autofill Library Service. Provides autofill for every app.
+
+The order to build
+If you want to build the suite incrementally, start with the foundation.
+
+First. App 12, the N Calculator. The smallest app. No dependencies.
+
+Second. App 4, the Scale-Separation Record Calculator.
+
+Third. App 13, the Gap-Score Reporter.
+
+Fourth. App 17, the STAG Schema Library.
+
+Fifth. App 18, the Null-Model Protocol Library.
+
+Sixth. App 49, the Autofill Library Service.
+
+Seventh. App 24, the Master Workbench.
+
+Eighth. App 1, the STAG Annotation Editor.
+
+Ninth. App 9, the Full-Pipeline Simulator.
+
+Tenth. App 23, the Physics Knowledge Library.
+
+Everything else builds on these.
