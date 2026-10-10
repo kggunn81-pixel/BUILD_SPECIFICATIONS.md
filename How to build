@@ -1,0 +1,217 @@
+Build Plan
+This plan states the order in which the 49 apps should be built. It is designed so that each app can be built and tested using only the apps that already exist. No app requires a stub or a placeholder for an app that has not been built yet.
+
+How the plan works
+The plan is divided into stages. Each stage is a set of apps that can be built in parallel, because none of them depends on another app in the same stage.
+
+A developer should build one app at a time, from Stage 1, then Stage 2, and so on. Each app is small. Each app has a complete specification. Each app can be tested on its own.
+
+The dependency order is stated in the spec for each app. The plan below makes that order explicit.
+
+Stage 1. The foundation
+These apps have no dependencies. They can be built first, in any order.
+
+App 12. N Calculator. The smallest app. No dependencies. Takes a target tail probability and a relative error, returns the required N. Build this first. It is the simplest test of the whole approach.
+
+App 4. Scale-Separation Record Calculator. No dependencies. Takes two scales, their sources, and a band, returns a scale-separation record.
+
+App 13. Gap-Score Reporter. No dependencies. Takes a dataset, candidate gaps, and an expected density, returns a table of Gap Scores.
+
+App 17. STAG Schema Library. No dependencies. Packages the JSON Schema, the SHACL schema, the 32 semantic rules, and the codebook.
+
+App 18. Null-Model Protocol Library. No dependencies. Packages the statistic, the scan families, the effective-null builder, and the full-pipeline simulator as a library.
+
+App 22. Numerical Verification Tool. No dependencies. Takes a document and a source list, returns a verification table.
+
+App 49. Autofill Library Service. No dependencies. Provides autofill for every other app.
+
+Stage 2. The annotation and statistics layer
+These apps depend only on Stage 1 apps.
+
+App 1. STAG Annotation Editor. Depends on App 17 and App 4. Records one STAG annotation record.
+
+App 2. STAG Annotation Validator. Depends on App 17. Checks an annotation against the schemas and rules.
+
+App 3. PROV-O Exporter and Importer. Depends on App 17. Converts a STAG record to and from PROV-O.
+
+App 5. STAG Graph Viewer. Depends on App 17. Interactive viewer for a complete STAG.
+
+App 6. Partition Sensitivity Explorer. Depends on App 17. Re-derives labels under an alternative partition.
+
+App 7. Revision History Viewer. Depends on App 17. Timeline view of a STAG's revision chain.
+
+App 8. Pipeline Specification Wizard. Depends on App 12. Produces a machine-readable pipeline specification.
+
+App 9. Full-Pipeline Simulator. Depends on App 18, App 11, and App 12. The core engine of the Null-Model Protocol.
+
+App 19. Reproducibility Deposit Template. Depends on App 17 and App 18. Template for a reproducible deposit.
+
+App 20. Provenance-Aware Annotation Database. Depends on App 17 and App 3. Stores annotations with their provenance.
+
+App 21. STAG Audit Tool. Depends on App 17. Runs the checklist audit against a submitted document.
+
+App 11. Effective-Null Builder. No dependencies, but it is needed by App 9. Build this in Stage 1 or Stage 2.
+
+Stage 3. The storage and combination layer
+These apps depend on Stage 2 apps.
+
+App 10. Scan-Family Comparator. Depends on App 9. Runs the same data under several scan families.
+
+App 14. STAG plus Null-Model Combined Workbench. Depends on App 1, App 2, App 8, App 9, App 17, and App 18. Uses both layers together.
+
+Stage 4. The higher-level tools
+These apps depend on Stage 3 apps.
+
+App 15. Journal Submission Checker. Depends on App 2, App 9, and App 21. Checks a submission against the reporting standards.
+
+App 16. Teaching and Training Sandbox. Depends on App 1 and App 9. Interactive environment with the worked examples.
+
+App 23. Physics Knowledge Library. Depends on App 17, App 18, App 3, App 20, and App 14. Stores works with their annotations and statistical results.
+
+Stage 5. The domain registries
+These apps depend on Stage 4 apps. They can be built in any order, once Stage 4 is complete.
+
+App 25. Anomaly Register. Depends on App 17, App 18, App 20, App 3, App 22, App 7, and App 23.
+
+App 26. Replication Tracker. Depends on App 23, App 9, App 18, App 20, and App 22.
+
+App 27. Scale Atlas. Depends on App 17, App 4, App 20, App 5, App 3, App 7, App 22, and App 23.
+
+App 28. Instrument Provenance Registry. Depends on App 11, App 20, App 22, App 3, App 7, and App 23.
+
+App 29. Model Registry. Depends on App 17, App 5, App 20, and App 3.
+
+App 30. Counterfactual Explorer. Depends on App 1, App 9, App 17, App 18, App 14, App 20, App 22, and App 23.
+
+App 31. Misconception Database. Depends on App 23, App 21, App 20, App 3, App 7, and App 22.
+
+App 32. Method Tracker. Depends on App 1, App 16, App 17, App 20, and App 7.
+
+App 33. Learning Provenance System. Depends on App 1, App 17, App 20, App 7, App 32, and App 5.
+
+App 34. Cross-Subject Link Explorer. Depends on App 17, App 5, App 20, App 3, App 7, App 32, and App 33.
+
+App 35. Argument Mapper for Students. Depends on App 1, App 17, App 5, App 20, App 7, and App 33.
+
+App 36. Error Taxonomy. Depends on App 17, App 20, App 7, App 31, App 32, and App 33.
+
+App 37. Legal Precedent Graph. Depends on App 17, App 5, App 20, App 3, App 7, App 22, and App 23.
+
+App 38. Historical Claim Registry. Depends on App 23, App 1, App 17, App 20, App 3, App 7, and App 22.
+
+App 39. Economic Indicator Provenance System. Depends on App 11, App 20, App 22, App 3, App 7, App 23, and App 28.
+
+App 40. Medical Claim Verifier. Depends on App 23, App 9, App 18, App 21, App 20, App 3, App 7, App 22, App 26, and App 46.
+
+App 41. Psychological Effect Registry. Depends on App 23, App 26, App 9, App 18, App 20, App 3, App 7, App 22, and App 46.
+
+App 42. Climate Attribution Registry. Depends on App 23, App 9, App 18, App 20, App 3, App 7, App 22, and App 46.
+
+App 43. Philosophical Argument Graph. Depends on App 1, App 17, App 5, App 20, App 3, App 7, and App 35.
+
+App 44. Mathematical Conjecture Registry. Depends on App 23, App 20, App 22, App 3, App 7, and App 5.
+
+Stage 6. The meta-level tools
+These apps depend on Stage 5 apps.
+
+App 46. Evidence Aggregator. Depends on App 23, App 9, App 18, App 22, App 20, App 3, App 7, App 11, App 26, App 25, App 40, App 41, and App 42.
+
+App 47. Replication Cost Estimator. Depends on App 23, App 12, App 8, App 11, App 20, App 3, App 7, App 28, and App 26.
+
+App 45. Claim Lifecycle Tracker. Depends on App 23, App 26, App 25, App 40, App 41, App 42, App 38, App 20, App 3, App 7, and App 46.
+
+App 48. Meta-Science Dashboard. Depends on App 23, App 26, App 25, App 40, App 41, App 42, App 38, App 44, App 45, App 46, App 20, App 3, and App 7.
+
+Stage 7. The orchestrator
+App 24. Master Workbench. Depends on all other apps. Build this last.
+
+The order for a single developer
+If one developer is building the suite alone, this is the order.
+
+App 12. N Calculator.
+
+App 4. Scale-Separation Record Calculator.
+
+App 13. Gap-Score Reporter.
+
+App 17. STAG Schema Library.
+
+App 18. Null-Model Protocol Library.
+
+App 11. Effective-Null Builder.
+
+App 49. Autofill Library Service.
+
+App 1. STAG Annotation Editor.
+
+App 2. STAG Annotation Validator.
+
+App 3. PROV-O Exporter and Importer.
+
+App 8. Pipeline Specification Wizard.
+
+App 9. Full-Pipeline Simulator.
+
+App 20. Provenance-Aware Annotation Database.
+
+App 21. STAG Audit Tool.
+
+App 22. Numerical Verification Tool.
+
+App 5. STAG Graph Viewer.
+
+App 6. Partition Sensitivity Explorer.
+
+App 7. Revision History Viewer.
+
+App 10. Scan-Family Comparator.
+
+App 14. STAG plus Null-Model Combined Workbench.
+
+App 15. Journal Submission Checker.
+
+App 16. Teaching and Training Sandbox.
+
+App 19. Reproducibility Deposit Template.
+
+App 23. Physics Knowledge Library.
+
+Through 44. The domain registries. Any order, once the foundation is done.
+
+App 45. Claim Lifecycle Tracker.
+
+App 46. Evidence Aggregator.
+
+App 47. Replication Cost Estimator.
+
+App 48. Meta-Science Dashboard.
+
+App 24. Master Workbench.
+
+The order for a team
+If two or more developers are building the suite, they can work in parallel.
+
+Developer A. The foundation. Apps 12, 4, 13, 17, 18, 11, 49.
+
+Developer B. The annotation layer. Apps 1, 2, 3, 5, 6, 7.
+
+Developer C. The statistics layer. Apps 8, 9, 10, 22.
+
+Developer D. The storage layer. Apps 20, 21, 14, 15, 16, 19, 23.
+
+Developer E. The domain registries. Apps 25 through 44.
+
+Developer F. The meta-level tools. Apps 45, 46, 47, 48.
+
+Developer G. The orchestrator. App 24.
+
+What to tell a developer
+If a developer asks "where do I start," the answer is: App 12, the N Calculator. It is the smallest app, it has no dependencies, and it is the quickest win. If App 12 works, the whole approach is proven, and the developer can move to App 4, then App 13.
+
+If a developer asks "can I build App 9," the answer is: not yet. App 9 depends on App 18, App 11, and App 12. Those have to exist first. If the developer wants to build App 9, they should build App 12 first, then App 18, then App 11, then App 9.
+
+If a developer asks "can I build the Master Workbench," the answer is: no. It depends on everything else. It is the last thing to build.
+
+The one-line version
+Build the foundation first. Then the annotation and statistics layers. Then the storage and combination layers. Then the domain registries. Then the meta-level tools. Then the orchestrator. One app at a time. Each app is small. Each app has a complete specification.
+
