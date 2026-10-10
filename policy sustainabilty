@@ -1,0 +1,718 @@
+1. Purpose
+This plan states how the project is funded, how it is maintained, and how it continues. It is written to be read by contributors, by users, by funders, by institutions, and by anyone who wants to know that the project will not vanish.
+
+2. Scope
+This plan applies to:
+
+The project's software.
+
+The project's schemas.
+
+The project's documentation.
+
+The project's data.
+
+The project's community.
+
+The project's policies.
+
+The project's infrastructure.
+
+The project's legal entity, if one exists.
+
+3. Definitions
+Project. The collection of software, schemas, documentation, data, and policies known as the suite.
+
+Founder. The person who started the project.
+
+Maintainer. A person with the authority to make decisions about the project.
+
+Contributor. A person who has contributed to the project.
+
+User. A person who uses the project.
+
+Funder. A person or institution that provides money to the project.
+
+Host. An institution that provides infrastructure or administrative support to the project.
+
+Legal entity. An organization that holds the project's assets, receives donations, signs contracts, and is liable.
+
+Budget. The project's income and expenses.
+
+Runway. The number of months the project can operate with its current funds.
+
+4. Principles
+The project is sustained in accordance with the following principles.
+
+Openness. The project is open source and open data.
+
+Independence. The project is independent of any single funder.
+
+Transparency. The project's funding and spending are public.
+
+Sustainability. The project is funded at a level that allows it to continue.
+
+Diversity. The project's funding comes from multiple sources.
+
+Frugality. The project spends only what it needs.
+
+Community. The project is sustained by its community.
+
+5. Current funding
+The project's current funding is stated in the repository.
+
+The current funding may be:
+
+Zero. The project is run by volunteers.
+
+Small. The project receives small donations.
+
+Medium. The project receives grants or institutional support.
+
+Large. The project receives significant funding from multiple sources.
+
+The current funding is recorded.
+
+The current funding is published.
+
+6. Funding sources
+The project may receive funding from the following sources.
+
+Donations from individuals.
+
+Grants from foundations.
+
+Grants from governments.
+
+Grants from research councils.
+
+Support from a host institution.
+
+Support from a legal entity.
+
+Revenue from a commercial arm.
+
+Revenue from services.
+
+Revenue from training.
+
+Revenue from consulting.
+
+Revenue from support contracts.
+
+The project seeks a diverse set of funding sources.
+
+The project does not accept funding that would compromise its independence.
+
+The project does not accept funding that would require it to favor a funder.
+
+The project does not accept funding that would require it to change its policies.
+
+The project's funding sources are published.
+
+7. Costs
+The project's costs include the following.
+
+Infrastructure. Servers, storage, network, and related costs.
+
+Development. The cost of developing new apps and maintaining existing ones.
+
+Maintenance. The cost of fixing bugs and updating dependencies.
+
+Support. The cost of supporting users.
+
+Documentation. The cost of writing and maintaining documentation.
+
+Community. The cost of running community spaces.
+
+Legal. The cost of legal advice and compliance.
+
+Accounting. The cost of accounting and tax filing.
+
+Administration. The cost of administrative tasks.
+
+Travel. The cost of travel for conferences and meetings.
+
+Training. The cost of training contributors and users.
+
+Security. The cost of security reviews and incident response.
+
+The project's costs are estimated.
+
+The project's costs are published.
+
+The project's costs are reviewed.
+
+8. Budget
+The project has a budget.
+
+The budget states the project's income and expenses.
+
+The budget is for a stated period, usually one year.
+
+The budget is prepared by the governance body.
+
+The budget is approved by the governance body.
+
+The budget is published.
+
+The budget is reviewed at a stated frequency.
+
+The budget is adjusted as needed.
+
+9. Runway
+The project has a runway.
+
+The runway is the number of months the project can operate with its current funds.
+
+The runway is calculated by dividing the project's funds by its monthly expenses.
+
+The runway is published.
+
+The runway is monitored.
+
+If the runway falls below a stated threshold, the project takes action.
+
+The action may include:
+
+Reducing expenses.
+
+Seeking additional funding.
+
+Seeking a host.
+
+Seeking a legal entity.
+
+Pausing non-essential activities.
+
+10. Donations
+The project accepts donations from individuals.
+
+Donations are made through a stated channel.
+
+Donations are recorded.
+
+Donations are acknowledged.
+
+Donations are published, unless the donor requests anonymity.
+
+Donations do not give the donor any special rights.
+
+Donations do not give the donor any influence over the project.
+
+11. Grants
+The project seeks grants from foundations and governments.
+
+A grant is sought when the project has a specific need that the grant can fund.
+
+The grant application is prepared by the governance body.
+
+The grant application is submitted.
+
+The grant is awarded or denied.
+
+If the grant is awarded, the project uses the funds for the stated purpose.
+
+The grant is recorded.
+
+The grant is published.
+
+The grant's conditions are respected.
+
+12. Host institution
+The project may have a host institution.
+
+The host institution provides infrastructure or administrative support.
+
+The host institution may receive donations on the project's behalf.
+
+The host institution may sign contracts on the project's behalf.
+
+The host institution may be a university, a research institute, a foundation, or another organization.
+
+The host institution's role is documented.
+
+The host institution's relationship to the project is governed by a memorandum of understanding.
+
+The host institution does not control the project's direction.
+
+13. Legal entity
+The project may have a legal entity.
+
+The legal entity holds the project's assets.
+
+The legal entity receives donations and grants.
+
+The legal entity signs contracts.
+
+The legal entity is liable for the project's obligations.
+
+The legal entity is governed by its own bylaws.
+
+The legal entity's bylaws are consistent with the governance model (52).
+
+The legal entity may be a foundation, a non-profit, a cooperative, a company, or another form.
+
+The legal entity's form is chosen to fit the project's needs.
+
+14. Commercial arm
+The project may have a commercial arm.
+
+The commercial arm provides services for a fee.
+
+The services may include:
+
+Hosted instances of the system.
+
+Premium support.
+
+Custom development.
+
+Training.
+
+Consulting.
+
+The commercial arm's revenue supports the project.
+
+The commercial arm does not control the project's direction.
+
+The commercial arm's relationship to the project is documented.
+
+The commercial arm's pricing is published.
+
+The commercial arm's profits are used to fund the project.
+
+The commercial arm is optional.
+
+15. Volunteer contributions
+The project relies on volunteer contributions.
+
+A volunteer contributes time, skills, or resources.
+
+A volunteer's contribution is acknowledged.
+
+A volunteer's contribution is recorded.
+
+A volunteer may become a maintainer, an app owner, or a schema owner.
+
+A volunteer is not paid, unless the project has the funds.
+
+A volunteer's contribution is subject to the code of conduct.
+
+16. Paid contributions
+The project may pay for contributions.
+
+A paid contribution is made under a contract.
+
+The contract states the work, the rate, and the terms.
+
+The contract is signed by the legal entity or the host institution.
+
+The contract is recorded.
+
+The contract is published, unless it contains confidential information.
+
+The paid contributor is treated as a member of the community.
+
+17. Infrastructure
+The project's infrastructure includes:
+
+Servers.
+
+Storage.
+
+Network.
+
+Backup.
+
+Monitoring.
+
+Development tools.
+
+The infrastructure is provided by:
+
+The project's own resources.
+
+A host institution.
+
+A cloud provider.
+
+A combination of the above.
+
+The infrastructure is chosen for reliability, security, and cost.
+
+The infrastructure is documented.
+
+The infrastructure is reviewed.
+
+18. Continuity
+The project plans for continuity.
+
+The continuity plan includes:
+
+What happens if the founder stops working on the project.
+
+What happens if a maintainer leaves.
+
+What happens if a funder withdraws.
+
+What happens if a host institution withdraws.
+
+What happens if a legal entity dissolves.
+
+What happens if a commercial arm fails.
+
+The continuity plan is documented.
+
+The continuity plan is tested.
+
+The continuity plan is updated.
+
+The continuity plan is published.
+
+19. Succession
+The project has a succession plan.
+
+The succession plan states:
+
+Who takes over if the founder steps down.
+
+Who takes over if a maintainer leaves.
+
+Who takes over if an app owner leaves.
+
+Who takes over if a schema owner leaves.
+
+How the transition is managed.
+
+How the successor is chosen.
+
+How the successor is announced.
+
+The succession plan is documented.
+
+The succession plan is reviewed.
+
+The succession plan is updated.
+
+20. Risk management
+The project identifies its risks.
+
+The risks include:
+
+Funding risk. The project may lose funding.
+
+Personnel risk. The project may lose key people.
+
+Technical risk. The project may face technical problems.
+
+Security risk. The project may face a security incident.
+
+Legal risk. The project may face legal problems.
+
+Reputational risk. The project may face reputational problems.
+
+Adoption risk. The project may not be adopted.
+
+The project assesses each risk.
+
+The project plans for each risk.
+
+The project monitors each risk.
+
+The project responds to each risk.
+
+21. Metrics
+The project measures its sustainability.
+
+The metrics include:
+
+Runway. The number of months the project can operate.
+
+Income. The project's income.
+
+Expenses. The project's expenses.
+
+Volunteer hours. The number of volunteer hours.
+
+Paid hours. The number of paid hours.
+
+Number of contributors. The number of people who contribute.
+
+Number of users. The number of people who use the project.
+
+Number of deposits. The number of deposits in the system.
+
+Number of apps. The number of apps in the suite.
+
+Number of policies. The number of policies.
+
+The metrics are collected.
+
+The metrics are published.
+
+The metrics are reviewed.
+
+22. Reporting
+The project reports on its sustainability.
+
+The report includes:
+
+The current funding.
+
+The current costs.
+
+The current runway.
+
+The current metrics.
+
+The current risks.
+
+The current plans.
+
+The report is prepared by the governance body.
+
+The report is published.
+
+The report is reviewed.
+
+23. Fundraising
+The project raises funds.
+
+The fundraising includes:
+
+Direct donations.
+
+Grants.
+
+Sponsorships.
+
+Crowdfunding.
+
+Memberships.
+
+Services.
+
+The fundraising is conducted by the governance body or by a designated fundraiser.
+
+The fundraising is conducted ethically.
+
+The fundraising is transparent.
+
+The fundraising is recorded.
+
+24. Sponsorship
+The project may accept sponsorships.
+
+A sponsor provides funds or resources.
+
+The sponsor may receive acknowledgement.
+
+The sponsor does not receive influence over the project.
+
+The sponsor's relationship to the project is documented.
+
+The sponsor's contribution is published.
+
+The sponsor's logo may appear on the project's website.
+
+25. Membership
+The project may offer memberships.
+
+A member pays a fee.
+
+The member receives benefits.
+
+The benefits may include:
+
+Voting rights.
+
+Early access.
+
+Discounts.
+
+Recognition.
+
+The member's relationship to the project is documented.
+
+The membership program is published.
+
+The membership program is reviewed.
+
+26. Endowment
+The project may establish an endowment.
+
+The endowment is a fund that generates income.
+
+The income supports the project.
+
+The endowment is managed by the legal entity or by a host institution.
+
+The endowment's management is documented.
+
+The endowment's performance is published.
+
+27. Open source
+The project is open source.
+
+The project's code is licensed under an open source license.
+
+The project's schemas are licensed under an open license.
+
+The project's documentation is licensed under an open license.
+
+The project's data is licensed under the license chosen by the depositor.
+
+The project's policies are licensed under an open license.
+
+The project's open source nature is preserved.
+
+28. Open data
+The project is open data.
+
+The project's data is available under the licenses chosen by the depositors.
+
+The project's data is available to anyone.
+
+The project's data is available for reuse.
+
+The project's data is available for research.
+
+The project's data is available for education.
+
+The project's open data nature is preserved.
+
+29. Community
+The project is sustained by its community.
+
+The community includes:
+
+Users.
+
+Contributors.
+
+Maintainers.
+
+App owners.
+
+Schema owners.
+
+Moderators.
+
+Funders.
+
+Host institutions.
+
+Partners.
+
+The community is supported.
+
+The community is engaged.
+
+The community is recognized.
+
+The community is the project's greatest asset.
+
+30. Long-term vision
+The project has a long-term vision.
+
+The vision states:
+
+What the project could become.
+
+What the project could achieve.
+
+What the project could change.
+
+The vision is documented.
+
+The vision is reviewed.
+
+The vision is updated.
+
+31. Review
+This plan is reviewed at a stated frequency, which may be annually.
+
+The review considers whether the plan is still fit for purpose.
+
+The review considers whether the plan needs to be changed.
+
+The review may result in an amendment.
+
+The review is recorded.
+
+32. Amendments
+This plan may be amended by the governance body.
+
+An amendment takes effect at a stated date.
+
+An amendment is announced to the community.
+
+An amendment is recorded in the repository.
+
+33. Contact
+Questions about this plan are directed to the contact address stated in the repository.
+
+Offers of funding are directed to the same address.
+
+Offers of hosting are directed to the same address.
+
+Offers of partnership are directed to the same address.
+
+34. Effective date
+This plan takes effect on the date stated in the repository.
+
+35. Summary
+The project is funded from multiple sources.
+
+The project has a budget.
+
+The project has a runway.
+
+The project accepts donations.
+
+The project seeks grants.
+
+The project may have a host institution.
+
+The project may have a legal entity.
+
+The project may have a commercial arm.
+
+The project relies on volunteer contributions.
+
+The project may pay for contributions.
+
+The project has infrastructure.
+
+The project plans for continuity.
+
+The project has a succession plan.
+
+The project manages its risks.
+
+The project measures its sustainability.
+
+The project reports on its sustainability.
+
+The project raises funds.
+
+The project may accept sponsorships.
+
+The project may offer memberships.
+
+The project may establish an endowment.
+
+The project is open source.
+
+The project is open data.
+
+The project is sustained by its community.
+
+The project has a long-term vision.
+
+The plan is reviewed.
+
+The plan may be amended.
+
+End of the Sustainability Plan.
