@@ -1,3 +1,5 @@
+There are 49 app build instructions, app24 is the master workbench  to contain all other apps as one, app 49 applies to all apps as it automatically fills in inputs into each app.
+
 Philosophy of Science Meets Software — Computational Tooling for STAG, Null-Model & Provenance
 About
 This repository contains the full build specifications for an open-source suite of 24 software tools for computational philosophy of science. The tools address two problems:
