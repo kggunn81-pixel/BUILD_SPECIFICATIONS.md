@@ -1,0 +1,568 @@
+1. Purpose
+This policy states how the project is governed. It states who the maintainers are, who the app owners are, how decisions are made, how new apps are added, how apps are deprecated, how schemas are changed, and how disputes are resolved. It is written to be read by contributors, by users, by funders, and by anyone who wants to know how the project works.
+
+2. Scope
+This policy applies to:
+
+The project's source code.
+
+The project's schemas.
+
+The project's documentation.
+
+The project's apps.
+
+The project's community spaces.
+
+The project's data.
+
+The project's policies.
+
+It does not apply to:
+
+The legal entity that holds the project's assets, if one exists.
+
+The contracts the project has signed, which are governed by their own terms.
+
+3. Definitions
+Project. The collection of software, schemas, documentation, data, and policies known as the suite.
+
+Founder. The person who started the project.
+
+Maintainer. A person with the authority to make decisions about the project.
+
+App owner. A person with the authority to make decisions about a specific app.
+
+Schema owner. A person with the authority to make decisions about a specific schema.
+
+Contributor. A person who has contributed to the project.
+
+User. A person who uses the project.
+
+Community member. A person who participates in the project's community spaces.
+
+Governance body. The group of maintainers who make decisions about the project.
+
+Decision. A choice made by the governance body or by an app owner or by a schema owner.
+
+Dispute. A disagreement between two or more people about a decision.
+
+Amendment. A change to this policy.
+
+4. Principles
+The project is governed in accordance with the following principles.
+
+Openness. Decisions are made in public.
+
+Transparency. The reasoning for decisions is recorded.
+
+Inclusiveness. Anyone can participate.
+
+Meritocracy. Authority is earned through contribution.
+
+Accountability. The governance body is accountable to the community.
+
+Subsidiarity. Decisions are made at the lowest level possible.
+
+Consistency. Decisions are made consistently.
+
+Reversibility. Decisions can be reversed.
+
+5. Roles
+The project has the following roles.
+
+Founder. The person who started the project. The founder has a permanent seat on the governance body, unless the founder chooses to step down.
+
+Maintainer. A person with the authority to make decisions about the project. Maintainers are appointed by the governance body. Maintainers serve for a stated term, which may be renewed.
+
+App owner. A person with the authority to make decisions about a specific app. App owners are appointed by the governance body. App owners serve for a stated term, which may be renewed.
+
+Schema owner. A person with the authority to make decisions about a specific schema. Schema owners are appointed by the governance body. Schema owners serve for a stated term, which may be renewed.
+
+Contributor. A person who has contributed to the project. Contributors are recognized by the governance body. Contributors may become maintainers, app owners, or schema owners.
+
+User. A person who uses the project. Users may become contributors.
+
+Community member. A person who participates in the project's community spaces. Community members may become contributors.
+
+6. The governance body
+The governance body is the group of maintainers.
+
+The governance body has the following authority:
+
+To appoint and remove maintainers.
+
+To appoint and remove app owners.
+
+To appoint and remove schema owners.
+
+To approve new apps.
+
+To deprecate apps.
+
+To approve changes to schemas.
+
+To approve changes to policies.
+
+To resolve disputes.
+
+To amend this policy.
+
+To set the project's direction.
+
+To approve the project's budget, if one exists.
+
+To approve the project's legal entity, if one exists.
+
+The governance body makes decisions by consensus where possible, and by a vote where consensus cannot be reached.
+
+A vote requires a quorum of two-thirds of the maintainers.
+
+A vote requires a majority of the maintainers present.
+
+A tie is broken by the founder, unless the founder has stepped down, in which case the tie is broken by the senior maintainer.
+
+The governance body meets at a stated frequency, which may be monthly or quarterly.
+
+The governance body publishes its minutes.
+
+The governance body publishes its decisions.
+
+7. Decision-making
+Decisions are made at the lowest level possible.
+
+An app owner makes decisions about their app.
+
+A schema owner makes decisions about their schema.
+
+The governance body makes decisions about the project as a whole.
+
+A decision that affects more than one app is made by the governance body.
+
+A decision that affects more than one schema is made by the governance body.
+
+A decision that affects the project's direction is made by the governance body.
+
+A decision that affects the project's budget is made by the governance body.
+
+A decision that affects the project's legal entity is made by the governance body.
+
+8. Adding a new app
+A new app is added by the following process.
+
+A proposal is submitted to the governance body.
+
+The proposal states the app's purpose, its design, its dependencies, its data model, its API, its UI, and its license.
+
+The proposal states how the app fits into the existing suite.
+
+The proposal states how the app will be maintained.
+
+The proposal states who will own the app.
+
+The governance body reviews the proposal.
+
+The governance body may request changes.
+
+The governance body may approve the proposal.
+
+The governance body may reject the proposal.
+
+If the proposal is approved, the app is added to the project.
+
+The app is assigned an app number.
+
+The app is added to the module registry.
+
+The app is added to the parameter registry.
+
+The app is added to the dependency graph.
+
+The app is added to the documentation.
+
+The app is announced to the community.
+
+9. Deprecating an app
+An app is deprecated by the following process.
+
+A proposal is submitted to the governance body.
+
+The proposal states the app's current use.
+
+The proposal states why the app should be deprecated.
+
+The proposal states how the app's users will be migrated.
+
+The proposal states how long the app will continue to be supported.
+
+The governance body reviews the proposal.
+
+The governance body may request changes.
+
+The governance body may approve the proposal.
+
+The governance body may reject the proposal.
+
+If the proposal is approved, the app is deprecated.
+
+The app is marked as deprecated in the module registry.
+
+The app is retained in the documentation with a deprecation notice.
+
+The app is supported for a stated period.
+
+After the stated period, the app is removed.
+
+10. Changing a schema
+A schema is changed by the following process.
+
+A proposal is submitted to the schema owner.
+
+The proposal states the change.
+
+The proposal states why the change is needed.
+
+The proposal states how existing records will be migrated.
+
+The proposal states how the change affects the apps that use the schema.
+
+The proposal states how the change affects the users of the schema.
+
+The schema owner reviews the proposal.
+
+The schema owner may request changes.
+
+The schema owner may approve the proposal.
+
+The schema owner may reject the proposal.
+
+If the proposal is approved, the schema is changed.
+
+The schema is assigned a new version.
+
+The schema's version is incremented.
+
+The change is recorded.
+
+The change is announced to the community.
+
+The apps that use the schema are updated.
+
+The records that use the schema are migrated.
+
+11. Changing a policy
+A policy is changed by the following process.
+
+A proposal is submitted to the governance body.
+
+The proposal states the change.
+
+The proposal states why the change is needed.
+
+The proposal states how the change affects the project.
+
+The proposal states how the change affects the users.
+
+The governance body reviews the proposal.
+
+The governance body may request changes.
+
+The governance body may approve the proposal.
+
+The governance body may reject the proposal.
+
+If the proposal is approved, the policy is changed.
+
+The policy is assigned a new version.
+
+The policy's version is incremented.
+
+The change is recorded.
+
+The change is announced to the community.
+
+The change takes effect at a stated date.
+
+12. Resolving a dispute
+A dispute is resolved by the following process.
+
+A party submits the dispute to the governance body.
+
+The dispute states the issue.
+
+The dispute states the parties involved.
+
+The dispute states what the party wants.
+
+The governance body reviews the dispute.
+
+The governance body may request more information.
+
+The governance body may seek mediation.
+
+The governance body may seek arbitration.
+
+The governance body issues a decision.
+
+The decision is recorded.
+
+The decision is announced to the community.
+
+The decision may be appealed.
+
+An appeal is submitted within a stated period.
+
+The appeal is reviewed by the governance body, excluding the members who made the original decision.
+
+The appeal may be upheld.
+
+The appeal may be denied.
+
+The appeal decision is final.
+
+13. Removing a maintainer, app owner, or schema owner
+A maintainer, app owner, or schema owner is removed by the following process.
+
+A proposal is submitted to the governance body.
+
+The proposal states the reason for removal.
+
+The proposal states the evidence for removal.
+
+The person subject to removal is informed.
+
+The person subject to removal has a chance to respond.
+
+The governance body reviews the proposal.
+
+The governance body may request more information.
+
+The governance body may seek mediation.
+
+The governance body votes.
+
+If two-thirds of the maintainers vote for removal, the person is removed.
+
+The removal is recorded.
+
+The removal is announced to the community.
+
+The person may appeal.
+
+An appeal is submitted within a stated period.
+
+The appeal is reviewed by an independent body.
+
+The appeal decision is final.
+
+14. Adding a contributor
+A contributor is added by the following process.
+
+A person contributes to the project.
+
+The contribution is reviewed by an app owner, a schema owner, or a maintainer.
+
+The contribution is accepted.
+
+The contributor is recognized.
+
+A contributor may become a maintainer, an app owner, or a schema owner.
+
+A contributor becomes a maintainer, an app owner, or a schema owner by appointment of the governance body.
+
+15. Community spaces
+The project has the following community spaces.
+
+A mailing list.
+
+A forum.
+
+A chat space.
+
+A code repository.
+
+A documentation site.
+
+A social media presence.
+
+A code of conduct governs all community spaces.
+
+The code of conduct is enforced by the governance body.
+
+A violation of the code of conduct is addressed by the governance body.
+
+A serious violation may result in removal from the community.
+
+16. Code of conduct
+The project has a code of conduct.
+
+The code of conduct states the expected behavior.
+
+The code of conduct states the unacceptable behavior.
+
+The code of conduct states the consequences of unacceptable behavior.
+
+The code of conduct states how to report a violation.
+
+The code of conduct is recorded.
+
+The code of conduct is enforced by the governance body.
+
+17. Transparency
+The project publishes the following.
+
+Its governance model.
+
+Its decisions.
+
+Its minutes.
+
+Its budget, if one exists.
+
+Its funding sources.
+
+Its conflict of interest policy.
+
+Its code of conduct.
+
+Its privacy policy.
+
+Its data policy.
+
+The publication is in a public location.
+
+18. Conflict of interest
+A maintainer, app owner, or schema owner who has a conflict of interest discloses it.
+
+A conflict of interest exists when the person's private interests could influence their public duties.
+
+A disclosure is made to the governance body.
+
+A disclosure is recorded.
+
+The person may be asked to recuse themselves from a decision.
+
+A recusal is recorded.
+
+19. Funding
+The project may receive funding from the following sources.
+
+Donations from individuals.
+
+Grants from institutions.
+
+Support from the project's host, if one exists.
+
+Support from a legal entity, if one exists.
+
+Revenue from a commercial arm, if one exists.
+
+The project's funding sources are published.
+
+A funder may not influence a decision.
+
+A funder's influence on a decision is recorded.
+
+20. Legal entity
+The project may have a legal entity.
+
+The legal entity holds the project's assets.
+
+The legal entity receives donations and grants.
+
+The legal entity signs contracts.
+
+The legal entity is liable for the project's obligations.
+
+The legal entity is governed by its own bylaws.
+
+The legal entity's bylaws are consistent with this policy.
+
+21. Amendments to this policy
+This policy is amended by the following process.
+
+A proposal is submitted to the governance body.
+
+The proposal states the change.
+
+The proposal states why the change is needed.
+
+The governance body reviews the proposal.
+
+The governance body may request changes.
+
+The governance body may approve the proposal.
+
+The governance body may reject the proposal.
+
+If the proposal is approved, the policy is changed.
+
+The policy is assigned a new version.
+
+The policy's version is incremented.
+
+The change is recorded.
+
+The change is announced to the community.
+
+The change takes effect at a stated date.
+
+22. Review
+This policy is reviewed at a stated frequency, which may be annually or biennially.
+
+The review considers whether the policy is still fit for purpose.
+
+The review considers whether the policy needs to be changed.
+
+The review may result in an amendment.
+
+The review is recorded.
+
+23. Contact
+Questions about this policy are directed to the contact address stated in the repository.
+
+Reports of a violation of this policy are directed to the same address.
+
+24. Effective date
+This policy takes effect on the date stated in the repository.
+
+25. Summary
+The project has a governance body.
+
+The governance body is made up of maintainers.
+
+The governance body makes decisions about the project as a whole.
+
+App owners make decisions about their apps.
+
+Schema owners make decisions about their schemas.
+
+Decisions are made at the lowest level possible.
+
+New apps are added by a proposal process.
+
+Apps are deprecated by a proposal process.
+
+Schemas are changed by a proposal process.
+
+Policies are changed by a proposal process.
+
+Disputes are resolved by the governance body.
+
+Maintainers, app owners, and schema owners can be removed by a two-thirds vote.
+
+The project has a code of conduct.
+
+The project publishes its decisions and its minutes.
+
+The project has a conflict of interest policy.
+
+The project has a funding policy.
+
+The project may have a legal entity.
+
+The policy is reviewed at a stated frequency.
+
+The policy may be amended.
+
+End of the Governance Model.
